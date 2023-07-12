@@ -30,7 +30,7 @@ Finally, ROOT is a bit finicky about plots so I use matplotlib instead for the f
 This plotting is run with the [convert_to_python_plot.py](convert_to_python_plot.py) script, although input file paths may need to be changed.
 
 # Plot Kinematics
-The ROOT macros []
+The ROOT macros [PlotComparisons.C](PlotComparisons.C) and [PlotBeforeAndAfterCuts.C](PlotBeforeAndAfterCuts.C) are used to plot the 1D and 2D kinematics distributions comparing data and MC and the effects of different cuts.
 
 #
 
