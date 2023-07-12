@@ -1,3 +1,8 @@
+<script
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+  type="text/javascript">
+</script>
+
 # $$\Lambda$$ Spin Transfer Analysis
 
 Analysis for $$\Lambda$$ hyperon longitudinal spin transfer in SIDIS at CLAS12.
