@@ -17,17 +17,20 @@ You should now have an executable called `analysis` in your `build` directory.
 
 # Compute binned results
 
-Put your binning arguments in a yaml file.  An example is included at `args.yaml`.
-You may add arbitrary 1D binning in any kinematic variable.  Details are all in `analysis.cpp` and `include/analysis.h`.
+Put your binning arguments in a yaml file.  An example is included at [args.yaml](args.yaml).
+You may add arbitrary 1D binning in any kinematic variable.  Details are all in [analysis.cpp](analysis.cpp) and [include/analysis.h](include/analysis.h).
 
 Also since this is a $\Lambda$ analysis you have to isolate the mass peak.
-Hence, there is a mass signal fit done for each kinematic bin.  Details are all in `include/massfit.h`.
+Hence, there is a mass signal fit done for each kinematic bin.  Details are all in [include/massfit.h](include/massfit.h).
 
 
 # Make nice plots
 
 Finally, ROOT is a bit finicky about plots so I use matplotlib instead for the final $D^{\Lambda}_{LL'}$ results.
-This plotting is run with the `convert_to_python_plot.py` script, although input file paths may need to be changed.
+This plotting is run with the [convert_to_python_plot.py](convert_to_python_plot.py) script, although input file paths may need to be changed.
+
+# Plot Kinematics
+The ROOT macros []
 
 #
 
