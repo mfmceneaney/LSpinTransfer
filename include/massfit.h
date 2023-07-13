@@ -72,7 +72,9 @@ TArrayF* LambdaMassFit(
     TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*(1 - [6]*(x-[7])*(x-[7]))",varMin,varMax);
     func->SetParameters(0.5,2,0.006,1.1157,10000,h->GetBinContent(nbins),37,1.24);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
-    func->FixParameter(6,37);
+    // func->FixParameter(6,37);
+    func->SetParLimits(5,0.0,h->GetBinContent(nbins)+500);
+    func->SetParLimits(7,0.0,1.245);
     func->SetParLimits(1,2.0,1000.0);
 
     // Fit and get signal and bg covariance matrices
