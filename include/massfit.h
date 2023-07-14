@@ -289,7 +289,7 @@ TArrayF* LambdaMassFitMC(
     h->GetYaxis()->SetTitleOffset(0.87);
 
     // Create MC Truth histogram
-    auto h1_true = (TH1D) *d.Filter(mccuts).Histo1D({"h1_true",varName,nbins,varMin,varMax},varName);
+    auto h1_true = (TH1D) *frame.Filter(mccuts).Histo1D({"h1_true",varName,nbins,varMin,varMax},varName);
     TH1D *h_true = (TH1D*)h1_true.Clone("h1_true");
     h_true->SetTitle("p#pi^{-} Invariant Mass");
     h_true->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
@@ -301,7 +301,7 @@ TArrayF* LambdaMassFitMC(
     h_true->SetLineColor(3);//NOTE: 3 is green.
 
     // Create MC Background true proton histogram
-    auto h1_true_proton = (TH1D) *d.Filter(mccuts_true_proton).Histo1D({"h1_true_proton",varName,nbins,varMin,varMax},varName);
+    auto h1_true_proton = (TH1D) *frame.Filter(mccuts_true_proton).Histo1D({"h1_true_proton",varName,nbins,varMin,varMax},varName);
     TH1D *h_true_proton = (TH1D*)h1_true_proton.Clone("h1_true_proton");
     h_true_proton->SetTitle("p#pi^{-} Invariant Mass");
     h_true_proton->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
@@ -312,7 +312,7 @@ TArrayF* LambdaMassFitMC(
     h_true_proton->GetYaxis()->SetTitleOffset(0.87);
 
     // Create MC Background true pion histogram
-    auto h1_true_pion = (TH1D) *d.Filter(mccuts_true_pion).Histo1D({"h1_true_pion",varName,nbins,varMin,varMax},varName);
+    auto h1_true_pion = (TH1D) *frame.Filter(mccuts_true_pion).Histo1D({"h1_true_pion",varName,nbins,varMin,varMax},varName);
     TH1D *h_true_pion = (TH1D*)h1_true_pion.Clone("h1_true_pion");
     h_true_pion->SetTitle("p#pi^{-} Invariant Mass");
     h_true_pion->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
@@ -323,7 +323,7 @@ TArrayF* LambdaMassFitMC(
     h_true_pion->GetYaxis()->SetTitleOffset(0.87);
 
     // Create MC Background completely false histogram
-    auto h1_true_bg = (TH1D) *d.Filter(mccuts_true_bg).Histo1D({"h1_true_bg",varName,nbins,varMin,varMax},varName);
+    auto h1_true_bg = (TH1D) *frame.Filter(mccuts_true_bg).Histo1D({"h1_true_bg",varName,nbins,varMin,varMax},varName);
     TH1D *h_true_bg = (TH1D*)h1_true_bg.Clone("h1_true_bg");
     h_true_bg->SetTitle("p#pi^{-} Invariant Mass");
     h_true_bg->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
@@ -604,7 +604,7 @@ void LambdaMassFitMCDecomposition(
     h->GetYaxis()->SetTitleOffset(0.87);
 
     // Create MC Truth histogram
-    auto h1_true = (TH1D) *d.Filter(mccuts).Histo1D({"h1_true",varName,nbins,varMin,varMax},varName);
+    auto h1_true = (TH1D) *frame.Filter(mccuts).Histo1D({"h1_true",varName,nbins,varMin,varMax},varName);
     TH1D *h_true = (TH1D*)h1_true.Clone("h1_true");
     h_true->SetTitle("p#pi^{-} Invariant Mass");
     h_true->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
@@ -616,7 +616,7 @@ void LambdaMassFitMCDecomposition(
     h_true->SetLineColor(3);//NOTE: 3 is green.
 
     // Create MC Background true proton histogram
-    auto h1_true_proton = (TH1D) *d.Filter(mccuts_true_proton).Histo1D({"h1_true_proton",varName,nbins,varMin,varMax},varName);
+    auto h1_true_proton = (TH1D) *frame.Filter(mccuts_true_proton).Histo1D({"h1_true_proton",varName,nbins,varMin,varMax},varName);
     TH1D *h_true_proton = (TH1D*)h1_true_proton.Clone("h1_true_proton");
     h_true_proton->SetTitle("p#pi^{-} Invariant Mass");
     h_true_proton->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
@@ -627,7 +627,7 @@ void LambdaMassFitMCDecomposition(
     h_true_proton->GetYaxis()->SetTitleOffset(0.87);
 
     // Create MC Background true pion histogram
-    auto h1_true_pion = (TH1D) *d.Filter(mccuts_true_pion).Histo1D({"h1_true_pion",varName,nbins,varMin,varMax},varName);
+    auto h1_true_pion = (TH1D) *frame.Filter(mccuts_true_pion).Histo1D({"h1_true_pion",varName,nbins,varMin,varMax},varName);
     TH1D *h_true_pion = (TH1D*)h1_true_pion.Clone("h1_true_pion");
     h_true_pion->SetTitle("p#pi^{-} Invariant Mass");
     h_true_pion->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
@@ -638,7 +638,7 @@ void LambdaMassFitMCDecomposition(
     h_true_pion->GetYaxis()->SetTitleOffset(0.87);
 
     // Create MC Background completely false histogram
-    auto h1_true_bg = (TH1D) *d.Filter(mccuts_true_bg).Histo1D({"h1_true_bg",varName,nbins,varMin,varMax},varName);
+    auto h1_true_bg = (TH1D) *frame.Filter(mccuts_true_bg).Histo1D({"h1_true_bg",varName,nbins,varMin,varMax},varName);
     TH1D *h_true_bg = (TH1D*)h1_true_bg.Clone("h1_true_bg");
     h_true_bg->SetTitle("p#pi^{-} Invariant Mass");
     h_true_bg->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
