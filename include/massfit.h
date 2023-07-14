@@ -77,6 +77,14 @@ TArrayF* LambdaMassFit(
     func->SetParLimits(7,0.0,1.245);
     func->SetParLimits(1,2.0,1000.0);
 
+
+    //DEBUGGING: BEGIN
+    // Plot original function
+    TF1 *f_original = (TF1*)func->Clone("f_original");
+    f_original->SetLineColor(8);
+    f_original->Draw("SAME");
+    //DEBUGGING: END
+
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
@@ -378,6 +386,13 @@ TArrayF* LambdaMassFitMC(
     func->SetParLimits(5,0.0,h->GetBinContent(nbins)+500);
     func->SetParLimits(7,0.0,1.245);
     func->SetParLimits(1,2.0,1000.0);
+
+    //DEBUGGING: BEGIN
+    // Plot original function
+    TF1 *f_original = (TF1*)func->Clone("f_original");
+    f_original->SetLineColor(8);
+    f_original->Draw("SAME");
+    //DEBUGGING: END
 
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
