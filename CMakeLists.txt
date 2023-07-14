@@ -33,6 +33,8 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 #----------------------------------------------------------------------#
 # ADD EXECUTABLES
 #add_executable(massfit massfit.cpp)
-#target_link_libraries(massfit PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats argparse)
+#target_link_libraries(massfit PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp argparse)
+#add_executable(massfitmc massfitmc.cpp)
+#target_link_libraries(massfitmc PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp argparse)
 add_executable(analysis analysis.cpp)
 target_link_libraries(analysis PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp argparse)
