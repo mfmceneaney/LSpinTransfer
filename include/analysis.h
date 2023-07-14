@@ -818,8 +818,8 @@ void getKinBinnedMassFitsMC(
             bgfraction_err = massFitData->GetAt(1);
         }
         
-        auto mean  = (double)*frame.Mean(binvar);
-        auto count = (int)   *frame.Count();
+        auto mean  = (double)*bin_frame.Mean(binvar);
+        auto count = (int)   *bin_frame.Count();
 
         // Add data to arrays
         errx[i-1]   = 0;
@@ -832,10 +832,10 @@ void getKinBinnedMassFitsMC(
     // Compute overall event-weighted means and errors and output binned results in Latex Table Format
     double mean_var = 0;
     int    count    = 0;
-    out << " mean " << binvar << "epsilon\t\tepsilon_err\n";
+    out << " mean " << binvar << "\t\tcount\t\tepsilon\t\tepsilon_err\n";
     out << "------------------------------------------------------------\n";
     for (int i=0; i<nbins; i++) {
-        out << " " << means[i] << " & " <<  bgfractions[i] << " $\\pm$ " << bgfractions_err[i] << " \\\\\n";
+        out << " " << means[i] << " & " <<  counts[i] << " & " <<  bgfractions[i] << " $\\pm$ " << bgfractions_err[i] << " \\\\\n";
         mean_var     += means[i]*counts[i];
         count        += counts[i];
     }

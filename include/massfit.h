@@ -77,7 +77,6 @@ TArrayF* LambdaMassFit(
     func->SetParLimits(7,0.0,1.245);
     func->SetParLimits(1,2.0,1000.0);
 
-
     //DEBUGGING: BEGIN
     // Plot original function
     TF1 *f_original = (TF1*)func->Clone("f_original");
