@@ -75,9 +75,10 @@ TArrayF* LambdaMassFit(
     func->SetParameters(0.5,2,0.006,1.1157,h->GetMaximum()/4,h->GetBinContent(nbins),37,1.24);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
     // func->FixParameter(6,37);
+    func->SetParLimits(0,0.0,1000.0);
     func->SetParLimits(5,0.0,h->GetBinContent(nbins)+1000);
     func->SetParLimits(7,0.0,1.26);
-    func->SetParLimits(1,2.0,1000.0);
+    func->SetParLimits(1,2.0,100.0);
 
     //DEBUGGING: BEGIN
     // Plot original function
@@ -385,9 +386,10 @@ TArrayF* LambdaMassFitMC(
     func->SetParameters(0.5,2,0.006,1.1157,h->GetMaximum()/4,h->GetBinContent(nbins),37,1.24);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
     // func->FixParameter(6,37);
+    func->SetParLimits(0,0.0,1000.0);
     func->SetParLimits(5,0.0,h->GetBinContent(nbins)+1000);
     func->SetParLimits(7,0.0,1.26);
-    func->SetParLimits(1,2.0,1000.0);
+    func->SetParLimits(1,2.0,100.0);
 
     //DEBUGGING: BEGIN
     // Plot original function
