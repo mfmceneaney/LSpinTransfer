@@ -71,11 +71,12 @@ TArrayF* LambdaMassFit(
 
     // Set Fitting fn
     TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*(1 - [6]*(x-[7])*(x-[7]))",varMin,varMax);
-    func->SetParameters(0.5,2,0.006,1.1157,10000,h->GetBinContent(nbins),37,1.24);
+    // func->SetParameters(0.5,2,0.006,1.1157,10000,h->GetBinContent(nbins),37,1.24);
+    func->SetParameters(0.5,2,0.006,1.1157,h->GetMaximum()/4,h->GetBinContent(nbins),37,1.24);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
     // func->FixParameter(6,37);
-    func->SetParLimits(5,0.0,h->GetBinContent(nbins)+500);
-    func->SetParLimits(7,0.0,1.245);
+    func->SetParLimits(5,0.0,h->GetBinContent(nbins)+1000);
+    func->SetParLimits(7,0.0,1.26);
     func->SetParLimits(1,2.0,1000.0);
 
     //DEBUGGING: BEGIN
@@ -380,11 +381,12 @@ TArrayF* LambdaMassFitMC(
 
     // Set Fitting fn
     TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*(1 - [6]*(x-[7])*(x-[7]))",varMin,varMax);
-    func->SetParameters(0.5,2,0.006,1.1157,10000,h->GetBinContent(nbins),37,1.24);
+    // func->SetParameters(0.5,2,0.006,1.1157,10000,h->GetBinContent(nbins),37,1.24);
+    func->SetParameters(0.5,2,0.006,1.1157,h->GetMaximum()/4,h->GetBinContent(nbins),37,1.24);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
     // func->FixParameter(6,37);
-    func->SetParLimits(5,0.0,h->GetBinContent(nbins)+500);
-    func->SetParLimits(7,0.0,1.245);
+    func->SetParLimits(5,0.0,h->GetBinContent(nbins)+1000);
+    func->SetParLimits(7,0.0,1.26);
     func->SetParLimits(1,2.0,1000.0);
 
     //DEBUGGING: BEGIN
