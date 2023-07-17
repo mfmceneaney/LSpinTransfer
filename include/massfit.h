@@ -17,6 +17,7 @@
 #include <TLatex.h>
 #include <TMatrixDSym.h>
 #include <TFitResult.h>
+#include <TMath.h>
 
 /**
 * @author Matthew McEneaney
@@ -200,7 +201,7 @@ TArrayF* LambdaMassFit(
 
     // Compute epsilon
     float epsilon = (float) i_bg / i_fitf;
-    float epsilon_err = (float) 0.0; //TODO: HOW TO COMPUTE THIS...
+    float epsilon_err = (float) TMath::Sqrt(TMath::Power(i_bg_err / i_fitf,2)+TMath::Power((i_bg * i_fitf_err)/(i_fitf * i_fitf),2));
 
     //TODO: Could output fit results to outstream and/or could save to some sort of tree int pwd...
 
@@ -515,7 +516,7 @@ TArrayF* LambdaMassFitMC(
 
     // Compute epsilon
     float epsilon = (float) i_bg / i_fitf;
-    float epsilon_err = (float) 0.0; //TODO: HOW TO COMPUTE THIS...
+    float epsilon_err = (float) TMath::Sqrt(TMath::Power(i_bg_err / i_fitf,2)+TMath::Power((i_bg * i_fitf_err)/(i_fitf * i_fitf),2));
 
     //TODO: Could output fit results to outstream and/or could save to some sort of tree int pwd...
 
