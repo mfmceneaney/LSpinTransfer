@@ -246,7 +246,7 @@ void analysis(const YAML::Node& node) {
         const char * binvar_outdir = Form("binvar_%s",binvar);
 
         // Get 1D graph binned in given kinematic variable.
-        getKinBinnedMassFits(
+        getKinBinnedMassFitsMC(
                     binvar_outdir,
                     outroot, // TFile *outroot,
                     frame, // ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> __frame__,
