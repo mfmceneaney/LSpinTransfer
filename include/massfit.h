@@ -282,10 +282,10 @@ TArrayF* LambdaMassFitMC(
     const char *angorcuts = Form("(%s) || (%s)",protonangcuts,pionangcuts);
     const char *nomultiplicitycut = "(first_combo==1 && has_lambda==0) || (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)";
     const char *cuts = nomultiplicitycut; //Form("%s && (%s)",cuts,nomultiplicitycut); //NOTE: ONLY LOOK AT MC EVENTS WHICH ARE EITHER BACKGROUND OR LAMBDA NOT PROTON PION COMBOS FROM MC TRUTH
-    const char *mccuts  = Form("%s && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,angcuts); //NOTE YOU NEED ANGLE CHECKING FOR ALL TRUTH SIGNAL ITEMS SINCE YOU CAN HAVE COMBINATIONS FROM MC THAT WOULDN'T SHOW UP IN DATA SPECIFICALLY FOR TRUE PROTON FALSE PION
-    const char *mccuts_true_proton = Form("%s && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,true_proton_false_pion_cuts);
-    const char *mccuts_true_pion   = Form("%s && (pid_parent_pim_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,false_proton_true_pion_cuts);
-    const char *mccuts_true_bg     = Form("%s && ((pid_parent_p_mc!=3122 && pid_parent_pim_mc!=3122) || !(%s))",cuts,angorcuts); //NOTE: USE ANGULAR OR CUTS HERE //NOTE: OLD KEEP FOR DEBUGGING
+    const char *mccuts  = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,angcuts); //NOTE YOU NEED ANGLE CHECKING FOR ALL TRUTH SIGNAL ITEMS SINCE YOU CAN HAVE COMBINATIONS FROM MC THAT WOULDN'T SHOW UP IN DATA SPECIFICALLY FOR TRUE PROTON FALSE PION
+    const char *mccuts_true_proton = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,true_proton_false_pion_cuts);
+    const char *mccuts_true_pion   = Form("(%s) && (pid_parent_pim_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,false_proton_true_pion_cuts);
+    const char *mccuts_true_bg     = Form("(%s) && ((pid_parent_p_mc!=3122 && pid_parent_pim_mc!=3122) || !(%s))",cuts,angorcuts); //NOTE: USE ANGULAR OR CUTS HERE //NOTE: OLD KEEP FOR DEBUGGING
 
     // Switch off histogram stats
     gStyle->SetOptStat(0);
@@ -602,10 +602,10 @@ void LambdaMassFitMCDecomposition(
     const char *angorcuts = Form("(%s) || (%s)",protonangcuts,pionangcuts);
     const char *nomultiplicitycut = "(first_combo==1 && has_lambda==0) || (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)";
     const char *cuts = nomultiplicitycut; //Form("%s && (%s)",cuts,nomultiplicitycut); //NOTE: ONLY LOOK AT MC EVENTS WHICH ARE EITHER BACKGROUND OR LAMBDA NOT PROTON PION COMBOS FROM MC TRUTH
-    const char *mccuts  = Form("%s && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,angcuts); //NOTE YOU NEED ANGLE CHECKING FOR ALL TRUTH SIGNAL ITEMS SINCE YOU CAN HAVE COMBINATIONS FROM MC THAT WOULDN'T SHOW UP IN DATA SPECIFICALLY FOR TRUE PROTON FALSE PION
-    const char *mccuts_true_proton = Form("%s && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,true_proton_false_pion_cuts);
-    const char *mccuts_true_pion   = Form("%s && (pid_parent_pim_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,false_proton_true_pion_cuts);
-    const char *mccuts_true_bg     = Form("%s && ((pid_parent_p_mc!=3122 && pid_parent_pim_mc!=3122) || !(%s))",cuts,angorcuts); //NOTE: USE ANGULAR OR CUTS HERE //NOTE: OLD KEEP FOR DEBUGGING
+    const char *mccuts  = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,angcuts); //NOTE YOU NEED ANGLE CHECKING FOR ALL TRUTH SIGNAL ITEMS SINCE YOU CAN HAVE COMBINATIONS FROM MC THAT WOULDN'T SHOW UP IN DATA SPECIFICALLY FOR TRUE PROTON FALSE PION
+    const char *mccuts_true_proton = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,true_proton_false_pion_cuts);
+    const char *mccuts_true_pion   = Form("(%s) && (pid_parent_pim_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,false_proton_true_pion_cuts);
+    const char *mccuts_true_bg     = Form("(%s) && ((pid_parent_p_mc!=3122 && pid_parent_pim_mc!=3122) || !(%s))",cuts,angorcuts); //NOTE: USE ANGULAR OR CUTS HERE //NOTE: OLD KEEP FOR DEBUGGING
 
     // Turn off automatic stats
     gStyle->SetOptStat(0);
