@@ -53,7 +53,7 @@ TArrayF* LambdaMassFit(
     // Create histogram
     auto h1 = (TH1D) *frame.Histo1D({"h1",varName,nbins,varMin,varMax},varName);
     TH1D *h = (TH1D*)h1.Clone(varName);
-    h->SetTitle(Form("%s p#pi^{-} Invariant Mass",title));
+    h->SetTitle(title);
     h->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
     h->GetXaxis()->SetTitleSize(0.06);
     h->GetXaxis()->SetTitleOffset(0.75);
@@ -296,7 +296,7 @@ TArrayF* LambdaMassFitMC(
     // Create histogram
     auto h1 = (TH1D) *frame.Filter(cuts).Histo1D({"h1",varName,nbins,varMin,varMax},varName);
     TH1D *h = (TH1D*)h1.Clone("h1");
-    h->SetTitle(Form("%s p#pi^{-} Invariant Mass",title));
+    h->SetTitle(title);
     h->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
     h->GetXaxis()->SetTitleSize(0.06);
     h->GetXaxis()->SetTitleOffset(0.75);
@@ -616,7 +616,7 @@ void LambdaMassFitMCDecomposition(
     // Create histogram
     auto h1 = (TH1D) *frame.Filter(cuts).Histo1D({"h1",varName,nbins,varMin,varMax},varName);
     TH1D *h = (TH1D*)h1.Clone("h1");
-    h->SetTitle(Form("%s p#pi^{-} Invariant Mass",title));
+    h->SetTitle(title);
     h->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
     h->GetXaxis()->SetTitleSize(0.06);
     h->GetXaxis()->SetTitleOffset(0.75);
