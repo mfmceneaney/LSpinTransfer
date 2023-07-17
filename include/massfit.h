@@ -38,6 +38,8 @@ TArrayF* LambdaMassFit(
                     std::ostream &out=std::cout
                     ) {
 
+    std::cout<<"DEBUGGING: title = "<<title<<std::endl;//DEBUGGING
+
     // Make output directory in output file
     outroot->mkdir(outdir);
     outroot->cd(outdir);
@@ -262,6 +264,8 @@ TArrayF* LambdaMassFitMC(
                         const char *title   = "",
                         std::ostream &out=std::cout
                         ) {
+
+    std::cout<<"DEBUGGING: title = "<<title<<std::endl;//DEBUGGING
 
     // Make output directory in output file
     outroot->mkdir(outdir);
@@ -573,6 +577,8 @@ void LambdaMassFitMCDecomposition(
                             const char *title   = "",
                             std::ostream &out=std::cout
                             ) {
+
+    std::cout<<"DEBUGGING: title = "<<title<<std::endl;//DEBUGGING
 
     //NOTE: BEGIN
     // This function assumes the following branches in frame:
