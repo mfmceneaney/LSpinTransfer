@@ -328,6 +328,7 @@ void getKinBinnedGraph(
         double bgfraction_err = 0.0; //TODO: add option for this.
         if (!use_bgfraction) {
             const char * massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar,bin_min,bin_max);
+            const char * bin_title  = Form("%.3f #leq %s #lt %.3f",bin_min,binvar,bin_max);
             TArrayF* massFitData = LambdaMassFit(
                         massoutdir,
                         outroot,
@@ -337,6 +338,7 @@ void getKinBinnedGraph(
                         mass_min,
                         mass_max,
                         mass_draw_opt,
+                        bin_title,
                         out
                         );
 
@@ -624,6 +626,7 @@ void getKinBinnedMassFits(
         double bgfraction_err = 0.0; //TODO: add option for this.
         if (!use_bgfraction) {
             const char * massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar,bin_min,bin_max);
+            const char * bin_title  = Form("%.3f #leq %s #lt %.3f",bin_min,binvar,bin_max);
             TArrayF* massFitData = LambdaMassFit(
                         massoutdir,
                         outroot,
@@ -633,6 +636,7 @@ void getKinBinnedMassFits(
                         mass_min,
                         mass_max,
                         mass_draw_opt,
+                        bin_title,
                         out
                         );
 
@@ -791,6 +795,7 @@ void getKinBinnedMassFitsMC(
         double bgfraction_err = 0.0; //TODO: add option for this.
         if (!use_bgfraction) {
             const char * massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar,bin_min,bin_max);
+            const char * bin_title  = Form("%.3f #leq %s #lt %.3f",bin_min,binvar,bin_max);
             LambdaMassFitMCDecomposition(
                         massoutdir,
                         outroot,
@@ -800,6 +805,7 @@ void getKinBinnedMassFitsMC(
                         mass_min,
                         mass_max,
                         mass_draw_opt,
+                        bin_title,
                         out
                         );
             TArrayF* massFitData = LambdaMassFitMC(
@@ -811,6 +817,7 @@ void getKinBinnedMassFitsMC(
                         mass_min,
                         mass_max,
                         mass_draw_opt,
+                        bin_title,
                         out
                         );
 

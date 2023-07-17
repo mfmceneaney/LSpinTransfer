@@ -34,6 +34,7 @@ TArrayF* LambdaMassFit(
                     double varMin       = 1.08,
                     double varMax       = 1.24,
                     const char *drawopt = "",
+                    const char *title   = "",
                     std::ostream &out=std::cout
                     ) {
 
@@ -50,7 +51,7 @@ TArrayF* LambdaMassFit(
     // Create histogram
     auto h1 = (TH1D) *frame.Histo1D({"h1",varName,nbins,varMin,varMax},varName);
     TH1D *h = (TH1D*)h1.Clone(varName);
-    h->SetTitle("p#pi^{-} Invariant Mass");
+    h->SetTitle(Form("%s p#pi^{-} Invariant Mass",title));
     h->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
     h->GetXaxis()->SetTitleSize(0.06);
     h->GetXaxis()->SetTitleOffset(0.75);
@@ -258,6 +259,7 @@ TArrayF* LambdaMassFitMC(
                         double varMin       = 1.08,
                         double varMax       = 1.24,
                         const char *drawopt = "",
+                        const char *title   = "",
                         std::ostream &out=std::cout
                         ) {
 
@@ -290,7 +292,7 @@ TArrayF* LambdaMassFitMC(
     // Create histogram
     auto h1 = (TH1D) *frame.Filter(cuts).Histo1D({"h1",varName,nbins,varMin,varMax},varName);
     TH1D *h = (TH1D*)h1.Clone("h1");
-    h->SetTitle("p#pi^{-} Invariant Mass");
+    h->SetTitle(Form("%s p#pi^{-} Invariant Mass",title));
     h->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
     h->GetXaxis()->SetTitleSize(0.06);
     h->GetXaxis()->SetTitleOffset(0.75);
@@ -372,13 +374,13 @@ TArrayF* LambdaMassFitMC(
     h_true_pion->Write(h_true_pion->GetName());
     h_true_bg->Write(h_true_bg->GetName());
 
-    // CLAS12 Watermark                                                                                                  
-    TLatex *lt = new TLatex(0.15,0.5,"CLAS12 Preliminary");
-    lt->SetTextAngle(22.5);
-    lt->SetTextColorAlpha(18,0.5);
-    lt->SetTextSize(0.1);
-    lt->SetNDC();
-    lt->Draw();
+    // // CLAS12 Watermark                                                                                                  
+    // TLatex *lt = new TLatex(0.15,0.5,"CLAS12 Preliminary");
+    // lt->SetTextAngle(22.5);
+    // lt->SetTextColorAlpha(18,0.5);
+    // lt->SetTextSize(0.1);
+    // lt->SetNDC();
+    // lt->Draw();
 
     // Set Fitting fn
     TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*(1 - [6]*(x-[7])*(x-[7]))",varMin,varMax);
@@ -575,6 +577,7 @@ void LambdaMassFitMCDecomposition(
                             double varMin       = 1.08,
                             double varMax       = 1.24,
                             const char *drawopt = "",
+                            const char *title   = "",
                             std::ostream &out=std::cout
                             ) {
 
@@ -614,7 +617,7 @@ void LambdaMassFitMCDecomposition(
     // Create histogram
     auto h1 = (TH1D) *frame.Filter(cuts).Histo1D({"h1",varName,nbins,varMin,varMax},varName);
     TH1D *h = (TH1D*)h1.Clone("h1");
-    h->SetTitle("p#pi^{-} Invariant Mass");
+    h->SetTitle(Form("%s p#pi^{-} Invariant Mass",title));
     h->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
     h->GetXaxis()->SetTitleSize(0.06);
     h->GetXaxis()->SetTitleOffset(0.75);
