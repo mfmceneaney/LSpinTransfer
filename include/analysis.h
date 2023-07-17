@@ -328,7 +328,9 @@ void getKinBinnedGraph(
         double bgfraction_err = 0.0; //TODO: add option for this.
         if (!use_bgfraction) {
             const char * massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar,bin_min,bin_max);
-            const char * bin_title  = Form("%.3f #leq %s #lt %.3f",bin_min,binvar,bin_max);
+            const char * bin_title  = Form("%.3f ≤ %s < %.3f",bin_min,binvar,bin_max);
+            std::cout << "DEBUGGING: massoutdir = " << massoutdir << std::endl;//DEBUGGING
+            std::cout << "DEBUGGING: bin_title = "  << bin_title  << std::endl;//DEBUGGING
             TArrayF* massFitData = LambdaMassFit(
                         massoutdir,
                         outroot,
@@ -626,7 +628,9 @@ void getKinBinnedMassFits(
         double bgfraction_err = 0.0; //TODO: add option for this.
         if (!use_bgfraction) {
             const char * massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar,bin_min,bin_max);
-            const char * bin_title  = Form("%.3f #leq %s #lt %.3f",bin_min,binvar,bin_max);
+            const char * bin_title  = Form("%.3f ≤ %s < %.3f",bin_min,binvar,bin_max);
+            std::cout << "DEBUGGING: massoutdir = " << massoutdir << std::endl;//DEBUGGING
+            std::cout << "DEBUGGING: bin_title = "  << bin_title  << std::endl;//DEBUGGING
             TArrayF* massFitData = LambdaMassFit(
                         massoutdir,
                         outroot,
@@ -795,7 +799,9 @@ void getKinBinnedMassFitsMC(
         double bgfraction_err = 0.0; //TODO: add option for this.
         if (!use_bgfraction) {
             const char * massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar,bin_min,bin_max);
-            const char * bin_title  = Form("%.3f #leq %s #lt %.3f",bin_min,binvar,bin_max);
+            const char * bin_title  = Form("%.3f ≤ %s < %.3f",bin_min,binvar,bin_max);
+            std::cout << "DEBUGGING: massoutdir = " << massoutdir << std::endl;//DEBUGGING
+            std::cout << "DEBUGGING: bin_title = "  << bin_title  << std::endl;//DEBUGGING
             LambdaMassFitMCDecomposition(
                         massoutdir,
                         outroot,
