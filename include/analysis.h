@@ -361,6 +361,7 @@ void getKinBinnedGraph(
         // Compute bin results
         TArrayF *binData;
         const char * binoutdir = Form("method_%s_bin_%s_%.3f_%.3f",(const char*)method,binvar,bin_min,bin_max);
+        double sgasym_measured = (1-epsilon)*sgasym + epsilon * bgasym;
         if (method=="HB") {
             binData = (TArrayF*) getKinBinHB(
                 binoutdir,
@@ -372,7 +373,7 @@ void getKinBinnedGraph(
                 bin_max,
                 alpha,
                 pol,
-                sgasym,
+                sgasym_measured,
                 depolarization_name,
                 helicity_name,
                 fitvar,
@@ -392,7 +393,7 @@ void getKinBinnedGraph(
                 bin_max,
                 alpha,
                 pol,
-                sgasym,
+                sgasym_measured,
                 depolarization_name,
                 helicity_name,
                 fitvar,
