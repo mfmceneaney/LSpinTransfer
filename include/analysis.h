@@ -329,8 +329,6 @@ void getKinBinnedGraph(
         if (!use_bgfraction) {
             const char * massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar,bin_min,bin_max);
             const char * bin_title  = Form("%.3f ≤ %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar,bin_max);
-            // std::cout << "DEBUGGING: massoutdir = " << massoutdir << std::endl;//DEBUGGING
-            // std::cout << "DEBUGGING: bin_title = "  << bin_title  << std::endl;//DEBUGGING
             TArrayF* massFitData = LambdaMassFit(
                         massoutdir,
                         outroot,
@@ -628,9 +626,7 @@ void getKinBinnedMassFits(
         double bgfraction_err = 0.0; //TODO: add option for this.
         if (!use_bgfraction) {
             const char * massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar,bin_min,bin_max);
-            const char * bin_title  = "Invariant Mass p#pi^{-}";//Form("%.3f ≤ %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar,bin_max);
-            // std::cout << "DEBUGGING: massoutdir = " << massoutdir << std::endl;//DEBUGGING
-            // std::cout << "DEBUGGING: bin_title = "  << bin_title  << std::endl;//DEBUGGING
+            const char * bin_title  = Form("%.3f ≤ %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar,bin_max);
             TArrayF* massFitData = LambdaMassFit(
                         massoutdir,
                         outroot,
@@ -799,9 +795,7 @@ void getKinBinnedMassFitsMC(
         double bgfraction_err = 0.0; //TODO: add option for this.
         if (!use_bgfraction) {
             const char * massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar,bin_min,bin_max);
-            const char * bin_title  = "Invariant Mass p#pi^{-}";//Form("%.3f ≤ %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar,bin_max);
-            // std::cout << "DEBUGGING: massoutdir = " << massoutdir << std::endl;//DEBUGGING
-            // std::cout << "DEBUGGING: bin_title = "  << bin_title  << std::endl;//DEBUGGING
+            const char * bin_title  = Form("%.3f ≤ %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar,bin_max);
             LambdaMassFitMCDecomposition(
                         massoutdir,
                         outroot,
