@@ -154,7 +154,7 @@ TArrayF* getKinBinLF(
     sig1->Draw("SAME");
 
     // Set outname and save
-    TString fname; fname.Form("LF_%s_%s_%.1f_%.1f_asym_%.2f",fitvar,binvar,bin_min,bin_max,asym);
+    TString fname; fname.Form("LF_%s_%s_%.3f_%.3f_asym_%.2f",fitvar,binvar,bin_min,bin_max,asym);
     c1->Print(fname+".pdf");
     c1->Write(c1->GetName());
     histP->Write(histP->GetName());
@@ -531,7 +531,7 @@ void getKinBinnedGraph(
 
     // Set outname and save
     TString fname;
-    fname.Form("%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar,binvar,bins[0],bins[nbins],sgasym,bgasym);
+    fname.Form("%s_%s_%s_%.3f_%.3f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar,binvar,bins[0],bins[nbins],sgasym,bgasym);
     c1->Print(fname+".pdf");
     gr->SaveAs(fname+".root","recreate");
     gr_epsilon->SaveAs(fname+"_epsilon.root","recreate");
@@ -705,7 +705,7 @@ void getKinBinnedMassFits(
 
     // Set outname and save
     TString fname;
-    fname.Form("%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar,binvar,bins[0],bins[nbins],sgasym,bgasym);
+    fname.Form("%s_%s_%s_%.3f_%.3f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar,binvar,bins[0],bins[nbins],sgasym,bgasym);
     c1->Print(fname+".pdf");
     gr_epsilon->SaveAs(fname+"_epsilon.root","recreate");
 
