@@ -696,7 +696,7 @@ void getKinBinnedMassFits(
     gr_epsilon->SetMarkerStyle(marker_style); // 20 circle
     gr_epsilon->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
     gr_epsilon->GetXaxis()->SetTitle(binvar);
-    gr_epsilon->GetYaxis()->SetTitle("Background fraction #epsilon");
+    gr_epsilon->GetYaxis()->SetTitle("Background fraction #varepsilon");
     gr_epsilon->Draw("PA");
 
     // Add CLAS12 Preliminary watermark
@@ -877,7 +877,7 @@ void getKinBinnedMassFitsMC(
     gr_epsilon->SetMarkerStyle(marker_style); // 20 circle
     gr_epsilon->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
     gr_epsilon->GetXaxis()->SetTitle(binvar);
-    gr_epsilon->GetYaxis()->SetTitle("Background fraction #epsilon");
+    gr_epsilon->GetYaxis()->SetTitle("Background fraction #varepsilon");
     gr_epsilon->Draw("PA");
 
     // Add CLAS12 Preliminary watermark
