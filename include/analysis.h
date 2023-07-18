@@ -66,7 +66,7 @@ TArrayF* getKinBinLF(
     const char * heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
     auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) :
                                         frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) //TODO: Double Check this
-                                        .Define(heli_asym, [](){return (float)(gRandom.Rndm()>0.5 ? 1.0 : -1.0);},{}) //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+                                        .Define(heli_asym, [&gRandom](){return (float)(gRandom.Rndm()>0.5 ? 1.0 : -1.0);},{}) //NOTE: Generate a random helicity since all MC is just helicity=1.0.
                                         .Define(fitvar_asym, [&alpha,&asym](float Dy, float heli, float costheta) {
                                             return float(costheta*(1.0 + alpha*Dy*heli*asym*costheta));
                                         },
@@ -210,7 +210,7 @@ TArrayF* getKinBinHB(
     const char * heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
     auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) :
                                         frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) //TODO: Double Check this
-                                        .Define(heli_asym, [](){return (float)(gRandom.Rndm()>0.5 ? 1.0 : -1.0);},{}) //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+                                        .Define(heli_asym, [&gRandom](){return (float)(gRandom.Rndm()>0.5 ? 1.0 : -1.0);},{}) //NOTE: Generate a random helicity since all MC is just helicity=1.0.
                                         .Define(fitvar_asym, [&alpha,&asym](float Dy, float heli, float costheta) {
                                             return float(costheta*(1.0 + alpha*Dy*heli*asym*costheta));
                                         },
