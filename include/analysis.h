@@ -65,8 +65,8 @@ TArrayF* getKinBinLF(
                                         frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut))
                                         .Define(
                                             fitvar_asym,
-                                            [&alpha,&asym](float Dy, float heli, float costheta) {
-                                                return float(costheta*(1.0 + alpha*Dy*heli*asym*costheta));
+                                            [&alpha,&asym,&pol](float Dy, float heli, float costheta) {
+                                                return float(costheta*(1.0 + alpha*pol*Dy*heli*asym*costheta));
                                             },
                                             {depolarization_name,helicity_name,fitvar}
                                             );
@@ -205,7 +205,7 @@ TArrayF* getKinBinHB(
     const char * fitvar_asym = (asym==0.00) ? fitvar : "fitvar_asym_"; //TODO: Hopefully this is ok hard-coded?
     auto f                   = (asym==0.00) ? frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) :
                                         frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) //TODO: Double Check this
-                                        .Define(fitvar_asym, [&alpha,&asym](float Dy, float heli, float costheta) {return float(costheta*(1.0 + alpha*Dy*heli*asym*costheta));}, {depolarization_name,helicity_name,fitvar});
+                                        .Define(fitvar_asym, [&alpha,&asym,&pol](float Dy, float heli, float costheta) {return float(costheta*(1.0 + alpha*pol*Dy*heli*asym*costheta));}, {depolarization_name,helicity_name,fitvar});
 
     // Get data
     auto count    = (int)   *f.Count();
