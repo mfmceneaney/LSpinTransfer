@@ -11,6 +11,7 @@
 // ROOT Includes
 #include <TFile.h>
 #include <ROOT/RDataFrame.hxx>
+#include <TRandom.h>
 
 // Project Includes
 #include <analysis.h>
@@ -136,6 +137,11 @@ void analysis(const YAML::Node& node) {
         use_bgfraction = node["use_bgfraction"].as<bool>();
         std::cout << "use_bgfraction: " << use_bgfraction << std::endl;
     }
+    bool inject_asym = false;
+    if (node["inject_asym"]) {
+        inject_asym = node["inject_asym"].as<bool>();
+        std::cout << "inject_asym: " << inject_asym << std::endl;
+    }
     double sgasym;
     if (node["sgasym"]) {
         sgasym = node["sgasym"].as<double>();
@@ -231,6 +237,9 @@ void analysis(const YAML::Node& node) {
     // Create output ROOT file
     TFile * outroot = TFile::Open(outpath,"RECREATE");
 
+    // Create random number generator for MC asymmetry injection
+    TRandom gRandom = TRandom();
+
     // Loop variables to bin in
     for (auto it = binvars.begin(); it != binvars.end(); ++it) { //TODO: How to check if too many binning variables...
 
@@ -270,6 +279,8 @@ void analysis(const YAML::Node& node) {
                     depolarization_name,// const char * depol    = "Dy",        // Branch name for depolarization factor
                     helicity_name,// const char * helicity = "heli",      // Branch name for helicity
                     fitvar,// const char * fitvar   = "costheta1", // cos(theta) leaf name to use
+                    inject_asym,// bool inject = false, // flag for whether to inject asymmetry
+                    gRandom,// TRandom gRandom = TRandom(), // Random number generator to use
                     // //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
                     // //   double       fitvarMin = -1.0,       // fit variable minimum
                     // //   double       fitvarMax = 1.0,        // fit variable maximum

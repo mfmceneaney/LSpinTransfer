@@ -12,8 +12,8 @@
 #include <Fit/Chi2FCN.h>
 #include <Math/WrappedMultiTF1.h>
 #include <HFitInterface.h>
-
 #include <TGraphErrors.h>
+#include <TRandom.h>
 
 // Local includes
 #include <massfit.h>
@@ -46,6 +46,8 @@ TArrayF* getKinBinLF(
                     const char * depolarization_name = "Dy",
                     const char * helicity_name       = "heli",
                     const char * fitvar              = "costheta1",
+                    bool         inject              = false,
+                    TRandom      gRandom             = TRandom(),
                     int          n_fitvar_bins       = 10,
                     double       fitvar_min          = -1,
                     double       fitvar_max          =  1,
@@ -60,11 +62,11 @@ TArrayF* getKinBinLF(
     TString bin_cut; bin_cut.Form("%s>=%f && %s<%f",binvar,bin_min,binvar,bin_max);
 
     // Filter frame and inject asymmetry if needed
-    const char * fitvar_asym = (asym==0.00) ? fitvar : "fitvar_asym_"; //TODO: Hopefully this is ok hard-coded?
-    const char * heli_asym   = (asym==0.00) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
-    auto f                   = (asym==0.00) ? frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) :
+    const char * fitvar_asym = (!inject) ? fitvar : "fitvar_asym_"; //TODO: Hopefully this is ok hard-coded?
+    const char * heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
+    auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) :
                                         frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) //TODO: Double Check this
-                                        .Define(heli_asym, [](){return (float)(gRandom->Rndm()>0.5 ? 1.0 : -1.0);},{}) //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+                                        .Define(heli_asym, [](){return (float)(gRandom.Rndm()>0.5 ? 1.0 : -1.0);},{}) //NOTE: Generate a random helicity since all MC is just helicity=1.0.
                                         .Define(fitvar_asym, [&alpha,&asym](float Dy, float heli, float costheta) {
                                             return float(costheta*(1.0 + alpha*Dy*heli*asym*costheta));
                                         },
@@ -192,6 +194,8 @@ TArrayF* getKinBinHB(
                     const char * depolarization_name = "Dy",
                     const char * helicity_name       = "heli",
                     const char * fitvar              = "costheta1",
+                    bool         inject              = false,
+                    TRandom      gRandom             = TRandom(),
                     std::ostream &out                = std::cout
                     ) {
 
@@ -202,11 +206,11 @@ TArrayF* getKinBinHB(
     TString bin_cut; bin_cut.Form("%s>=%f && %s<%f",binvar,bin_min,binvar,bin_max);
 
     // Filter frame and inject asymmetry if needed
-    const char * fitvar_asym = (asym==0.00) ? fitvar : "fitvar_asym_"; //TODO: Hopefully this is ok hard-coded?
-    const char * heli_asym   = (asym==0.00) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
-    auto f                   = (asym==0.00) ? frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) :
+    const char * fitvar_asym = (!inject) ? fitvar : "fitvar_asym_"; //TODO: Hopefully this is ok hard-coded?
+    const char * heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
+    auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) :
                                         frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) //TODO: Double Check this
-                                        .Define(heli_asym, [](){return (float)(gRandom->Rndm()>0.5 ? 1.0 : -1.0);},{}) //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+                                        .Define(heli_asym, [](){return (float)(gRandom.Rndm()>0.5 ? 1.0 : -1.0);},{}) //NOTE: Generate a random helicity since all MC is just helicity=1.0.
                                         .Define(fitvar_asym, [&alpha,&asym](float Dy, float heli, float costheta) {
                                             return float(costheta*(1.0 + alpha*Dy*heli*asym*costheta));
                                         },
@@ -283,6 +287,8 @@ void getKinBinnedGraph(
                     const char * depolarization_name = "Dy",        // Branch name for depolarization factor
                     const char * helicity_name       = "heli",      // Branch name for helicity
                     const char * fitvar              = "costheta1", // cos(theta) leaf name to use
+                    bool         inject              = false,       // flag for whether to inject asymmetry
+                    TRandom      gRandom             = TRandom(),   // Random number generator to use
                     //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
                     //   double       fitvar_min = -1.0,       // fit variable minimum
                     //   double       fitvar_max = 1.0,        // fit variable maximum
@@ -370,6 +376,8 @@ void getKinBinnedGraph(
                 depolarization_name,
                 helicity_name,
                 fitvar,
+                inject,
+                gRandom,
                 out
                 );
         }
@@ -388,6 +396,8 @@ void getKinBinnedGraph(
                 depolarization_name,
                 helicity_name,
                 fitvar,
+                inject,
+                gRandom,
                 n_fitvar_bins,
                 fitvar_min,
                 fitvar_max,
@@ -421,6 +431,8 @@ void getKinBinnedGraph(
                     depolarization_name,
                     helicity_name,
                     fitvar,
+                    inject,
+                    gRandom,
                     out
                     );
             }
@@ -439,6 +451,8 @@ void getKinBinnedGraph(
                     depolarization_name,
                     helicity_name,
                     fitvar,
+                    inject,
+                    gRandom,
                     n_fitvar_bins,
                     fitvar_min,
                     fitvar_max,
