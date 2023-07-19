@@ -263,9 +263,13 @@ TArrayF* LambdaMassFitMC(
                         std::ostream &out=std::cout
                         ) {
 
+    out<<"DEBUGGING: outdir = "<<outdir<<std::endl;//DEBUGGING
+
     // Make output directory in output file
     outroot->mkdir(outdir);
     outroot->cd(outdir);
+
+    out<<"DEBUGGING: after outroot mkdir: outdir = "<<outdir<<std::endl;//DEBUGGING
 
     // MC Matching cuts
     const char *protonangcuts = "abs(theta_p-theta_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
@@ -282,6 +286,8 @@ TArrayF* LambdaMassFitMC(
     const char *mccuts_true_proton = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,true_proton_false_pion_cuts);
     const char *mccuts_true_pion   = Form("(%s) && (pid_parent_pim_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,false_proton_true_pion_cuts);
     const char *mccuts_true_bg     = Form("(%s) && ((pid_parent_p_mc!=3122 && pid_parent_pim_mc!=3122) || !(%s))",cuts,angorcuts); //NOTE: USE ANGULAR OR CUTS HERE //NOTE: OLD KEEP FOR DEBUGGING
+
+    out<<"DEBUGGING: after setting all cuts: outdir = "<<outdir<<std::endl;//DEBUGGING
 
     // Switch off histogram stats
     gStyle->SetOptStat(0);
@@ -382,6 +388,8 @@ TArrayF* LambdaMassFitMC(
     // lt->SetNDC();
     // lt->Draw();
 
+    out<<"DEBUGGING: after drawing all hists: outdir = "<<outdir<<std::endl;//DEBUGGING
+
     // Set Fitting fn
     TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*(1 - [6]*(x-[7])*(x-[7]))",varMin,varMax);
     // func->SetParameters(0.5,2,0.006,1.1157,10000,h->GetBinContent(nbins),37,1.24);
@@ -398,6 +406,8 @@ TArrayF* LambdaMassFitMC(
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(6,7,6,7)); // Make sure these match up!
+
+    out<<"DEBUGGING: after fitting: outdir = "<<outdir<<std::endl;//DEBUGGING
 
     // Crystal Ball fit parameters
     double alpha = func->GetParameter(0);
@@ -459,6 +469,8 @@ TArrayF* LambdaMassFitMC(
     LBInt = 1.10; //DEBUGGING
     UBInt = 1.13;
 
+    out<<"DEBUGGING: after drawing extra histograms: outdir = "<<outdir<<std::endl;//DEBUGGING
+
     // Fit fn:
     out << "i_fitf" << std::endl;
     auto i_fitf = func->Integral(LBInt,UBInt)/BinWidth;
@@ -477,6 +489,8 @@ TArrayF* LambdaMassFitMC(
     out << "i_bg" << std::endl;
     auto i_bg = bg->Integral(LBInt, UBInt)/BinWidth;
     auto i_bg_err = bg->IntegralError(LBInt,UBInt,bg->GetParameters(),bgMat->GetMatrixArray())/BinWidth;
+
+    out<<"DEBUGGING: after integrals: outdir = "<<outdir<<std::endl;//DEBUGGING
 
     // Get Legend Entries
     TString sChi2, sNDF, sAlpha, sN, sSigma, sMu, sC1, sA0, sA1, sA2, sNSig, sNBg, sNTot;
@@ -513,6 +527,8 @@ TArrayF* LambdaMassFitMC(
     legend->AddEntry(h_true_bg,"All other background","f");
     legend->Draw();
 
+    out<<"DEBUGGING: after legend: outdir = "<<outdir<<std::endl;//DEBUGGING
+
     // Compute epsilon
     float epsilon = (float) i_bg / i_fitf;
     float epsilon_err = (float) TMath::Sqrt(TMath::Power(i_bg_err / i_fitf,2)+TMath::Power((i_bg * i_fitf_err)/(i_fitf * i_fitf),2));
@@ -548,6 +564,8 @@ TArrayF* LambdaMassFitMC(
     arr->AddAt(Ea1,i++);
     arr->AddAt(a2,i++);
     arr->AddAt(Ea2,i++);
+
+    out<<"DEBUGGING: after adding to array outdir = "<<outdir<<std::endl;//DEBUGGING
 
     // Save to file and return to above directory
     c1->SaveAs(Form("c1_%s.pdf",outdir));
