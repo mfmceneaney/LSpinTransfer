@@ -373,12 +373,12 @@ TArrayF* LambdaMassFitMC(
     h_true_pion->Draw("SAME");
     h_true_bg->Draw("SAME");
 
-    // Save histograms
-    h->Write(h->GetName());
-    h_true->Write(h_true->GetName());
-    h_true_proton->Write(h_true_proton->GetName());
-    h_true_pion->Write(h_true_pion->GetName());
-    h_true_bg->Write(h_true_bg->GetName());
+    // // Save histograms //NOTE: COMMENT OUT FOR DEBUGGING... ONLY DISCERNABLE DIFFERENCE THAT MIGHT AFFECT ...
+    // h->Write(h->GetName());
+    // h_true->Write(h_true->GetName());
+    // h_true_proton->Write(h_true_proton->GetName());
+    // h_true_pion->Write(h_true_pion->GetName());
+    // h_true_bg->Write(h_true_bg->GetName());
 
     // // CLAS12 Watermark                                                                                                  
     // TLatex *lt = new TLatex(0.15,0.5,"CLAS12 Preliminary");
