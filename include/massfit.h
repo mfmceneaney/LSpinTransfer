@@ -401,13 +401,21 @@ TArrayF* LambdaMassFitMC(
     func->SetParLimits(7,0.0,1.26);
     func->SetParLimits(1,2.0,100.0);
 
+    out<<"DEBUGGING: after setting fitf params: outdir = "<<outdir<<std::endl;//DEBUGGING
+    const char * myoutdir = outdir;
+    out<<"DEBUGGING: after drawing all hists: myoutdir = "<<myoutdir<<std::endl;//DEBUGGING
+
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+
+    out<<"DEBUGGING: just after fitting: outdir = "<<outdir<<std::endl;//DEBUGGING
+    out<<"DEBUGGING: just after fitting: myoutdir = "<<myoutdir<<std::endl;//DEBUGGING
+
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(6,7,6,7)); // Make sure these match up!
 
-    out<<"DEBUGGING: after fitting: outdir = "<<outdir<<std::endl;//DEBUGGING
+    out<<"DEBUGGING: after matrices: outdir = "<<outdir<<std::endl;//DEBUGGING
 
     // Crystal Ball fit parameters
     double alpha = func->GetParameter(0);
