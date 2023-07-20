@@ -263,7 +263,8 @@ TArrayF* LambdaMassFitMC(
                         std::ostream &out=std::cout
                         ) {
 
-    std::string outdir_(outdir);
+    std::string outdir_(outdir);//NOTE: NECESSARY BECAUSE h->Fit() call overwrites the const char * variables for some reason...
+    std::string title_(title);
     
     // Make output directory in output file
     outroot->mkdir(outdir);
@@ -294,7 +295,7 @@ TArrayF* LambdaMassFitMC(
     // Create histogram
     auto h1 = (TH1D) *frame.Filter(cuts).Histo1D({"h1",varName,nbins,varMin,varMax},varName);
     TH1D *h = (TH1D*)h1.Clone("h1");
-    h->SetTitle(title);
+    h->SetTitle(title_.c_str());
     h->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
     h->GetXaxis()->SetTitleSize(0.06);
     h->GetXaxis()->SetTitleOffset(0.75);
