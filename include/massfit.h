@@ -251,7 +251,7 @@ TArrayF* LambdaMassFit(
 } // TArrayF* LambdaMassFit()
 
 TArrayF* LambdaMassFitMC(
-                        const char * outdir_,
+                        const char * outdir,
                         TFile *outroot,
                         ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
                         const char *varName = "mass_ppim",
