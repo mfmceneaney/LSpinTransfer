@@ -264,7 +264,7 @@ TArrayF* LambdaMassFitMC(
                         ) {
 
     // const char * outdir = "OUTDIR_TEST";
-    std::str outdir(outdir_);
+    std::string outdir(outdir_);
     out<<"DEBUGGING: outdir = "<<outdir<<std::endl;//DEBUGGING
     
     // Make output directory in output file
