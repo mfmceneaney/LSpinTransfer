@@ -264,8 +264,9 @@ TArrayF* LambdaMassFitMC(
                         ) {
 
     // const char * outdir = "OUTDIR_TEST";
-    std::string outdir(outdir_);
+    std::string outdir_(outdir);
     out<<"DEBUGGING: outdir = "<<outdir<<std::endl;//DEBUGGING
+    out<<"DEBUGGING: outdir_ = "<<outdir_<<std::endl;//DEBUGGING
     
     // Make output directory in output file
     outroot->mkdir(outdir);
@@ -423,6 +424,8 @@ TArrayF* LambdaMassFitMC(
     out<<"DEBUGGING: testvar2 = "<<testvar2<<std::endl;//DEBUGGING
     out<<"DEBUGGING: varName = "<<varName<<std::endl;//DEBUGGING
 
+    out<<"DEBUGGING: outdir_ = "<<outdir_<<std::endl;//DEBUGGING
+
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
 
@@ -432,6 +435,7 @@ TArrayF* LambdaMassFitMC(
     out<<"DEBUGGING: testvar = "<<testvar<<std::endl;//DEBUGGING
     out<<"DEBUGGING: testvar2 = "<<testvar2<<std::endl;//DEBUGGING
     out<<"DEBUGGING: varName = "<<varName<<std::endl;//DEBUGGING
+    out<<"DEBUGGING: outdir_ = "<<outdir_<<std::endl;//DEBUGGING
 
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
