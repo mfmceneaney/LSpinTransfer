@@ -62,16 +62,13 @@ TArrayF* getKinBinLF(
     TString bin_cut; bin_cut.Form("%s>=%f && %s<%f",binvar,bin_min,binvar,bin_max);
 
     // Filter frame and inject asymmetry if needed
-    const char * fitvar_asym = (!inject) ? fitvar : "fitvar_asym_"; //TODO: Hopefully this is ok hard-coded?
     const char * heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
     auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) :
                                         frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) //TODO: Double Check this
-                                        .Define(heli_asym, [&gRandom](){return (float)(gRandom.Rndm()>0.5 ? 1.0 : -1.0);},{}) //NOTE: Generate a random helicity since all MC is just helicity=1.0.
-                                        .Define(fitvar_asym, [&alpha,&asym](float Dy, float heli, float costheta) {
-                                            return float(costheta*(1.0 + alpha*Dy*heli*asym*costheta));
+                                        .Define(heli_asym, [&gRandom,&alpha,&asym,&pol](float Dy, float costheta) {
+                                            return (float)(gRandom.Rndm()<0.5*(1.0 + alpha*Dy*pol*asym*costheta) ? 1.0 : -1.0);
                                         },
-                                        {depolarization_name,heli_asym,fitvar}
-                                        );
+                                        {depolarization_name,fitvar}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
 
     // Set fit function
     TF1 *fitf = new TF1("fitf","[0]+[1]*x",fitvar_min,fitvar_max);
@@ -80,8 +77,8 @@ TArrayF* getKinBinLF(
     out << "Getting " << bin_cut << " bin\n";
     auto count    = (double)*f.Count();
     auto mean     = (double)*f.Mean(binvar);
-    auto histP_   = (TH1D)  *f.Filter(Form("%s>0",heli_asym)).Histo1D({"histP", "Positive/Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar_asym);
-    auto histN_   = (TH1D)  *f.Filter(Form("%s<0",heli_asym)).Histo1D({"histN", "Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar_asym);
+    auto histP_   = (TH1D)  *f.Filter(Form("%s>0",heli_asym)).Histo1D({"histP", "Positive/Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar);
+    auto histN_   = (TH1D)  *f.Filter(Form("%s<0",heli_asym)).Histo1D({"histN", "Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar);
     auto histP    = &histP_;
     auto histN    = &histN_;
     auto histPaux = (TH1D*)histP->Clone("histPaux");
@@ -206,27 +203,24 @@ TArrayF* getKinBinHB(
     TString bin_cut; bin_cut.Form("%s>=%f && %s<%f",binvar,bin_min,binvar,bin_max);
 
     // Filter frame and inject asymmetry if needed
-    const char * fitvar_asym = (!inject) ? fitvar : "fitvar_asym_"; //TODO: Hopefully this is ok hard-coded?
     const char * heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
     auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) :
                                         frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) //TODO: Double Check this
-                                        .Define(heli_asym, [&gRandom](){return (float)(gRandom.Rndm()>0.5 ? 1.0 : -1.0);},{}) //NOTE: Generate a random helicity since all MC is just helicity=1.0.
-                                        .Define(fitvar_asym, [&alpha,&asym](float Dy, float heli, float costheta) {
-                                            return float(costheta*(1.0 + alpha*Dy*heli*asym*costheta));
+                                        .Define(heli_asym, [&gRandom,&alpha,&asym,&pol](float Dy, float costheta) {
+                                            return (float)(gRandom.Rndm()<0.5*(1.0 + alpha*Dy*pol*asym*costheta) ? 1.0 : -1.0);
                                         },
-                                        {depolarization_name,heli_asym,fitvar}
-                                        );
+                                        {depolarization_name,fitvar}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
 
     // Get data
     auto count    = (int)   *f.Count();
     auto mean     = (double)*f.Mean(binvar);
-    auto sumPbDCT = (double)*f.Define("tosum", [&pol](float Dy, float heli, float costheta) { return pol*heli*Dy*costheta; } , {depolarization_name,heli_asym,fitvar_asym}).Sum("tosum");
-    auto sumDCT   = (double)*f.Define("tosum", [&pol](float Dy, float heli, float costheta) { return Dy*Dy*costheta*costheta; } , {depolarization_name,heli_asym,fitvar_asym}).Sum("tosum");
+    auto sumPbDCT = (double)*f.Define("tosum", [&pol](float Dy, float heli, float costheta) { return pol*heli*Dy*costheta; } , {depolarization_name,heli_asym,fitvar}).Sum("tosum");
+    auto sumDCT   = (double)*f.Define("tosum", [&pol](float Dy, float heli, float costheta) { return Dy*Dy*costheta*costheta; } , {depolarization_name,heli_asym,fitvar}).Sum("tosum");
     auto avePbDCT = (double)sumPbDCT/count;
     auto aveDCT   = (double)sumDCT/count;
-    auto stdPbDCT = (double)*f.Define("tostd", [&pol](float Dy, float heli, float costheta) { return pol*heli*Dy*costheta; } , {depolarization_name,heli_asym,fitvar_asym}).StdDev("tostd");
-    auto stdDCT   = (double)*f.Define("tostd", [&pol](float Dy, float heli, float costheta) { return Dy*Dy*costheta*costheta; } , {depolarization_name,heli_asym,fitvar_asym}).StdDev("tostd");
-    auto covar    = (double)*f.Define("tocvr", [&pol,&avePbDCT,&aveDCT](float Dy, float heli, float costheta) { return (pol*heli*Dy*costheta - avePbDCT)*(Dy*Dy*costheta*costheta - aveDCT); } , {depolarization_name,heli_asym,fitvar_asym}).Sum("tocvr")/count;
+    auto stdPbDCT = (double)*f.Define("tostd", [&pol](float Dy, float heli, float costheta) { return pol*heli*Dy*costheta; } , {depolarization_name,heli_asym,fitvar}).StdDev("tostd");
+    auto stdDCT   = (double)*f.Define("tostd", [&pol](float Dy, float heli, float costheta) { return Dy*Dy*costheta*costheta; } , {depolarization_name,heli_asym,fitvar}).StdDev("tostd");
+    auto covar    = (double)*f.Define("tocvr", [&pol,&avePbDCT,&aveDCT](float Dy, float heli, float costheta) { return (pol*heli*Dy*costheta - avePbDCT)*(Dy*Dy*costheta*costheta - aveDCT); } , {depolarization_name,heli_asym,fitvar}).Sum("tocvr")/count;
 
     // Compute spin transfers
     if (count==0) {out << " *** WARNING *** Count = 0.  You should rebin.";}
