@@ -251,7 +251,7 @@ TArrayF* LambdaMassFit(
 } // TArrayF* LambdaMassFit()
 
 TArrayF* LambdaMassFitMC(
-                        const char * outdir_,
+                        const char * const outdir,
                         TFile *outroot,
                         ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
                         const char *varName = "mass_ppim",
@@ -263,7 +263,7 @@ TArrayF* LambdaMassFitMC(
                         std::ostream &out=std::cout
                         ) {
 
-    const char * outdir = "OUTDIR_TEST";
+    // const char * outdir = "OUTDIR_TEST";
     out<<"DEBUGGING: outdir = "<<outdir<<std::endl;//DEBUGGING
     
     // Make output directory in output file
