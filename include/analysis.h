@@ -811,20 +811,18 @@ void getKinBinnedMassFitsMC(
         if (!use_bgfraction) {
             const char * massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar,bin_min,bin_max);
             const char * bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar,bin_max);
-            out<<"DEBUGGING: in analysis.h before calling LambdaMassFitMC(): massoutdir = "<<massoutdir<<std::endl;//DEBUGGING
-             out<<"DEBUGGING: in analysis.h before calling LambdaMassFitMC(): bin_title = "<<bin_title<<std::endl;//DEBUGGING
-            // LambdaMassFitMCDecomposition(
-            //             massoutdir,
-            //             outroot,
-            //             bin_frame,
-            //             mass_name,
-            //             n_mass_bins,
-            //             mass_min,
-            //             mass_max,
-            //             mass_draw_opt,
-            //             bin_title,
-            //             out
-            //             );
+            LambdaMassFitMCDecomposition(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
             TArrayF* massFitData = LambdaMassFitMC(
                         massoutdir,
                         outroot,
