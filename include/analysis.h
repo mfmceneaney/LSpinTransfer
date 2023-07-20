@@ -387,7 +387,7 @@ void getKinBinnedGraph(
                 bin_max,
                 alpha,
                 pol,
-                sgasym_measured,
+                sgasym,
                 depolarization_name,
                 helicity_name,
                 fitvar,
