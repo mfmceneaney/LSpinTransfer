@@ -19,7 +19,7 @@ def get_plots(
     xvar = 'Q2',
     xvar_name = 'Q^{2}',
     xlims = (1.0,10.0),
-    ylims = (-0.4,0.4), #NOTE: Make sure you set the binning)
+    ylims = (-0.5,0.5), #NOTE: Make sure you set the binning)
     verbose = True
     ):
 
@@ -87,6 +87,8 @@ def get_plots(
     plt.ylabel("$D_{LL'}$",usetex=True)
     plt.xlim(*xlims)
     plt.ylim(*ylims)
+    #TODO: Add systematic uncertainty hist by percentage of g1/2[0]
+    #TODO: e.g., s1 = plt.hist(np.multiply(systematic,g1[0]), bins=xbins /*NOTE: Add this as an arg for this function so you can either set manually or read from yaml...*/, color=gray, alpha=0.5, linecolor=black, linewidth=1.0)
     g2 = plt.errorbar(g2[0],g2[1],xerr=None,yerr=g2[3],
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color='red', marker='o', linestyle=linestyle,
@@ -104,61 +106,64 @@ def get_plots(
 if __name__=="__main__":
 
     verbose = True
+    asym_str = 'sgasym_0.00_bgasym_0.00'
+    method = 'HB'
+    ylims = (-0.5,0.5)
 
     packages = [
         {
-            'method' : 'HB',
-            'inpath1' : 'HB_CT1/HB_costheta1_Q2_1.0_10.0_sgasym_0.00_bgasym_0.00.root',
-            'inpath2' : 'HB_CT2/HB_costheta2_Q2_1.0_10.0_sgasym_0.00_bgasym_0.00.root',
+            'method' : method,
+            'inpath1' : method+'_CT1/'+method+'_costheta1_Q2_1.000_10.000_'+asym_str+'.root',
+            'inpath2' : method+'_CT2/'+method+'_costheta2_Q2_1.000_10.000_'+asym_str+'.root',
             'xvar' : 'Q2',
-            'xvar_name' : 'Q^{2}',
+            'xvar_name' : 'Q^{2} (GeV^{2})',
             'xlims' : (1.0,10.0),
-            'ylims' : (-0.4,0.4),
+            'ylims' : ylims,
         },
         {
-            'method' : 'HB',
-            'inpath1' : 'HB_CT1/HB_costheta1_W_2.0_5.0_sgasym_0.00_bgasym_0.00.root',
-            'inpath2' : 'HB_CT2/HB_costheta2_W_2.0_5.0_sgasym_0.00_bgasym_0.00.root',
+            'method' : method,
+            'inpath1' : method+'_CT1/'+method+'_costheta1_W_2.000_5.000_'+asym_str+'.root',
+            'inpath2' : method+'_CT2/'+method+'_costheta2_W_2.000_5.000_'+asym_str+'.root',
             'xvar' : 'W',
-            'xvar_name' : 'W',
+            'xvar_name' : 'W (GeV)',
             'xlims' : (2.0,5.0),
-            'ylims' : (-0.4,0.4),
+            'ylims' : ylims,
         },
         {
-            'method' : 'HB',
-            'inpath1' : 'HB_CT1/HB_costheta1_y_0.0_0.8_sgasym_0.00_bgasym_0.00.root',
-            'inpath2' : 'HB_CT2/HB_costheta2_y_0.0_0.8_sgasym_0.00_bgasym_0.00.root',
+            'method' : method,
+            'inpath1' : method+'_CT1/'+method+'_costheta1_y_0.000_0.800_'+asym_str+'.root',
+            'inpath2' : method+'_CT2/'+method+'_costheta2_y_0.000_0.800_'+asym_str+'.root',
             'xvar' : 'y',
             'xvar_name' : 'y',
             'xlims' : (0.0,0.8),
-            'ylims' : (-0.4,0.4),
+            'ylims' : ylims,
         },
         {
-            'method' : 'HB',
-            'inpath1' : 'HB_CT1/HB_costheta1_x_0.0_1.0_sgasym_0.00_bgasym_0.00.root',
-            'inpath2' : 'HB_CT2/HB_costheta2_x_0.0_1.0_sgasym_0.00_bgasym_0.00.root',
+            'method' : method,
+            'inpath1' : method+'_CT1/'+method+'_costheta1_x_0.000_1.000_'+asym_str+'.root',
+            'inpath2' : method+'_CT2/'+method+'_costheta2_x_0.000_1.000_'+asym_str+'.root',
             'xvar' : 'x',
             'xvar_name' : 'x',
             'xlims' : (0.0,1.0),
-            'ylims' : (-0.4,0.4),
+            'ylims' : ylims,
         },
         {
-            'method' : 'HB',
-            'inpath1' : 'HB_CT1/HB_costheta1_z_ppim_0.0_1.0_sgasym_0.00_bgasym_0.00.root',
-            'inpath2' : 'HB_CT2/HB_costheta2_z_ppim_0.0_1.0_sgasym_0.00_bgasym_0.00.root',
+            'method' : method,
+            'inpath1' : method+'_CT1/'+method+'_costheta1_z_ppim_0.000_1.000_'+asym_str+'.root',
+            'inpath2' : method+'_CT2/'+method+'_costheta2_z_ppim_0.000_1.000_'+asym_str+'.root',
             'xvar' : 'z_ppim',
             'xvar_name' : 'z_{p\pi^{-}}',
             'xlims' : (0.3,1.0),
-            'ylims' : (-0.4,0.4),
+            'ylims' : ylims,
         },
         {
-            'method' : 'HB',
-            'inpath1' : 'HB_CT1/HB_costheta1_xF_ppim_0.0_1.0_sgasym_0.00_bgasym_0.00.root',
-            'inpath2' : 'HB_CT2/HB_costheta2_xF_ppim_0.0_1.0_sgasym_0.00_bgasym_0.00.root',
+            'method' : method,
+            'inpath1' : method+'_CT1/'+method+'_costheta1_xF_ppim_0.000_1.000_'+asym_str+'.root',
+            'inpath2' : method+'_CT2/'+method+'_costheta2_xF_ppim_0.000_1.000_'+asym_str+'.root',
             'xvar' : 'xF_ppim',
             'xvar_name' : 'x_{F p\pi^{-}}',
             'xlims' : (0.0,1.0),
-            'ylims' : (-0.4,0.4),
+            'ylims' : ylims,
         },
     ]
 
