@@ -223,9 +223,15 @@ void analysis(const YAML::Node& node) {
     ROOT::RDataFrame d(tree, inpath);
     const char * depolarization_name = "Dy";
     const char * helicity_name       = "heli";
-    auto frame = d.Filter(cuts)
+    const char * depol_name_mc       = "Dy_mc";
+    const char * fitvar_mc           = (const char *)Form("%s_mc",(const char *)fitvar);
+    auto frame = (!inject) ? d.Filter(cuts)
                     .Define(helicity_name, "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
-                    .Define(depolarization_name, [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}); // NEEDED FOR CALCULATIONS LATER
+                    .Define(depolarization_name, [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}) :
+                    d.Filter(cuts) //NOTE: COULD JUST INJECT ASYMMETRY HERE??? -> But then can't do different asymmetries for bg / sig
+                    .Define(helicity_name, "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
+                    .Define(depolarization_name, [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"})
+                    .Define(depol_name_mc, [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y_mc"}); // NEEDED FOR CALCULATIONS LATER
 
     // Numerical constants
     double alpha = 0.748;  // ±0.007 Weak decay asymmetry parameter
@@ -279,6 +285,8 @@ void analysis(const YAML::Node& node) {
                     depolarization_name,// const char * depol    = "Dy",        // Branch name for depolarization factor
                     helicity_name,// const char * helicity = "heli",      // Branch name for helicity
                     fitvar,// const char * fitvar   = "costheta1", // cos(theta) leaf name to use
+                    fitvar_mc,// const char * fitvar_mc           = "costheta1_mc",
+                    depol_name_mc,// const char * depol_name_mc       = "Dy_mc",
                     inject_asym,// bool inject = false, // flag for whether to inject asymmetry
                     gRandom,// TRandom gRandom = TRandom(), // Random number generator to use
                     // //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
