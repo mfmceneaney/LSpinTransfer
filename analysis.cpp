@@ -225,7 +225,7 @@ void analysis(const YAML::Node& node) {
     const char * helicity_name       = "heli";
     const char * depol_name_mc       = "Dy_mc";
     const char * fitvar_mc           = (const char *)Form("%s_mc",(const char *)fitvar);
-    auto frame = (!inject) ? d.Filter(cuts)
+    auto frame = (!inject_asym) ? d.Filter(cuts)
                     .Define(helicity_name, "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
                     .Define(depolarization_name, [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}) :
                     d.Filter(cuts) //NOTE: COULD JUST INJECT ASYMMETRY HERE??? -> But then can't do different asymmetries for bg / sig
