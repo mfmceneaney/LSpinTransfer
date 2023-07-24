@@ -71,15 +71,16 @@ TArrayF* LambdaMassFit(
     lt->Draw();
 
     // Set Fitting fn
-    TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*(1 - [6]*(x-[7])*(x-[7]))",varMin,varMax);
+    TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*ROOT::Math::log([6]*x-[7])",varMin,varMax);
     // func->SetParameters(0.5,2,0.006,1.1157,10000,h->GetBinContent(nbins),37,1.24);
-    func->SetParameters(0.5,2,0.006,1.1157,h->GetMaximum()/4,h->GetBinContent(nbins),37,1.24);
+    double curvature = 100.0;
+    func->SetParameters(0.5,2,0.006,1.1157,1000,h->GetMaximum()/4,h->GetBinContent(nbins)/log(curvature*varMax-(curvature*varMin-1.0)),curvature,curvature*varMin-1.0);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
     // func->FixParameter(6,37);
-    func->SetParLimits(0,0.0,1000.0);
-    func->SetParLimits(5,0.0,h->GetBinContent(nbins)+1000);
-    func->SetParLimits(7,0.0,1.26);
-    func->SetParLimits(1,2.0,100.0);
+    // func->SetParLimits(0,0.0,1000.0);
+    // func->SetParLimits(5,0.0,h->GetBinContent(nbins)+1000);
+    // func->SetParLimits(7,0.0,1.26);
+    // func->SetParLimits(1,2.0,100.0);
 
     // //DEBUGGING: BEGIN
     // // Plot original function
@@ -125,7 +126,7 @@ TArrayF* LambdaMassFit(
     sig->Draw("SAME");
 
     // Set the bg fn:
-    TF1 *bg = new TF1("bg","[0]*(1 - [1]*(x-[2])*(x-[2]))",varMin,varMax);
+    TF1 *bg = new TF1("bg","[0]*ROOT::Math::log([1]*x-[2])",varMin,varMax);
     bg->SetParameters(a0,a1,a2);
     Double_t errsBg[] = {Ea0,Ea1,Ea2};
     bg->SetParErrors(errsBg);
@@ -386,15 +387,16 @@ TArrayF* LambdaMassFitMC(
     // lt->Draw();
 
     // Set Fitting fn
-    TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*(1 - [6]*(x-[7])*(x-[7]))",varMin,varMax);
+    TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*ROOT::Math::log([6]*x-[7])",varMin,varMax);
     // func->SetParameters(0.5,2,0.006,1.1157,10000,h->GetBinContent(nbins),37,1.24);
-    func->SetParameters(0.5,2,0.006,1.1157,h->GetMaximum()/4,h->GetBinContent(nbins),37,1.24);
+    double curvature = 100.0;
+    func->SetParameters(0.5,2,0.006,1.1157,1000,h->GetMaximum()/4,h->GetBinContent(nbins)/log(curvature*varMax-(curvature*varMin-1.0)),curvature,curvature*varMin-1.0);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
     // func->FixParameter(6,37);
-    func->SetParLimits(0,0.0,1000.0);
-    func->SetParLimits(5,0.0,h->GetBinContent(nbins)+1000);
-    func->SetParLimits(7,0.0,1.26);
-    func->SetParLimits(1,2.0,100.0);
+    // func->SetParLimits(0,0.0,1000.0);
+    // func->SetParLimits(5,0.0,h->GetBinContent(nbins)+1000);
+    // func->SetParLimits(7,0.0,1.26);
+    // func->SetParLimits(1,2.0,100.0);
 
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
@@ -433,7 +435,7 @@ TArrayF* LambdaMassFitMC(
     sig->Draw("SAME");
 
     // Set the bg fn:
-    TF1 *bg = new TF1("bg","[0]*(1 - [1]*(x-[2])*(x-[2]))",varMin,varMax);
+    TF1 *bg = new TF1("bg","[0]*ROOT::Math::log([1]*x-[2])",varMin,varMax);
     bg->SetParameters(a0,a1,a2);
     Double_t errsBg[] = {Ea0,Ea1,Ea2};
     bg->SetParErrors(errsBg);
