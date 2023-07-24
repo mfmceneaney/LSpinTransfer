@@ -104,6 +104,7 @@ TArrayF* getKinBinLF(
     c1->cd(0);
     histP->SetMinimum(0);
     histP->SetMaximum(2);
+    histP->GetYaxis()->SetRangeUser(0.8,1.2);//NOTE: //TODO: Make these options...
     histP->Draw("PE");
     histP->Fit("fitf","","",fitvar_min,fitvar_max);
 
