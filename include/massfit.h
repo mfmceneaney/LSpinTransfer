@@ -271,8 +271,8 @@ TArrayF* LambdaMassFitMC(
     outroot->cd(outdir);
 
     // MC Matching cuts
-    const char *protonangcuts = "abs(theta_p-theta_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
-    const char *pionangcuts = "abs(theta_pim-theta_pim_mc)<6*TMath::Pi()/180"; // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
+    const char *protonangcuts = "abs(theta_p-theta_p_mc)<2*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
+    const char *pionangcuts = "abs(theta_pim-theta_pim_mc)<2*TMath::Pi()/180"; // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
 
     // True/false proton/pion cuts
     const char *true_proton_false_pion_cuts = Form("(%s) && !(%s)",protonangcuts,pionangcuts);
@@ -589,8 +589,8 @@ void LambdaMassFitMCDecomposition(
     outroot->cd(outdir);
 
     // MC Matching cuts
-    const char *protonangcuts = "abs(theta_p-theta_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
-    const char *pionangcuts = "abs(theta_pim-theta_pim_mc)<6*TMath::Pi()/180"; // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
+    const char *protonangcuts = "abs(theta_p-theta_p_mc)<2*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
+    const char *pionangcuts = "abs(theta_pim-theta_pim_mc)<2*TMath::Pi()/180"; // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
 
     // True/false proton/pion cuts
     const char *true_proton_false_pion_cuts = Form("(%s) && !(%s)",protonangcuts,pionangcuts);
