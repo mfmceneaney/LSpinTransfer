@@ -487,6 +487,7 @@ void getKinBinnedGraph(
             // Output message
             out << "--- BG Corrected Signal ---\n";
             out << " epsilon           =  " << epsilon << "\n";//NOTE: ADDED 7/7/23
+            out << " epsilon_err       =  " << bgfraction_err << "\n";
             out << " dll_corrected     =  " << dll << "\n";
             out << " dll_err_corrected =  " << dll_err << "\n";
             out << "---------------------------\n";
