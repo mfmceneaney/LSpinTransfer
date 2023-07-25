@@ -106,6 +106,10 @@ TArrayF* getKinBinLF(
     histP->SetMinimum(0);
     histP->SetMaximum(2);
     histP->GetYaxis()->SetRangeUser(0.8,1.2);//NOTE: //TODO: Make these options...
+    histP->SetMarkerStyle(20);
+    histP->SetMarkerColor(kBlue);
+    histP->SetMarkerSize(2);
+    histP->SetLineWidth(2);
     histP->Draw("PE");
     histP->Fit("fitf","","",fitvar_min,fitvar_max);
 
@@ -140,7 +144,7 @@ TArrayF* getKinBinLF(
     s4.Form("D_{LL'} = %.4f #pm %.4f",dll,dll_err);
 
     // Add a legend
-    TLegend *legend=new TLegend(0.7,0.6,0.99,0.99);
+    TLegend *legend=new TLegend(0.75,0.75,0.99,0.99);
     legend->SetTextSize(0.03);
     legend->SetHeader("Fit Info:","c");
     legend->SetMargin(0.1);
