@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <fstream>
+#include <string>
 
 // YAML Includes
 #include <yaml-cpp/yaml.h>
