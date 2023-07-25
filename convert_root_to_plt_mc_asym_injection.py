@@ -60,6 +60,16 @@ def get_plots(
     gridlinewidth=0.5
     axlinewidth=1
 
+    print("xvar_name = ",xvar_name)
+
+    # Get reduced chi2 costheta1 #NOTE: IMPORTANT!  This must be before plotting since plotting changes type of graph array elements
+    chi2_ct1 = np.sqrt(np.sum(np.square(np.array(g1[1]) - injected_asym))/len(g1[1]))
+    print(' \chi^2_CT1 = ',chi2_ct1)
+
+    # Get reduced chi2 costheta2 #NOTE: IMPORTANT!  This must be before plotting since plotting changes type of graph array elements
+    chi2_ct2 = np.sqrt(np.sum(np.square(np.array(g2[1]) - injected_asym))/len(g2[1]))
+    print(' \chi^2_CT2 = ',chi2_ct2)
+
     # Cos theta 1
     figsize = (16,10)
     f1, ax1 = plt.subplots(figsize=figsize)
@@ -109,7 +119,7 @@ def get_plots(
 if __name__=="__main__":
 
     verbose = True
-    injected_asym = -0.10
+    injected_asym = 0.10
     asym_str = f'sgasym_{injected_asym:.2f}_bgasym_0.00'
     method = 'HB'
     ylims = (-0.25,0.25)
