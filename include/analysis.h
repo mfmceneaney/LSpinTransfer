@@ -65,7 +65,7 @@ TArrayF* getKinBinLF(
     TString bin_cut; bin_cut.Form("%s>=%f && %s<%f",binvar,bin_min,binvar,bin_max);
 
     // Filter frame and inject asymmetry if needed
-    const char * mc_cut = "(has_lambda==0 && first_combo>0) || (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)";//DEBUGGING
+    const char * mc_cut = "has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc";//DEBUGGING
     const char * heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
     auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) :
                                         frame.Filter(Form("(%s) && (%s) && (%s)",cuts,(const char*)bin_cut,mc_cut)) //TODO: Double Check this
@@ -214,7 +214,7 @@ TArrayF* getKinBinHB(
     TString bin_cut; bin_cut.Form("%s>=%f && %s<%f",binvar,bin_min,binvar,bin_max);
 
     // Filter frame and inject asymmetry if needed
-    const char * mc_cut = "(has_lambda==0 && first_combo>0) || (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)";//DEBUGGING
+    const char * mc_cut = "has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc";//DEBUGGING
     const char * heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
     auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) :
                                         frame.Filter(Form("(%s) && (%s) && (%s)",cuts,(const char*)bin_cut,mc_cut)) //TODO: Double Check this
