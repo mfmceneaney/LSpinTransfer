@@ -333,6 +333,12 @@ void getKinBinnedGraph(
 
     double bgfractions[nbins];
     double bgfractions_err[nbins];
+    double bgfractions_ls[nbins];
+    double bgfractions_ls_err[nbins];
+    double bgfractions_us[nbins];
+    double bgfractions_us_err[nbins];
+    double bgfractions_sb[nbins];
+    double bgfractions_sb_err[nbins];
 
     // Loop bins and get data
     for (int i=1; i<=nbins; i++) {
@@ -346,6 +352,7 @@ void getKinBinnedGraph(
         // Get background fraction for bin from mass fit
         double epsilon = bgfraction;
         double bgfraction_err = 0.0; //TODO: add option for this.
+        double epsilon_ls, epsilon_ls_err, epsilon_us, epsilon_us_err, epsilon_sb, epsilon_sb_err;
         if (!use_bgfraction) {
             const char * massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar,bin_min,bin_max);
             const char * bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar,bin_max);
@@ -364,6 +371,12 @@ void getKinBinnedGraph(
 
             epsilon = massFitData->GetAt(0);
             bgfraction_err = massFitData->GetAt(1);
+            epsilon_ls = massFitData->GetAt(2);
+            epsilon_ls_err = massFitData->GetAt(3);
+            epsilon_us = massFitData->GetAt(4);
+            epsilon_us_err = massFitData->GetAt(5);
+            epsilon_sb = massFitData->GetAt(6);
+            epsilon_sb_err = massFitData->GetAt(7);
         }
 
         // Compute bin results
@@ -502,15 +515,21 @@ void getKinBinnedGraph(
         counts[i-1] = count;
         bgfractions[i-1] = epsilon;
         bgfractions_err[i-1] = bgfraction_err;
+        bgfractions_ls[i-1] = epsilon_ls;
+        bgfractions_ls_err[i-1] = epsilon_ls_err;
+        bgfractions_us[i-1] = epsilon_us;
+        bgfractions_us_err[i-1] = epsilon_us_err;
+        bgfractions_sb[i-1] = epsilon_sb;
+        bgfractions_sb_err[i-1] = epsilon_sb_err;
     }
 
     // Compute overall event-weighted means and errors and output binned results in Latex Table Format
     double mean_dll = 0, mean_dll_err = 0, mean_var = 0;
     int    count   = 0;
-    out << " mean " << binvar << "\t\tdll\t\tdll_err\t\tepsilon\t\tepsilon_err\n";
+    out << " mean " << binvar << "\t\tdll\t\tdll_err\n";
     out << "------------------------------------------------------------\n";
     for (int i=0; i<nbins; i++) {
-        out << " " << means[i] << " & " <<  dlls[i] << " $\\pm$ " << erry[i] << " & " <<  bgfractions[i] << " $\\pm$ " << bgfractions_err[i] << " \\\\\n";
+        out << " " << means[i] << " & " <<  dlls[i] << " $\\pm$ " << erry[i] << " \\\\\n";
         mean_dll     += dlls[i]*counts[i];
         mean_dll_err += erry[i]*erry[i]*counts[i];
         mean_var     += means[i]*counts[i];
@@ -523,6 +542,31 @@ void getKinBinnedGraph(
     out << " Mean dll = " << mean_dll << " ± " << mean_dll_err << "\n";
     out << " Mean   " << binvar << " = "<< mean_var << "\n";
     out << " count = "<< count << "\n";
+
+    //----------//
+    //DEBUGGING: Added 7/25/23
+    out << "------------------------------------------------------------\n";
+    out << " Mean " << binvar << " & $\\epsilon_{ls}$ & $\\delta\\epsilon_{ls}/\\epsilon_{ls}$\\\\\n";
+    out << "\\hline\n";
+    for (int i=0; i<nbins; i++) {
+        out << " " << means[i] << " & " <<  bgfractions_ls[i] << " $\\pm$ " << bgfractions_ls_err[i] << " & " << bgfractions_ls_err[i]/bgfractions_ls[i]*100 << " \\\\\n";
+    }
+
+    out << "------------------------------------------------------------\n";
+    out << " Mean " << binvar << " & $\\epsilon_{us}$ & $\\delta\\epsilon_{us}/\\epsilon_{us}$\\\\\n";
+    out << "\\hline\n";
+    for (int i=0; i<nbins; i++) {
+        out << " " << means[i] << " & " <<  bgfractions_us[i] << " $\\pm$ " << bgfractions_us_err[i] << " & " << bgfractions_us_err[i]/bgfractions_us[i]*100 << " \\\\\n";
+    }
+
+    out << "------------------------------------------------------------\n";
+    out << " Mean " << binvar << " & $\\epsilon_{sb}$ & $\\delta\\epsilon_{sb}/\\epsilon_{sb}$\\\\\n";
+    out << "\\hline\n";
+    for (int i=0; i<nbins; i++) {
+        out << " " << means[i] << " & " <<  bgfractions_sb[i] << " $\\pm$ " << bgfractions_sb_err[i] << " & " << bgfractions_sb_err[i]/bgfractions_sb[i]*100 << " \\\\\n";
+    }
+
+    //----------//
 
     // Create graph of results binned in binvar
     TGraphErrors *gr = new TGraphErrors(nbins,means,dlls,errx,erry);

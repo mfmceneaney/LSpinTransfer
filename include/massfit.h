@@ -481,6 +481,56 @@ TArrayF* LambdaMassFitMC(
     auto i_bg = bg->Integral(LBInt, UBInt)/BinWidth;
     auto i_bg_err = bg->IntegralError(LBInt,UBInt,bg->GetParameters(),bgMat->GetMatrixArray())/BinWidth;
 
+    //----------------------------------------------------------------------------------------------------//
+    // DEBUGGING: Added 7/25/23
+
+    // Lower sideband
+    double LBInt_ls = 1.08;
+    double UBInt_ls = 1.10;
+
+    // Fit fn:
+    out << "i_fitf lower sideband" << std::endl;
+    auto i_fitf_ls = func->Integral(LBInt_ls,UBInt_ls)/BinWidth;
+    auto i_fitf_err_ls = func->IntegralError(LBInt_ls,UBInt_ls,func->GetParameters(),covMat->GetMatrixArray())/BinWidth;
+    i_fitf_err_ls = 0.0;
+    i_fitf_ls = h->IntegralAndError(h->FindBin(LBInt_ls),h->FindBin(UBInt_ls),i_fitf_err_ls);
+
+    // Signal:
+    out << "i_sig lower sideband" << std::endl;
+    auto i_sig_ls = sig->Integral(LBInt_ls, UBInt_ls)/BinWidth;
+    auto i_sig_err_ls = sig->IntegralError(LBInt_ls,UBInt_ls,sig->GetParameters(),sigMat->GetMatrixArray())/BinWidth;
+    i_sig_err_ls = 0.0;
+    i_sig_ls = hist->IntegralAndError(hist->FindBin(LBInt_ls),hist->FindBin(UBInt_ls),i_sig_err_ls);//NOTE: THIS MAY BE INCORRECT!
+
+    // Background:
+    out << "i_bg lower sideband" << std::endl;
+    auto i_bg_ls = bg->Integral(LBInt_ls, UBInt_ls)/BinWidth;
+    auto i_bg_err_ls = bg->IntegralError(LBInt_ls,UBInt_ls,bg->GetParameters(),bgMat->GetMatrixArray())/BinWidth;
+
+    // Upper sideband
+    double LBInt_us = 1.15;
+    double UBInt_us = 1.18;
+
+    // Fit fn:
+    out << "i_fitf upper sideband" << std::endl;
+    auto i_fitf_us = func->Integral(LBInt_us,UBInt_us)/BinWidth;
+    auto i_fitf_err_us = func->IntegralError(LBInt_us,UBInt_us,func->GetParameters(),covMat->GetMatrixArray())/BinWidth;
+    i_fitf_err_us = 0.0;
+    i_fitf_us = h->IntegralAndError(h->FindBin(LBInt_us),h->FindBin(UBInt_us),i_fitf_err_us);
+
+    // Signal:
+    out << "i_sig upper sideband" << std::endl;
+    auto i_sig_us = sig->Integral(LBInt_us, UBInt_us)/BinWidth;
+    auto i_sig_err_us = sig->IntegralError(LBInt_us,UBInt_us,sig->GetParameters(),sigMat->GetMatrixArray())/BinWidth;
+    i_sig_err_us = 0.0;
+    i_sig_us = hist->IntegralAndError(hist->FindBin(LBInt_us),hist->FindBin(UBInt_us),i_sig_err_us);//NOTE: THIS MAY BE INCORRECT!
+
+    // Background:
+    out << "i_bg upper sideband" << std::endl;
+    auto i_bg_us = bg->Integral(LBInt_us, UBInt_us)/BinWidth;
+    auto i_bg_err_us = bg->IntegralError(LBInt_us,UBInt_us,bg->GetParameters(),bgMat->GetMatrixArray())/BinWidth;
+    //----------------------------------------------------------------------------------------------------//
+
     // Get Legend Entries
     TString sChi2, sNDF, sAlpha, sN, sSigma, sMu, sC1, sA0, sA1, sA2, sNSig, sNBg, sNTot;
     sChi2.Form("#chi^{2}/NDF = %.2f",chi2/ndf);
@@ -520,13 +570,38 @@ TArrayF* LambdaMassFitMC(
     float epsilon = (float) i_bg / i_fitf;
     float epsilon_err = (float) TMath::Sqrt(TMath::Power(i_bg_err / i_fitf,2)+TMath::Power((i_bg * i_fitf_err)/(i_fitf * i_fitf),2));
 
+    //----------------------------------------------------------------------------------------------------//
+    // DEBUGGING: Added 7/25/23
+
+    // Compute epsilon lower sideband
+    float epsilon_ls = (float) i_bg_ls / i_fitf_ls;
+    float epsilon_err_ls = (float) TMath::Sqrt(TMath::Power(i_bg_err_ls / i_fitf_ls,2)+TMath::Power((i_bg_ls * i_fitf_err_ls)/(i_fitf_ls * i_fitf_ls),2));
+
+    // Compute epsilon upper sideband
+    float epsilon_us = (float) i_bg_us / i_fitf_us;
+    float epsilon_err_us = (float) TMath::Sqrt(TMath::Power(i_bg_err_us / i_fitf_us,2)+TMath::Power((i_bg_us * i_fitf_err_us)/(i_fitf_us * i_fitf_us),2));
+
+    // Compute combined epsilon sidebands
+    auto n_ls = (int) *frame.Filter(cuts).Filter(Form("%s>=%.16f && %s<%.16f",varName,LBInt_ls,varName,UBInt_ls)).Count();
+    auto n_us = (int) *frame.Filter(cuts).Filter(Form("%s>=%.16f && %s<%.16f",varName,LBInt_us,varName,UBInt_us)).Count();
+    float epsilon_sb = (float) (n_ls * epsilon_ls + n_us * epsilon_us)/(n_ls + n_us);
+    float epsilon_err_sb = (float) TMath::Sqrt(TMath::Power(n_ls * epsilon_ls,2) + TMath::Power(n_us * epsilon_us,2))/(n_ls + n_us);
+
+    //----------------------------------------------------------------------------------------------------//
+
     //TODO: Could output fit results to outstream and/or could save to some sort of tree int pwd...
 
     // Fill return array
-    TArrayF *arr = new TArrayF(26);
+    TArrayF *arr = new TArrayF(32);
     int i = 0;
     arr->AddAt(epsilon,i++);
     arr->AddAt(epsilon_err,i++);
+    arr->AddAt(epsilon_ls,i++);
+    arr->AddAt(epsilon_err_ls,i++);
+    arr->AddAt(epsilon_us,i++);
+    arr->AddAt(epsilon_err_us,i++);
+    arr->AddAt(epsilon_sb,i++);
+    arr->AddAt(epsilon_err_sb,i++);
     arr->AddAt(i_sig,i++);
     arr->AddAt(i_sig_err,i++);
     arr->AddAt(i_bg,i++);
