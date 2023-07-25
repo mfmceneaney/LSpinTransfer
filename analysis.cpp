@@ -224,7 +224,7 @@ void analysis(const YAML::Node& node) {
     const char * depolarization_name = "Dy";
     const char * helicity_name       = "heli";
     const char * depol_name_mc       = "Dy_mc";
-    const char * fitvar_mc           = (const char *)Form("%s_mc",(const char *)fitvar);
+    std::string fitvar_mc(Form("%s_mc",(const char *)fitvar));
     auto frame = (!inject_asym) ? d.Filter(cuts)
                     .Define(helicity_name, "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
                     .Define(depolarization_name, [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}) :
@@ -285,7 +285,7 @@ void analysis(const YAML::Node& node) {
                     depolarization_name,// const char * depol    = "Dy",        // Branch name for depolarization factor
                     helicity_name,// const char * helicity = "heli",      // Branch name for helicity
                     fitvar,// const char * fitvar   = "costheta1", // cos(theta) leaf name to use
-                    fitvar_mc,// const char * fitvar_mc           = "costheta1_mc",
+                    fitvar_mc,// std::string fitvar_mc           = "costheta1_mc",
                     depol_name_mc,// const char * depol_name_mc       = "Dy_mc",
                     inject_asym,// bool inject = false, // flag for whether to inject asymmetry
                     gRandom,// TRandom gRandom = TRandom(), // Random number generator to use

@@ -46,7 +46,7 @@ TArrayF* getKinBinLF(
                     const char * depolarization_name = "Dy",
                     const char * helicity_name       = "heli",
                     const char * fitvar              = "costheta1",
-                    const char * fitvar_mc           = "costheta1_mc",
+                    std::string  fitvar_mc           = "costheta1_mc",
                     const char * depol_name_mc       = "Dy_mc",
                     bool         inject              = false,
                     TRandom      gRandom             = TRandom(),
@@ -70,7 +70,7 @@ TArrayF* getKinBinLF(
                                         .Define(heli_asym, [&gRandom,&alpha,&asym,&pol](float Dy, float costheta) {
                                             return (float)(gRandom.Rndm()<0.5*(1.0 + alpha*Dy*pol*asym*costheta) ? 1.0 : -1.0); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
                                         },
-                                        {depol_name_mc,fitvar_mc}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+                                        {depol_name_mc,fitvar_mc.c_str()}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
 
     // Set fit function
     TF1 *fitf = new TF1("fitf","[0]+[1]*x",fitvar_min,fitvar_max);
@@ -194,7 +194,7 @@ TArrayF* getKinBinHB(
                     const char * depolarization_name = "Dy",
                     const char * helicity_name       = "heli",
                     const char * fitvar              = "costheta1",
-                    const char * fitvar_mc           = "costheta1_mc",
+                    std::string  fitvar_mc           = "costheta1_mc",
                     const char * depol_name_mc       = "Dy_mc",
                     bool         inject              = false,
                     TRandom      gRandom             = TRandom(),
@@ -214,7 +214,7 @@ TArrayF* getKinBinHB(
                                         .Define(heli_asym, [&gRandom,&alpha,&asym,&pol](float Dy, float costheta) {
                                             return (float)(gRandom.Rndm()<0.5*(1.0 + alpha*Dy*pol*asym*costheta) ? 1.0 : -1.0);
                                         },
-                                        {depol_name_mc,fitvar_mc}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+                                        {depol_name_mc,fitvar_mc.c_str()}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
 
     // Get data
     auto count    = (int)   *f.Count();
@@ -286,7 +286,7 @@ void getKinBinnedGraph(
                     const char * depolarization_name = "Dy",        // Branch name for depolarization factor
                     const char * helicity_name       = "heli",      // Branch name for helicity
                     const char * fitvar              = "costheta1", // cos(theta) leaf name to use
-                    const char * fitvar_mc           = "costheta1_mc", // fitvar name for mc if injecting
+                    std::string  fitvar_mc           = "costheta1_mc", // fitvar name for mc if injecting
                     const char * depol_name_mc       = "Dy_mc",        // depolarization name for mc if injecting
                     bool         inject              = false,       // flag for whether to inject asymmetry
                     TRandom      gRandom             = TRandom(),   // Random number generator to use
