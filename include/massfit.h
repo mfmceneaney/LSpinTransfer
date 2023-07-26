@@ -278,7 +278,7 @@ TArrayF* LambdaMassFit(
     //TODO: Could output fit results to outstream and/or could save to some sort of tree int pwd...
 
     // Fill return array
-    TArrayF *arr = new TArrayF(32);
+    TArrayF *arr = new TArrayF(30);
     int i = 0;
     arr->AddAt(epsilon,i++);
     arr->AddAt(epsilon_err,i++);
@@ -305,8 +305,6 @@ TArrayF* LambdaMassFit(
     arr->AddAt(Esigma,i++);
     arr->AddAt(mu,i++);
     arr->AddAt(Emu,i++);
-    arr->AddAt(alpha,i++);
-    arr->AddAt(Ealpha,i++);
     arr->AddAt(C1,i++);
     arr->AddAt(EC1,i++);
     arr->AddAt(a0,i++);
@@ -670,7 +668,7 @@ TArrayF* LambdaMassFitMC(
     //TODO: Could output fit results to outstream and/or could save to some sort of tree int pwd...
 
     // Fill return array
-    TArrayF *arr = new TArrayF(32);
+    TArrayF *arr = new TArrayF(30);
     int i = 0;
     arr->AddAt(epsilon,i++);
     arr->AddAt(epsilon_err,i++);
@@ -697,8 +695,6 @@ TArrayF* LambdaMassFitMC(
     arr->AddAt(Esigma,i++);
     arr->AddAt(mu,i++);
     arr->AddAt(Emu,i++);
-    arr->AddAt(alpha,i++);
-    arr->AddAt(Ealpha,i++);
     arr->AddAt(C1,i++);
     arr->AddAt(EC1,i++);
     arr->AddAt(a0,i++);
@@ -986,7 +982,7 @@ TArrayF* LambdaMassFit_Gaus(
 
     // Set the signal fn:
     nparameters = 3;
-    TF1 *sig = new TF1("sig",gaus_func,varMin,varMax,nparameters);
+    TF1 *sig = new TF1("sig",gauss_func,varMin,varMax,nparameters);
     sig->SetParameters(sigma,mu,C1);
     Double_t errsSig[] = {Esigma,Emu,EC1};
     sig->SetParErrors(errsSig);
@@ -1142,7 +1138,7 @@ TArrayF* LambdaMassFit_Gaus(
     //TODO: Could output fit results to outstream and/or could save to some sort of tree int pwd...
 
     // Fill return array
-    TArrayF *arr = new TArrayF(28);
+    TArrayF *arr = new TArrayF(26);
     int i = 0;
     arr->AddAt(epsilon,i++);
     arr->AddAt(epsilon_err,i++);
@@ -1165,8 +1161,6 @@ TArrayF* LambdaMassFit_Gaus(
     arr->AddAt(Esigma,i++);
     arr->AddAt(mu,i++);
     arr->AddAt(Emu,i++);
-    arr->AddAt(alpha,i++);
-    arr->AddAt(Ealpha,i++);
     arr->AddAt(C1,i++);
     arr->AddAt(EC1,i++);
     arr->AddAt(a0,i++);
@@ -1361,7 +1355,7 @@ TArrayF* LambdaMassFitMC_Gaus(
 
     // Set the signal fn:
     nparameters = 3;
-    TF1 *sig = new TF1("sig",gaus_func,varMin,varMax,nparameters);
+    TF1 *sig = new TF1("sig",gauss_func,varMin,varMax,nparameters);
     sig->SetParameters(sigma,mu,C1);
     Double_t errsSig[] = {Esigma,Emu,EC1};
     sig->SetParErrors(errsSig);
@@ -1523,7 +1517,7 @@ TArrayF* LambdaMassFitMC_Gaus(
     //TODO: Could output fit results to outstream and/or could save to some sort of tree int pwd...
 
     // Fill return array
-    TArrayF *arr = new TArrayF(28);
+    TArrayF *arr = new TArrayF(26);
     int i = 0;
     arr->AddAt(epsilon,i++);
     arr->AddAt(epsilon_err,i++);
@@ -1546,8 +1540,6 @@ TArrayF* LambdaMassFitMC_Gaus(
     arr->AddAt(Esigma,i++);
     arr->AddAt(mu,i++);
     arr->AddAt(Emu,i++);
-    arr->AddAt(alpha,i++);
-    arr->AddAt(Ealpha,i++);
     arr->AddAt(C1,i++);
     arr->AddAt(EC1,i++);
     arr->AddAt(a0,i++);
