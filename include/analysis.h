@@ -340,6 +340,19 @@ void getKinBinnedGraph(
     double bgfractions_sb[nbins];
     double bgfractions_sb_err[nbins];
 
+    // Initialize data arrays gaussian fit
+    double dlls_gaus[nbins];
+    double erry_gaus[nbins];
+
+    double bgfractions_gaus[nbins];
+    double bgfractions_err_gaus[nbins];
+    double bgfractions_ls_gaus[nbins];
+    double bgfractions_ls_err_gaus[nbins];
+    double bgfractions_us_gaus[nbins];
+    double bgfractions_us_err_gaus[nbins];
+    double bgfractions_sb_gaus[nbins];
+    double bgfractions_sb_err_gaus[nbins];
+
     // Loop bins and get data
     for (int i=1; i<=nbins; i++) {
         double bin_min = bins[i-1];
@@ -463,6 +476,8 @@ void getKinBinnedGraph(
         double mean    = binData->GetAt(2);
         int    count   = binData->GetAt(3);
 
+        double dll_gaus, dll_err_gaus;
+
         // Sideband subtraction background correction
         if (epsilon==1.00) {out << " *** WARNING *** epsilon = 1 -> No BG correction made.\n";}
         else {
@@ -523,6 +538,9 @@ void getKinBinnedGraph(
             int    bg_count  = bgBinData->GetAt(3);
             dll    = (dll - epsilon * bg_dll) / (1 - epsilon);
             dll_err = TMath::Abs(TMath::Sqrt(dll_err*dll_err+epsilon*epsilon*bg_dll_err*bg_dll_err) / (1 - epsilon));
+
+            dll_gaus    = (dll - epsilon_gaus * bg_dll) / (1 - epsilon_gaus);
+            dll_err_gaus = TMath::Abs(TMath::Sqrt(dll_err*dll_err+epsilon_gaus*epsilon_gaus*bg_dll_err*bg_dll_err) / (1 - epsilon_gaus));
 
             // Output message
             out << "--- BG Corrected Signal ---\n";
@@ -776,6 +794,10 @@ void getKinBinnedMassFits(
     double bgfractions[nbins];
     double bgfractions_err[nbins];
 
+    // Initialize data array Gaussian fit
+    double bgfractions_gaus[nbins];
+    double bgfractions_err_gaus[nbins];
+
     // Loop bins and get data
     for (int i=1; i<=nbins; i++) {
         double bin_min = bins[i-1];
@@ -810,7 +832,7 @@ void getKinBinnedMassFits(
             epsilon = massFitData->GetAt(0);
             bgfraction_err = massFitData->GetAt(1);
 
-            TArrayF* massFitData_gaus = LambdaMassFit_gaus(
+            TArrayF* massFitData_gaus = LambdaMassFit_Gaus(
                         massoutdir,
                         outroot,
                         bin_frame,
