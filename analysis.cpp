@@ -20,72 +20,64 @@
 void analysis(const YAML::Node& node) {
 
     // Process arguments
-    std::string _outdir = "";
+    std::string outdir = "";
     if (node["outdir"]) {
-        _outdir = node["outdir"].as<std::string>();
+        outdir = node["outdir"].as<std::string>();
     }
-    const char * outdir = _outdir.c_str();
     std::cout << "outdir: " << outdir << std::endl;
 
-    std::string _outpath = "out.root";
+    std::string outpath = "out.root";
     if (node["outpath"]) {
-        _outpath = node["outpath"].as<std::string>();
+        outpath = node["outpath"].as<std::string>();
     }
-    const char * outpath = _outpath.c_str();
     std::cout << "outpath: " << outpath << std::endl;
 
-    std::string _inpath = "";
+    std::string inpath = "";
     if (node["inpath"]) {
-        _inpath = node["inpath"].as<std::string>();
+        inpath = node["inpath"].as<std::string>();
     }
-    const char * inpath = _inpath.c_str();
     std::cout << "inpath: " << inpath << std::endl;
 
-    std::string _tree = "";
+    std::string tree = "";
     if (node["tree"]) {
-        _tree = node["tree"].as<std::string>();
+        tree = node["tree"].as<std::string>();
     }
-    const char * tree = _tree.c_str();
     std::cout << "tree: " << tree << std::endl;
 
     int nthreads = 1;
     if (node["nthreads"]) {
         nthreads = node["nthreads"].as<int>();
-        std::cout << "nthreads: " << nthreads << std::endl;
     }
+    std::cout << "nthreads: " << nthreads << std::endl;
 
-    std::string _cuts = "";
+    std::string cuts = "";
     if (node["cuts"]) {
-        _cuts = node["cuts"].as<std::string>();
+        cuts = node["cuts"].as<std::string>();
     }
-    const char * cuts = _cuts.c_str();
     std::cout << "cuts: " << cuts << std::endl;
 
-    std::string _sgcuts = "";
+    std::string sgcuts = "";
     if (node["sgcuts"]) {
-        _sgcuts = node["sgcuts"].as<std::string>();
+        sgcuts = node["sgcuts"].as<std::string>();
     }
-    const char * sgcuts = _sgcuts.c_str();
     std::cout << "sgcuts: " << sgcuts << std::endl;
 
-    std::string _bgcuts = "";
+    std::string bgcuts = "";
     if (node["bgcuts"]) {
-        _bgcuts = node["bgcuts"].as<std::string>();
+        bgcuts = node["bgcuts"].as<std::string>();
     }
-    const char * bgcuts = _bgcuts.c_str();
     std::cout << "bgcuts: " << bgcuts << std::endl;
 
     std::string method = ""; //NOTE: This can stay a std::string since it's a TString later...
     if (node["method"]) {
         method = node["method"].as<std::string>();
-        std::cout << "method: " << method << std::endl;
     }
+    std::cout << "method: " << method << std::endl;
 
-    std::string _fitvar = "";
+    std::string fitvar = "";
     if (node["fitvar"]) {
-        _fitvar = node["fitvar"].as<std::string>();
+        fitvar = node["fitvar"].as<std::string>();
     }
-    const char * fitvar = _fitvar.c_str();
     std::cout << "fitvar: " << fitvar << std::endl;
 
     std::map<std::string,std::vector<double>> binvars;
@@ -131,86 +123,91 @@ void analysis(const YAML::Node& node) {
     double bgfraction = 1.0;
     if (node["bgfraction"]) {
         bgfraction = node["bgfraction"].as<double>();
-        std::cout << "bgfraction: " << bgfraction << std::endl;
     }
+    std::cout << "bgfraction: " << bgfraction << std::endl;
+
     bool use_bgfraction = false;
     if (node["use_bgfraction"]) {
         use_bgfraction = node["use_bgfraction"].as<bool>();
-        std::cout << "use_bgfraction: " << use_bgfraction << std::endl;
     }
+    std::cout << "use_bgfraction: " << use_bgfraction << std::endl;
+
     bool inject_asym = false;
     if (node["inject_asym"]) {
         inject_asym = node["inject_asym"].as<bool>();
-        std::cout << "inject_asym: " << inject_asym << std::endl;
     }
+    std::cout << "inject_asym: " << inject_asym << std::endl;
+
     double sgasym;
     if (node["sgasym"]) {
         sgasym = node["sgasym"].as<double>();
-        std::cout << "sgasym: " << sgasym << std::endl;
     }
+    std::cout << "sgasym: " << sgasym << std::endl;
+
     double bgasym;
     if (node["bgasym"]) {
         bgasym = node["bgasym"].as<double>();
-        std::cout << "bgasym: " << bgasym << std::endl;
     }
+    std::cout << "bgasym: " << bgasym << std::endl;
 
     double beam_polarization   = 0.8922; // Average Polarization for Fall 2018 Outbending data runs >= 5331
     if (node["beam_polarization"]) {
         beam_polarization = node["beam_polarization"].as<double>();
-        std::cout << "beam_polarization: " << beam_polarization << std::endl;
     }
+    std::cout << "beam_polarization: " << beam_polarization << std::endl;
 
-    std::string _mass_name = "mass_ppim";
+    std::string mass_name = "mass_ppim";
     if (node["mass_name"]) {
-        _mass_name = node["mass_name"].as<std::string>();   
+        mass_name = node["mass_name"].as<std::string>();   
     }
-    const char * mass_name = _mass_name.c_str();
     std::cout << "mass_name: " << mass_name << std::endl;
 
     int n_mass_bins = 100;
     if (node["n_mass_bins"]) {
         n_mass_bins = node["n_mass_bins"].as<int>();
-        std::cout << "n_mass_bins: " << n_mass_bins << std::endl;
     }
+    std::cout << "n_mass_bins: " << n_mass_bins << std::endl;
+
     double mass_min = 1.08;
     if (node["mass_min"]) {
         mass_min = node["mass_min"].as<double>();
-        std::cout << "mass_min: " << mass_min << std::endl;
     }
+    std::cout << "mass_min: " << mass_min << std::endl;
+
     double mass_max = 1.24;
     if (node["mass_max"]) {
         mass_max = node["mass_max"].as<double>();
-        std::cout << "mass_max: " << mass_max << std::endl;
     }
-    std::string _mass_draw_opt = "";
+    std::cout << "mass_max: " << mass_max << std::endl;
+
+    std::string mass_draw_opt = "";
     if (node["mass_draw_opt"]) {
-        _mass_draw_opt = node["mass_draw_opt"].as<std::string>();
+        mass_draw_opt = node["mass_draw_opt"].as<std::string>();
     }
-    const char * mass_draw_opt = _mass_draw_opt.c_str();
     std::cout << "mass_draw_opt: " << mass_draw_opt << std::endl;
 
-    std::string _graph_title = "graph_title";
+    std::string graph_title = "graph_title";
     if (node["graph_title"]) {
-        _graph_title = node["graph_title"].as<std::string>();
+        graph_title = node["graph_title"].as<std::string>();
     }
-    const char * graph_title = _graph_title.c_str();
     std::cout << "graph_title: " << graph_title << std::endl;
 
     int marker_color = 4;
     if (node["marker_color"]) {
         marker_color = node["marker_color"].as<int>();
-        std::cout << "marker_color: " << marker_color << std::endl;
     }
+    std::cout << "marker_color: " << marker_color << std::endl;
+
     int marker_style = 20;
     if (node["marker_style"]) {
-        marker_style = node["marker_style"].as<int>();
-        std::cout << "marker_style: " << marker_style << std::endl;
+        marker_style = node["marker_style"].as<int>(); 
     }
-    std::string _logpath = "out.txt";
+    std::cout << "marker_style: " << marker_style << std::endl;
+
+    std::string logpath = "out.txt";
     if (node["logpath"]) {
-        _logpath = node["logpath"].as<std::string>();
+        logpath = node["logpath"].as<std::string>();
     }
-    const char * logpath = _logpath.c_str();
     std::cout << "logpath: " << logpath << std::endl;
 
     //----------------------------------------------------------------------------------------------------//
@@ -225,11 +222,11 @@ void analysis(const YAML::Node& node) {
     const char * depolarization_name = "Dy";
     const char * helicity_name       = "heli";
     const char * depol_name_mc       = "Dy_mc";
-    std::string fitvar_mc(Form("%s_mc",(const char *)fitvar));
-    auto frame = (!inject_asym) ? d.Filter(cuts)
+    std::string fitvar_mc = Form("%s_mc",fitvar.c_str());
+    auto frame = (!inject_asym) ? d.Filter(cuts.c_str())
                     .Define(helicity_name, "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
                     .Define(depolarization_name, [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}) :
-                    d.Filter(cuts) //NOTE: COULD JUST INJECT ASYMMETRY HERE??? -> But then can't do different asymmetries for bg / sig
+                    d.Filter(cuts.c_str()) //NOTE: COULD JUST INJECT ASYMMETRY HERE??? -> But then can't do different asymmetries for bg / sig
                     .Define(helicity_name, "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
                     .Define(depolarization_name, [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"})
                     .Define(depol_name_mc, [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y_mc"}); // NEEDED FOR CALCULATIONS LATER
@@ -238,11 +235,11 @@ void analysis(const YAML::Node& node) {
     double alpha = 0.748;  // ±0.007 Weak decay asymmetry parameter
 
     // Create output log
-    std::ofstream outf; outf.open(logpath);
+    std::ofstream outf; outf.open(logpath.c_str());
     std::ostream &out = outf; //std::cout;
 
     // Create output ROOT file
-    TFile * outroot = TFile::Open(outpath,"RECREATE");
+    TFile * outroot = TFile::Open(outpath.c_str(),"RECREATE");
 
     // Create random number generator for MC asymmetry injection
     TRandom gRandom = TRandom();
@@ -251,49 +248,48 @@ void analysis(const YAML::Node& node) {
     for (auto it = binvars.begin(); it != binvars.end(); ++it) { //TODO: How to check if too many binning variables...
 
         // Get bin variable name and bin limits
-        std::string name_ = it->first;
+        std::string binvar = it->first;
         std::vector<double> bins_ = it->second;
-        const char * binvar = name_.c_str();
         const int nbins = bins_.size()-1; //NOTE: IMPORTANT: -1 is because you give bin limits!
         double bins[nbins];
         for (int bin=0; bin<bins_.size(); bin++) { bins[bin] = bins_[bin]; }
 
         // Set binvar outdir name
-        const char * binvar_outdir = Form("binvar_%s",binvar);
+        std::string binvar_outdir = Form("binvar_%s",binvar.c_str());
 
         // Get 1D graph binned in given kinematic variable.
         getKinBinnedGraph(
                     binvar_outdir,
                     outroot, // TFile *outroot,
                     frame, // ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> __frame__,
-                    sgcuts, // const char * sgcuts,  // Signal cuts
-                    bgcuts, // const char * bgcuts,  // Background cuts
+                    sgcuts, // std::string  sgcuts,  // Signal cuts
+                    bgcuts, // std::string  bgcuts,  // Background cuts
                     method, // TString      method,  // DLL calculation method: either helicity balance (HB) or linear fit (LF)
-                    binvar, // const char * binvar, // Variable name to bin in
+                    binvar, // std::string  binvar, // Variable name to bin in
                     nbins, // int          nbins,   // Number of bins
                     bins, // double     * bins,    // Bin limits (length=nbins+1)
                     bgfraction, // double       epsilon_, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     use_bgfraction, // bool         use_epsilon, // whether to use specified epsilon
                     alpha, // double       alpha,   // Lambda weak decay asymmetry parameter
                     beam_polarization, // double       pol,     // Luminosity averaged beam polarization
-                    mass_name,// const char * mass_name, // mass variable name for signal fit
+                    mass_name,// std::string  mass_name, // mass variable name for signal fit
                     n_mass_bins,// int          n_mass_bins, // number of mass bins
                     mass_min,// double       mass_min,   // mass variable max for signal fit
                     mass_max,// double       mass_max,   // mass variable min for signal fit
-                    mass_draw_opt,// const char * mass_draw_opt, // mass variable hist draw option for fit
+                    mass_draw_opt,// std::string  mass_draw_opt, // mass variable hist draw option for fit
                     sgasym,// double       sgasym   = 0.00,        // Asymmetry to inject to signal in MC
                     bgasym,// double       bgasym   = 0.00,        // Asymmetry to inject to background in MC
-                    depolarization_name,// const char * depol    = "Dy",        // Branch name for depolarization factor
-                    helicity_name,// const char * helicity = "heli",      // Branch name for helicity
-                    fitvar,// const char * fitvar   = "costheta1", // cos(theta) leaf name to use
+                    depolarization_name,// std::string  depol    = "Dy",        // Branch name for depolarization factor
+                    helicity_name,// std::string  helicity = "heli",      // Branch name for helicity
+                    fitvar,// std::string  fitvar   = "costheta1", // cos(theta) leaf name to use
                     fitvar_mc,// std::string fitvar_mc           = "costheta1_mc",
-                    depol_name_mc,// const char * depol_name_mc       = "Dy_mc",
+                    depol_name_mc,// std::string  depol_name_mc       = "Dy_mc",
                     inject_asym,// bool inject = false, // flag for whether to inject asymmetry
                     gRandom,// TRandom gRandom = TRandom(), // Random number generator to use
                     // //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
                     // //   double       fitvarMin = -1.0,       // fit variable minimum
                     // //   double       fitvarMax = 1.0,        // fit variable maximum
-                    graph_title, // const char * title    = "Longitudinal Spin Transfer along #vec{p}_{#Lambda}", // Histogram title
+                    graph_title, // std::string  title    = "Longitudinal Spin Transfer along #vec{p}_{#Lambda}", // Histogram title
                     marker_color, // int          marker_color = 4,  // 4 is blue
                     marker_style, // int          marker_style = 20, // 20 is circle
                     out // std::ostream &out        = std::cout   // Output for all messages
