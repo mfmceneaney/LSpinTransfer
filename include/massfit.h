@@ -268,8 +268,8 @@ TArrayF* LambdaMassFit(
     float epsilon_err_us = (float) TMath::Sqrt(TMath::Power(i_bg_err_us / i_fitf_us,2)+TMath::Power((i_bg_us * i_fitf_err_us)/(i_fitf_us * i_fitf_us),2));
 
     // Compute combined epsilon sidebands
-    auto n_ls = (int) *frame.Filter(cuts).Filter(Form("%s>=%.16f && %s<%.16f",varName,LBInt_ls,varName,UBInt_ls)).Count();
-    auto n_us = (int) *frame.Filter(cuts).Filter(Form("%s>=%.16f && %s<%.16f",varName,LBInt_us,varName,UBInt_us)).Count();
+    auto n_ls = (int) *frame.Filter(Form("%s>=%.16f && %s<%.16f",varName,LBInt_ls,varName,UBInt_ls)).Count();
+    auto n_us = (int) *frame.Filter(Form("%s>=%.16f && %s<%.16f",varName,LBInt_us,varName,UBInt_us)).Count();
     float epsilon_sb = (float) (n_ls * epsilon_ls + n_us * epsilon_us)/(n_ls + n_us);
     float epsilon_err_sb = (float) TMath::Sqrt(TMath::Power(n_ls * epsilon_ls,2) + TMath::Power(n_us * epsilon_us,2))/(n_ls + n_us);
 
