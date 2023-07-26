@@ -26,21 +26,21 @@
 */
 
 TArrayF* LambdaMassFit(
-                    const char * outdir,
+                    std::string outdir,
                     TFile *outroot,
                     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
-                    const char *varName = "mass_ppim",
+                    std::string varName = "mass_ppim",
                     int    nbins        = 100,
                     double varMin       = 1.08,
                     double varMax       = 1.24,
-                    const char *drawopt = "",
-                    const char *title   = "",
+                    std::string drawopt = "",
+                    std::string title   = "",
                     std::ostream &out=std::cout
                     ) {
 
     // Make output directory in output file
-    outroot->mkdir(outdir);
-    outroot->cd(outdir);
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
 
     // Switch off histogram stats
     gStyle->SetOptStat(0);
@@ -49,9 +49,9 @@ TArrayF* LambdaMassFit(
     TCanvas *c1 = new TCanvas("c1");
 
     // Create histogram
-    auto h1 = (TH1D) *frame.Histo1D({"h1",varName,nbins,varMin,varMax},varName);
-    TH1D *h = (TH1D*)h1.Clone(varName);
-    h->SetTitle(title);
+    auto h1 = (TH1D) *frame.Histo1D({"h1",varName.c_str(),nbins,varMin,varMax},varName.c_str());
+    TH1D *h = (TH1D*)h1.Clone(varName.c_str());
+    h->SetTitle(title.c_str());
     h->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
     h->GetXaxis()->SetTitleSize(0.06);
     h->GetXaxis()->SetTitleOffset(0.75);
@@ -60,7 +60,7 @@ TArrayF* LambdaMassFit(
     h->GetYaxis()->SetTitleOffset(0.87);
 
     // Draw histogram
-    h->Draw(drawopt);
+    h->Draw(drawopt.c_str());
 
     // CLAS12 Watermark                                                                                                  
     TLatex *lt = new TLatex(0.15,0.5,"CLAS12 Preliminary");
@@ -92,7 +92,7 @@ TArrayF* LambdaMassFit(
     TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
-    TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,7,5,7)); // Make sure these match up!
+    TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(6,7,6,7)); // Make sure these match up!
 
     // Crystal Ball fit parameters
     double alpha = func->GetParameter(0);
@@ -268,8 +268,8 @@ TArrayF* LambdaMassFit(
     float epsilon_err_us = (float) TMath::Sqrt(TMath::Power(i_bg_err_us / i_fitf_us,2)+TMath::Power((i_bg_us * i_fitf_err_us)/(i_fitf_us * i_fitf_us),2));
 
     // Compute combined epsilon sidebands
-    auto n_ls = (int) *frame.Filter(Form("%s>=%.16f && %s<%.16f",varName,LBInt_ls,varName,UBInt_ls)).Count();
-    auto n_us = (int) *frame.Filter(Form("%s>=%.16f && %s<%.16f",varName,LBInt_us,varName,UBInt_us)).Count();
+    auto n_ls = (int) *frame.Filter(Form("%s>=%.16f && %s<%.16f",varName.c_str(),LBInt_ls,varName.c_str(),UBInt_ls)).Count();
+    auto n_us = (int) *frame.Filter(Form("%s>=%.16f && %s<%.16f",varName.c_str(),LBInt_us,varName.c_str(),UBInt_us)).Count();
     float epsilon_sb = (float) (n_ls * epsilon_ls + n_us * epsilon_us)/(n_ls + n_us);
     float epsilon_err_sb = (float) TMath::Sqrt(TMath::Power(n_ls * epsilon_ls,2) + TMath::Power(n_us * epsilon_us,2))/(n_ls + n_us);
 
@@ -315,8 +315,8 @@ TArrayF* LambdaMassFit(
     arr->AddAt(Ea2,i++);
 
     // Save to file and return to above directory
-    c1->SaveAs(Form("c1_%s.pdf",outdir));
-    h->SaveAs(Form("h_%s.root",outdir));
+    c1->SaveAs(Form("c1_%s.pdf",outdir.c_str()));
+    h->SaveAs(Form("h_%s.root",outdir.c_str()));
     c1->Write(c1->GetName());
     h->Write(h->GetName());
     outroot->WriteObject(arr,"arr");
@@ -327,40 +327,37 @@ TArrayF* LambdaMassFit(
 } // TArrayF* LambdaMassFit()
 
 TArrayF* LambdaMassFitMC(
-                        const char * outdir,
+                        std::string  outdir,
                         TFile *outroot,
                         ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
-                        const char *varName = "mass_ppim",
+                        std::string varName = "mass_ppim",
                         int    nbins        = 100,
                         double varMin       = 1.08,
                         double varMax       = 1.24,
-                        const char *drawopt = "",
-                        const char *title   = "",
+                        std::string drawopt = "",
+                        std::string title   = "",
                         std::ostream &out=std::cout
                         ) {
-
-    std::string outdir_(outdir);//NOTE: NECESSARY BECAUSE h->Fit() call overwrites the const char * variables for some reason...
-    std::string title_(title);
     
     // Make output directory in output file
-    outroot->mkdir(outdir);
-    outroot->cd(outdir);
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
 
     // MC Matching cuts
-    const char *protonangcuts = "abs(theta_p-theta_p_mc)<2*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
-    const char *pionangcuts = "abs(theta_pim-theta_pim_mc)<2*TMath::Pi()/180"; // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
+    std::string protonangcuts = "abs(theta_p-theta_p_mc)<2*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
+    std::string pionangcuts = "abs(theta_pim-theta_pim_mc)<2*TMath::Pi()/180"; // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
 
     // True/false proton/pion cuts
-    const char *true_proton_false_pion_cuts = Form("(%s) && !(%s)",protonangcuts,pionangcuts);
-    const char *false_proton_true_pion_cuts = Form("!(%s) && (%s)",protonangcuts,pionangcuts);
-    const char *angcuts = Form("(%s) && (%s)",protonangcuts,pionangcuts);
-    const char *angorcuts = Form("(%s) || (%s)",protonangcuts,pionangcuts);
-    const char *nomultiplicitycut = "(first_combo==1 && has_lambda==0) || (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)";
-    const char *cuts = nomultiplicitycut; //Form("%s && (%s)",cuts,nomultiplicitycut); //NOTE: ONLY LOOK AT MC EVENTS WHICH ARE EITHER BACKGROUND OR LAMBDA NOT PROTON PION COMBOS FROM MC TRUTH
-    const char *mccuts  = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,angcuts); //NOTE YOU NEED ANGLE CHECKING FOR ALL TRUTH SIGNAL ITEMS SINCE YOU CAN HAVE COMBINATIONS FROM MC THAT WOULDN'T SHOW UP IN DATA SPECIFICALLY FOR TRUE PROTON FALSE PION
-    const char *mccuts_true_proton = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,true_proton_false_pion_cuts);
-    const char *mccuts_true_pion   = Form("(%s) && (pid_parent_pim_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,false_proton_true_pion_cuts);
-    const char *mccuts_true_bg     = Form("(%s) && ((pid_parent_p_mc!=3122 && pid_parent_pim_mc!=3122) || !(%s))",cuts,angorcuts); //NOTE: USE ANGULAR OR CUTS HERE //NOTE: OLD KEEP FOR DEBUGGING
+    std::string true_proton_false_pion_cuts = Form("(%s) && !(%s)",protonangcuts.c_str(),pionangcuts.c_str());
+    std::string false_proton_true_pion_cuts = Form("!(%s) && (%s)",protonangcuts.c_str(),pionangcuts.c_str());
+    std::string angcuts = Form("(%s) && (%s)",protonangcuts.c_str(),pionangcuts.c_str());
+    std::string angorcuts = Form("(%s) || (%s)",protonangcuts.c_str(),pionangcuts.c_str());
+    std::string nomultiplicitycut = "(first_combo==1 && has_lambda==0) || (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)";
+    std::string cuts = nomultiplicitycut; //Form("%s && (%s)",cuts,nomultiplicitycut); //NOTE: ONLY LOOK AT MC EVENTS WHICH ARE EITHER BACKGROUND OR LAMBDA NOT PROTON PION COMBOS FROM MC TRUTH
+    std::string mccuts  = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts.c_str(),angcuts.c_str()); //NOTE YOU NEED ANGLE CHECKING FOR ALL TRUTH SIGNAL ITEMS SINCE YOU CAN HAVE COMBINATIONS FROM MC THAT WOULDN'T SHOW UP IN DATA SPECIFICALLY FOR TRUE PROTON FALSE PION
+    std::string mccuts_true_proton = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts.c_str(),true_proton_false_pion_cuts.c_str());
+    std::string mccuts_true_pion   = Form("(%s) && (pid_parent_pim_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts.c_str(),false_proton_true_pion_cuts.c_str());
+    std::string mccuts_true_bg     = Form("(%s) && ((pid_parent_p_mc!=3122 && pid_parent_pim_mc!=3122) || !(%s))",cuts.c_str(),angorcuts.c_str()); //NOTE: USE ANGULAR OR CUTS HERE //NOTE: OLD KEEP FOR DEBUGGING
 
     // Switch off histogram stats
     gStyle->SetOptStat(0);
@@ -369,9 +366,9 @@ TArrayF* LambdaMassFitMC(
     TCanvas *c1 = new TCanvas("c1");
 
     // Create histogram
-    auto h1 = (TH1D) *frame.Filter(cuts).Histo1D({"h1",varName,nbins,varMin,varMax},varName);
+    auto h1 = (TH1D) *frame.Filter(cuts.c_str()).Histo1D({"h1",varName.c_str(),nbins,varMin,varMax},varName.c_str());
     TH1D *h = (TH1D*)h1.Clone("h1");
-    h->SetTitle(title_.c_str());
+    h->SetTitle(title.c_str());
     h->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
     h->GetXaxis()->SetTitleSize(0.06);
     h->GetXaxis()->SetTitleOffset(0.75);
@@ -380,7 +377,7 @@ TArrayF* LambdaMassFitMC(
     h->GetYaxis()->SetTitleOffset(0.87);
 
     // Create MC Truth histogram
-    auto h1_true = (TH1D) *frame.Filter(mccuts).Histo1D({"h1_true",varName,nbins,varMin,varMax},varName);
+    auto h1_true = (TH1D) *frame.Filter(mccuts.c_str()).Histo1D({"h1_true",varName.c_str(),nbins,varMin,varMax},varName.c_str());
     TH1D *h_true = (TH1D*)h1_true.Clone("h1_true");
     h_true->SetTitle("p#pi^{-} Invariant Mass");
     h_true->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
@@ -392,7 +389,7 @@ TArrayF* LambdaMassFitMC(
     h_true->SetLineColor(3);//NOTE: 3 is green.
 
     // Create MC Background true proton histogram
-    auto h1_true_proton = (TH1D) *frame.Filter(mccuts_true_proton).Histo1D({"h1_true_proton",varName,nbins,varMin,varMax},varName);
+    auto h1_true_proton = (TH1D) *frame.Filter(mccuts_true_proton.c_str()).Histo1D({"h1_true_proton",varName.c_str(),nbins,varMin,varMax},varName.c_str());
     TH1D *h_true_proton = (TH1D*)h1_true_proton.Clone("h1_true_proton");
     h_true_proton->SetTitle("p#pi^{-} Invariant Mass");
     h_true_proton->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
@@ -403,7 +400,7 @@ TArrayF* LambdaMassFitMC(
     h_true_proton->GetYaxis()->SetTitleOffset(0.87);
 
     // Create MC Background true pion histogram
-    auto h1_true_pion = (TH1D) *frame.Filter(mccuts_true_pion).Histo1D({"h1_true_pion",varName,nbins,varMin,varMax},varName);
+    auto h1_true_pion = (TH1D) *frame.Filter(mccuts_true_pion.c_str()).Histo1D({"h1_true_pion",varName.c_str(),nbins,varMin,varMax},varName.c_str());
     TH1D *h_true_pion = (TH1D*)h1_true_pion.Clone("h1_true_pion");
     h_true_pion->SetTitle("p#pi^{-} Invariant Mass");
     h_true_pion->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
@@ -414,7 +411,7 @@ TArrayF* LambdaMassFitMC(
     h_true_pion->GetYaxis()->SetTitleOffset(0.87);
 
     // Create MC Background completely false histogram
-    auto h1_true_bg = (TH1D) *frame.Filter(mccuts_true_bg).Histo1D({"h1_true_bg",varName,nbins,varMin,varMax},varName);
+    auto h1_true_bg = (TH1D) *frame.Filter(mccuts_true_bg.c_str()).Histo1D({"h1_true_bg",varName.c_str(),nbins,varMin,varMax},varName.c_str());
     TH1D *h_true_bg = (TH1D*)h1_true_bg.Clone("h1_true_bg");
     h_true_bg->SetTitle("p#pi^{-} Invariant Mass");
     h_true_bg->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
@@ -440,7 +437,7 @@ TArrayF* LambdaMassFitMC(
     h_true_bg->SetLineWidth(linewidth);
 
     // Draw histogram
-    h->Draw(drawopt);
+    h->Draw(drawopt.c_str());
     h_true->Draw("SAME");
     h_true_proton->Draw("SAME");
     h_true_pion->Draw("SAME");
@@ -476,7 +473,7 @@ TArrayF* LambdaMassFitMC(
     TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
-    TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,7,5,7)); // Make sure these match up!
+    TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(6,7,6,7)); // Make sure these match up!
 
     // Crystal Ball fit parameters
     double alpha = func->GetParameter(0);
@@ -658,8 +655,8 @@ TArrayF* LambdaMassFitMC(
     float epsilon_err_us = (float) TMath::Sqrt(TMath::Power(i_bg_err_us / i_fitf_us,2)+TMath::Power((i_bg_us * i_fitf_err_us)/(i_fitf_us * i_fitf_us),2));
 
     // Compute combined epsilon sidebands
-    auto n_ls = (int) *frame.Filter(cuts).Filter(Form("%s>=%.16f && %s<%.16f",varName,LBInt_ls,varName,UBInt_ls)).Count();
-    auto n_us = (int) *frame.Filter(cuts).Filter(Form("%s>=%.16f && %s<%.16f",varName,LBInt_us,varName,UBInt_us)).Count();
+    auto n_ls = (int) *frame.Filter(cuts).Filter(Form("%s>=%.16f && %s<%.16f",varName.c_str(),LBInt_ls,varName.c_str(),UBInt_ls)).Count();
+    auto n_us = (int) *frame.Filter(cuts).Filter(Form("%s>=%.16f && %s<%.16f",varName.c_str(),LBInt_us,varName.c_str(),UBInt_us)).Count();
     float epsilon_sb = (float) (n_ls * epsilon_ls + n_us * epsilon_us)/(n_ls + n_us);
     float epsilon_err_sb = (float) TMath::Sqrt(TMath::Power(n_ls * epsilon_ls,2) + TMath::Power(n_us * epsilon_us,2))/(n_ls + n_us);
 
@@ -705,8 +702,8 @@ TArrayF* LambdaMassFitMC(
     arr->AddAt(Ea2,i++);
 
     // Save to file and return to above directory
-    c1->SaveAs(Form("c1_%s.pdf",outdir_.c_str()));
-    h->SaveAs(Form("h_%s.root",outdir_.c_str()));
+    c1->SaveAs(Form("c1_%s.pdf",outdir.c_str()));
+    h->SaveAs(Form("h_%s.root",outdir.c_str()));
     c1->Write(c1->GetName());
     h->Write(h->GetName());
     outroot->WriteObject(arr,"arr");
@@ -717,15 +714,15 @@ TArrayF* LambdaMassFitMC(
 } // TArrayF* LambdaMassFitMC()
 
 void LambdaMassFitMCDecomposition(
-                            const char * outdir,
+                            std::string  outdir,
                             TFile *outroot,
                             ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
-                            const char *varName = "mass_ppim",
+                            std::string varName = "mass_ppim",
                             int    nbins        = 100,
                             double varMin       = 1.08,
                             double varMax       = 1.24,
-                            const char *drawopt = "",
-                            const char *title   = "",
+                            std::string drawopt = "",
+                            std::string title   = "",
                             std::ostream &out=std::cout
                             ) {
 
@@ -737,24 +734,24 @@ void LambdaMassFitMCDecomposition(
     //NOTE: END
 
     // Make output directory in output file
-    outroot->mkdir(outdir);
-    outroot->cd(outdir);
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
 
     // MC Matching cuts
-    const char *protonangcuts = "abs(theta_p-theta_p_mc)<2*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
-    const char *pionangcuts = "abs(theta_pim-theta_pim_mc)<2*TMath::Pi()/180"; // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
+    std::string protonangcuts = "abs(theta_p-theta_p_mc)<2*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
+    std::string pionangcuts = "abs(theta_pim-theta_pim_mc)<2*TMath::Pi()/180"; // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
 
     // True/false proton/pion cuts
-    const char *true_proton_false_pion_cuts = Form("(%s) && !(%s)",protonangcuts,pionangcuts);
-    const char *false_proton_true_pion_cuts = Form("!(%s) && (%s)",protonangcuts,pionangcuts);
-    const char *angcuts = Form("(%s) && (%s)",protonangcuts,pionangcuts);
-    const char *angorcuts = Form("(%s) || (%s)",protonangcuts,pionangcuts);
-    const char *nomultiplicitycut = "(first_combo==1 && has_lambda==0) || (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)";
-    const char *cuts = nomultiplicitycut; //Form("%s && (%s)",cuts,nomultiplicitycut); //NOTE: ONLY LOOK AT MC EVENTS WHICH ARE EITHER BACKGROUND OR LAMBDA NOT PROTON PION COMBOS FROM MC TRUTH
-    const char *mccuts  = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,angcuts); //NOTE YOU NEED ANGLE CHECKING FOR ALL TRUTH SIGNAL ITEMS SINCE YOU CAN HAVE COMBINATIONS FROM MC THAT WOULDN'T SHOW UP IN DATA SPECIFICALLY FOR TRUE PROTON FALSE PION
-    const char *mccuts_true_proton = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,true_proton_false_pion_cuts);
-    const char *mccuts_true_pion   = Form("(%s) && (pid_parent_pim_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,false_proton_true_pion_cuts);
-    const char *mccuts_true_bg     = Form("(%s) && ((pid_parent_p_mc!=3122 && pid_parent_pim_mc!=3122) || !(%s))",cuts,angorcuts); //NOTE: USE ANGULAR OR CUTS HERE //NOTE: OLD KEEP FOR DEBUGGING
+    std::string true_proton_false_pion_cuts = Form("(%s) && !(%s)",protonangcuts,pionangcuts);
+    std::string false_proton_true_pion_cuts = Form("!(%s) && (%s)",protonangcuts,pionangcuts);
+    std::string angcuts = Form("(%s) && (%s)",protonangcuts,pionangcuts);
+    std::string angorcuts = Form("(%s) || (%s)",protonangcuts,pionangcuts);
+    std::string nomultiplicitycut = "(first_combo==1 && has_lambda==0) || (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)";
+    std::string cuts = nomultiplicitycut; //Form("%s && (%s)",cuts,nomultiplicitycut); //NOTE: ONLY LOOK AT MC EVENTS WHICH ARE EITHER BACKGROUND OR LAMBDA NOT PROTON PION COMBOS FROM MC TRUTH
+    std::string mccuts  = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,angcuts); //NOTE YOU NEED ANGLE CHECKING FOR ALL TRUTH SIGNAL ITEMS SINCE YOU CAN HAVE COMBINATIONS FROM MC THAT WOULDN'T SHOW UP IN DATA SPECIFICALLY FOR TRUE PROTON FALSE PION
+    std::string mccuts_true_proton = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,true_proton_false_pion_cuts);
+    std::string mccuts_true_pion   = Form("(%s) && (pid_parent_pim_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts,false_proton_true_pion_cuts);
+    std::string mccuts_true_bg     = Form("(%s) && ((pid_parent_p_mc!=3122 && pid_parent_pim_mc!=3122) || !(%s))",cuts,angorcuts); //NOTE: USE ANGULAR OR CUTS HERE //NOTE: OLD KEEP FOR DEBUGGING
 
     // Turn off automatic stats
     gStyle->SetOptStat(0);
@@ -763,9 +760,9 @@ void LambdaMassFitMCDecomposition(
     TCanvas *c1 = new TCanvas("c1","c1",698*1.5,476*1.5); //NOTE: JUST SCALED DEFAULT SIZES.
 
     // Create histogram
-    auto h1 = (TH1D) *frame.Filter(cuts).Histo1D({"h1",varName,nbins,varMin,varMax},varName);
+    auto h1 = (TH1D) *frame.Filter(cuts).Histo1D({"h1",varName.c_str(),nbins,varMin,varMax},varName.c_str());
     TH1D *h = (TH1D*)h1.Clone("h1");
-    h->SetTitle(title);
+    h->SetTitle(title.c_str());
     h->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
     h->GetXaxis()->SetTitleSize(0.06);
     h->GetXaxis()->SetTitleOffset(0.75);
@@ -774,7 +771,7 @@ void LambdaMassFitMCDecomposition(
     h->GetYaxis()->SetTitleOffset(0.87);
 
     // Create MC Truth histogram
-    auto h1_true = (TH1D) *frame.Filter(mccuts).Histo1D({"h1_true",varName,nbins,varMin,varMax},varName);
+    auto h1_true = (TH1D) *frame.Filter(mccuts).Histo1D({"h1_true",varName.c_str(),nbins,varMin,varMax},varName.c_str());
     TH1D *h_true = (TH1D*)h1_true.Clone("h1_true");
     h_true->SetTitle("p#pi^{-} Invariant Mass");
     h_true->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
@@ -786,7 +783,7 @@ void LambdaMassFitMCDecomposition(
     h_true->SetLineColor(3);//NOTE: 3 is green.
 
     // Create MC Background true proton histogram
-    auto h1_true_proton = (TH1D) *frame.Filter(mccuts_true_proton).Histo1D({"h1_true_proton",varName,nbins,varMin,varMax},varName);
+    auto h1_true_proton = (TH1D) *frame.Filter(mccuts_true_proton).Histo1D({"h1_true_proton",varName.c_str(),nbins,varMin,varMax},varName.c_str());
     TH1D *h_true_proton = (TH1D*)h1_true_proton.Clone("h1_true_proton");
     h_true_proton->SetTitle("p#pi^{-} Invariant Mass");
     h_true_proton->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
@@ -797,7 +794,7 @@ void LambdaMassFitMCDecomposition(
     h_true_proton->GetYaxis()->SetTitleOffset(0.87);
 
     // Create MC Background true pion histogram
-    auto h1_true_pion = (TH1D) *frame.Filter(mccuts_true_pion).Histo1D({"h1_true_pion",varName,nbins,varMin,varMax},varName);
+    auto h1_true_pion = (TH1D) *frame.Filter(mccuts_true_pion).Histo1D({"h1_true_pion",varName.c_str(),nbins,varMin,varMax},varName.c_str());
     TH1D *h_true_pion = (TH1D*)h1_true_pion.Clone("h1_true_pion");
     h_true_pion->SetTitle("p#pi^{-} Invariant Mass");
     h_true_pion->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
@@ -808,7 +805,7 @@ void LambdaMassFitMCDecomposition(
     h_true_pion->GetYaxis()->SetTitleOffset(0.87);
 
     // Create MC Background completely false histogram
-    auto h1_true_bg = (TH1D) *frame.Filter(mccuts_true_bg).Histo1D({"h1_true_bg",varName,nbins,varMin,varMax},varName);
+    auto h1_true_bg = (TH1D) *frame.Filter(mccuts_true_bg).Histo1D({"h1_true_bg",varName.c_str(),nbins,varMin,varMax},varName.c_str());
     TH1D *h_true_bg = (TH1D*)h1_true_bg.Clone("h1_true_bg");
     h_true_bg->SetTitle("p#pi^{-} Invariant Mass");
     h_true_bg->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
@@ -834,7 +831,7 @@ void LambdaMassFitMCDecomposition(
     h_true_bg->SetLineWidth(linewidth);
 
     // Draw histogram
-    h->Draw(drawopt);
+    h->Draw(drawopt.c_str());
     h_true->Draw("SAME");
     h_true_proton->Draw("SAME");
     h_true_pion->Draw("SAME");
@@ -861,7 +858,7 @@ void LambdaMassFitMCDecomposition(
     lg->Draw();
 
     // Save canvas
-    c1->Print(Form("h_mass_decomposition_%s.pdf",outdir));
+    c1->Print(Form("h_mass_decomposition_%s.pdf",outdir.c_str()));
     c1->Write(c1->GetName());
 
     // Return to above directory
