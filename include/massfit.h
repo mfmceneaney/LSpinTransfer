@@ -92,7 +92,7 @@ TArrayF* LambdaMassFit(
     TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
-    TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(6,7,6,7)); // Make sure these match up!
+    TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,7,5,7)); // Make sure these match up!
 
     // Crystal Ball fit parameters
     double alpha = func->GetParameter(0);
@@ -278,7 +278,7 @@ TArrayF* LambdaMassFit(
     //TODO: Could output fit results to outstream and/or could save to some sort of tree int pwd...
 
     // Fill return array
-    TArrayF *arr = new TArrayF(32);
+    TArrayF *arr = new TArrayF(30);
     int i = 0;
     arr->AddAt(epsilon,i++);
     arr->AddAt(epsilon_err,i++);
@@ -305,8 +305,6 @@ TArrayF* LambdaMassFit(
     arr->AddAt(Esigma,i++);
     arr->AddAt(mu,i++);
     arr->AddAt(Emu,i++);
-    arr->AddAt(alpha,i++);
-    arr->AddAt(Ealpha,i++);
     arr->AddAt(C1,i++);
     arr->AddAt(EC1,i++);
     arr->AddAt(a0,i++);
@@ -670,7 +668,7 @@ TArrayF* LambdaMassFitMC(
     //TODO: Could output fit results to outstream and/or could save to some sort of tree int pwd...
 
     // Fill return array
-    TArrayF *arr = new TArrayF(32);
+    TArrayF *arr = new TArrayF(30);
     int i = 0;
     arr->AddAt(epsilon,i++);
     arr->AddAt(epsilon_err,i++);
@@ -697,8 +695,6 @@ TArrayF* LambdaMassFitMC(
     arr->AddAt(Esigma,i++);
     arr->AddAt(mu,i++);
     arr->AddAt(Emu,i++);
-    arr->AddAt(alpha,i++);
-    arr->AddAt(Ealpha,i++);
     arr->AddAt(C1,i++);
     arr->AddAt(EC1,i++);
     arr->AddAt(a0,i++);
