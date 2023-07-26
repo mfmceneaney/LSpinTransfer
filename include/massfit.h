@@ -476,7 +476,7 @@ TArrayF* LambdaMassFitMC(
     TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
-    TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(6,7,6,7)); // Make sure these match up!
+    TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,7,5,7)); // Make sure these match up!
 
     // Crystal Ball fit parameters
     double alpha = func->GetParameter(0);
