@@ -353,6 +353,10 @@ void getKinBinnedGraph(
         double epsilon = bgfraction;
         double bgfraction_err = 0.0; //TODO: add option for this.
         double epsilon_ls, epsilon_ls_err, epsilon_us, epsilon_us_err, epsilon_sb, epsilon_sb_err;
+
+        double epsilon_gaus = bgfraction;
+        double bgfraction_err_gaus = 0.0; //TODO: add option for this.
+        double epsilon_ls_gaus, epsilon_ls_err_gaus, epsilon_us_gaus, epsilon_us_err_gaus, epsilon_sb_gaus, epsilon_sb_err_gaus;
         if (!use_bgfraction) {
             const char * massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar,bin_min,bin_max);
             const char * bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar,bin_max);
@@ -377,6 +381,28 @@ void getKinBinnedGraph(
             epsilon_us_err = massFitData->GetAt(5);
             epsilon_sb = massFitData->GetAt(6);
             epsilon_sb_err = massFitData->GetAt(7);
+
+            TArrayF* massFitData_gaus = LambdaMassFit_Gaus(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
+
+            epsilon_gaus = massFitData_gaus->GetAt(0);
+            bgfraction_err_gaus = massFitData_gaus->GetAt(1);
+            epsilon_ls_gaus = massFitData_gaus->GetAt(2);
+            epsilon_ls_err_gaus = massFitData_gaus->GetAt(3);
+            epsilon_us_gaus = massFitData_gaus->GetAt(4);
+            epsilon_us_err_gaus = massFitData_gaus->GetAt(5);
+            epsilon_sb_gaus = massFitData_gaus->GetAt(6);
+            epsilon_sb_err_gaus = massFitData_gaus->GetAt(7);
         }
 
         // Compute bin results
@@ -521,6 +547,17 @@ void getKinBinnedGraph(
         bgfractions_us_err[i-1] = epsilon_us_err;
         bgfractions_sb[i-1] = epsilon_sb;
         bgfractions_sb_err[i-1] = epsilon_sb_err;
+
+        dlls_gaus[i-1]   = dll_gaus;
+        erry_gaus[i-1]   = dll_err_gaus;
+        bgfractions_gaus[i-1] = epsilon_gaus;
+        bgfractions_err_gaus[i-1] = bgfraction_err_gaus;
+        bgfractions_ls_gaus[i-1] = epsilon_ls_gaus;
+        bgfractions_ls_err_gaus[i-1] = epsilon_ls_err_gaus;
+        bgfractions_us_gaus[i-1] = epsilon_us_gaus;
+        bgfractions_us_err_gaus[i-1] = epsilon_us_err_gaus;
+        bgfractions_sb_gaus[i-1] = epsilon_sb_gaus;
+        bgfractions_sb_err_gaus[i-1] = epsilon_sb_err_gaus;
     }
 
     // Compute overall event-weighted means and errors and output binned results in Latex Table Format
@@ -546,24 +583,64 @@ void getKinBinnedGraph(
     //----------//
     //DEBUGGING: Added 7/25/23
     out << "------------------------------------------------------------\n";
-    out << " Mean " << binvar << " & $\\epsilon_{ls}$ & $\\delta\\epsilon_{ls}/\\epsilon_{ls}$\\\\\n";
+    out << "CB fit results\n";
+    out << " Mean " << binvar << " & $\\epsilon_{ls}$ & $\\delta\\epsilon_{ls}/\\epsilon_{ls}$ \\\\\n";
     out << "\\hline\n";
     for (int i=0; i<nbins; i++) {
-        out << " " << means[i] << " & " <<  bgfractions_ls[i] << " $\\pm$ " << bgfractions_ls_err[i] << " & " << bgfractions_ls_err[i]/bgfractions_ls[i]*100 << " \\\\\n";
+        out << " " << means[i] << " & " <<  bgfractions_ls[i] << " $\\pm$ " << bgfractions_ls_err[i] << " & " << bgfractions_ls_err[i]/bgfractions_ls[i]*100 << "\\% \\\\\n";
     }
 
     out << "------------------------------------------------------------\n";
-    out << " Mean " << binvar << " & $\\epsilon_{us}$ & $\\delta\\epsilon_{us}/\\epsilon_{us}$\\\\\n";
+    out << "CB fit results\n";
+    out << " Mean " << binvar << " & $\\epsilon_{us}$ & $\\delta\\epsilon_{us}/\\epsilon_{us}$ \\\\\n";
     out << "\\hline\n";
     for (int i=0; i<nbins; i++) {
-        out << " " << means[i] << " & " <<  bgfractions_us[i] << " $\\pm$ " << bgfractions_us_err[i] << " & " << bgfractions_us_err[i]/bgfractions_us[i]*100 << " \\\\\n";
+        out << " " << means[i] << " & " <<  bgfractions_us[i] << " $\\pm$ " << bgfractions_us_err[i] << " & " << bgfractions_us_err[i]/bgfractions_us[i]*100 << "\\% \\\\\n";
     }
 
     out << "------------------------------------------------------------\n";
-    out << " Mean " << binvar << " & $\\epsilon_{sb}$ & $\\delta\\epsilon_{sb}/\\epsilon_{sb}$\\\\\n";
+    out << "CB fit results\n";
+    out << " Mean " << binvar << " & $\\epsilon_{sb}$ & $\\delta\\epsilon_{sb}/\\epsilon_{sb}$ \\\\\n";
     out << "\\hline\n";
     for (int i=0; i<nbins; i++) {
-        out << " " << means[i] << " & " <<  bgfractions_sb[i] << " $\\pm$ " << bgfractions_sb_err[i] << " & " << bgfractions_sb_err[i]/bgfractions_sb[i]*100 << " \\\\\n";
+        out << " " << means[i] << " & " <<  bgfractions_sb[i] << " $\\pm$ " << bgfractions_sb_err[i] << " & " << bgfractions_sb_err[i]/bgfractions_sb[i]*100 << "\\% \\\\\n";
+    }
+
+    //----------//
+
+    //----------//
+    //DEBUGGING: Added 7/26/23
+    out << "------------------------------------------------------------\n";
+    out << " Gaussian fit results\n";
+    out << " Mean " << binvar << " & $\\epsilon_{ls}$ & $\\delta\\epsilon_{ls}/\\epsilon_{ls}$ \\\\\n";
+    out << "\\hline\n";
+    for (int i=0; i<nbins; i++) {
+        out << " " << means[i] << " & " <<  bgfractions_ls_gaus[i] << " $\\pm$ " << bgfractions_ls_err_gaus[i] << " & " << bgfractions_ls_err_gaus[i]/bgfractions_ls_gaus[i]*100 << "\\% \\\\\n";
+    }
+
+    out << "------------------------------------------------------------\n";
+    out << " Gaussian fit results\n";
+    out << " Mean " << binvar << " & $\\epsilon_{us}$ & $\\delta\\epsilon_{us}/\\epsilon_{us}$ \\\\\n";
+    out << "\\hline\n";
+    for (int i=0; i<nbins; i++) {
+        out << " " << means[i] << " & " <<  bgfractions_us_gaus[i] << " $\\pm$ " << bgfractions_us_err_gaus[i] << " & " << bgfractions_us_err_gaus[i]/bgfractions_us_gaus[i]*100 << "\\% \\\\\n";
+    }
+
+    out << "------------------------------------------------------------\n";
+    out << " Gaussian fit results\n";
+    out << " Mean " << binvar << " & $\\epsilon_{sb}$ & $\\delta\\epsilon_{sb}/\\epsilon_{sb}$ \\\\\n";
+    out << "\\hline\n";
+    for (int i=0; i<nbins; i++) {
+        out << " " << means[i] << " & " <<  bgfractions_sb_gaus[i] << " $\\pm$ " << bgfractions_sb_err_gaus[i] << " & " << bgfractions_sb_err_gaus[i]/bgfractions_sb_gaus[i]*100 << "\\% \\\\\n";
+    }
+
+    //DEBUGGING: Added 7/26/23
+    out << "------------------------------------------------------------\n";
+    out << " CB fit results - Gaussian fit results\n";
+    out << " Mean " << binvar << " & $\\Delta\\epsilon_{CB-Gaus}$ & $\\delta\\epsilon_{CB-Gaus}/\\epsilon_{CB}$ \\\\\n";
+    out << "\\hline\n";
+    for (int i=0; i<nbins; i++) {
+        out << " " << means[i] << " & " << (bgfractions[i]-bgfractions_gaus[i]) << " & " << (bgfractions[i]-bgfractions_gaus[i])/bgfractions[i]*100 << "\\% \\\\\n";
     }
 
     //----------//
@@ -575,6 +652,10 @@ void getKinBinnedGraph(
     // Create graph of epsilons from mass fits binned in binvar
     TGraphErrors *gr_epsilon = new TGraphErrors(nbins,means,bgfractions,errx,bgfractions_err);
     gr_epsilon->Write("gr_epsilon");
+
+    // Create graph of epsilons from mass fits binned in binvar from gaussian fit
+    TGraphErrors *gr_epsilon_gaus = new TGraphErrors(nbins,means,bgfractions_gaus,errx,bgfractions_err_gaus);
+    gr_epsilon_gaus->Write("gr_epsilon_gaus");
 
     // Plot results graph
     TCanvas *c1 = new TCanvas();
@@ -617,6 +698,7 @@ void getKinBinnedGraph(
     c1->Print(fname+".pdf");
     gr->SaveAs(fname+".root","recreate");
     gr_epsilon->SaveAs(fname+"_epsilon.root","recreate");
+    gr_epsilon_gaus->SaveAs(fname+"_epsilon_gaus.root","recreate");
 
     // Cd out of outdir
     outroot->cd("..");
@@ -706,6 +788,9 @@ void getKinBinnedMassFits(
         // Get background fraction for bin from mass fit
         double epsilon = bgfraction;
         double bgfraction_err = 0.0; //TODO: add option for this.
+
+        double epsilon_gaus = bgfraction;
+        double bgfraction_err_gaus = 0.0; //TODO: add option for this.
         if (!use_bgfraction) {
             const char * massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar,bin_min,bin_max);
             const char * bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar,bin_max);
@@ -724,6 +809,22 @@ void getKinBinnedMassFits(
 
             epsilon = massFitData->GetAt(0);
             bgfraction_err = massFitData->GetAt(1);
+
+            TArrayF* massFitData_gaus = LambdaMassFit_gaus(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
+
+            epsilon_gaus = massFitData_gaus->GetAt(0);
+            bgfraction_err_gaus = massFitData_gaus->GetAt(1);
         }
         
         auto mean  = (double)*bin_frame.Mean(binvar);
@@ -735,6 +836,9 @@ void getKinBinnedMassFits(
         counts[i-1] = count;
         bgfractions[i-1] = epsilon;
         bgfractions_err[i-1] = bgfraction_err;
+
+        bgfractions_gaus[i-1] = epsilon_gaus;
+        bgfractions_err_gaus[i-1] = bgfraction_err_gaus;
     }
 
     // Compute overall event-weighted means and errors and output binned results in Latex Table Format
@@ -752,9 +856,30 @@ void getKinBinnedMassFits(
     out << " Mean   " << binvar << " = "<< mean_var << "\n";
     out << " count = "<< count << "\n";
 
+    //----------------------------------------------------------------------------------------------------//
+    //NOTE: Added 7/26/23
+    out << "------------------------------------------------------------\n";
+    out << " Gaussian Fit results\n";
+    out << " Mean " << binvar << " & $\\epsilon_{Gaus}$\n";
+    for (int i=0; i<nbins; i++) {
+        out << " " << means[i] << " & " <<  bgfractions_gaus[i] << " $\\pm$ " << bgfractions_err_gaus[i] << " \\\\\n";
+    }
+
+    out << "------------------------------------------------------------\n";
+    out << " CB - Gaussian Fit results\n";
+    out << " Mean " << binvar << " & $\\Delta\\epsilon_{CB-Gaus}$ & $\\Delta\\epsilon_{CB-Gaus}/\\epsilon$ \\\\\n";
+    for (int i=0; i<nbins; i++) {
+        out << " " << means[i] << " & " <<  (bgfractions[i]-bgfractions_gaus[i]) << " & " << (bgfractions[i]-bgfractions_gaus[i])/bgfractions[i]*100 << "\\% \\\\\n";
+    }
+    //----------------------------------------------------------------------------------------------------//
+
     // Create graph of epsilons from mass fits binned in binvar
     TGraphErrors *gr_epsilon = new TGraphErrors(nbins,means,bgfractions,errx,bgfractions_err);
     gr_epsilon->Write("gr_epsilon");
+
+    // Create graph of epsilons from mass fits binned in binvar gaussian fit
+    TGraphErrors *gr_epsilon_gaus = new TGraphErrors(nbins,means,bgfractions_gaus,errx,bgfractions_err_gaus);
+    gr_epsilon_gaus->Write("gr_epsilon_gaus");
 
     // Plot results graph
     TCanvas *c1 = new TCanvas();
@@ -790,6 +915,7 @@ void getKinBinnedMassFits(
     fname.Form("%s_%s_%s_%.3f_%.3f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar,binvar,bins[0],bins[nbins],sgasym,bgasym);
     c1->Print(fname+".pdf");
     gr_epsilon->SaveAs(fname+"_epsilon.root","recreate");
+    gr_epsilon_gaus->SaveAs(fname+"_epsilon_gaus.root","recreate");
 
     // Cd out of outdir
     outroot->cd("..");
