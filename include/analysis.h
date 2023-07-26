@@ -34,21 +34,21 @@ void test() { std::cout<<"TEST"<<std::endl; } //DEBUGGING
 * @return TArrayF* arr [dll, dll_err, binvar mean, bin count]
 */
 TArrayF* getKinBinLF(
-                    const char * outdir,
+                    std::string  outdir,
                     TFile      * outroot,
                     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
-                    const char * cuts,
-                    const char * binvar,
+                    std::string  cuts,
+                    std::string  binvar,
                     double       bin_min,
                     double       bin_max,
                     double       alpha,
                     double       pol,
                     double       asym                = 0.00,
-                    const char * depolarization_name = "Dy",
-                    const char * helicity_name       = "heli",
-                    const char * fitvar              = "costheta1",
+                    std::string  depolarization_name = "Dy",
+                    std::string  helicity_name       = "heli",
+                    std::string  fitvar              = "costheta1",
                     std::string  fitvar_mc           = "costheta1_mc",
-                    const char * depol_name_mc       = "Dy_mc",
+                    std::string  depol_name_mc       = "Dy_mc",
                     bool         inject              = false,
                     TRandom      gRandom             = TRandom(),
                     int          n_fitvar_bins       = 10,
@@ -58,21 +58,21 @@ TArrayF* getKinBinLF(
                     ) {
 
     // Make outdir and cd
-    outroot->mkdir(outdir);
-    outroot->cd(outdir);
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
 
     // Set bin cuts
-    TString bin_cut; bin_cut.Form("%s>=%f && %s<%f",binvar,bin_min,binvar,bin_max);
+    std::string bin_cut = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
 
     // Filter frame and inject asymmetry if needed
-    const char * mc_cut = "has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc";//DEBUGGING
-    const char * heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
-    auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) :
-                                        frame.Filter(Form("(%s) && (%s) && (%s)",cuts,(const char*)bin_cut,mc_cut)) //TODO: Double Check this
+    std::string  mc_cut = "has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc";//DEBUGGING
+    std::string  heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
+    auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())) :
+                                        frame.Filter(Form("(%s) && (%s) && (%s)",cuts.c_str(),bin_cut.c_str(),mc_cut.c_str())) //TODO: Double Check this
                                         .Define(heli_asym, [&gRandom,&alpha,&asym,&pol](float Dy, float costheta) {
                                             return (float)(gRandom.Rndm()<0.5*(1.0 + alpha*Dy*pol*asym*costheta) ? 1.0 : -1.0); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
                                         },
-                                        {depol_name_mc,fitvar_mc.c_str()}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+                                        {depol_name_mc.c_str(),fitvar_mc.c_str()}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
 
     // Set fit function
     TF1 *fitf = new TF1("fitf","[0]+[1]*x",fitvar_min,fitvar_max);
@@ -80,9 +80,9 @@ TArrayF* getKinBinLF(
     // Get data
     out << "Getting " << bin_cut << " bin\n";
     auto count    = (double)*f.Count();
-    auto mean     = (double)*f.Mean(binvar);
-    auto histP_   = (TH1D)  *f.Filter(Form("%s>0",heli_asym)).Histo1D({"histP", "Positive/Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar);
-    auto histN_   = (TH1D)  *f.Filter(Form("%s<0",heli_asym)).Histo1D({"histN", "Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar);
+    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto histP_   = (TH1D)  *f.Filter(Form("%s>0",heli_asym)).Histo1D({"histP", "Positive/Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str());
+    auto histN_   = (TH1D)  *f.Filter(Form("%s<0",heli_asym)).Histo1D({"histN", "Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str());
     auto histP    = &histP_;
     auto histN    = &histN_;
     auto histPaux = (TH1D*)histP->Clone("histPaux");
@@ -162,7 +162,7 @@ TArrayF* getKinBinLF(
     sig1->Draw("SAME");
 
     // Set outname and save
-    TString fname; fname.Form("LF_%s_%s_%.3f_%.3f_asym_%.2f",fitvar,binvar,bin_min,bin_max,asym);
+    TString fname; fname.Form("LF_%s_%s_%.3f_%.3f_asym_%.2f",fitvar.c_str(),binvar.c_str(),bin_min,bin_max,asym);
     c1->Print(fname+".pdf");
     c1->Write(c1->GetName());
     histP->Write(histP->GetName());
@@ -187,21 +187,21 @@ TArrayF* getKinBinLF(
 * @return TArrayF* arr [dll, dll_err, binvar mean, bin count]
 */
 TArrayF* getKinBinHB(
-                    const char * outdir,
+                    std::string  outdir,
                     TFile      * outroot,
                     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
-                    const char * cuts,
-                    const char * binvar,
+                    std::string  cuts,
+                    std::string  binvar,
                     double       bin_min,
                     double       bin_max,
                     double       alpha,
                     double       pol,
                     double       asym                = 0.00,
-                    const char * depolarization_name = "Dy",
-                    const char * helicity_name       = "heli",
-                    const char * fitvar              = "costheta1",
+                    std::string  depolarization_name = "Dy",
+                    std::string  helicity_name       = "heli",
+                    std::string  fitvar              = "costheta1",
                     std::string  fitvar_mc           = "costheta1_mc",
-                    const char * depol_name_mc       = "Dy_mc",
+                    std::string  depol_name_mc       = "Dy_mc",
                     bool         inject              = false,
                     TRandom      gRandom             = TRandom(),
                     std::ostream &out                = std::cout
@@ -211,28 +211,28 @@ TArrayF* getKinBinHB(
     double dll, dll_err;
 
     // Set bin cuts
-    TString bin_cut; bin_cut.Form("%s>=%f && %s<%f",binvar,bin_min,binvar,bin_max);
+    std::string bin_cut = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
 
     // Filter frame and inject asymmetry if needed
-    const char * mc_cut = "has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc";//DEBUGGING
-    const char * heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
-    auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts,(const char*)bin_cut)) :
-                                        frame.Filter(Form("(%s) && (%s) && (%s)",cuts,(const char*)bin_cut,mc_cut)) //TODO: Double Check this
+    std::string  mc_cut = "has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc";//DEBUGGING
+    std::string  heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
+    auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())) :
+                                        frame.Filter(Form("(%s) && (%s) && (%s)",cuts.c_str(),bin_cut.c_str(),mc_cut.c_str())) //TODO: Double Check this
                                         .Define(heli_asym, [&gRandom,&alpha,&asym,&pol](float Dy, float costheta) {
                                             return (float)(gRandom.Rndm()<0.5*(1.0 + alpha*Dy*pol*asym*costheta) ? 1.0 : -1.0);
                                         },
-                                        {depol_name_mc,fitvar_mc.c_str()}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+                                        {depol_name_mc.c_str(),fitvar_mc.c_str()}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
 
     // Get data
     auto count    = (int)   *f.Count();
-    auto mean     = (double)*f.Mean(binvar);
-    auto sumPbDCT = (double)*f.Define("tosum", [&pol](float Dy, float heli, float costheta) { return pol*heli*Dy*costheta; } , {depolarization_name,heli_asym,fitvar}).Sum("tosum");
-    auto sumDCT   = (double)*f.Define("tosum", [&pol](float Dy, float heli, float costheta) { return Dy*Dy*costheta*costheta; } , {depolarization_name,heli_asym,fitvar}).Sum("tosum");
+    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto sumPbDCT = (double)*f.Define("tosum", [&pol](float Dy, float heli, float costheta) { return pol*heli*Dy*costheta; } , {depolarization_name.c_str(),heli_asym.c_str(),fitvar.c_str()}).Sum("tosum");
+    auto sumDCT   = (double)*f.Define("tosum", [&pol](float Dy, float heli, float costheta) { return Dy*Dy*costheta*costheta; } , {depolarization_name.c_str(),heli_asym.c_str(),fitvar.c_str()}).Sum("tosum");
     auto avePbDCT = (double)sumPbDCT/count;
     auto aveDCT   = (double)sumDCT/count;
-    auto stdPbDCT = (double)*f.Define("tostd", [&pol](float Dy, float heli, float costheta) { return pol*heli*Dy*costheta; } , {depolarization_name,heli_asym,fitvar}).StdDev("tostd");
-    auto stdDCT   = (double)*f.Define("tostd", [&pol](float Dy, float heli, float costheta) { return Dy*Dy*costheta*costheta; } , {depolarization_name,heli_asym,fitvar}).StdDev("tostd");
-    auto covar    = (double)*f.Define("tocvr", [&pol,&avePbDCT,&aveDCT](float Dy, float heli, float costheta) { return (pol*heli*Dy*costheta - avePbDCT)*(Dy*Dy*costheta*costheta - aveDCT); } , {depolarization_name,heli_asym,fitvar}).Sum("tocvr")/count;
+    auto stdPbDCT = (double)*f.Define("tostd", [&pol](float Dy, float heli, float costheta) { return pol*heli*Dy*costheta; } , {depolarization_name.c_str(),heli_asym.c_str(),fitvar.c_str()}).StdDev("tostd");
+    auto stdDCT   = (double)*f.Define("tostd", [&pol](float Dy, float heli, float costheta) { return Dy*Dy*costheta*costheta; } , {depolarization_name.c_str(),heli_asym.c_str(),fitvar.c_str()}).StdDev("tostd");
+    auto covar    = (double)*f.Define("tocvr", [&pol,&avePbDCT,&aveDCT](float Dy, float heli, float costheta) { return (pol*heli*Dy*costheta - avePbDCT)*(Dy*Dy*costheta*costheta - aveDCT); } , {depolarization_name.c_str(),heli_asym.c_str(),fitvar.c_str()}).Sum("tocvr")/count;
 
     // Compute spin transfers
     if (count==0) {out << " *** WARNING *** Count = 0.  You should rebin.";}
@@ -270,37 +270,37 @@ TArrayF* getKinBinHB(
 * correction using helicity balance (HB) method or linear fit (LF) method.
 */
 void getKinBinnedGraph(
-                    const char * outdir,
+                    std::string  outdir,
                     TFile      * outroot,
                     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
-                    const char * sgcuts,  // Signal cuts
-                    const char * bgcuts,  // Background cuts
+                    std::string  sgcuts,  // Signal cuts
+                    std::string  bgcuts,  // Background cuts
                     TString      method,  // dll calculation method: either helicity balance (HB) or linear fit (LF)
-                    const char * binvar, // Variable name to bin in
+                    std::string  binvar, // Variable name to bin in
                     int          nbins,   // Number of bins
                     double     * bins,    // Bin limits (length=nbins+1)
                     double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     bool         use_bgfraction, // whether to use specified epsilon
                     double       alpha,   // Lambda weak decay asymmetry parameter
                     double       pol,     // Luminosity averaged beam polarization
-                    const char * mass_name, // mass variable name for signal fit
+                    std::string  mass_name, // mass variable name for signal fit
                     int          n_mass_bins, // number of mass bins
                     double       mass_min,   // mass variable max for signal fit
                     double       mass_max,   // mass variable min for signal fit
-                    const char * mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  mass_draw_opt, // mass variable hist draw option for fit
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
-                    const char * depolarization_name = "Dy",        // Branch name for depolarization factor
-                    const char * helicity_name       = "heli",      // Branch name for helicity
-                    const char * fitvar              = "costheta1", // cos(theta) leaf name to use
+                    std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
+                    std::string  helicity_name       = "heli",      // Branch name for helicity
+                    std::string  fitvar              = "costheta1", // cos(theta) leaf name to use
                     std::string  fitvar_mc           = "costheta1_mc", // fitvar name for mc if injecting
-                    const char * depol_name_mc       = "Dy_mc",        // depolarization name for mc if injecting
+                    std::string  depol_name_mc       = "Dy_mc",        // depolarization name for mc if injecting
                     bool         inject              = false,       // flag for whether to inject asymmetry
                     TRandom      gRandom             = TRandom(),   // Random number generator to use
                     //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
                     //   double       fitvar_min = -1.0,       // fit variable minimum
                     //   double       fitvar_max = 1.0,        // fit variable maximum
-                    const char * graph_title          = "Longitudinal Spin Transfer along #vec{p}_{#Lambda}", // Histogram title
+                    std::string  graph_title          = "Longitudinal Spin Transfer along #vec{p}_{#Lambda}", // Histogram title
                     int          marker_color         = 4,  // 4 is blue
                     int          marker_style         = 20, // 20 is circle
                     std::ostream &out                 = std::cout   // Output for all messages
@@ -321,8 +321,8 @@ void getKinBinnedGraph(
     out << "bins = { "; for (int i=0; i<nbins; i++) { out << bins[i] << " , ";} out << bins[nbins] << " }\n";
 
     // Make output directory in ROOT file and cd
-    outroot->mkdir(outdir);
-    outroot->cd(outdir);
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
 
     // Initialize data arrays
     double dlls[nbins];
@@ -346,16 +346,16 @@ void getKinBinnedGraph(
         double bin_max = bins[i];
 
         // Make bin cut on frame
-        const char * bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar,bin_min,binvar,bin_max);
-        auto bin_frame = frame.Filter(bin_cut);
+        std::string  bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
+        auto bin_frame = frame.Filter(bin_cut.c_str());
 
         // Get background fraction for bin from mass fit
         double epsilon = bgfraction;
         double bgfraction_err = 0.0; //TODO: add option for this.
         double epsilon_ls, epsilon_ls_err, epsilon_us, epsilon_us_err, epsilon_sb, epsilon_sb_err;
         if (!use_bgfraction) {
-            const char * massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar,bin_min,bin_max);
-            const char * bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar,bin_max);
+            std::string  massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+            std::string  bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
             TArrayF* massFitData = LambdaMassFit(
                         massoutdir,
                         outroot,
@@ -381,7 +381,7 @@ void getKinBinnedGraph(
 
         // Compute bin results
         TArrayF *binData;
-        const char * binoutdir = Form("method_%s_bin_%s_%.3f_%.3f",(const char*)method,binvar,bin_min,bin_max);
+        std::string  binoutdir = Form("method_%s_bin_%s_%.3f_%.3f",(const char*)method,binvar.c_str(),bin_min,bin_max);
         // double sgasym_measured = (1-epsilon)*sgasym + epsilon * bgasym;
         if (method=="HB") {
             binData = (TArrayF*) getKinBinHB(
@@ -441,7 +441,7 @@ void getKinBinnedGraph(
         if (epsilon==1.00) {out << " *** WARNING *** epsilon = 1 -> No BG correction made.\n";}
         else {
             TArrayF *bgBinData;
-            const char * sbbinoutdir = Form("method_%s_sideband_bin_%s_%.3f_%.3f",(const char*)method,binvar,bin_min,bin_max);
+            std::string  sbbinoutdir = Form("method_%s_sideband_bin_%s_%.3f_%.3f",(const char*)method,binvar.c_str(),bin_min,bin_max);
             if (method=="HB") {
                 bgBinData = (TArrayF*) getKinBinHB(
                     sbbinoutdir,
@@ -546,24 +546,24 @@ void getKinBinnedGraph(
     //----------//
     //DEBUGGING: Added 7/25/23
     out << "------------------------------------------------------------\n";
-    out << " Mean " << binvar << " & $\\epsilon_{ls}$ & $\\delta\\epsilon_{ls}/\\epsilon_{ls}$\\\\\n";
+    out << " Mean " << binvar << " & $\\epsilon_{ls}$ & $\\delta\\epsilon_{ls}/\\epsilon_{ls}$ \\\\\n";
     out << "\\hline\n";
     for (int i=0; i<nbins; i++) {
-        out << " " << means[i] << " & " <<  bgfractions_ls[i] << " $\\pm$ " << bgfractions_ls_err[i] << " & " << bgfractions_ls_err[i]/bgfractions_ls[i]*100 << " \\\\\n";
+        out << " " << means[i] << " & " <<  bgfractions_ls[i] << " $\\pm$ " << bgfractions_ls_err[i] << " & " << bgfractions_ls_err[i]/bgfractions_ls[i]*100 << "\\% \\\\\n";
     }
 
     out << "------------------------------------------------------------\n";
-    out << " Mean " << binvar << " & $\\epsilon_{us}$ & $\\delta\\epsilon_{us}/\\epsilon_{us}$\\\\\n";
+    out << " Mean " << binvar << " & $\\epsilon_{us}$ & $\\delta\\epsilon_{us}/\\epsilon_{us}$ \\\\\n";
     out << "\\hline\n";
     for (int i=0; i<nbins; i++) {
-        out << " " << means[i] << " & " <<  bgfractions_us[i] << " $\\pm$ " << bgfractions_us_err[i] << " & " << bgfractions_us_err[i]/bgfractions_us[i]*100 << " \\\\\n";
+        out << " " << means[i] << " & " <<  bgfractions_us[i] << " $\\pm$ " << bgfractions_us_err[i] << " & " << bgfractions_us_err[i]/bgfractions_us[i]*100 << "\\% \\\\\n";
     }
 
     out << "------------------------------------------------------------\n";
-    out << " Mean " << binvar << " & $\\epsilon_{sb}$ & $\\delta\\epsilon_{sb}/\\epsilon_{sb}$\\\\\n";
+    out << " Mean " << binvar << " & $\\epsilon_{sb}$ & $\\delta\\epsilon_{sb}/\\epsilon_{sb}$ \\\\\n";
     out << "\\hline\n";
     for (int i=0; i<nbins; i++) {
-        out << " " << means[i] << " & " <<  bgfractions_sb[i] << " $\\pm$ " << bgfractions_sb_err[i] << " & " << bgfractions_sb_err[i]/bgfractions_sb[i]*100 << " \\\\\n";
+        out << " " << means[i] << " & " <<  bgfractions_sb[i] << " $\\pm$ " << bgfractions_sb_err[i] << " & " << bgfractions_sb_err[i]/bgfractions_sb[i]*100 << "\\% \\\\\n";
     }
 
     //----------//
@@ -589,11 +589,11 @@ void getKinBinnedGraph(
     gr->GetYaxis()->SetTitleOffset(0.9);
 
     // More necessary stylistic choices
-    gr->SetTitle(graph_title);
+    gr->SetTitle(graph_title.c_str());
     gr->SetMarkerColor(marker_color); // 4  blue
     gr->SetMarkerStyle(marker_style); // 20 circle
     gr->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
-    gr->GetXaxis()->SetTitle(binvar);
+    gr->GetXaxis()->SetTitle(binvar.c_str());
     gr->GetYaxis()->SetTitle("D^{#Lambda}_{LL'}");
     gr->Draw("PA");
 
@@ -613,7 +613,7 @@ void getKinBinnedGraph(
 
     // Set outname and save
     TString fname;
-    fname.Form("%s_%s_%s_%.3f_%.3f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar,binvar,bins[0],bins[nbins],sgasym,bgasym);
+    fname.Form("%s_%s_%s_%.3f_%.3f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
     c1->Print(fname+".pdf");
     gr->SaveAs(fname+".root","recreate");
     gr_epsilon->SaveAs(fname+"_epsilon.root","recreate");
@@ -636,33 +636,33 @@ void convertToLatex(TGraph *g, std::ostream &out = std::cout) {
 * correction using helicity balance (HB) method or linear fit (LF) method.
 */
 void getKinBinnedMassFits(
-                    const char * outdir,
+                    std::string  outdir,
                     TFile      * outroot,
                     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
-                    const char * sgcuts,  // Signal cuts
-                    const char * bgcuts,  // Background cuts
+                    std::string  sgcuts,  // Signal cuts
+                    std::string  bgcuts,  // Background cuts
                     TString      method,  // dll calculation method: either helicity balance (HB) or linear fit (LF)
-                    const char * binvar, // Variable name to bin in
+                    std::string  binvar, // Variable name to bin in
                     int          nbins,   // Number of bins
                     double     * bins,    // Bin limits (length=nbins+1)
                     double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     bool         use_bgfraction, // whether to use specified epsilon
                     double       alpha,   // Lambda weak decay asymmetry parameter
                     double       pol,     // Luminosity averaged beam polarization
-                    const char * mass_name, // mass variable name for signal fit
+                    std::string  mass_name, // mass variable name for signal fit
                     int          n_mass_bins, // number of mass bins
                     double       mass_min,   // mass variable max for signal fit
                     double       mass_max,   // mass variable min for signal fit
-                    const char * mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  mass_draw_opt, // mass variable hist draw option for fit
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
-                    const char * depolarization_name = "Dy",        // Branch name for depolarization factor
-                    const char * helicity_name       = "heli",      // Branch name for helicity
-                    const char * fitvar              = "costheta1", // cos(theta) leaf name to use
+                    std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
+                    std::string  helicity_name       = "heli",      // Branch name for helicity
+                    std::string  fitvar              = "costheta1", // cos(theta) leaf name to use
                     //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
                     //   double       fitvar_min = -1.0,       // fit variable minimum
                     //   double       fitvar_max = 1.0,        // fit variable maximum
-                    const char * graph_title          = "Longitudinal Spin Transfer along #vec{p}_{#Lambda}", // Histogram title
+                    std::string  graph_title          = "Longitudinal Spin Transfer along #vec{p}_{#Lambda}", // Histogram title
                     int          marker_color         = 4,  // 4 is blue
                     int          marker_style         = 20, // 20 is circle
                     std::ostream &out                 = std::cout   // Output for all messages
@@ -683,8 +683,8 @@ void getKinBinnedMassFits(
     out << "bins = { "; for (int i=0; i<nbins; i++) { out << bins[i] << " , ";} out << bins[nbins] << " }\n";
 
     // Make output directory in ROOT file and cd
-    outroot->mkdir(outdir);
-    outroot->cd(outdir);
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
 
     // Initialize data arrays
     double errx[nbins];
@@ -700,15 +700,15 @@ void getKinBinnedMassFits(
         double bin_max = bins[i];
 
         // Make bin cut on frame
-        const char * bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar,bin_min,binvar,bin_max);
+        std::string bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
         auto bin_frame = frame.Filter(bin_cut);
 
         // Get background fraction for bin from mass fit
         double epsilon = bgfraction;
         double bgfraction_err = 0.0; //TODO: add option for this.
         if (!use_bgfraction) {
-            const char * massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar,bin_min,bin_max);
-            const char * bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar,bin_max);
+            std::string massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+            std::string bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
             TArrayF* massFitData = LambdaMassFit(
                         massoutdir,
                         outroot,
@@ -726,7 +726,7 @@ void getKinBinnedMassFits(
             bgfraction_err = massFitData->GetAt(1);
         }
         
-        auto mean  = (double)*bin_frame.Mean(binvar);
+        auto mean  = (double)*bin_frame.Mean(binvar.c_str());
         auto count = (int)   *bin_frame.Count();
 
         // Add data to arrays
@@ -773,7 +773,7 @@ void getKinBinnedMassFits(
     gr_epsilon->SetMarkerColor(marker_color); // 4  blue
     gr_epsilon->SetMarkerStyle(marker_style); // 20 circle
     gr_epsilon->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
-    gr_epsilon->GetXaxis()->SetTitle(binvar);
+    gr_epsilon->GetXaxis()->SetTitle(binvar.c_str());
     gr_epsilon->GetYaxis()->SetTitle("Background fraction #varepsilon");
     gr_epsilon->Draw("PA");
 
@@ -787,7 +787,7 @@ void getKinBinnedMassFits(
 
     // Set outname and save
     TString fname;
-    fname.Form("%s_%s_%s_%.3f_%.3f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar,binvar,bins[0],bins[nbins],sgasym,bgasym);
+    fname.Form("%s_%s_%s_%.3f_%.3f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
     c1->Print(fname+".pdf");
     gr_epsilon->SaveAs(fname+"_epsilon.root","recreate");
 
@@ -805,33 +805,33 @@ void getKinBinnedMassFits(
 * correction using helicity balance (HB) method or linear fit (LF) method.
 */
 void getKinBinnedMassFitsMC(
-                    const char * outdir,
+                    std::string  outdir,
                     TFile      * outroot,
                     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
-                    const char * sgcuts,  // Signal cuts
-                    const char * bgcuts,  // Background cuts
+                    std::string  sgcuts,  // Signal cuts
+                    std::string  bgcuts,  // Background cuts
                     TString      method,  // dll calculation method: either helicity balance (HB) or linear fit (LF)
-                    const char * binvar, // Variable name to bin in
+                    std::string  binvar, // Variable name to bin in
                     int          nbins,   // Number of bins
                     double     * bins,    // Bin limits (length=nbins+1)
                     double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     bool         use_bgfraction, // whether to use specified epsilon
                     double       alpha,   // Lambda weak decay asymmetry parameter
                     double       pol,     // Luminosity averaged beam polarization
-                    const char * mass_name, // mass variable name for signal fit
+                    std::string  mass_name, // mass variable name for signal fit
                     int          n_mass_bins, // number of mass bins
                     double       mass_min,   // mass variable max for signal fit
                     double       mass_max,   // mass variable min for signal fit
-                    const char * mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  mass_draw_opt, // mass variable hist draw option for fit
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
-                    const char * depolarization_name = "Dy",        // Branch name for depolarization factor
-                    const char * helicity_name       = "heli",      // Branch name for helicity
-                    const char * fitvar              = "costheta1", // cos(theta) leaf name to use
+                    std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
+                    std::string  helicity_name       = "heli",      // Branch name for helicity
+                    std::string  fitvar              = "costheta1", // cos(theta) leaf name to use
                     //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
                     //   double       fitvar_min = -1.0,       // fit variable minimum
                     //   double       fitvar_max = 1.0,        // fit variable maximum
-                    const char * graph_title          = "Longitudinal Spin Transfer along #vec{p}_{#Lambda}", // Histogram title
+                    std::string  graph_title          = "Longitudinal Spin Transfer along #vec{p}_{#Lambda}", // Histogram title
                     int          marker_color         = 4,  // 4 is blue
                     int          marker_style         = 20, // 20 is circle
                     std::ostream &out                 = std::cout   // Output for all messages
@@ -852,8 +852,8 @@ void getKinBinnedMassFitsMC(
     out << "bins = { "; for (int i=0; i<nbins; i++) { out << bins[i] << " , ";} out << bins[nbins] << " }\n";
 
     // Make output directory in ROOT file and cd
-    outroot->mkdir(outdir);
-    outroot->cd(outdir);
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
 
     // Initialize data arrays
     double errx[nbins];
@@ -869,15 +869,15 @@ void getKinBinnedMassFitsMC(
         double bin_max = bins[i];
 
         // Make bin cut on frame
-        const char * bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar,bin_min,binvar,bin_max);
+        std::string bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
         auto bin_frame = frame.Filter(bin_cut);
 
         // Get background fraction for bin from mass fit
         double epsilon = bgfraction;
         double bgfraction_err = 0.0; //TODO: add option for this.
         if (!use_bgfraction) {
-            const char * massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar,bin_min,bin_max);
-            const char * bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar,bin_max);
+            std::string massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+            std::string bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
             LambdaMassFitMCDecomposition(
                         massoutdir,
                         outroot,
@@ -910,7 +910,7 @@ void getKinBinnedMassFitsMC(
             bgfraction_err = massFitData->GetAt(1);
         }
         
-        auto mean  = (double)*bin_frame.Mean(binvar);
+        auto mean  = (double)*bin_frame.Mean(binvar.c_str());
         auto count = (int)   *bin_frame.Count();
 
         // Add data to arrays
@@ -957,7 +957,7 @@ void getKinBinnedMassFitsMC(
     gr_epsilon->SetMarkerColor(marker_color); // 4  blue
     gr_epsilon->SetMarkerStyle(marker_style); // 20 circle
     gr_epsilon->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
-    gr_epsilon->GetXaxis()->SetTitle(binvar);
+    gr_epsilon->GetXaxis()->SetTitle(binvar.c_str());
     gr_epsilon->GetYaxis()->SetTitle("Background fraction #varepsilon");
     gr_epsilon->Draw("PA");
 
@@ -971,7 +971,7 @@ void getKinBinnedMassFitsMC(
 
     // Set outname and save
     TString fname;
-    fname.Form("%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar,binvar,bins[0],bins[nbins],sgasym,bgasym);
+    fname.Form("%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
     c1->Print(fname+".pdf");
     gr_epsilon->SaveAs(fname+"_epsilon.root","recreate");
 
