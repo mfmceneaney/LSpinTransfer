@@ -926,7 +926,7 @@ TArrayF* LambdaMassFit_Gaus(
     // Draw histogram
     h->Draw(drawopt.c_str());
 
-    // CLAS12 Watermark                                                                                                  
+    // CLAS12 Watermark
     TLatex *lt = new TLatex(0.15,0.5,"CLAS12 Preliminary");
     lt->SetTextAngle(22.5);
     lt->SetTextColorAlpha(18,0.5);
@@ -942,16 +942,16 @@ TArrayF* LambdaMassFit_Gaus(
     func->SetParNames("sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
     // func->FixParameter(6,37);
     // func->SetParLimits(0,0.0,1000.0);
-    func->SetParLimits(3,0.0,h->GetBinContent(nbins)+1000);
-    func->SetParLimits(5,0.0,1.26);
+    // func->SetParLimits(3,0.0,h->GetBinContent(nbins)+1000);
+    // func->SetParLimits(5,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
 
-    // //DEBUGGING: BEGIN
-    // // Plot original function
-    // TF1 *f_original = (TF1*)func->Clone("f_original");
-    // f_original->SetLineColor(8);
-    // f_original->Draw("SAME");
-    // //DEBUGGING: END
+    //DEBUGGING: BEGIN
+    // Plot original function
+    TF1 *f_original = (TF1*)func->Clone("f_original");
+    f_original->SetLineColor(8);
+    f_original->Draw("SAME");
+    //DEBUGGING: END
 
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
