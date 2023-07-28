@@ -81,8 +81,8 @@ TArrayF* getKinBinLF(
     out << "Getting " << bin_cut << " bin\n";
     auto count    = (double)*f.Count();
     auto mean     = (double)*f.Mean(binvar.c_str());
-    auto histP_   = (TH1D)  *f.Filter(Form("%s>0",heli_asym)).Histo1D({"histP", "Positive/Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str());
-    auto histN_   = (TH1D)  *f.Filter(Form("%s<0",heli_asym)).Histo1D({"histN", "Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str());
+    auto histP_   = (TH1D)  *f.Filter(Form("%s>0",heli_asym.c_str())).Histo1D({"histP", "Positive/Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str());
+    auto histN_   = (TH1D)  *f.Filter(Form("%s<0",heli_asym.c_str())).Histo1D({"histN", "Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str());
     auto histP    = &histP_;
     auto histN    = &histN_;
     auto histPaux = (TH1D*)histP->Clone("histPaux");
