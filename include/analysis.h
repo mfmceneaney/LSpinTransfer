@@ -50,7 +50,7 @@ TArrayF* getKinBinLF(
                     std::string  fitvar_mc           = "costheta1_mc",
                     std::string  depol_name_mc       = "Dy_mc",
                     bool         inject              = false,
-                    TRandom      gRandom             = TRandom(),
+                    TRandom     *gRandom             = TRandom(),
                     int          n_fitvar_bins       = 10,
                     double       fitvar_min          = -1,
                     double       fitvar_max          =  1,
@@ -69,10 +69,11 @@ TArrayF* getKinBinLF(
     std::string  heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
     auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())) :
                                         frame.Filter(Form("(%s) && (%s) && (%s)",cuts.c_str(),bin_cut.c_str(),mc_cut.c_str())) //TODO: Double Check this
-                                        .Define(heli_asym, [&gRandom,&alpha,&asym,&pol](float Dy, float costheta) {
-                                            return (float)(gRandom.Rndm()<0.5*(1.0 + alpha*Dy*pol*asym*costheta) ? 1.0 : -1.0); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
+                                        .Define("my_rand_helicity",[&gRandom](){ return (float)gRandom->Rndm(); },{})
+                                        .Define(heli_asym, [&alpha,&asym,&pol](float Dy, float costheta, float my_rand_helicity) {
+                                            return (float)(my_rand_helicity<0.5*(1.0 + alpha*Dy*pol*asym*costheta) ? 1.0 : -1.0); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
                                         },
-                                        {depol_name_mc.c_str(),fitvar_mc.c_str()}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+                                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"my_rand_helicity"}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
 
     // Set fit function
     TF1 *fitf = new TF1("fitf","[0]+[1]*x",fitvar_min,fitvar_max);
@@ -203,7 +204,7 @@ TArrayF* getKinBinHB(
                     std::string  fitvar_mc           = "costheta1_mc",
                     std::string  depol_name_mc       = "Dy_mc",
                     bool         inject              = false,
-                    TRandom      gRandom             = TRandom(),
+                    TRandom     *gRandom             = TRandom(),
                     std::ostream &out                = std::cout
                     ) {
 
@@ -218,10 +219,11 @@ TArrayF* getKinBinHB(
     std::string  heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
     auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())) :
                                         frame.Filter(Form("(%s) && (%s) && (%s)",cuts.c_str(),bin_cut.c_str(),mc_cut.c_str())) //TODO: Double Check this
-                                        .Define(heli_asym, [&gRandom,&alpha,&asym,&pol](float Dy, float costheta) {
-                                            return (float)(gRandom.Rndm()<0.5*(1.0 + alpha*Dy*pol*asym*costheta) ? 1.0 : -1.0);
+                                        .Define("my_rand_helicity",[&gRandom](){ return (float)gRandom->Rndm(); },{})
+                                        .Define(heli_asym, [&alpha,&asym,&pol](float Dy, float costheta, float my_rand_helicity) {
+                                            return (float)(my_rand_helicity<0.5*(1.0 + alpha*Dy*pol*asym*costheta) ? 1.0 : -1.0); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
                                         },
-                                        {depol_name_mc.c_str(),fitvar_mc.c_str()}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+                                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"my_rand_helicity"}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
 
     // Get data
     auto count    = (int)   *f.Count();
@@ -296,7 +298,7 @@ void getKinBinnedGraph(
                     std::string  fitvar_mc           = "costheta1_mc", // fitvar name for mc if injecting
                     std::string  depol_name_mc       = "Dy_mc",        // depolarization name for mc if injecting
                     bool         inject              = false,       // flag for whether to inject asymmetry
-                    TRandom      gRandom             = TRandom(),   // Random number generator to use
+                    TRandom     *gRandom             = TRandom(),   // Random number generator to use
                     //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
                     //   double       fitvar_min = -1.0,       // fit variable minimum
                     //   double       fitvar_max = 1.0,        // fit variable maximum

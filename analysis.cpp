@@ -242,7 +242,7 @@ void analysis(const YAML::Node& node) {
     TFile * outroot = TFile::Open(outpath.c_str(),"RECREATE");
 
     // Create random number generator for MC asymmetry injection
-    TRandom gRandom = TRandom();
+    TRandom *gRandom = new TRandom(); //NOTE: IMPORTANT: Need `new` here to get a pointer.
 
     // Loop variables to bin in
     for (auto it = binvars.begin(); it != binvars.end(); ++it) { //TODO: How to check if too many binning variables...
@@ -285,7 +285,7 @@ void analysis(const YAML::Node& node) {
                     fitvar_mc,// std::string fitvar_mc           = "costheta1_mc",
                     depol_name_mc,// std::string  depol_name_mc       = "Dy_mc",
                     inject_asym,// bool inject = false, // flag for whether to inject asymmetry
-                    gRandom,// TRandom gRandom = TRandom(), // Random number generator to use
+                    gRandom,// TRandom * gRandom = TRandom(), // Random number generator to use
                     // //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
                     // //   double       fitvarMin = -1.0,       // fit variable minimum
                     // //   double       fitvarMax = 1.0,        // fit variable maximum
