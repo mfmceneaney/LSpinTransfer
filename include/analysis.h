@@ -50,7 +50,7 @@ TArrayF* getKinBinLF(
                     std::string  fitvar_mc           = "costheta1_mc",
                     std::string  depol_name_mc       = "Dy_mc",
                     bool         inject              = false,
-                    TRandom     *gRandom             = TRandom(),
+                    TRandom     *gRandom             = new TRandom(),
                     int          n_fitvar_bins       = 10,
                     double       fitvar_min          = -1,
                     double       fitvar_max          =  1,
@@ -204,7 +204,7 @@ TArrayF* getKinBinHB(
                     std::string  fitvar_mc           = "costheta1_mc",
                     std::string  depol_name_mc       = "Dy_mc",
                     bool         inject              = false,
-                    TRandom     *gRandom             = TRandom(),
+                    TRandom     *gRandom             = new TRandom(),
                     std::ostream &out                = std::cout
                     ) {
 
@@ -298,7 +298,7 @@ void getKinBinnedGraph(
                     std::string  fitvar_mc           = "costheta1_mc", // fitvar name for mc if injecting
                     std::string  depol_name_mc       = "Dy_mc",        // depolarization name for mc if injecting
                     bool         inject              = false,       // flag for whether to inject asymmetry
-                    TRandom     *gRandom             = TRandom(),   // Random number generator to use
+                    TRandom     *gRandom             = new TRandom(),   // Random number generator to use
                     //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
                     //   double       fitvar_min = -1.0,       // fit variable minimum
                     //   double       fitvar_max = 1.0,        // fit variable maximum
