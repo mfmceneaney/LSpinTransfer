@@ -343,6 +343,8 @@ TArrayF* LambdaMassFitMC(
     outroot->mkdir(outdir.c_str());
     outroot->cd(outdir.c_str());
 
+    std::cout<<"DEBUGGING: in Lambda MassFitMC: frame.HasColumn(\"vz_e_old\") = "<<frame.HasColumn("vz_e_old")<<std::endl;//DEBUGGING
+
     // MC Matching cuts
     std::string protonangcuts = "abs(theta_p-theta_p_mc)<2*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
     std::string pionangcuts = "abs(theta_pim-theta_pim_mc)<2*TMath::Pi()/180"; // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
@@ -736,6 +738,8 @@ void LambdaMassFitMCDecomposition(
     // Make output directory in output file
     outroot->mkdir(outdir.c_str());
     outroot->cd(outdir.c_str());
+
+    std::cout<<"DEBUGGING: in Lambda MassFitMCDecomposition: frame.HasColumn(\"vz_e_old\") = "<<frame.HasColumn("vz_e_old")<<std::endl;//DEBUGGING
 
     // MC Matching cuts
     std::string protonangcuts = "abs(theta_p-theta_p_mc)<2*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";

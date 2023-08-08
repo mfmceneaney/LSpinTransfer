@@ -877,6 +877,8 @@ void getKinBinnedMassFitsMC(
         std::string bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
         auto bin_frame = frame.Filter(bin_cut);
 
+        std::cout<<"DEBUGGING: in getKinBinnedMassFitsMC: bin_frame.HasColumn(\"vz_e_old\") = "<<bin_frame.HasColumn("vz_e_old")<<std::endl;//DEBUGGING
+
         // Get background fraction for bin from mass fit
         double epsilon = bgfraction;
         double bgfraction_err = 0.0; //TODO: add option for this.
