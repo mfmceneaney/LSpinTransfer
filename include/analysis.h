@@ -865,9 +865,6 @@ void getKinBinnedMassFitsMC(
     double bgfractions[nbins];
     double bgfractions_err[nbins];
 
-    // std::cout<<"DEBUGGING: frame.GetColumnNames() = "<<frame.GetColumnNames()<<std::endl;//DEBUGGING
-    std::cout<<"DEBUGGING: frame.HasColumn(\"vz_e_old\") = "<<frame.HasColumn("vz_e_old")<<std::endl;//DEBUGGING
-
     // Loop bins and get data
     for (int i=1; i<=nbins; i++) {
         double bin_min = bins[i-1];
@@ -876,8 +873,6 @@ void getKinBinnedMassFitsMC(
         // Make bin cut on frame
         std::string bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
         auto bin_frame = frame.Filter(bin_cut);
-
-        std::cout<<"DEBUGGING: in getKinBinnedMassFitsMC: bin_frame.HasColumn(\"vz_e_old\") = "<<bin_frame.HasColumn("vz_e_old")<<std::endl;//DEBUGGING
 
         // Get background fraction for bin from mass fit
         double epsilon = bgfraction;

@@ -213,8 +213,6 @@ void analysis(const YAML::Node& node) {
     ROOT::RDataFrame d(tree, inpath);
     const char * depolarization_name = "Dy";
     const char * helicity_name       = "heli";
-    // std::cout<<"DEBUGGING: d.GetColumnNames() = "<<d.GetColumnNames()<<std::endl;//DEBUGGING
-    std::cout<<"DEBUGGING: d.HasColumn(\"vz_e_old\") = "<<d.HasColumn("vz_e_old")<<std::endl;//DEBUGGING
     auto frame = d.Filter(cuts.c_str())
                     .Define(helicity_name, "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
                     .Define(depolarization_name, [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}); // NEEDED FOR CALCULATIONS LATER
@@ -241,9 +239,6 @@ void analysis(const YAML::Node& node) {
 
         // Set binvar outdir name
         std::string binvar_outdir = Form("binvar_%s",binvar.c_str());
-
-        // std::cout<<"DEBUGGING: frame.GetColumnNames() = "<<frame.GetColumnNames()<<std::endl;//DEBUGGING
-        std::cout<<"DEBUGGING: frame.HasColumn(\"vz_e_old\") = "<<frame.HasColumn("vz_e_old")<<std::endl;//DEBUGGING
 
         // Get 1D graph binned in given kinematic variable.
         getKinBinnedMassFitsMC(
