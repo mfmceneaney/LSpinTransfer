@@ -865,6 +865,9 @@ void getKinBinnedMassFitsMC(
     double bgfractions[nbins];
     double bgfractions_err[nbins];
 
+    std::cout<<"DEBUGGING: frame.GetColumnNames() = "<<frame.GetColumnNames()<<std::endl;//DEBUGGING
+    std::cout<<"DEBUGGING: frame.HasColumn(\"vz_e_old\") = "<<frame.HasColumn("vz_e_old")<<std::endl;//DEBUGGING
+
     // Loop bins and get data
     for (int i=1; i<=nbins; i++) {
         double bin_min = bins[i-1];
