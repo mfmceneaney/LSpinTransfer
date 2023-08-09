@@ -43,14 +43,8 @@ TArrayF* getKinBinLF(
                     double       bin_max,
                     double       alpha,
                     double       pol,
-                    double       asym                = 0.00,
-                    std::string  depolarization_name = "Dy",
                     std::string  helicity_name       = "heli",
                     std::string  fitvar              = "costheta1",
-                    std::string  fitvar_mc           = "costheta1_mc",
-                    std::string  depol_name_mc       = "Dy_mc",
-                    bool         inject              = false,
-                    TRandom     *gRandom             = new TRandom(),
                     int          n_fitvar_bins       = 10,
                     double       fitvar_min          = -1,
                     double       fitvar_max          =  1,
@@ -63,19 +57,7 @@ TArrayF* getKinBinLF(
 
     // Set bin cuts
     std::string bin_cut = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
-
-    // Filter frame and inject asymmetry if needed
-    std::string  heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
-    auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())) :
-                                        frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())) //TODO: Double Check this
-                                        .Define("my_rand_helicity",[&gRandom](){ return (float)gRandom->Rndm(); },{})
-                                        .Define(heli_asym, [&alpha,&asym,&pol](float Dy, float costheta, float my_rand_helicity, float has_lambda, float pid_parent_p_mc, float row_parent_p_mc, float row_parent_pim_mc) {
-                                            return (float)(my_rand_helicity<(
-                                                                        (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc) 
-                                                                        ? 0.5*(1.0 + alpha*Dy*pol*asym*costheta) : 0.5) //NOTE: COULD INJECT ASYM HERE FOR BG -> THEN NEED BGASYM AND SGASYM AS ARGS FOR THESE FUNCS.
-                                                                        ? 1.0 : -1.0); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
-                                        },
-                                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"my_rand_helicity","has_lambda","pid_parent_p_mc","row_parent_p_mc","row_parent_pim_mc"}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+    auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()))
 
     // Set fit function
     TF1 *fitf = new TF1("fitf","[0]+[1]*x",fitvar_min,fitvar_max);
@@ -84,8 +66,8 @@ TArrayF* getKinBinLF(
     out << "Getting " << bin_cut << " bin\n";
     auto count    = (double)*f.Count();
     auto mean     = (double)*f.Mean(binvar.c_str());
-    auto histP_   = (TH1D)  *f.Filter(Form("%s>0",heli_asym.c_str())).Histo1D({"histP", "Positive/Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str());
-    auto histN_   = (TH1D)  *f.Filter(Form("%s<0",heli_asym.c_str())).Histo1D({"histN", "Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str());
+    auto histP_   = (TH1D)  *f.Filter(Form("%s>0",helicity_name.c_str())).Histo1D({"histP", "Positive/Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str());
+    auto histN_   = (TH1D)  *f.Filter(Form("%s<0",helicity_name.c_str())).Histo1D({"histN", "Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str());
     auto histP    = &histP_;
     auto histN    = &histN_;
     auto histPaux = (TH1D*)histP->Clone("histPaux");
@@ -132,7 +114,6 @@ TArrayF* getKinBinLF(
     out << " cuts     = " << cuts   << "\n";
     out << " alpha    = " << alpha  << "\n";
     out << " pol      = " << pol    << "\n";
-    out << " asym     = " << asym   << "\n";
     out << " costheta = " << fitvar     << "\n";
     out << " bin_cut  = " << bin_cut << "\n";
     out << " chi2     = " << chi2   << "\n";//TODO: REMOVE?
@@ -165,7 +146,7 @@ TArrayF* getKinBinLF(
     sig1->Draw("SAME");
 
     // Set outname and save
-    TString fname; fname.Form("LF_%s_%s_%.3f_%.3f_asym_%.2f",fitvar.c_str(),binvar.c_str(),bin_min,bin_max,asym);
+    TString fname; fname.Form("LF_%s_%s_%.3f_%.3f",fitvar.c_str(),binvar.c_str(),bin_min,bin_max);
     c1->Print(fname+".pdf");
     c1->Write(c1->GetName());
     histP->Write(histP->GetName());
@@ -199,14 +180,9 @@ TArrayF* getKinBinHB(
                     double       bin_max,
                     double       alpha,
                     double       pol,
-                    double       asym                = 0.00,
                     std::string  depolarization_name = "Dy",
                     std::string  helicity_name       = "heli",
                     std::string  fitvar              = "costheta1",
-                    std::string  fitvar_mc           = "costheta1_mc",
-                    std::string  depol_name_mc       = "Dy_mc",
-                    bool         inject              = false,
-                    TRandom     *gRandom             = new TRandom(),
                     std::ostream &out                = std::cout
                     ) {
 
@@ -215,30 +191,18 @@ TArrayF* getKinBinHB(
 
     // Set bin cuts
     std::string bin_cut = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
-
-    // Filter frame and inject asymmetry if needed
-    std::string  heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
-    auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())) :
-                                        frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())) //TODO: Double Check this
-                                        .Define("my_rand_helicity",[&gRandom](){ return (float)gRandom->Rndm(); },{})
-                                        .Define(heli_asym, [&alpha,&asym,&pol](float Dy, float costheta, float my_rand_helicity, float has_lambda, float pid_parent_p_mc, float row_parent_p_mc, float row_parent_pim_mc) {
-                                            return (float)(my_rand_helicity<(
-                                                                        (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc) 
-                                                                        ? 0.5*(1.0 + alpha*Dy*pol*asym*costheta) : 0.5)
-                                                                        ? 1.0 : -1.0); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
-                                        },
-                                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"my_rand_helicity","has_lambda","pid_parent_p_mc","row_parent_p_mc","row_parent_pim_mc"}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+    auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
 
     // Get data
     auto count    = (int)   *f.Count();
     auto mean     = (double)*f.Mean(binvar.c_str());
-    auto sumPbDCT = (double)*f.Define("tosum", [&pol](float Dy, float heli, float costheta) { return pol*heli*Dy*costheta; } , {depolarization_name.c_str(),heli_asym.c_str(),fitvar.c_str()}).Sum("tosum");
-    auto sumDCT   = (double)*f.Define("tosum", [&pol](float Dy, float heli, float costheta) { return Dy*Dy*costheta*costheta; } , {depolarization_name.c_str(),heli_asym.c_str(),fitvar.c_str()}).Sum("tosum");
+    auto sumPbDCT = (double)*f.Define("tosum", [&pol](float Dy, float heli, float costheta) { return pol*heli*Dy*costheta; } , {depolarization_name.c_str(),helicity_name.c_str(),fitvar.c_str()}).Sum("tosum");
+    auto sumDCT   = (double)*f.Define("tosum", [&pol](float Dy, float heli, float costheta) { return Dy*Dy*costheta*costheta; } , {depolarization_name.c_str(),helicity_name.c_str(),fitvar.c_str()}).Sum("tosum");
     auto avePbDCT = (double)sumPbDCT/count;
     auto aveDCT   = (double)sumDCT/count;
-    auto stdPbDCT = (double)*f.Define("tostd", [&pol](float Dy, float heli, float costheta) { return pol*heli*Dy*costheta; } , {depolarization_name.c_str(),heli_asym.c_str(),fitvar.c_str()}).StdDev("tostd");
-    auto stdDCT   = (double)*f.Define("tostd", [&pol](float Dy, float heli, float costheta) { return Dy*Dy*costheta*costheta; } , {depolarization_name.c_str(),heli_asym.c_str(),fitvar.c_str()}).StdDev("tostd");
-    auto covar    = (double)*f.Define("tocvr", [&pol,&avePbDCT,&aveDCT](float Dy, float heli, float costheta) { return (pol*heli*Dy*costheta - avePbDCT)*(Dy*Dy*costheta*costheta - aveDCT); } , {depolarization_name.c_str(),heli_asym.c_str(),fitvar.c_str()}).Sum("tocvr")/count;
+    auto stdPbDCT = (double)*f.Define("tostd", [&pol](float Dy, float heli, float costheta) { return pol*heli*Dy*costheta; } , {depolarization_name.c_str(),helicity_name.c_str(),fitvar.c_str()}).StdDev("tostd");
+    auto stdDCT   = (double)*f.Define("tostd", [&pol](float Dy, float heli, float costheta) { return Dy*Dy*costheta*costheta; } , {depolarization_name.c_str(),helicity_name.c_str(),fitvar.c_str()}).StdDev("tostd");
+    auto covar    = (double)*f.Define("tocvr", [&pol,&avePbDCT,&aveDCT](float Dy, float heli, float costheta) { return (pol*heli*Dy*costheta - avePbDCT)*(Dy*Dy*costheta*costheta - aveDCT); } , {depolarization_name.c_str(),helicity_name.c_str(),fitvar.c_str()}).Sum("tocvr")/count;
 
     // Compute spin transfers
     if (count==0) {out << " *** WARNING *** Count = 0.  You should rebin.";}
@@ -254,7 +218,6 @@ TArrayF* getKinBinHB(
     out << " cuts     = " << cuts   << "\n";
     out << " alpha    = " << alpha  << "\n";
     out << " pol      = " << pol    << "\n";
-    out << " asym     = " << asym   << "\n";
     out << " fitvar   = " << fitvar << "\n";
     out << " bin_cut  = " << bin_cut << "\n";
     out << " dll      = " << dll    << "±" << dll_err << "\n";
@@ -400,14 +363,9 @@ void getKinBinnedGraph(
                 bin_max,
                 alpha,
                 pol,
-                sgasym,
                 depolarization_name,
                 helicity_name,
                 fitvar,
-                fitvar_mc,
-                depol_name_mc,
-                inject,
-                gRandom,
                 out
                 );
         }
@@ -422,14 +380,8 @@ void getKinBinnedGraph(
                 bin_max,
                 alpha,
                 pol,
-                sgasym,
-                depolarization_name,
                 helicity_name,
                 fitvar,
-                fitvar_mc,
-                depol_name_mc,
-                inject,
-                gRandom,
                 n_fitvar_bins,
                 fitvar_min,
                 fitvar_max,
@@ -459,14 +411,9 @@ void getKinBinnedGraph(
                     bin_max,
                     alpha,
                     pol,
-                    bgasym,
                     depolarization_name,
                     helicity_name,
                     fitvar,
-                    fitvar_mc,
-                    depol_name_mc,
-                    inject,
-                    gRandom,
                     out
                     );
             }
@@ -481,14 +428,8 @@ void getKinBinnedGraph(
                     bin_max,
                     alpha,
                     pol,
-                    bgasym,
-                    depolarization_name,
                     helicity_name,
                     fitvar,
-                    fitvar_mc,
-                    depol_name_mc,
-                    inject,
-                    gRandom,
                     n_fitvar_bins,
                     fitvar_min,
                     fitvar_max,
