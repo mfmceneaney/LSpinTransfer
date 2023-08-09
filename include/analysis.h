@@ -65,15 +65,17 @@ TArrayF* getKinBinLF(
     std::string bin_cut = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
 
     // Filter frame and inject asymmetry if needed
-    std::string  mc_cut = "has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc";//DEBUGGING
     std::string  heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
     auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())) :
-                                        frame.Filter(Form("(%s) && (%s) && (%s)",cuts.c_str(),bin_cut.c_str(),mc_cut.c_str())) //TODO: Double Check this
+                                        frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())) //TODO: Double Check this
                                         .Define("my_rand_helicity",[&gRandom](){ return (float)gRandom->Rndm(); },{})
-                                        .Define(heli_asym, [&alpha,&asym,&pol](float Dy, float costheta, float my_rand_helicity) {
-                                            return (float)(my_rand_helicity<0.5*(1.0 + alpha*Dy*pol*asym*costheta) ? 1.0 : -1.0); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
+                                        .Define(heli_asym, [&alpha,&asym,&pol](float Dy, float costheta, float my_rand_helicity, float has_lambda, float pid_parent_p_mc, float row_parent_p_mc, float row_parent_pim_mc) {
+                                            return (float)(my_rand_helicity<(
+                                                                        (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc) 
+                                                                        ? 0.5*(1.0 + alpha*Dy*pol*asym*costheta) : 0.5) //NOTE: COULD INJECT ASYM HERE FOR BG -> THEN NEED BGASYM AND SGASYM AS ARGS FOR THESE FUNCS.
+                                                                        ? 1.0 : -1.0); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
                                         },
-                                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"my_rand_helicity"}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+                                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"my_rand_helicity","has_lambda","pid_parent_p_mc","row_parent_p_mc","row_parent_pim_mc"}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
 
     // Set fit function
     TF1 *fitf = new TF1("fitf","[0]+[1]*x",fitvar_min,fitvar_max);
@@ -215,15 +217,17 @@ TArrayF* getKinBinHB(
     std::string bin_cut = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
 
     // Filter frame and inject asymmetry if needed
-    std::string  mc_cut = "has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc";//DEBUGGING
     std::string  heli_asym   = (!inject) ? helicity_name : "heli_asym_"; //TODO: Hopefully this is ok hard-coded?
     auto f                   = (!inject) ? frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())) :
-                                        frame.Filter(Form("(%s) && (%s) && (%s)",cuts.c_str(),bin_cut.c_str(),mc_cut.c_str())) //TODO: Double Check this
+                                        frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())) //TODO: Double Check this
                                         .Define("my_rand_helicity",[&gRandom](){ return (float)gRandom->Rndm(); },{})
-                                        .Define(heli_asym, [&alpha,&asym,&pol](float Dy, float costheta, float my_rand_helicity) {
-                                            return (float)(my_rand_helicity<0.5*(1.0 + alpha*Dy*pol*asym*costheta) ? 1.0 : -1.0); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
+                                        .Define(heli_asym, [&alpha,&asym,&pol](float Dy, float costheta, float my_rand_helicity, float has_lambda, float pid_parent_p_mc, float row_parent_p_mc, float row_parent_pim_mc) {
+                                            return (float)(my_rand_helicity<(
+                                                                        (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc) 
+                                                                        ? 0.5*(1.0 + alpha*Dy*pol*asym*costheta) : 0.5)
+                                                                        ? 1.0 : -1.0); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
                                         },
-                                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"my_rand_helicity"}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+                                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"my_rand_helicity","has_lambda","pid_parent_p_mc","row_parent_p_mc","row_parent_pim_mc"}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
 
     // Get data
     auto count    = (int)   *f.Count();
