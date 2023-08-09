@@ -101,7 +101,7 @@ void getBinMigrationPlots(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter
     mg->Add(g_following,drawopt);
     mg->GetXaxis()->SetTitle(varTitle);
     mg->GetXaxis()->SetTitleSize(0.06);
-    mg->GetXaxis()->SetTitleOffset(0.75);
+    mg->GetXaxis()->SetTitleOffset(0.4);
     mg->GetYaxis()->SetTitle("f_{i+n}");
     mg->GetYaxis()->SetTitleSize(0.06);
     mg->GetYaxis()->SetTitleOffset(0.87);
@@ -114,6 +114,18 @@ void getBinMigrationPlots(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter
     // Save canvas
     c1->Write();
     c1->SaveAs(Form("%s.pdf",c1->GetName()));
+
+    //DEBUGGING DEBUGGING
+    TCanvas *c2 = new TCanvas("c2");
+    c2->cd();
+    std::cout<<"DEBUGGING: drawopt = "<<drawopt<<std::endl;//DEBUGGING
+    g_previous->Draw(drawopt);
+
+    TCanvas *c3 = new TCanvas("c3");
+    c3->cd();
+    std::cout<<"DEBUGGING: drawopt = "<<drawopt<<std::endl;//DEBUGGING
+    g_following->Draw(drawopt);
+    //DEBUGGING END
 
     // Save to file for future use
     g_previous->Write();
