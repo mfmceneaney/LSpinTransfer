@@ -70,7 +70,7 @@ void getBinMigrationPlots(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter
         int n_from_following_bin = (int) *frame.Filter(from_following_bin_cut).Count();
         int n_in_current_bin    = (int) *frame.Filter(in_current_bin_cut).Count();
         double following_bin_fraction = n_from_following_bin / n_in_current_bin;
-        double following_bin_fraction_err = TMath::Abs(following_bin_fraction) * TMath::Sqrt(1/n_from_follwing_bin+1/n_in_current_bin);
+        double following_bin_fraction_err = TMath::Abs(following_bin_fraction) * TMath::Sqrt(1/n_from_following_bin+1/n_in_current_bin);
         double bin_mean = (double) *frame.Filter(in_current_bin_cut).Mean(varName.c_str());
         double bin_stddev = (double) *frame.Filter(in_current_bin_cut).StdDev(varName.c_str());
         std::cout<<"DEBUGGING: following_bin_fraction = "<<following_bin_fraction<<std::endl;//DEBUGGING
@@ -90,13 +90,13 @@ void getBinMigrationPlots(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter
     TGraphErrors *g_following = new TGraphErrors(nbins,bin_means,following_bin_fractions,bin_means_err,following_bin_fractions_err);
     g_previous->SetMarkerStyle(20); //NOTE: 20=filled circle
     g_previous->SetMarkerColor(4); //NOTE: 4=blue
-    g_previous->SetName(Form("g_previous_%s",varName));
+    g_previous->SetName(Form("g_previous_%s",varName.c_str()));
     g_following->SetMarkerStyle(20); //NOTE: 20=filled circle
     g_following->SetMarkerColor(2); //NOTE: 2=red
-    g_following->SetName(Form("g_following_%s",varName));
+    g_following->SetName(Form("g_following_%s",varName.c_str()));
 
     // Create Multigraph
-    TMultiGraph *mg = new TMultiGraph(Form("mg_bin_migration_%s",varName),"");
+    TMultiGraph *mg = new TMultiGraph(Form("mg_bin_migration_%s",varName.c_str()),"");
     mg->Add(g_previous,drawopt);
     mg->Add(g_following,drawopt);
     mg->GetXaxis()->SetTitle(varTitle);
@@ -107,7 +107,7 @@ void getBinMigrationPlots(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter
     mg->GetYaxis()->SetTitleOffset(0.87);
 
     // Create canvas and draw multigraph
-    TCanvas *c1 = new TCanvas(Form("c_bin_migration_%s",varName));
+    TCanvas *c1 = new TCanvas(Form("c_bin_migration_%s",varName.c_str()));
     c1->cd();
     mg->Draw(drawopt);
 
@@ -137,7 +137,7 @@ void GetBinMigration() {
     ROOT::EnableImplicitMT(nthreads);
 
     // Create RDataFrame for statistics capabilities and reading tree and set branch names to use
-    ROOT::RDataFrame d1(tree, path);
+    ROOT::RDataFrame d(tree, path);
 
     // Open Data files
     auto frame = d
