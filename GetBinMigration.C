@@ -184,7 +184,7 @@ void GetBinMigration() {
 
     // Plot bin migrations for kinematics not dependent on lambda
     for (int i=0; i<names.size(); i++) {
-      getBinMigrationPlots(frame,names[i],names_mc[i],nbins[i],binlims[i],labels[i],drawopt,f);
+      getBinMigrationPlots(frame,names[i],names_mc[i],nbins[i],binlims[i],labels[i].c_str(),drawopt,f);
     }
 
     // Close output file
