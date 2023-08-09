@@ -169,6 +169,7 @@ void GetBinMigration() {
     std::vector<int> nbins;
     std::vector<std::vector<double>> binlims;
     std::vector<std::string> labels;
+    const char * drawopt = "APE";
 
     names.push_back("Q2"); names_mc.push_back("Q2_mc"); nbins.push_back(6); binlims.push_back({1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 10.0}); labels.push_back("Q^{2} (GeV^{2})");
     names.push_back("W"); names_mc.push_back("W_mc"); nbins.push_back(4); binlims.push_back({2.0, 2.5, 3.0, 3.5, 5.0}); labels.push_back("W (GeV)");
