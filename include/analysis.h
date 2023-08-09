@@ -57,7 +57,7 @@ TArrayF* getKinBinLF(
 
     // Set bin cuts
     std::string bin_cut = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
-    auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()))
+    auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
 
     // Set fit function
     TF1 *fitf = new TF1("fitf","[0]+[1]*x",fitvar_min,fitvar_max);
