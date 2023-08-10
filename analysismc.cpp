@@ -222,7 +222,8 @@ void analysis(const YAML::Node& node) {
     for (int idx_injection=0; idx_injection<n_injections; idx_injection++) {
 
         // Create random number generator for MC asymmetry injection
-        TRandom *gRandom = new TRandom(2**idx_injection); //NOTE: IMPORTANT: Need `new` here to get a pointer. //NOTE: IMPORTANT CHOOSE A DIFFERENT RANDOM SEED EVERY TIME.
+        int seed = TMath::Power(2,idx_injection);
+        TRandom *gRandom = new TRandom(seed); //NOTE: IMPORTANT: Need `new` here to get a pointer. //NOTE: IMPORTANT CHOOSE A DIFFERENT RANDOM SEED EVERY TIME.
 
         // Numerical constants
         double alpha = 0.748;  // ±0.007 Weak decay asymmetry parameter
