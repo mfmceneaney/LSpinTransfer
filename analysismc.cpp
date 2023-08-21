@@ -249,12 +249,12 @@ void analysis(const YAML::Node& node) {
                         .Define("dtheta_p",[](float theta_p, float theta_p_mc){ return TMath::Abs(theta_p-theta_p_mc); },{"theta_p","theta_p_mc"})
                         .Define("dtheta_pim",[](float theta_pim, float theta_pim_mc){ return TMath::Abs(theta_pim-theta_pim_mc); },{"theta_pim","theta_pim_mc"})
                         .Define("dphi_p",[](float phi_p, float phi_p_mc){
-                            return (float) TMath::Abs(phi_p-phi_p_mc)<TMath::Pi()
-                            ? TMath::Abs(phi_p-phi_p_mc) : 2*TMath::Pi() - TMath::Abs(phi_p-phi_p_mc);
+                            return (float) (TMath::Abs(phi_p-phi_p_mc)<TMath::Pi()
+                            ? TMath::Abs(phi_p-phi_p_mc) : 2*TMath::Pi() - TMath::Abs(phi_p-phi_p_mc));
                             },{"phi_p","phi_p_mc"})
                         .Define("dphi_pim",[](float phi_pim, float phi_pim_mc){
-                            return (float) TMath::Abs(phi_pim-phi_pim_mc)<TMath::Pi()
-                            ? TMath::Abs(phi_pim-phi_pim_mc) : 2*TMath::Pi() - TMath::Abs(phi_pim-phi_pim_mc);
+                            return (float) (TMath::Abs(phi_pim-phi_pim_mc)<TMath::Pi()
+                            ? TMath::Abs(phi_pim-phi_pim_mc) : 2*TMath::Pi() - TMath::Abs(phi_pim-phi_pim_mc));
                             },{"phi_pim","phi_pim_mc"})
                         .Filter(Form("(%s) && (%s)",cuts.c_str(),mc_cuts.c_str()))
                         .Define(depolarization_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"})
