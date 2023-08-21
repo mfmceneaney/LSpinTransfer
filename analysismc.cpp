@@ -240,7 +240,7 @@ void analysis(const YAML::Node& node) {
         std::string helicity_name       = "heli";
         std::string depol_name_mc       = "Dy_mc";
         std::string fitvar_mc = Form("%s_mc",fitvar.c_str());
-        std::string mc_cuts = Form("(((has_lambda==0 && first_combo=0) || (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)) && (dtheta_p<%.16f && dtheta_pim<%.16f && dphi_p<%.16f && dphi_pim<%.16f)) || (has_lambda==0 && first_combo==1)",dtheta_p_max,dtheta_pim_max,dphi_p_max,dphi_pim_max);
+        std::string mc_cuts = Form("(((has_lambda==0 && first_combo==0) || (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)) && (dtheta_p<%.16f && dtheta_pim<%.16f && dphi_p<%.16f && dphi_pim<%.16f)) || (has_lambda==0 && first_combo==1)",dtheta_p_max,dtheta_pim_max,dphi_p_max,dphi_pim_max);
         std::cout<<"DEBUGGING: in analysis.cpp: mc_cuts = \n\t"<<mc_cuts<<std::endl;//DEBUGGING
         auto frame = (!inject_asym) ? d.Filter(cuts.c_str())
                         .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
