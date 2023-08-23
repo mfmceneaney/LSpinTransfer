@@ -231,6 +231,22 @@ void analysis(const YAML::Node& node) {
     double dphi_p_max = 10*TMath::Pi()/180;
     double dphi_pim_max = 10*TMath::Pi()/180;
 
+    // Add all absolute bin limits to overall cuts
+    std::string binlims_cuts = "";
+    for (auto it = binvars.begin(); it != binvars.end(); ++it) { //TODO: How to check if too many binning variables...
+
+        // Get bin variable name and bin limits
+        std::string binvar = it->first;
+        std::vector<double> bins_ = it->second;
+        double binmin = bins_.at(0);
+        double bins_.at(bins_.size()-1);
+
+        // Add to bin limits cuts
+        binlims_cuts = Form("%s && %s>=%.16f && %s<%.16f",binlims_cut.c_str(),binvar.c_str(),binmin,binvar.c_str(),binmax);
+
+    } // for (auto it = binvars.begin(); it != binvars.end(); ++it) {
+    std::cout<<"DEBUGGING: binlims_cuts = "<<binlims_cuts.c_str()<<std::endl;//DEBUGGING
+
     // Create RDataFrame for statistics capabilities and reading tree and set branch names to use
     ROOT::RDataFrame d(tree, inpath);
     std::string depolarization_name = "Dy";
@@ -253,7 +269,7 @@ void analysis(const YAML::Node& node) {
                         return (float) (TMath::Abs(phi_pim-phi_pim_mc)<TMath::Pi()
                         ? TMath::Abs(phi_pim-phi_pim_mc) : 2*TMath::Pi() - TMath::Abs(phi_pim-phi_pim_mc));
                         },{"phi_pim","phi_pim_mc"})
-                    .Filter(Form("(%s) && (%s)",cuts.c_str(),mc_cuts.c_str()))
+                    .Filter(Form("(%s) && (%s) && (%s)",cuts.c_str(),mc_cuts.c_str()),binlims_cuts.c_str())
                     .Define(depolarization_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"})
                     .Define(depol_name_mc.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
