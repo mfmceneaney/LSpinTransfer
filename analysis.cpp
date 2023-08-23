@@ -219,7 +219,8 @@ void analysis(const YAML::Node& node) {
     ROOT::EnableImplicitMT(nthreads);
 
     // Create random number generator for MC asymmetry injection
-    TRandom *gRandom = new TRandom(); //NOTE: IMPORTANT: Need `new` here to get a pointer.
+    int seed = 2;
+    TRandom *gRandom = new TRandom(seed); //NOTE: IMPORTANT: Need `new` here to get a pointer.
 
     // Numerical constants
     double alpha = 0.748;  // ±0.007 Weak decay asymmetry parameter
