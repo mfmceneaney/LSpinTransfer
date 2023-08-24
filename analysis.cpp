@@ -269,7 +269,7 @@ void analysis(const YAML::Node& node) {
                         return (float) (TMath::Abs(phi_pim-phi_pim_mc)<TMath::Pi()
                         ? TMath::Abs(phi_pim-phi_pim_mc) : 2*TMath::Pi() - TMath::Abs(phi_pim-phi_pim_mc));
                         },{"phi_pim","phi_pim_mc"})
-                    .Filter(Form("(%s) && (%s) && (%s)",cuts.c_str(),mc_cuts.c_str()),binlims_cuts.c_str())
+                    .Filter(Form("(%s) && (%s) && (%s)",cuts.c_str(),mc_cuts.c_str(),binlims_cuts.c_str()))
                     .Define(depolarization_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"})
                     .Define(depol_name_mc.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
