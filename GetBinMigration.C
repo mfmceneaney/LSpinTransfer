@@ -141,7 +141,7 @@ void getBinMigrationPlots(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter
 void GetBinMigration() {
 
     // Parameters for MC tree
-    const char *path    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_7_8_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
+    const char *path    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_7_7_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
     const char *tree    = "t";
     const char *cuts    = "mass_ppim<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
     // const char *drawopt  = "";//"PE1";
