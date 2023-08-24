@@ -66,6 +66,7 @@ TArrayF* getKinBinLF(
     out << "Getting " << bin_cut << " bin\n";
     auto count    = (double)*f.Count();
     auto mean     = (double)*f.Mean(binvar.c_str());
+    auto stddev   = (double)*f.StdDev(binvar.c_str());
     auto histP_   = (TH1D)  *f.Filter(Form("%s>0",helicity_name.c_str())).Histo1D({"histP", "Positive/Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str());
     auto histN_   = (TH1D)  *f.Filter(Form("%s<0",helicity_name.c_str())).Histo1D({"histN", "Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str());
     auto histP    = &histP_;
@@ -157,11 +158,12 @@ TArrayF* getKinBinLF(
     outroot->cd("..");
 
     // Set return array
-    TArrayF *arr = new TArrayF(4);
+    TArrayF *arr = new TArrayF(5);
     arr->AddAt(dll,0);
     arr->AddAt(dll_err,1);
     arr->AddAt(mean,2);
-    arr->AddAt(count,3);
+    arr->AddAt(stddev,3);
+    arr->AddAt(count,4);
 
     return arr;
 }
@@ -196,6 +198,7 @@ TArrayF* getKinBinHB(
     // Get data
     auto count    = (int)   *f.Count();
     auto mean     = (double)*f.Mean(binvar.c_str());
+    auto stddev   = (double)*f.StdDev(binvar.c_str());
     auto sumPbDCT = (double)*f.Define("tosum", [&pol](float Dy, float heli, float costheta) { return pol*heli*Dy*costheta; } , {depolarization_name.c_str(),helicity_name.c_str(),fitvar.c_str()}).Sum("tosum");
     auto sumDCT   = (double)*f.Define("tosum", [&pol](float Dy, float heli, float costheta) { return Dy*Dy*costheta*costheta; } , {depolarization_name.c_str(),helicity_name.c_str(),fitvar.c_str()}).Sum("tosum");
     auto avePbDCT = (double)sumPbDCT/count;
@@ -224,11 +227,12 @@ TArrayF* getKinBinHB(
     out << "-------------------\n";
 
     // Fill return array
-    TArrayF *arr = new TArrayF(4);
+    TArrayF *arr = new TArrayF(5);
     arr->AddAt(dll,0);
     arr->AddAt(dll_err,1);
     arr->AddAt(mean,2);
-    arr->AddAt(count,3);
+    arr->AddAt(stddev,3);
+    arr->AddAt(count,4);
 
     return arr;
 
@@ -393,7 +397,8 @@ void getKinBinnedGraph(
         double dll     = binData->GetAt(0);
         double dll_err = binData->GetAt(1);
         double mean    = binData->GetAt(2);
-        int    count   = binData->GetAt(3);
+        double stddev  = binData->GetAt(3);
+        int    count   = binData->GetAt(4);
 
         // Sideband subtraction background correction
         if (epsilon==1.00) {out << " *** WARNING *** epsilon = 1 -> No BG correction made.\n";}
@@ -438,10 +443,11 @@ void getKinBinnedGraph(
             }
 
             // Get data
-            double bg_dll    = bgBinData->GetAt(0);
+            double bg_dll     = bgBinData->GetAt(0);
             double bg_dll_err = bgBinData->GetAt(1);
-            double bg_mean   = bgBinData->GetAt(2);
-            int    bg_count  = bgBinData->GetAt(3);
+            double bg_mean    = bgBinData->GetAt(2);
+            double bg_stddev  = bgBinData->GetAt(3);
+            int    bg_count   = bgBinData->GetAt(4);
             dll    = (dll - epsilon * bg_dll) / (1 - epsilon);
             dll_err = TMath::Abs(TMath::Sqrt(dll_err*dll_err+epsilon*epsilon*bg_dll_err*bg_dll_err) / (1 - epsilon));
 
@@ -456,7 +462,7 @@ void getKinBinnedGraph(
 
         // Add data to arrays
         dlls[i-1]   = dll;
-        errx[i-1]   = 0;
+        errx[i-1]   = stddev;
         erry[i-1]   = dll_err;
         means[i-1]  = mean;
         counts[i-1] = count;
