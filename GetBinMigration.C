@@ -32,10 +32,12 @@ void getBinMigrationPlots(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter
         std::cout<<"DEBUGGING: from_previous_bin_cut = "<<from_previous_bin_cut<<std::endl;//DEBUGGING
         int n_from_previous_bin = (int) *frame.Filter(from_previous_bin_cut).Count();
         int n_in_current_bin    = (int) *frame.Filter(in_current_bin_cut).Count();
-        double previous_bin_fraction = n_from_previous_bin / n_in_current_bin;
-        double previous_bin_fraction_err = TMath::Abs(previous_bin_fraction) * TMath::Sqrt(1/n_from_previous_bin+1/n_in_current_bin);
+        double previous_bin_fraction = (double) n_from_previous_bin / n_in_current_bin;
+        double previous_bin_fraction_err = TMath::Abs(previous_bin_fraction) * TMath::Sqrt((double)1/n_from_previous_bin+(double)1/n_in_current_bin);
         double bin_mean = (double) *frame.Filter(in_current_bin_cut).Mean(varName.c_str());
         double bin_stddev = (double) *frame.Filter(in_current_bin_cut).StdDev(varName.c_str());
+        std::cout<<"DEBUGGING: n_from_previous_bin = "<<n_from_previous_bin<<std::endl;//DEBUGGING
+        std::cout<<"DEBUGGING: n_in_current_bin = "<<n_in_current_bin<<std::endl;//DEBUGGING
         std::cout<<"DEBUGGING: previous_bin_fraction = "<<previous_bin_fraction<<std::endl;//DEBUGGING
         std::cout<<"DEBUGGING: previous_bin_fraction_err = "<<previous_bin_fraction_err<<std::endl;//DEBUGGING
         std::cout<<"DEBUGGING: bin_mean = "<<bin_mean<<std::endl;//DEBUGGING
@@ -69,10 +71,12 @@ void getBinMigrationPlots(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter
         std::cout<<"DEBUGGING: from_following_bin_cut = "<<from_following_bin_cut<<std::endl;//DEBUGGING
         int n_from_following_bin = (int) *frame.Filter(from_following_bin_cut).Count();
         int n_in_current_bin    = (int) *frame.Filter(in_current_bin_cut).Count();
-        double following_bin_fraction = n_from_following_bin / n_in_current_bin;
-        double following_bin_fraction_err = TMath::Abs(following_bin_fraction) * TMath::Sqrt(1/n_from_following_bin+1/n_in_current_bin);
+        double following_bin_fraction = (double)n_from_following_bin / n_in_current_bin;
+        double following_bin_fraction_err = TMath::Abs(following_bin_fraction) * TMath::Sqrt((double)1/n_from_following_bin+(double)1/n_in_current_bin);
         double bin_mean = (double) *frame.Filter(in_current_bin_cut).Mean(varName.c_str());
         double bin_stddev = (double) *frame.Filter(in_current_bin_cut).StdDev(varName.c_str());
+        std::cout<<"DEBUGGING: n_from_following_bin = "<<n_from_following_bin<<std::endl;//DEBUGGING
+        std::cout<<"DEBUGGING: n_in_current_bin = "<<n_in_current_bin<<std::endl;//DEBUGGING
         std::cout<<"DEBUGGING: following_bin_fraction = "<<following_bin_fraction<<std::endl;//DEBUGGING
         std::cout<<"DEBUGGING: following_bin_fraction_err = "<<following_bin_fraction_err<<std::endl;//DEBUGGING
         std::cout<<"DEBUGGING: bin_mean = "<<bin_mean<<std::endl;//DEBUGGING
@@ -137,7 +141,7 @@ void getBinMigrationPlots(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter
 void GetBinMigration() {
 
     // Parameters for MC tree
-    const char *path    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_7_7_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
+    const char *path    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_7_8_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
     const char *tree    = "t";
     const char *cuts    = "mass_ppim<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
     // const char *drawopt  = "";//"PE1";
