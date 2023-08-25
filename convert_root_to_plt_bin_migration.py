@@ -68,16 +68,31 @@ def get_plots(
     plt.ylabel("$f_{i \pm 1}$",usetex=True)
     plt.xlim(*xlims)
     plt.ylim(*ylims)
-    print("DEBUGGING: g_previous[3][1:] = ",g_previous[3][1:])
-    print("DEBUGGING: g_following[3][1:] = ",g_following[3][1:])
-    g1 = plt.errorbar(g_previous[0][1:],g_previous[1][1:],xerr=None,yerr=g_previous[3][1:],
-                        ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
-                        color='blue', marker='>', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='Previous bin fraction $f_{i-1}$')
-    g2 = plt.errorbar(g_following[0][:-1],g_following[1][:-1],xerr=None,yerr=g_following[3][:-1],
-                        ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
-                        color='red', marker='<', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='Following bin fraction $f_{i+1}$')
+    print("DEBUGGING: y_err = g_previous[3]  = ",g_previous[3])
+    print("DEBUGGING: y_err = g_following[3] = ",g_following[3])
+    print("DEBUGGING: y     = g_previous[1]  = ",g_previous[1])
+    print("DEBUGGING: y     = g_following[1] = ",g_following[1])
+    print("DEBUGGING: x     = g_previous[0]  = ",g_previous[0])
+    print("DEBUGGING: x     = g_following[0] = ",g_following[0])
+    if xvar != "xF_ppim":
+        g1 = plt.errorbar(g_previous[0][1:],g_previous[1][1:],xerr=None,yerr=g_previous[3][1:],
+                            ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
+                            color='blue', marker='>', linestyle=linestyle,
+                            linewidth=linewidth, markersize=markersize,label='Previous bin fraction $f_{i-1}$')
+        g2 = plt.errorbar(g_following[0][:-1],g_following[1][:-1],xerr=None,yerr=g_following[3][:-1],
+                            ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
+                            color='red', marker='<', linestyle=linestyle,
+                            linewidth=linewidth, markersize=markersize,label='Following bin fraction $f_{i+1}$')
+    else:
+        print("DEBUGGING: USING xF routine")
+        g1 = plt.errorbar(g_previous[0][1:],g_previous[1][1:],xerr=None,yerr=g_previous[3][1:],
+                            ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
+                            color='blue', marker='>', linestyle=linestyle,
+                            linewidth=linewidth, markersize=markersize,label='Previous bin fraction $f_{i-1}$')
+        g2 = plt.errorbar(g_following[0][1:-1],g_following[1][1:-1],xerr=None,yerr=g_following[3][1:-1], #NOTE: THIS DIFFERENT INDEXING IS BECAUSE INCLUDED AN EXTRA BIN FOR xF to assess target fragmentation contamination.
+                            ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
+                            color='red', marker='<', linestyle=linestyle,
+                            linewidth=linewidth, markersize=markersize,label='Following bin fraction $f_{i+1}$')
     # plt.grid(color='black', linestyle='--', linewidth=gridlinewidth, alpha=0.25)
     plt.tick_params(direction='in',bottom=True,top=True,left=True,right=True,length=10,width=1)
     ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
@@ -91,7 +106,7 @@ if __name__=="__main__":
 
     verbose = True
     inpath = 'h_bin_migration.root'
-    ylims = (-0.1,0.25)
+    ylims = (-0.01,0.30)
 
     packages = [
         {
@@ -122,20 +137,20 @@ if __name__=="__main__":
             'xlims' : (0.0,1.0),
             'ylims' : ylims,
         },
-        # {
-        #     'inpath' : inpath,
-        #     'xvar' : 'z_ppim',
-        #     'xvar_name' : 'z_{p\pi^{-}}',
-        #     'xlims' : (0.3,1.0),
-        #     'ylims' : ylims,
-        # },
-        # {
-        #     'inpath' : inpath,
-        #     'xvar' : 'xF_ppim',
-        #     'xvar_name' : 'x_{F p\pi^{-}}',
-        #     'xlims' : (0.0,1.0),
-        #     'ylims' : ylims,
-        # },
+        {
+            'inpath' : inpath,
+            'xvar' : 'z_ppim',
+            'xvar_name' : 'z_{p\pi^{-}}',
+            'xlims' : (0.3,1.1),
+            'ylims' : ylims,
+        },
+        {
+            'inpath' : inpath,
+            'xvar' : 'xF_ppim',
+            'xvar_name' : 'x_{F p\pi^{-}}',
+            'xlims' : (-0.1,1.0),
+            'ylims' : ylims,
+        },
     ]
 
     for pack in packages:
