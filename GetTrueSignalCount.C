@@ -56,8 +56,8 @@ void GetTrueSignalCount() {
     // Parameters for MC tree
     const char *path    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_7_7_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
     const char *tree    = "t";
-    const char *cuts    = "mass_ppim<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
-    const char *mccuts  = "om2<=om2_min";
+    const char *cuts    = "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
+    const char *mccuts  = "dtheta_p<6*TMath::Pi() && dtheta_pim<6*TMath::Pi()";
     const char *sigcut  = "mass_ppim>1.11 && mass_ppim<1.13";
     const char *drawopt = "APE";
 
@@ -98,9 +98,9 @@ void GetTrueSignalCount() {
             return (float) (TMath::Abs(phi_pim-phi_pim_mc)<TMath::Pi()
             ? TMath::Abs(phi_pim-phi_pim_mc) : 2*TMath::Pi() - TMath::Abs(phi_pim-phi_pim_mc));
             },{"phi_pim","phi_pim_mc"})
-      .Filter(cuts)
-      .Filter(mccuts)
-      .Filter(sigcut);
+        .Filter(cuts)
+        .Filter(mccuts)
+        .Filter(sigcut);
     
     // Open output file
     TFile *f = TFile::Open("h_true_signal_count.root","RECREATE");
