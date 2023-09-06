@@ -31,28 +31,41 @@ def create_jobs(divisions,base_dir,submit_path,yaml_path):
     for data_list_i in data_list:
 
         # Make job directory name and directory
-        job_dir = "__".join(["_".join([key,value]) for key, value in item in data_list_i])
-        data_list_i["outpath"] = job_dir #NOTE: Since dictionary is not copied this should just edit the original entry in data_list.
-        os.mkdir(os.join(base_dir,job_dir))
+        job_dir = os.path.join(base_dir,"__".join(["_".join([key,data_list_i[key]]) for key in data_list_i]))
+        data_list_i["outdir"] = os.path.abspath(job_dir) #NOTE: Since dictionary is not copied this should just edit the original entry in data_list.
+        print("DEBUGGING: base_dir = ",base_dir)
+        print("DEBUGGING: job_dir = ",job_dir)
+        print("DEBUGGING: os.path.abspath(job_dir) = ",os.path.abspath(job_dir))
+        print("DEBUGGING: os.path.join(base_dir,job_dir) = ",os.path.join(base_dir,job_dir))
+        try:
+            mkdir_result = os.mkdir(job_dir)
+            print("DEBUGGING: mkdir_result = ",mkdir_result)#DEBUGGING
+        except FileExistsError:
+            print("WARNING: ",job_dir,"already exists.")
 
         # Copy files into job directory
-        submit_path_i = os.join(job_dir,os.path.basename(submit_path))
-        yaml_path_i   = os.join(job_dir,os.path.basename(yaml_path))
-        shutil.copyfile(submit_path,submit_path_i)
+        submit_path_i = os.path.join(job_dir,os.path.basename(submit_path))
+        yaml_path_i   = os.path.join(job_dir,os.path.basename(yaml_path))
+        print("DEBUGGING: submit_path = ",submit_path)
+        print("DEBUGGING: submit_path_i = ",submit_path_i)
+        cp_result = shutil.copyfile(submit_path,submit_path_i)
+        print("DEBUGGING: cp_result = ",cp_result)
         shutil.copyfile(yaml_path,yaml_path_i)
 
         # Replace key values in yaml file from list and insert if non-existent
         with open(yaml_path_i, 'r') as yaml_i:
-            doc = yaml.save_load(yaml_i)
-        for key, value in data_list_i:
-            doc[key] = value
+            doc = yaml.safe_load(yaml_i)
+        for key in data_list_i:
+            doc[key] = data_list_i[key]
         with open(yaml_path_i, 'w') as yaml_i:
-            yaml.save_dump(doc, yaml_i, default_flow_style=False)
+            yaml.safe_dump(doc, yaml_i, default_flow_style=False)
 
         # Replace path to yaml with path to job yaml in submit script
         with open(submit_path_i, 'r') as submit_i:
             doc = submit_i.read()
-        doc = doc.replace(yaml_path,yaml_path_i) #NOTE: YAML SHOULD SPECIFY THE OUTPUT DIRECTORY FOR THE JOB. COULD HAVE A DEFAULT JOB DIRECTORY TO REPLACE THOUGH...
+        print("DEBUGGING: replacing os.path.abspath(yaml_path)   = ",os.path.abspath(yaml_path))
+        print("DEBUGGING: with      os.path.abspath(yaml_path_i) = ",os.path.abspath(yaml_path_i))
+        doc = doc.replace(os.path.abspath(yaml_path),os.path.abspath(yaml_path_i)) #NOTE: YAML SHOULD SPECIFY THE OUTPUT DIRECTORY FOR THE JOB. COULD HAVE A DEFAULT JOB DIRECTORY TO REPLACE THOUGH...
         with open(submit_path_i, 'w') as submit_i:
             submit_i.write(doc)
 
@@ -64,15 +77,15 @@ def submit_jobs(divisions,base_dir,submit_path,out_path):
     for data_list_i in data_list:
 
         # Get job directory name
-        job_dir = "__".join(["_".join([key,value]) for key, value in item in data_list_i])
-        data_list_i["outpath"] = job_dir #NOTE: Since dictionary is not copied this should just edit the original entry in data_list.
+        job_dir = os.path.join(base_dir,"__".join(["_".join([key,data_list_i[key]]) for key in data_list_i]))
+        data_list_i["outdir"] = os.path.abspath(job_dir) #NOTE: Since dictionary is not copied this should just edit the original entry in data_list.
 
         # Get submit script name
-        submit_path_i = os.join(job_dir,os.path.basename(submit_path))
+        submit_path_i = os.path.join(job_dir,os.path.basename(submit_path))
          
         # Submit job to SLURM
-        command  = 'echo \'sbatch '+submit_path_i+'\' >> '+out_path+'; '
-        command += 'sbatch '+submit_path_i+' >> '+out_path,
+        command  = 'echo \'sbatch '+os.path.abspath(submit_path_i)+'\' >> '+out_path+'; '
+        # command += 'sbatch '+os.path.abspath(submit_path_i)+' >> '+out_path, #NOTE: COMMENTED OUT FOR DEBUGGING
         subprocess.run(command, shell=True, check=True, text=True)
 
 
@@ -102,8 +115,16 @@ sgcuts = {"name":"sgcut","items":["mass_ppim>1.08 && mass_ppim<1.11","mass_ppim>
 inject_seeds = {"name":"inject_seed","items":[2**i for i in range(16)]}
 
 # File paths
-submit_path = "/path/to/submit.sh"
-yaml_path   = "/path/to/args.yaml"
+submit_path = "test/submit.sh"
+yaml_path   = "test/args.yaml"
+base_dir    = "test/"
+out_path    = "out.txt"
+
+
+divisions = [
+    methods,
+    fitvars,
+]
 
 if __name__=="__main__":
     create_jobs(divisions,base_dir,submit_path,yaml_path)
