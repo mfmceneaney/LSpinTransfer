@@ -31,7 +31,7 @@ def create_jobs(divisions,base_dir,submit_path,yaml_path):
     for data_list_i in data_list:
 
         # Make job directory name and directory
-        job_dir = os.path.join(base_dir,"__".join(["_".join([key,data_list_i[key]]) for key in data_list_i]))
+        job_dir = os.path.join(base_dir,"__".join(["_".join([key,str(data_list_i[key])]) for key in data_list_i]))
         data_list_i["outdir"] = os.path.abspath(job_dir) #NOTE: Since dictionary is not copied this should just edit the original entry in data_list.
         print("DEBUGGING: base_dir = ",base_dir)
         print("DEBUGGING: job_dir = ",job_dir)
@@ -77,7 +77,7 @@ def submit_jobs(divisions,base_dir,submit_path,out_path):
     for data_list_i in data_list:
 
         # Get job directory name
-        job_dir = os.path.join(base_dir,"__".join(["_".join([key,data_list_i[key]]) for key in data_list_i]))
+        job_dir = os.path.join(base_dir,"__".join(["_".join([key,str(data_list_i[key])]) for key in data_list_i]))
         data_list_i["outdir"] = os.path.abspath(job_dir) #NOTE: Since dictionary is not copied this should just edit the original entry in data_list.
 
         # Get submit script name
@@ -89,43 +89,75 @@ def submit_jobs(divisions,base_dir,submit_path,out_path):
         subprocess.run(command, shell=True, check=True, text=True)
 
 
-"""
-
-Results:
-    methods X fitvars
-
-Systematics:
-    Mass Dependence:
-        methods X fitvars (no BG correction)
-
-    Sidebands:
-        methods X fitvars X sidebands
-
-    Injection:
-        methods X fitvars X injections X injection_repetitions
-
-"""
-
-# Create job submission structure
-methods = {"name":"method","items":["HB","LF"]}
-fitvars = {"name":"fitvar","items":["costheta1","costheta2"]}
-sgasyms = {"name":"sgasym","items":[-0.1, -0.01, 0.00, 0.01, 0.1]}
-bgasyms = {"name":"bgasym","items":[-0.1, -0.01, 0.00, 0.01, 0.1]}
-sgcuts = {"name":"sgcut","items":["mass_ppim>1.08 && mass_ppim<1.11","mass_ppim>1.15 && mass_ppim<1.18","(mass_ppim>1.08 && mass_ppim<1.11) || (mass_ppim>1.15 && mass_ppim<1.18)"]}
-inject_seeds = {"name":"inject_seed","items":[2**i for i in range(16)]}
-
-# File paths
-submit_path = "test/submit.sh"
-yaml_path   = "test/args.yaml"
-base_dir    = "test/"
-out_path    = "out.txt"
-
-
-divisions = [
-    methods,
-    fitvars,
-]
-
+#---------- MAIN ----------#
 if __name__=="__main__":
+
+    """
+
+    Results:
+        methods X fitvars
+
+    Systematics:
+        ( NOT IMPLEMENTED YET.
+            Mass Dependence:
+                methods X fitvars (no BG correction)
+        )
+
+        Sidebands:
+            methods X fitvars X sidebands
+
+        Injection:
+            methods X fitvars X injections X injection_repetitions
+
+    """
+
+    # Create job submission structure
+    methods = {"name":"method","items":["HB","LF"]}
+    fitvars = {"name":"fitvar","items":["costheta1","costheta2"]}
+    sgasyms = {"name":"sgasym","items":[-0.1, -0.01, 0.00, 0.01, 0.1]}
+    bgasyms = {"name":"bgasym","items":[-0.1, -0.01, 0.00, 0.01, 0.1]}
+    seeds   = {"name":"inject_seed","items":[2]}
+    # seeds   = {"name":"inject_seed","items":[2**i for i in range(16)]}
+    sgcuts  = {"name":"sgcut","items":["mass_ppim>1.08 && mass_ppim<1.11","mass_ppim>1.15 && mass_ppim<1.18","(mass_ppim>1.08 && mass_ppim<1.11) || (mass_ppim>1.15 && mass_ppim<1.18)"]}
+
+    #TODO: Add argumeents for outdir and random seed in analysis.cpp
+
+    # Results file paths and config
+    base_dir    = "results/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = [
+        methods,
+        fitvars,
+    ]
+    create_jobs(divisions,base_dir,submit_path,yaml_path)
+    submit_jobs(divisions,base_dir,submit_path,out_path)
+
+    # # Sidebands file paths and config #NOTE: TODO: FIX NAMING OR JUST CREATE MANUALLY...WITH SETTING ORIGINAL SIGNAL CUT...
+    # base_dir    = "sidebands/"
+    # submit_path = base_dir+"submit.sh"
+    # yaml_path   = base_dir+"args.yaml"
+    # out_path    = base_dir+"jobs.txt"
+    # divisions = [
+    #     methods,
+    #     fitvars,
+    #     sgcuts,
+    # ]
+    # create_jobs(divisions,base_dir,submit_path,yaml_path)
+    # submit_jobs(divisions,base_dir,submit_path,out_path)
+
+    # MC asymmetry injection file paths and config
+    base_dir    = "mc_asym_injection/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = [
+        methods,
+        fitvars,
+        sgasyms,
+        bgasyms,
+        seeds,
+    ]
     create_jobs(divisions,base_dir,submit_path,yaml_path)
     submit_jobs(divisions,base_dir,submit_path,out_path)
