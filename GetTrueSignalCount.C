@@ -7,9 +7,9 @@
 void getTrueSignalFractionsPlot(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
     std::vector<double> match_lims,
     std::vector<std::string> match_cuts,
-    const char * xlabel,
+    const char * xtitle,
     const char * drawopt,
-    TFile * f,
+    TFile * f
     ) {
 
     // Loop cuts and get counts and signal fractions
@@ -17,7 +17,7 @@ void getTrueSignalFractionsPlot(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJitted
     double xs[nbins];
     double ys[nbins];
     double zeroes[nbins];
-    for (int i=0; i<nsteps; i++) {
+    for (int i=0; i<nbins; i++) {
         double x              = match_lims.at(i);
         std::string match_cut = match_cuts.at(i);
         double true_sig_count = (double) *frame.Filter(match_cut.c_str()).Count();
@@ -35,7 +35,7 @@ void getTrueSignalFractionsPlot(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJitted
     g->SetMarkerStyle(20); //NOTE: 20=filled circle
     g->SetMarkerColor(4); //NOTE: 4=blue
     g->SetName("g_true_signal_fractions");
-    g->GetXaxis()->SetLabel(xlabel);
+    g->GetXaxis()->SetTitle(xtitle);
 
     // Create canvas and draw multigraph
     TCanvas *c1 = new TCanvas("c_true_signal_fractions");
@@ -54,10 +54,10 @@ void getTrueSignalFractionsPlot(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJitted
 void GetTrueSignalCount() {
 
     // Parameters for MC tree
-    const char *path    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_7_7_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
+    const char *path    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_9_5_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
     const char *tree    = "t";
     const char *cuts    = "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
-    const char *mccuts  = "dtheta_p<6*TMath::Pi() && dtheta_pim<6*TMath::Pi()";
+    const char *mccuts  = "(has_lambda==0 && first_om2_min==1) || (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)";
     const char *sigcut  = "mass_ppim>1.11 && mass_ppim<1.13";
     const char *drawopt = "APE";
 
@@ -111,10 +111,12 @@ void GetTrueSignalCount() {
     std::vector<std::string> match_cuts;
 
     // Step through dtheta_p and dtheta_pim simultaneously
-    const char *xlabel = "#Delta#theta_{max}"
+    const char *xtitle = "#Delta#theta_{max}";
     int nsteps = 100;
-    double dtheta_p_step   = 0.5*TMath::Pi()/180;
-    double dtheta_pim_step = 0.5*TMath::Pi()/180;
+    double dtheta_p_step   = 0.02*TMath::Pi()/180;
+    double dtheta_pim_step = 0.02*TMath::Pi()/180;
+    double dtheta_p_max = 0.0;
+    double dtheta_pim_max = 0.0;
     for (int i=0; i<nsteps; i++) {
         dtheta_p_max   += dtheta_p_step;
         dtheta_pim_max += dtheta_pim_step;
@@ -124,7 +126,7 @@ void GetTrueSignalCount() {
     }
 
     // Plot true signal fraction as a function of matching cuts
-    getTrueSignalFractionsPlot(frame,match_lims,match_cuts,xlabel,drawopt,f);
+    getTrueSignalFractionsPlot(frame,match_lims,match_cuts,xtitle,drawopt,f);
 
     // Close output file
     f->Close();
