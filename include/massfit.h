@@ -151,7 +151,7 @@ TArrayF* LambdaMassFit(
 
     Double_t BinWidth = (varMax - varMin) / nbins;
 
-    LBInt = 1.10; //DEBUGGING
+    LBInt = 1.11; //DEBUGGING
     UBInt = 1.13;
 
     // Fit fn:
@@ -534,7 +534,7 @@ TArrayF* LambdaMassFitMC(
 
     Double_t BinWidth = (varMax - varMin) / nbins;
 
-    LBInt = 1.10; //DEBUGGING
+    LBInt = 1.11; //DEBUGGING
     UBInt = 1.13;
 
     // Fit fn:
