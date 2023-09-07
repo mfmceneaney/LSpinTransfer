@@ -75,8 +75,8 @@ def submit_jobs(divisions,base_dir,submit_path,out_path):
         submit_path_i = os.path.join(job_dir,os.path.basename(submit_path))
          
         # Submit job to SLURM
-        command  = 'echo \'sbatch '+os.path.abspath(submit_path_i)+'\' >> '+out_path+'; '
-        # command += 'sbatch '+os.path.abspath(submit_path_i)+' >> '+out_path, #NOTE: COMMENTED OUT FOR DEBUGGING
+        command = 'echo \'sbatch '+os.path.abspath(submit_path_i)+'\' >> '+out_path+'; '
+        # command = command+'sbatch '+os.path.abspath(submit_path_i)+' >> '+out_path, #NOTE: COMMENTED OUT FOR DEBUGGING
         subprocess.run(command, shell=True, check=True, text=True)
 
 
