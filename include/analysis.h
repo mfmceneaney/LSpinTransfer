@@ -775,6 +775,8 @@ void getKinBinnedMassFitsMC(
                     int          n_mass_bins, // number of mass bins
                     double       mass_min,   // mass variable max for signal fit
                     double       mass_max,   // mass variable min for signal fit
+                    double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
+                    double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
@@ -839,6 +841,8 @@ void getKinBinnedMassFitsMC(
                         n_mass_bins,
                         mass_min,
                         mass_max,
+                        dtheta_p_max,
+                        dtheta_pim_max,
                         mass_draw_opt,
                         bin_title,
                         out
@@ -851,6 +855,8 @@ void getKinBinnedMassFitsMC(
                         n_mass_bins,
                         mass_min,
                         mass_max,
+                        dtheta_p_max,
+                        dtheta_pim_max,
                         mass_draw_opt,
                         bin_title,
                         out
