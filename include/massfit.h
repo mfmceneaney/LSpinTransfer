@@ -537,6 +537,13 @@ TArrayF* LambdaMassFitMC(
     LBInt = 1.11; //DEBUGGING
     UBInt = 1.13;
 
+    //NOTE: ADDED 9/7/23                                                                                                                                                                      
+    std::string sig_region_cut = Form("%s>%.8f && %s<%.8f",varName.c_str(),LBInt,varName.c_str(),UBInt);
+    double count_true = (double)*frame.Filter(cuts.c_str()).Filter(sig_region_cut.c_str()).Count();
+    double count_sig_true = (double)*frame.Filter(mccuts.c_str()).Filter(sig_region_cut.c_str()).Count();
+    double epsilon_true = (count_true-count_sig_true)/count_true;
+    double epsilon_true_err = 0.0;//DEBUGGING: JUST KEEP THIS AT ZERO FOR NOW
+
     // Fit fn:
     out << "i_fitf" << std::endl;
     auto i_fitf = func->Integral(LBInt,UBInt)/BinWidth;
@@ -671,6 +678,9 @@ TArrayF* LambdaMassFitMC(
     int i = 0;
     arr->AddAt(epsilon,i++);
     arr->AddAt(epsilon_err,i++);
+    //NOTE: Added 9/7/23
+    arr->AddAt(epsilon_true,i++);
+    arr->AddAt(epsilon_true_err,i++);
     //----------------------------------------------------------------------------------------------------//
     //NOTE: Added 7/25/23
     arr->AddAt(epsilon_ls,i++);

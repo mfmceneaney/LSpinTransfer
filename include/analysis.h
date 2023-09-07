@@ -818,6 +818,9 @@ void getKinBinnedMassFitsMC(
     double bgfractions[nbins];
     double bgfractions_err[nbins];
 
+    double bgfractions_true[nbins];
+    double bgfractions_true_err[nbins];
+
     // Loop bins and get data
     for (int i=1; i<=nbins; i++) {
         double bin_min = bins[i-1];
@@ -830,6 +833,8 @@ void getKinBinnedMassFitsMC(
         // Get background fraction for bin from mass fit
         double epsilon = bgfraction;
         double bgfraction_err = 0.0; //TODO: add option for this.
+        double epsilon_true = bgfraction;
+        double bgfraction_true_err = 0.0; //TODO: add option for this.
         if (!use_bgfraction) {
             std::string massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
             std::string bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
@@ -867,6 +872,8 @@ void getKinBinnedMassFitsMC(
 
             epsilon = massFitData->GetAt(0);
             bgfraction_err = massFitData->GetAt(1);
+            epsilon_true = massFitData->GetAt(2);
+            bgfraction_true_err = massFitData->GetAt(3);
         }
         
         auto mean  = (double)*bin_frame.Mean(binvar.c_str());
@@ -878,6 +885,8 @@ void getKinBinnedMassFitsMC(
         counts[i-1] = count;
         bgfractions[i-1] = epsilon;
         bgfractions_err[i-1] = bgfraction_err;
+        bgfractions_true[i-1] = epsilon-epsilon_true;
+        bgfractions_true_err[i-1] = bgfraction_err;//TMath::Sqrt(bgfraction_err*bgfraction_err+bgfraction_true_err*bgfraction_true_err);
     }
 
     // Compute overall event-weighted means and errors and output binned results in Latex Table Format
@@ -896,7 +905,7 @@ void getKinBinnedMassFitsMC(
     out << " count = "<< count << "\n";
 
     // Create graph of epsilons from mass fits binned in binvar
-    TGraphErrors *gr_epsilon = new TGraphErrors(nbins,means,bgfractions,errx,bgfractions_err);
+    TGraphErrors *gr_epsilon = new TGraphErrors(nbins,means,bgfractions_true,errx,bgfractions_true_err);
     gr_epsilon->Write("gr_epsilon");
 
     // Plot results graph
