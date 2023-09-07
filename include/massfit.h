@@ -330,12 +330,14 @@ TArrayF* LambdaMassFitMC(
                         std::string  outdir,
                         TFile *outroot,
                         ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
-                        std::string varName = "mass_ppim",
-                        int    nbins        = 100,
-                        double varMin       = 1.08,
-                        double varMax       = 1.24,
-                        std::string drawopt = "",
-                        std::string title   = "",
+                        std::string varName   = "mass_ppim",
+                        int    nbins          = 100,
+                        double varMin         = 1.08,
+                        double varMax         = 1.24,
+                        double dtheta_p_max   = 2.0,
+                        double dtheta_pim_max = 6.0,
+                        std::string drawopt   = "",
+                        std::string title     = "",
                         std::ostream &out=std::cout
                         ) {
     
@@ -344,8 +346,8 @@ TArrayF* LambdaMassFitMC(
     outroot->cd(outdir.c_str());
 
     // MC Matching cuts
-    std::string protonangcuts = "abs(theta_p-theta_p_mc)<2*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
-    std::string pionangcuts = "abs(theta_pim-theta_pim_mc)<2*TMath::Pi()/180"; // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
+    std::string protonangcuts = Form("abs(theta_p-theta_p_mc)<%.8f*TMath::Pi()/180",dtheta_p_max); // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
+    std::string pionangcuts = Form("abs(theta_pim-theta_pim_mc)<%.8f*TMath::Pi()/180",dtheta_pim_max); // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
 
     // True/false proton/pion cuts
     std::string true_proton_false_pion_cuts = Form("(%s) && !(%s)",protonangcuts.c_str(),pionangcuts.c_str());
@@ -721,6 +723,8 @@ void LambdaMassFitMCDecomposition(
                             int    nbins        = 100,
                             double varMin       = 1.08,
                             double varMax       = 1.24,
+                            double dtheta_p_max   = 2.0,
+                            double dtheta_pim_max = 6.0,
                             std::string drawopt = "",
                             std::string title   = "",
                             std::ostream &out=std::cout
@@ -738,8 +742,8 @@ void LambdaMassFitMCDecomposition(
     outroot->cd(outdir.c_str());
 
     // MC Matching cuts
-    std::string protonangcuts = "abs(theta_p-theta_p_mc)<2*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
-    std::string pionangcuts = "abs(theta_pim-theta_pim_mc)<2*TMath::Pi()/180"; // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
+    std::string protonangcuts = Form("abs(theta_p-theta_p_mc)<%.8f*TMath::Pi()/180",dtheta_p_max); // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
+    std::string pionangcuts = Form("abs(theta_pim-theta_pim_mc)<%.8f*TMath::Pi()/180",dtheta_pim_max); // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
 
     // True/false proton/pion cuts
     std::string true_proton_false_pion_cuts = Form("(%s) && !(%s)",protonangcuts.c_str(),pionangcuts.c_str());
