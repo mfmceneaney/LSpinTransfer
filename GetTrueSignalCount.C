@@ -120,7 +120,7 @@ void GetTrueSignalCount() {
     for (int i=0; i<nsteps; i++) {
         dtheta_p_max   += dtheta_p_step;
         dtheta_pim_max += dtheta_pim_step;
-        std::string match_cut = Form("abs(dtheta_p)<%.4f && abs(dtheta_pim)<%.4f",dtheta_p_max,dtheta_pim_max);
+        std::string match_cut = Form("has_lambda==1 && abs(dtheta_p)<%.4f && abs(dtheta_pim)<%.4f",dtheta_p_max,dtheta_pim_max);
         match_lims.push_back(dtheta_p_max); //NOTE: CHANGE THIS IF YOU'RE JUST CHANGING LIMITS FOR ONE PARTICLE TYPE.
         match_cuts.push_back(match_cut);
     }
