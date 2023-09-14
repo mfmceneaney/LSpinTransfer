@@ -141,16 +141,22 @@ void GetTrueSignalCountBinned() {
 
     // Plot true signal fraction as a function of matching cuts
     std::string binvar = "Q2";
+    const char *ytitle = "Q^{2}";
     std::vector<double> bin_lims = {1.0, 1.2142, 1.4986, 1.9157, 2.6630, 11.0};
     // std::string bin var = "W";
+    // const char *ytitle = "W";
     // std::vector<double> bin_lims = {2.0, 2.2033, 2.4357, 2.7120, 3.0841, 5.0};
     // std::string binvar = "x";
+    // const char *ytitle = "x";
     // std::vector<double> bin_lims = {0.0, 0.1568, 0.2110, 0.2629, 0.3377, 1.0};
     // std::string binvar = "xF_ppim";
+    // const char *ytitle = "x_{F p#pi^{-}}";
     // std::vector<double> bin_lims = {0.0, 0.0542, 0.1168, 0.1945, 0.3064, 1.0};
     // std::string binvar = "y";
+    // const char *ytitle = "y";
     // std::vector<double> bin_lims = {0.0, 0.2912, 0.3568, 0.4362, 0.5480, 0.8};
     // std::string binvar = "z_ppim";
+    // const char *ytitle = "z_{p#pi^{-}}";
     // std::vector<double> bin_lims = {0.0, 0.6038, 0.7041, 0.7972, 0.9060, 10.0};
     getTrueSignalFractionsPlotBinned(frame,binvar,bin_lims,match_lims,match_cuts,xtitle,ytitle,drawopt,f);
 
