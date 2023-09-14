@@ -133,17 +133,17 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "use_bgfraction: " << use_bgfraction << std::endl;
 
-    double dtheta_p_max = 6.0; //NOTE: IN DEGREES!
-    if (node["dtheta_p_max"]) {
-        dtheta_p_max = node["dtheta_p_max"].as<double>();
-    }
-    std::cout << "dtheta_p_max: " << dtheta_p_max << std::endl;
+    // double dtheta_p_max = 6.0; //NOTE: IN DEGREES!
+    // if (node["dtheta_p_max"]) {
+    //     dtheta_p_max = node["dtheta_p_max"].as<double>();
+    // }
+    // std::cout << "dtheta_p_max: " << dtheta_p_max << std::endl;
 
-    double dtheta_pim_max = 6.0; //NOTE: IN DEGREES!
-    if (node["dtheta_pim_max"]) {
-        dtheta_pim_max = node["dtheta_pim_max"].as<double>();
-    }
-    std::cout << "dtheta_pim_max: " << dtheta_pim_max << std::endl;
+    // double dtheta_pim_max = 6.0; //NOTE: IN DEGREES!
+    // if (node["dtheta_pim_max"]) {
+    //     dtheta_pim_max = node["dtheta_pim_max"].as<double>();
+    // }
+    // std::cout << "dtheta_pim_max: " << dtheta_pim_max << std::endl;
 
     bool inject_asym = false;
     if (node["inject_asym"]) {
@@ -256,10 +256,10 @@ void analysis(const YAML::Node& node) {
         std::string binvar = it->first;
         std::vector<double> bins_ = it->second;
         double binmin = bins_.at(0);
-        double bins_.at(bins_.size()-1);
+        double binmax = bins_.at(bins_.size()-1);
 
         // Add to bin limits cuts
-        binlims_cuts = Form("%s && %s>=%.16f && %s<%.16f",binlims_cut.c_str(),binvar.c_str(),binmin,binvar.c_str(),binmax);
+        binlims_cuts = Form("%s && %s>=%.16f && %s<%.16f",binlims_cuts.c_str(),binvar.c_str(),binmin,binvar.c_str(),binmax);
 
     } // for (auto it = binvars.begin(); it != binvars.end(); ++it) {
     std::cout<<"DEBUGGING: binlims_cuts = "<<binlims_cuts.c_str()<<std::endl;//DEBUGGING
