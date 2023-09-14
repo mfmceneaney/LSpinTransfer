@@ -239,10 +239,10 @@ void analysis(const YAML::Node& node) {
         std::string binvar = it->first;
         std::vector<double> bins_ = it->second;
         double binmin = bins_.at(0);
-        double bins_.at(bins_.size()-1);
+        double binmax = bins_.at(bins_.size()-1);
 
         // Add to bin limits cuts
-        binlims_cuts = Form("%s && %s>=%.16f && %s<%.16f",binlims_cut.c_str(),binvar.c_str(),binmin,binvar.c_str(),binmax);
+        binlims_cuts = Form("%s && %s>=%.16f && %s<%.16f",binlims_cuts.c_str(),binvar.c_str(),binmin,binvar.c_str(),binmax);
 
     } // for (auto it = binvars.begin(); it != binvars.end(); ++it) {
     std::cout<<"DEBUGGING: binlims_cuts = "<<binlims_cuts.c_str()<<std::endl;//DEBUGGING
