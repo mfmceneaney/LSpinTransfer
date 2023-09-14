@@ -8,7 +8,7 @@ std::vector<double> getBinLims(const int nbins, double xmax, double xmin) {
     std::vector<double> binlims;
     double step = (xmax-xmin)/nbins;//NOTE: nlims IS THE NUMBER OF LIMITS BUT YOU WANT TO DIVIDE BY THE NUMBER OF BINS.
     for (int i=0; i<nbins+1; i++) {
-        double lim = xmin + i*step;
+        double lim = xmax - i*step; //NOTE: YOU PUT THEM IN BACKWARDS SO START WITH THE HIGHEST.
         binlims.push_back(lim);
     }
     return binlims;
