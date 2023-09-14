@@ -674,7 +674,7 @@ TArrayF* LambdaMassFitMC(
     //TODO: Could output fit results to outstream and/or could save to some sort of tree int pwd...
 
     // Fill return array
-    TArrayF *arr = new TArrayF(30);
+    TArrayF *arr = new TArrayF(32);
     int i = 0;
     arr->AddAt(epsilon,i++);
     arr->AddAt(epsilon_err,i++);
@@ -1098,7 +1098,7 @@ TArrayF* LambdaMassFitMCFIXPARAMS(
     //TODO: Could output fit results to outstream and/or could save to some sort of tree int pwd...
 
     // Fill return array
-    TArrayF *arr = new TArrayF(30);
+    TArrayF *arr = new TArrayF(32);
     int i = 0;
     arr->AddAt(epsilon,i++);
     arr->AddAt(epsilon_err,i++);
