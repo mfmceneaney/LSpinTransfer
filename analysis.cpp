@@ -252,8 +252,8 @@ void analysis(const YAML::Node& node) {
     std::string depolarization_name = "Dy";
     std::string helicity_name       = "heli";
     std::string depol_name_mc       = "Dy_mc";
-    std::string fitvar_mc = Form("%s_mc",fitvar.c_str());
-    std::string mc_cuts = Form("(((has_lambda==0 && first_combo==0) || (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)) && (dtheta_p<%.16f && dtheta_pim<%.16f && dphi_p<%.16f && dphi_pim<%.16f)) || (has_lambda==0 && first_combo==1)",dtheta_p_max,dtheta_pim_max,dphi_p_max,dphi_pim_max);
+    std::string fitvar_mc = Form("%s_mc",fitvar.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
+    std::string mc_cuts = "!TMath::IsNaN(costheta1_mc) && !TMath::IsNaN(costheta2_mc)";//NOTE: NOT SURE THAT THESE ARE STILL NECESSARY, 9/14/23.
     std::cout<<"DEBUGGING: in analysis.cpp: mc_cuts = \n\t"<<mc_cuts<<std::endl;//DEBUGGING
     auto frame = (!inject_asym) ? d.Filter(cuts.c_str())
                     .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
@@ -269,19 +269,19 @@ void analysis(const YAML::Node& node) {
                         return (float) (TMath::Abs(phi_pim-phi_pim_mc)<TMath::Pi()
                         ? TMath::Abs(phi_pim-phi_pim_mc) : 2*TMath::Pi() - TMath::Abs(phi_pim-phi_pim_mc));
                         },{"phi_pim","phi_pim_mc"})
-                    .Filter(Form("(%s) && (%s) && (%s)",cuts.c_str(),mc_cuts.c_str(),binlims_cuts.c_str()))
-                    .Define(depolarization_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"})
+                    .Filter(Form("(%s) && (%s)",cuts.c_str(),mc_cuts.c_str()))
+                    .Define(depolarization_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}) //NOTE: CHANGE y->y_mc FOR SANITY CHECKING MC ASYMMETRY INJECTION
                     .Define(depol_name_mc.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
                     .Define(helicity_name, [&alpha,&bgasym,&sgasym,&beam_polarization,&dtheta_p_max,&dtheta_pim_max,&dphi_p_max,&dphi_pim_max]
-                        (float Dy, float costheta, float my_rand_var, float has_lambda, float dtheta_p, float dtheta_pim, float dphi_p, float dphi_pim) {
+                        (float Dy, float costheta, float my_rand_var, float pid_parent_p_mc, float row_parent_p_mc, float row_parent_pim_mc, float dtheta_p, float dtheta_pim, float dphi_p, float dphi_pim) {
                         return (float)(my_rand_var<(
-                            (dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max && dphi_p<dphi_p_max && dphi_pim<dphi_pim_max) 
-                            ? ((has_lambda==0)
-                            ? 0.5*(1.0 + alpha*Dy*beam_polarization*bgasym*costheta) : 0.5*(1.0 + alpha*Dy*beam_polarization*sgasym*costheta)) : 0.5) //NOTE: COULD INJECT ASYM HERE FOR BG -> THEN NEED BGASYM AND SGASYM AS ARGS FOR THESE FUNCS.
+                            (dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max /*&& dphi_p<dphi_p_max && dphi_pim<dphi_pim_max*/) 
+                            ? ((pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)
+                            ? 0.5*(1.0 + alpha*Dy*beam_polarization*sgasym*costheta) : 0.5*(1.0 + alpha*Dy*beam_polarization*bgasym*costheta)) : 0.5) //NOTE: COULD INJECT ASYM HERE FOR BG -> THEN NEED BGASYM AND SGASYM AS ARGS FOR THESE FUNCS.
                             ? 1.0 : -1.0); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
                         },
-                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"my_rand_var","has_lambda","dtheta_p","dtheta_pim","dphi_p","dphi_pim"}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"my_rand_var","pid_parent_p_mc","row_parent_p_mc","row_parent_pim_mc","dtheta_p","dtheta_pim","dphi_p","dphi_pim"}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
 
     // Create output log
     std::ofstream outf; outf.open(logpath.c_str());
