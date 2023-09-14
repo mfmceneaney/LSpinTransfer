@@ -18,8 +18,8 @@ void getTrueSignalFractionsPlotBinned(ROOT::RDF::RInterface<ROOT::Detail::RDF::R
     // Set up histogram
     const int nlims_kin   = bins.size();
     const int nlims_delta = match_lims.size();
-    double xbins[nlims_delta]; for (int i=0; i<nlims_delta; i++) { xbins[i] = match_lims.at(i); }
-    double ybins[nlims_kin];   for (int i=0; i<nlims_kin;   i++) { ybins[i] = bins.at(i);       }
+    double xbins[nlims_delta]; for (int i=nlims_delta-1; i>=0; i--) { xbins[i] = match_lims.at(i); } //NOTE: GO IN REVERSE SINCE PUSH BACK ADDS IN REVERSE.
+    double ybins[nlims_kin];   for (int i=nlims_kin-1; i>=0;   i--) { ybins[i] = bins.at(i);       }
     const int nbins_kin   = bins.size() - 1;
     const int nbins_delta = match_lims.size() - 1;
     const char * name  = "h2d";
