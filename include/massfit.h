@@ -346,8 +346,8 @@ TArrayF* LambdaMassFitMC(
     outroot->cd(outdir.c_str());
 
     // MC Matching cuts
-    std::string protonangcuts = Form("abs(theta_p-theta_p_mc)<%.8f*TMath::Pi()/180",dtheta_p_max); // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
-    std::string pionangcuts = Form("abs(theta_pim-theta_pim_mc)<%.8f*TMath::Pi()/180",dtheta_pim_max); // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
+    std::string protonangcuts = Form("abs(theta_p-theta_p_mc)<%.8f",dtheta_p_max); // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
+    std::string pionangcuts = Form("abs(theta_pim-theta_pim_mc)<%.8f",dtheta_pim_max); // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
 
     // True/false proton/pion cuts
     std::string true_proton_false_pion_cuts = Form("(%s) && !(%s)",protonangcuts.c_str(),pionangcuts.c_str());
@@ -745,8 +745,8 @@ TArrayF* LambdaMassFitMCFIXPARAMS(
     outroot->cd(outdir.c_str());
 
     // MC Matching cuts
-    std::string protonangcuts = Form("abs(theta_p-theta_p_mc)<%.8f*TMath::Pi()/180",dtheta_p_max); // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
-    std::string pionangcuts = Form("abs(theta_pim-theta_pim_mc)<%.8f*TMath::Pi()/180",dtheta_pim_max); // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
+    std::string protonangcuts = Form("abs(theta_p-theta_p_mc)<%.8f",dtheta_p_max); // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
+    std::string pionangcuts = Form("abs(theta_pim-theta_pim_mc)<%.8f",dtheta_pim_max); // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
 
     // True/false proton/pion cuts
     std::string true_proton_false_pion_cuts = Form("(%s) && !(%s)",protonangcuts.c_str(),pionangcuts.c_str());
@@ -1176,8 +1176,8 @@ void LambdaMassFitMCDecomposition(
     outroot->cd(outdir.c_str());
 
     // MC Matching cuts
-    std::string protonangcuts = Form("abs(theta_p-theta_p_mc)<%.8f*TMath::Pi()/180",dtheta_p_max); // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
-    std::string pionangcuts = Form("abs(theta_pim-theta_pim_mc)<%.8f*TMath::Pi()/180",dtheta_pim_max); // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
+    std::string protonangcuts = Form("abs(theta_p-theta_p_mc)<%.8f",dtheta_p_max); // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
+    std::string pionangcuts = Form("abs(theta_pim-theta_pim_mc)<%.8f",dtheta_pim_max); // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
 
     // True/false proton/pion cuts
     std::string true_proton_false_pion_cuts = Form("(%s) && !(%s)",protonangcuts.c_str(),pionangcuts.c_str());

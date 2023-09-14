@@ -133,13 +133,13 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "use_bgfraction: " << use_bgfraction << std::endl;
 
-    // double dtheta_p_max = 6.0; //NOTE: IN DEGREES!
+    // double dtheta_p_max = 6.0*TMath::Pi()/180; //NOTE: IN RADIANS!
     // if (node["dtheta_p_max"]) {
     //     dtheta_p_max = node["dtheta_p_max"].as<double>();
     // }
     // std::cout << "dtheta_p_max: " << dtheta_p_max << std::endl;
 
-    // double dtheta_pim_max = 6.0; //NOTE: IN DEGREES!
+    // double dtheta_pim_max = 6.0*TMath::Pi()/180; //NOTE: IN RADIANS!
     // if (node["dtheta_pim_max"]) {
     //     dtheta_pim_max = node["dtheta_pim_max"].as<double>();
     // }
