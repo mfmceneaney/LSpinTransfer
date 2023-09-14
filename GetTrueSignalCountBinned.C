@@ -22,7 +22,7 @@ void getTrueSignalFractionsPlotBinned(ROOT::RDF::RInterface<ROOT::Detail::RDF::R
     double ybins[nlims_kin];   for (int i=0; i<nlims_kin;   i++) { ybins[i] = bins.at(i);       }
     const int nbins_kin   = bins.size() - 1;
     const int nbins_delta = match_lims.size() - 1;
-    const char * name = "h2d";
+    const char * name  = "h2d";
     const char * title = "";
     TH2D *h2d = new TH2D(name,title,nbins_kin,xbins,nbins_delta,ybins);
 
@@ -131,11 +131,11 @@ void GetTrueSignalCountBinned() {
     double dtheta_pim_step = 0.02*TMath::Pi()/180;
     double dtheta_p_max = 0.0;
     double dtheta_pim_max = 0.0;
-    for (int i=0; i<nsteps; i++) {
+    for (int i=0; i<nsteps+1; i++) { //NOTE: THE PLUS ONE IS SO YOU GET THE BIN LIMITS RIGHT
         dtheta_p_max   += dtheta_p_step;
         dtheta_pim_max += dtheta_pim_step;
         std::string match_cut = Form("pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && abs(dtheta_p)<%.4f && abs(dtheta_pim)<%.4f",dtheta_p_max,dtheta_pim_max);
-        match_lims.push_back(dtheta_p_max); //NOTE: CHANGE THIS IF YOU'RE JUST CHANGING LIMITS FOR ONE PARTICLE TYPE.
+        match_lims.push_back(dtheta_p_max-dtheta_p_step);//NOTE: THE -dtheta_p_step IS SO YOU GET THE BIN LIMITS RIGHT //NOTE: CHANGE THIS IF YOU'RE JUST CHANGING LIMITS FOR ONE PARTICLE TYPE.
         match_cuts.push_back(match_cut);
     }
 
