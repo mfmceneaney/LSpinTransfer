@@ -12,26 +12,26 @@ void getAngularDeltaPlots(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter
     // Set histogram parameters
     int nbins = 100;
     std::string dtheta_p_name = "dtheta_p";
-    double dtheta_p_min = -TMath::Pi()/6;
-    double dtheta_p_max =  TMath::Pi()/6;
+    double dtheta_p_min = -TMath::Pi()/8;
+    double dtheta_p_max =  TMath::Pi()/8;
 
     // Set histogram parameters
     // int nbins = 100;
     std::string dtheta_pim_name = "dtheta_pim";
-    double dtheta_pim_min = -TMath::Pi()/6;
-    double dtheta_pim_max =  TMath::Pi()/6;
+    double dtheta_pim_min = -TMath::Pi()/8;
+    double dtheta_pim_max =  TMath::Pi()/8;
 
     // Set histogram parameters
     // int nbins = 100;
     std::string dphi_p_name = "dphi_p";
-    double dphi_p_min = -TMath::Pi()/6;
-    double dphi_p_max =  TMath::Pi()/6;
+    double dphi_p_min = -TMath::Pi()/8;
+    double dphi_p_max =  TMath::Pi()/8;
 
     // Set histogram parameters
     // int nbins = 100;
     std::string dphi_pim_name = "dphi_pim";
-    double dphi_pim_min = -TMath::Pi()/6;
-    double dphi_pim_max =  TMath::Pi()/6;
+    double dphi_pim_min = -TMath::Pi()/8;
+    double dphi_pim_max =  TMath::Pi()/8;
 
     // Create histograms
     auto _h_dtheta_p = (TH1D)*frame.Histo1D({"_h_dtheta_p",dtheta_p_name.c_str(),nbins,dtheta_p_min,dtheta_p_max},dtheta_p_name.c_str());
@@ -123,7 +123,7 @@ void PlotAngularDeltas() {
     const char *cuts    = "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
     const char *mccuts  = "(has_lambda==0 && first_om2_min==1) || (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)";
     const char *sigcut  = "mass_ppim>1.11 && mass_ppim<1.13";
-    const char *drawopt = "APE";
+    const char *drawopt = "";
 
     gStyle->SetOptStat(0);
 
@@ -156,11 +156,11 @@ void PlotAngularDeltas() {
         .Define("dtheta_pim",[](float theta_pim, float theta_pim_mc){ return theta_pim-theta_pim_mc; },{"theta_pim","theta_pim_mc"})
         .Define("dphi_p",[](float phi_p, float phi_p_mc){
             return (float) (TMath::Abs(phi_p-phi_p_mc)<TMath::Pi()
-            ? TMath::Abs(phi_p-phi_p_mc) : -2*TMath::Pi() + TMath::Abs(phi_p-phi_p_mc));
+            ? phi_p-phi_p_mc : (phi_p-phi_p_mc>0.0 ? 1.0 : -1.0)*(-2*TMath::Pi() + TMath::Abs(phi_p-phi_p_mc)));
             },{"phi_p","phi_p_mc"})
         .Define("dphi_pim",[](float phi_pim, float phi_pim_mc){
             return (float) (TMath::Abs(phi_pim-phi_pim_mc)<TMath::Pi()
-            ? TMath::Abs(phi_pim-phi_pim_mc) : -2*TMath::Pi() + TMath::Abs(phi_pim-phi_pim_mc));
+            ? phi_pim-phi_pim_mc : (phi_pim-phi_pim_mc>0.0 ? 1.0 : -1.0)*(-2*TMath::Pi() + TMath::Abs(phi_pim-phi_pim_mc)));
             },{"phi_pim","phi_pim_mc"})
         .Filter(cuts)
         .Filter(mccuts)
