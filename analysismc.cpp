@@ -133,6 +133,18 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "use_bgfraction: " << use_bgfraction << std::endl;
 
+    double dtheta_p_max = 6.0; //NOTE: IN DEGREES!
+    if (node["dtheta_p_max"]) {
+        dtheta_p_max = node["dtheta_p_max"].as<double>();
+    }
+    std::cout << "dtheta_p_max: " << dtheta_p_max << std::endl;
+
+    double dtheta_pim_max = 6.0; //NOTE: IN DEGREES!
+    if (node["dtheta_pim_max"]) {
+        dtheta_pim_max = node["dtheta_pim_max"].as<double>();
+    }
+    std::cout << "dtheta_pim_max: " << dtheta_pim_max << std::endl;
+
     bool inject_asym = false;
     if (node["inject_asym"]) {
         inject_asym = node["inject_asym"].as<bool>();
@@ -328,6 +340,8 @@ void analysis(const YAML::Node& node) {
                     n_mass_bins,// int          n_mass_bins, // number of mass bins
                     mass_min,// double       mass_min,   // mass variable max for signal fit
                     mass_max,// double       mass_max,   // mass variable min for signal fit
+                    dtheta_p_max,// double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
+                    dtheta_pim_max,// double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     mass_draw_opt,// std::string  mass_draw_opt, // mass variable hist draw option for fit
                     sgasym,// double       sgasym   = 0.00,        // Asymmetry to inject to signal in MC
                     bgasym,// double       bgasym   = 0.00,        // Asymmetry to inject to background in MC
