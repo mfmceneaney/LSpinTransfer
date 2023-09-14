@@ -16,20 +16,25 @@ void getTrueSignalFractionsPlotBinned(ROOT::RDF::RInterface<ROOT::Detail::RDF::R
     ) {
     
     // Set up histogram
-    const int nbins_kin = bins.size()-1;
-    const int nbins_delta = match_cuts.size();
-    double xbins[]; for (int i=0; i<bins.size(); i++) { }
+    const int nlims_kin   = bins.size();
+    const int nlims_delta = match_lims.size();
+    double xbins[nlims_delta]; for (int i=0; i<nlims_delta; i++) { xbins[i] = match_lims.at(i); }
+    double ybins[nlims_kin];   for (int i=0; i<nlims_kin;   i++) { ybins[i] = bins.at(i);       }
+    const int nbins_kin   = bins.size() - 1;
+    const int nbins_delta = match_lims.size() - 1;
+    const char * name = "h2d";
+    const char * title = "";
     TH2D *h2d = new TH2D(name,title,nbins_kin,xbins,nbins_delta,ybins);
 
     // Loop kinematic bins and make kinematic bin cut
     for (int i=0; i<nbins_kin; i++) {
-        double bin_min = bins.at(i);
-        double bin_max = bins.at(i+1);
+        double binmin = bins.at(i);
+        double binmax = bins.at(i+1);
         std::string kinbin_cut = Form("%s>=%.8f && %s<%.8f",binvar.c_str(),binmin,binvar.c_str(),binmax);
         auto _frame = frame.Filter(kinbin_cut.c_str());
 
         // Loop cuts and get counts and signal fractions
-        for (int j=0; j<nbins_delta; j++) {
+        for (int j=0; j<nbins_delta; j++) { //NOTE: ASSUME THE FIRST BIN IS A DUMMY BIN, e.g. ZERO.
             double x              = match_lims.at(j);
             std::string match_cut = match_cuts.at(j);
             double true_sig_count = (double) *_frame.Filter(match_cut.c_str()).Count();
@@ -136,7 +141,7 @@ void GetTrueSignalCountBinned() {
 
     // Plot true signal fraction as a function of matching cuts
     std::string binvar = "Q2";
-    std::vector<double> bin_lims = {1.0, 1.2142, 1.4986, 1.9157, 2.6630, 11.0}
+    std::vector<double> bin_lims = {1.0, 1.2142, 1.4986, 1.9157, 2.6630, 11.0};
     // std::string bin var = "W";
     // std::vector<double> bin_lims = {2.0, 2.2033, 2.4357, 2.7120, 3.0841, 5.0};
     // std::string binvar = "x";
