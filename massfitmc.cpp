@@ -130,7 +130,7 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "use_bgfraction: " << use_bgfraction << std::endl;
 
-    double dtheta_p_max = 2.0; //NOTE: IN DEGREES!
+    double dtheta_p_max = 6.0; //NOTE: IN DEGREES!
     if (node["dtheta_p_max"]) {
         dtheta_p_max = node["dtheta_p_max"].as<double>();
     }
