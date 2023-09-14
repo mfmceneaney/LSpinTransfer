@@ -54,10 +54,10 @@ void getTrueSignalFractionsPlot(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJitted
 void GetTrueSignalCount() {
 
     // Parameters for MC tree
-    const char *path    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_9_5_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
+    const char *path    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_FLAG_MIN_MATCH_AND_FRACTION_DELTAP_9_13_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
     const char *tree    = "t";
     const char *cuts    = "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
-    const char *mccuts  = "(has_lambda==0 && first_om2_min==1) || (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)";
+    const char *mccuts  = "!TMath::IsNaN(costheta1_mc) && !TMath::IsNaN(costheta2_mc)";
     const char *sigcut  = "mass_ppim>1.11 && mass_ppim<1.13";
     const char *drawopt = "APE";
 
@@ -120,7 +120,7 @@ void GetTrueSignalCount() {
     for (int i=0; i<nsteps; i++) {
         dtheta_p_max   += dtheta_p_step;
         dtheta_pim_max += dtheta_pim_step;
-        std::string match_cut = Form("has_lambda==1 && abs(dtheta_p)<%.4f && abs(dtheta_pim)<%.4f",dtheta_p_max,dtheta_pim_max);
+        std::string match_cut = Form("pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && abs(dtheta_p)<%.4f && abs(dtheta_pim)<%.4f",dtheta_p_max,dtheta_pim_max);
         match_lims.push_back(dtheta_p_max); //NOTE: CHANGE THIS IF YOU'RE JUST CHANGING LIMITS FOR ONE PARTICLE TYPE.
         match_cuts.push_back(match_cut);
     }
