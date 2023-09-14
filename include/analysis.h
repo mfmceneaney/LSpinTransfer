@@ -580,6 +580,353 @@ void getKinBinnedGraph(
 
 } // getKinBinnedGraph()
 
+/** 
+* Get TGraph of D_LL binned in given kinematic variable with or without bg 
+* correction using helicity balance (HB) method or linear fit (LF) method.
+*/
+void getKinBinnedGraphMC(
+                    std::string  outdir,
+                    TFile      * outroot,
+                    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
+                    std::string  sgcuts,  // Signal cuts
+                    std::string  bgcuts,  // Background cuts
+                    TString      method,  // dll calculation method: either helicity balance (HB) or linear fit (LF)
+                    std::string  binvar, // Variable name to bin in
+                    int          nbins,   // Number of bins
+                    double     * bins,    // Bin limits (length=nbins+1)
+                    double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
+                    bool         use_bgfraction, // whether to use specified epsilon
+                    double       alpha,   // Lambda weak decay asymmetry parameter
+                    double       pol,     // Luminosity averaged beam polarization
+                    std::string  mass_name, // mass variable name for signal fit
+                    int          n_mass_bins, // number of mass bins
+                    double       mass_min,   // mass variable max for signal fit
+                    double       mass_max,   // mass variable min for signal fit
+                    double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
+                    double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
+                    std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
+                    double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
+                    std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
+                    std::string  helicity_name       = "heli",      // Branch name for helicity
+                    std::string  fitvar              = "costheta1", // cos(theta) leaf name to use
+                    std::string  fitvar_mc           = "costheta1_mc", // fitvar name for mc if injecting
+                    std::string  depol_name_mc       = "Dy_mc",        // depolarization name for mc if injecting
+                    bool         inject              = false,       // flag for whether to inject asymmetry
+                    TRandom     *gRandom             = new TRandom(),   // Random number generator to use
+                    //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
+                    //   double       fitvar_min = -1.0,       // fit variable minimum
+                    //   double       fitvar_max = 1.0,        // fit variable maximum
+                    std::string  graph_title          = "Longitudinal Spin Transfer along #vec{p}_{#Lambda}", // Histogram title
+                    int          marker_color         = 4,  // 4 is blue
+                    int          marker_style         = 20, // 20 is circle
+                    std::ostream &out                 = std::cout   // Output for all messages
+                    ) {
+
+    // Fitting presets for LF method //TODO: Maybe just hardcode within getKinBinLF() ?
+    int  n_fitvar_bins = 10;
+    double fitvar_min = -1;
+    double fitvar_max =  1;
+
+    // Check arguments
+    if (method != "LF" && method != "HB") {out << " *** ERROR *** Method must be either LF or HB.  Exiting...\n"; return;}
+    if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
+
+    // Starting message
+    out << "----------------------- getKinBinnedGraphMC ----------------------\n";
+    out << "Getting " << binvar << " binned hist...\n";
+    out << "bins = { "; for (int i=0; i<nbins; i++) { out << bins[i] << " , ";} out << bins[nbins] << " }\n";
+
+    // Make output directory in ROOT file and cd
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
+
+    // Initialize data arrays
+    double dlls[nbins];
+    double errx[nbins];
+    double erry[nbins];
+    double means[nbins];
+    int    counts[nbins];
+
+    double bgfractions[nbins];
+    double bgfractions_err[nbins];
+    double bgfractions_ls[nbins];
+    double bgfractions_ls_err[nbins];
+    double bgfractions_us[nbins];
+    double bgfractions_us_err[nbins];
+    double bgfractions_sb[nbins];
+    double bgfractions_sb_err[nbins];
+
+    // Loop bins and get data
+    for (int i=1; i<=nbins; i++) {
+        double bin_min = bins[i-1];
+        double bin_max = bins[i];
+
+        // Make bin cut on frame
+        std::string  bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
+        auto bin_frame = frame.Filter(bin_cut.c_str());
+
+        // Get background fraction for bin from mass fit
+        double epsilon = bgfraction;
+        double bgfraction_err = 0.0; //TODO: add option for this.
+        double epsilon_ls, epsilon_ls_err, epsilon_us, epsilon_us_err, epsilon_sb, epsilon_sb_err;
+        if (!use_bgfraction) {
+            std::string  massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+            std::string  bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
+            TArrayF* massFitData = LambdaMassFitMC(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        dtheta_p_max,
+                        dtheta_pim_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
+
+            int k = 2; //NOTE: START AT 2 to GET MC TRUTH EPSILON FOR SANITY CHECKING.
+            epsilon = massFitData->GetAt(k++);
+            bgfraction_err = massFitData->GetAt(k++);
+            epsilon_ls = massFitData->GetAt(k++);
+            epsilon_ls_err = massFitData->GetAt(k++);
+            epsilon_us = massFitData->GetAt(k++);
+            epsilon_us_err = massFitData->GetAt(k++);
+            epsilon_sb = massFitData->GetAt(k++);
+            epsilon_sb_err = massFitData->GetAt(k++);
+        }
+
+        // Compute bin results
+        TArrayF *binData;
+        std::string  binoutdir = Form("method_%s_bin_%s_%.3f_%.3f",(const char*)method,binvar.c_str(),bin_min,bin_max);
+        // double sgasym_measured = (1-epsilon)*sgasym + epsilon * bgasym;
+        if (method=="HB") {
+            binData = (TArrayF*) getKinBinHB(
+                binoutdir,
+                outroot,
+                frame,
+                sgcuts,
+                binvar,
+                bin_min,
+                bin_max,
+                alpha,
+                pol,
+                depolarization_name,
+                helicity_name,
+                fitvar,
+                out
+                );
+        }
+        if (method=="LF") {
+            binData = (TArrayF*) getKinBinLF(
+                binoutdir,
+                outroot,
+                frame,
+                sgcuts,
+                binvar,
+                bin_min,
+                bin_max,
+                alpha,
+                pol,
+                helicity_name,
+                fitvar,
+                n_fitvar_bins,
+                fitvar_min,
+                fitvar_max,
+                out
+                );
+            }
+
+        // Get data
+        double dll     = binData->GetAt(0);
+        double dll_err = binData->GetAt(1);
+        double mean    = binData->GetAt(2);
+        double stddev  = binData->GetAt(3);
+        int    count   = binData->GetAt(4);
+
+        // Sideband subtraction background correction
+        if (epsilon==1.00) {out << " *** WARNING *** epsilon = 1 -> No BG correction made.\n";}
+        else {
+            TArrayF *bgBinData;
+            std::string  sbbinoutdir = Form("method_%s_sideband_bin_%s_%.3f_%.3f",(const char*)method,binvar.c_str(),bin_min,bin_max);
+            if (method=="HB") {
+                bgBinData = (TArrayF*) getKinBinHB(
+                    sbbinoutdir,
+                    outroot,
+                    frame,
+                    bgcuts,
+                    binvar,
+                    bin_min,
+                    bin_max,
+                    alpha,
+                    pol,
+                    depolarization_name,
+                    helicity_name,
+                    fitvar,
+                    out
+                    );
+            }
+            if (method=="LF") {
+                bgBinData = (TArrayF*) getKinBinLF(
+                    sbbinoutdir,
+                    outroot,
+                    frame,
+                    bgcuts,
+                    binvar,
+                    bin_min,
+                    bin_max,
+                    alpha,
+                    pol,
+                    helicity_name,
+                    fitvar,
+                    n_fitvar_bins,
+                    fitvar_min,
+                    fitvar_max,
+                    out
+                    );
+            }
+
+            // Get data
+            double bg_dll     = bgBinData->GetAt(0);
+            double bg_dll_err = bgBinData->GetAt(1);
+            double bg_mean    = bgBinData->GetAt(2);
+            double bg_stddev  = bgBinData->GetAt(3);
+            int    bg_count   = bgBinData->GetAt(4);
+            dll    = (dll - epsilon * bg_dll) / (1 - epsilon);
+            dll_err = TMath::Abs(TMath::Sqrt(dll_err*dll_err+epsilon*epsilon*bg_dll_err*bg_dll_err) / (1 - epsilon));
+
+            // Output message
+            out << "--- BG Corrected Signal ---\n";
+            out << " epsilon           =  " << epsilon << "\n";//NOTE: ADDED 7/7/23
+            out << " epsilon_err       =  " << bgfraction_err << "\n";
+            out << " dll_corrected     =  " << dll << "\n";
+            out << " dll_err_corrected =  " << dll_err << "\n";
+            out << "---------------------------\n";
+        }
+
+        // Add data to arrays
+        dlls[i-1]   = dll;
+        errx[i-1]   = stddev;
+        erry[i-1]   = dll_err;
+        means[i-1]  = mean;
+        counts[i-1] = count;
+        bgfractions[i-1] = epsilon;
+        bgfractions_err[i-1] = bgfraction_err;
+        bgfractions_ls[i-1] = epsilon_ls;
+        bgfractions_ls_err[i-1] = epsilon_ls_err;
+        bgfractions_us[i-1] = epsilon_us;
+        bgfractions_us_err[i-1] = epsilon_us_err;
+        bgfractions_sb[i-1] = epsilon_sb;
+        bgfractions_sb_err[i-1] = epsilon_sb_err;
+    }
+
+    // Compute overall event-weighted means and errors and output binned results in Latex Table Format
+    double mean_dll = 0, mean_dll_err = 0, mean_var = 0;
+    int    count   = 0;
+    out << " mean " << binvar << "\t\tdll\t\tdll_err\n";
+    out << "------------------------------------------------------------\n";
+    for (int i=0; i<nbins; i++) {
+        out << " " << means[i] << " & " <<  dlls[i] << " $\\pm$ " << erry[i] << " \\\\\n";
+        mean_dll     += dlls[i]*counts[i];
+        mean_dll_err += erry[i]*erry[i]*counts[i];
+        mean_var     += means[i]*counts[i];
+        count        += counts[i];
+    }
+    mean_dll     = mean_dll/count;
+    mean_dll_err = TMath::Sqrt(mean_dll_err/count);
+    mean_var     = mean_var/count;
+    out << "------------------------------------------------------------\n";
+    out << " Mean dll = " << mean_dll << " ± " << mean_dll_err << "\n";
+    out << " Mean   " << binvar << " = "<< mean_var << "\n";
+    out << " count = "<< count << "\n";
+
+    //----------//
+    //DEBUGGING: Added 7/25/23
+    out << "------------------------------------------------------------\n";
+    out << " Mean " << binvar << " & $\\epsilon_{ls}$ & $\\delta\\epsilon_{ls}/\\epsilon_{ls}$ \\\\\n";
+    out << "\\hline\n";
+    for (int i=0; i<nbins; i++) {
+        out << " " << means[i] << " & " <<  bgfractions_ls[i] << " $\\pm$ " << bgfractions_ls_err[i] << " & " << bgfractions_ls_err[i]/bgfractions_ls[i]*100 << "\\% \\\\\n";
+    }
+
+    out << "------------------------------------------------------------\n";
+    out << " Mean " << binvar << " & $\\epsilon_{us}$ & $\\delta\\epsilon_{us}/\\epsilon_{us}$ \\\\\n";
+    out << "\\hline\n";
+    for (int i=0; i<nbins; i++) {
+        out << " " << means[i] << " & " <<  bgfractions_us[i] << " $\\pm$ " << bgfractions_us_err[i] << " & " << bgfractions_us_err[i]/bgfractions_us[i]*100 << "\\% \\\\\n";
+    }
+
+    out << "------------------------------------------------------------\n";
+    out << " Mean " << binvar << " & $\\epsilon_{sb}$ & $\\delta\\epsilon_{sb}/\\epsilon_{sb}$ \\\\\n";
+    out << "\\hline\n";
+    for (int i=0; i<nbins; i++) {
+        out << " " << means[i] << " & " <<  bgfractions_sb[i] << " $\\pm$ " << bgfractions_sb_err[i] << " & " << bgfractions_sb_err[i]/bgfractions_sb[i]*100 << "\\% \\\\\n";
+    }
+
+    //----------//
+
+    // Create graph of results binned in binvar
+    TGraphErrors *gr = new TGraphErrors(nbins,means,dlls,errx,erry);
+    gr->Write("gr");
+
+    // Create graph of epsilons from mass fits binned in binvar
+    TGraphErrors *gr_epsilon = new TGraphErrors(nbins,means,bgfractions,errx,bgfractions_err);
+    gr_epsilon->Write("gr_epsilon");
+
+    // Plot results graph
+    TCanvas *c1 = new TCanvas();
+    c1->cd(0);
+
+    // Stylistic choices that aren't really necessary
+    gStyle->SetEndErrorSize(5); gStyle->SetTitleFontSize(0.05);
+    gr->SetMarkerSize(1.25);
+    gr->GetXaxis()->SetTitleSize(0.05);
+    gr->GetXaxis()->SetTitleOffset(0.9);
+    gr->GetYaxis()->SetTitleSize(0.05);
+    gr->GetYaxis()->SetTitleOffset(0.9);
+
+    // More necessary stylistic choices
+    gr->SetTitle(graph_title.c_str());
+    gr->SetMarkerColor(marker_color); // 4  blue
+    gr->SetMarkerStyle(marker_style); // 20 circle
+    gr->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
+    gr->GetXaxis()->SetTitle(binvar.c_str());
+    gr->GetYaxis()->SetTitle("D^{#Lambda}_{LL'}");
+    gr->Draw("PA");
+
+    // Add CLAS12 Preliminary watermark
+    TLatex *lt = new TLatex(0.3,0.2,"CLAS12 Preliminary");
+    lt->SetTextAngle(45);
+    lt->SetTextColor(18);
+    lt->SetTextSize(0.1);
+    lt->SetNDC();
+    lt->Draw();
+
+    // Add zero line
+    TF1 *f2 = new TF1("f2","0",bins[0],bins[nbins]);
+    f2->SetLineColor(1); // 1 black
+    f2->SetLineWidth(1); // 1 thinnest
+    f2->Draw("SAME");
+
+    // Set outname and save
+    TString fname;
+    fname.Form("%s_%s_%s_%.3f_%.3f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
+    c1->Print(fname+".pdf");
+    gr->SaveAs(fname+".root","recreate");
+    gr_epsilon->SaveAs(fname+"_epsilon.root","recreate");
+
+    // Cd out of outdir
+    outroot->cd("..");
+
+    // Ending message
+    out << " Saved graph to " << fname << ".root\n";
+    out << "------------------- END of getKinBinnedGraphMC -------------------\n";
+
+} // getKinBinnedGraphMC()
+
 void convertToLatex(TGraph *g, std::ostream &out = std::cout) {
     out<<"convertToLatex() method not yet implemented..."<<std::endl;
 } // void convertGraphToLatex()
