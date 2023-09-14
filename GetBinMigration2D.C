@@ -4,6 +4,16 @@
 * Description: bin migration fraction plots for 1 previous and 1 following bins in kinematics variables.
 */
 
+std::vector<double> getBinLims(const int nbins, double xmax, double xmin) {
+    std::vector<double> binlims;
+    double step = (xmax-xmin)/nbins;//NOTE: nlims IS THE NUMBER OF LIMITS BUT YOU WANT TO DIVIDE BY THE NUMBER OF BINS.
+    for (int i=0; i<nbins+1; i++) {
+        double lim = xmin + i*step;
+        binlims.push_back(lim);
+    }
+    return binlims;
+}
+
 void getBinMigrationPlots(
     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
     std::string varName,
@@ -93,10 +103,24 @@ void GetBinMigration2D() {
     std::vector<std::vector<double>> binlims;
     const char * drawopt = "COLZ";
 
-    names.push_back("Q2"); titles.push_back("Q^{2}"); names_mc.push_back("Q2_mc"); titles_mc.push_back("Q^{2}_{MC}"); binlims.push_back({1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 10.0});
-    names.push_back("W"); titles.push_back("W"); names_mc.push_back("W_mc"); titles_mc.push_back("W_{MC}"); binlims.push_back({2.0, 2.5, 3.0, 3.5, 5.0});
-    names.push_back("y"); titles.push_back("y"); names_mc.push_back("y_mc"); titles_mc.push_back("y_{MC}"); binlims.push_back({0.0, 0.4, 0.5, 0.6, 0.8});
-    names.push_back("x"); titles.push_back("x"); names_mc.push_back("x_mc"); titles_mc.push_back("x_{MC}"); binlims.push_back({0.0, 0.15, 0.2, 0.25, 1.0});
+    // names.push_back("Q2"); titles.push_back("Q^{2}"); names_mc.push_back("Q2_mc"); titles_mc.push_back("Q^{2}_{MC}"); binlims.push_back({1.0, 1.2142, 1.4986, 1.9157, 2.6630, 11.0});
+    // names.push_back("W"); titles.push_back("W"); names_mc.push_back("W_mc"); titles_mc.push_back("W_{MC}"); binlims.push_back({2.0, 2.2033, 2.4357, 2.7120, 3.0841, 5.0});
+    // names.push_back("y"); titles.push_back("y"); names_mc.push_back("y_mc"); titles_mc.push_back("y_{MC}"); binlims.push_back({0.0, 0.2912, 0.3568, 0.4362, 0.5480, 0.8});
+    // names.push_back("x"); titles.push_back("x"); names_mc.push_back("x_mc"); titles_mc.push_back("x_{MC}"); binlims.push_back({0.0, 0.1568, 0.2110, 0.2629, 0.3377, 1.0});
+    // names.push_back("xF_ppim"); titles.push_back("x_{F p#pi^{-}}"); names_mc.push_back("xF_ppim_mc"); titles_mc.push_back("x_{F p#pi^{-} MC}"); binlims.push_back({0.0, 0.0542, 0.1168, 0.1945, 0.3064, 1.0});
+    // names.push_back("z_ppim"); titles.push_back("z_{p#pi^{-}}"); names_mc.push_back("z_ppim_mc"); titles_mc.push_back("z_{p#pi^{-} MC}"); binlims.push_back({0.0, 0.6038, 0.7041, 0.7972, 0.9060, 10.0});
+
+
+    // Use finer binning
+    names.push_back("Q2"); titles.push_back("Q^{2}"); names_mc.push_back("Q2_mc"); titles_mc.push_back("Q^{2}_{MC}"); binlims.push_back(getBinLims(100,1.0,10.0));
+    names.push_back("W"); titles.push_back("W"); names_mc.push_back("W_mc"); titles_mc.push_back("W_{MC}"); binlims.push_back(getBinLims(100,2.0,5.0));
+    names.push_back("y"); titles.push_back("y"); names_mc.push_back("y_mc"); titles_mc.push_back("y_{MC}"); binlims.push_back(getBinLims(100,0.0,0.8));
+    names.push_back("x"); titles.push_back("x"); names_mc.push_back("x_mc"); titles_mc.push_back("x_{MC}"); binlims.push_back(getBinLims(100,0.0,1.0));
+    names.push_back("xF_ppim"); titles.push_back("x_{F p#pi^{-}}"); names_mc.push_back("xF_ppim_mc"); titles_mc.push_back("x_{F p#pi^{-} MC}"); binlims.push_back(getBinLims(100,-1.0,1.0));
+    names.push_back("z_ppim"); titles.push_back("z_{p#pi^{-}}"); names_mc.push_back("z_ppim_mc"); titles_mc.push_back("z_{p#pi^{-} MC}"); binlims.push_back(getBinLims(100,0.0,2.0));
+
+
+
 
     // // names.push_back("mass_ppim");  names_mc.push_back("mass_ppim_mc"); nbins.push_back(5); binlims.push_back({1.08,1.24}); labels.push_back("M_{p#pi^{-}}");
     // names.push_back("z_ppim"); names_mc.push_back("z_ppim_mc"); nbins.push_back(5); binlims.push_back({0.0,1.0}); labels.push_back("z_{p#pi^{-}}");
