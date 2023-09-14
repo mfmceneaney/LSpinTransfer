@@ -354,12 +354,12 @@ TArrayF* LambdaMassFitMC(
     std::string false_proton_true_pion_cuts = Form("!(%s) && (%s)",protonangcuts.c_str(),pionangcuts.c_str());
     std::string angcuts = Form("(%s) && (%s)",protonangcuts.c_str(),pionangcuts.c_str());
     std::string angorcuts = Form("(%s) || (%s)",protonangcuts.c_str(),pionangcuts.c_str());
-    std::string nomultiplicitycut = "(first_combo==1 && has_lambda==0) || (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)";
+    std::string nomultiplicitycut = "!TMath::IsNaN(costheta1_mc) && !TMath::IsNaN(costheta2_mc)";
     std::string cuts = nomultiplicitycut; //Form("%s && (%s)",cuts,nomultiplicitycut); //NOTE: ONLY LOOK AT MC EVENTS WHICH ARE EITHER BACKGROUND OR LAMBDA NOT PROTON PION COMBOS FROM MC TRUTH
     std::string mccuts  = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts.c_str(),angcuts.c_str()); //NOTE YOU NEED ANGLE CHECKING FOR ALL TRUTH SIGNAL ITEMS SINCE YOU CAN HAVE COMBINATIONS FROM MC THAT WOULDN'T SHOW UP IN DATA SPECIFICALLY FOR TRUE PROTON FALSE PION
     std::string mccuts_true_proton = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts.c_str(),true_proton_false_pion_cuts.c_str());
     std::string mccuts_true_pion   = Form("(%s) && (pid_parent_pim_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts.c_str(),false_proton_true_pion_cuts.c_str());
-    std::string mccuts_true_bg     = Form("(%s) && ((pid_parent_p_mc!=3122 && pid_parent_pim_mc!=3122) || !(%s))",cuts.c_str(),angorcuts.c_str()); //NOTE: USE ANGULAR OR CUTS HERE //NOTE: OLD KEEP FOR DEBUGGING
+    std::string mccuts_true_bg     = Form("(%s) && (!(pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc) || !(%s))",cuts.c_str(),angcuts.c_str()); //NOTE: USE ANGCUTS FOR FULL BG TRUTH SPECTRUM. 9/14/23. //NOTE: USE ANGULAR OR CUTS HERE //NOTE: OLD KEEP FOR DEBUGGING
 
     // Switch off histogram stats
     gStyle->SetOptStat(0);
@@ -760,12 +760,12 @@ void LambdaMassFitMCDecomposition(
     std::string false_proton_true_pion_cuts = Form("!(%s) && (%s)",protonangcuts.c_str(),pionangcuts.c_str());
     std::string angcuts = Form("(%s) && (%s)",protonangcuts.c_str(),pionangcuts.c_str());
     std::string angorcuts = Form("(%s) || (%s)",protonangcuts.c_str(),pionangcuts.c_str());
-    std::string nomultiplicitycut = "(first_combo==1 && has_lambda==0) || (has_lambda==1 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)";
+    std::string nomultiplicitycut = "!TMath::IsNaN(costheta1_mc) && !TMath::IsNaN(costheta2_mc)";
     std::string cuts = nomultiplicitycut; //Form("%s && (%s)",cuts,nomultiplicitycut); //NOTE: ONLY LOOK AT MC EVENTS WHICH ARE EITHER BACKGROUND OR LAMBDA NOT PROTON PION COMBOS FROM MC TRUTH
     std::string mccuts  = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts.c_str(),angcuts.c_str()); //NOTE YOU NEED ANGLE CHECKING FOR ALL TRUTH SIGNAL ITEMS SINCE YOU CAN HAVE COMBINATIONS FROM MC THAT WOULDN'T SHOW UP IN DATA SPECIFICALLY FOR TRUE PROTON FALSE PION
     std::string mccuts_true_proton = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts.c_str(),true_proton_false_pion_cuts.c_str());
     std::string mccuts_true_pion   = Form("(%s) && (pid_parent_pim_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts.c_str(),false_proton_true_pion_cuts.c_str());
-    std::string mccuts_true_bg     = Form("(%s) && ((pid_parent_p_mc!=3122 && pid_parent_pim_mc!=3122) || !(%s))",cuts.c_str(),angorcuts.c_str()); //NOTE: USE ANGULAR OR CUTS HERE //NOTE: OLD KEEP FOR DEBUGGING
+    std::string mccuts_true_bg     = Form("(%s) && (!(pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc) || !(%s))",cuts.c_str(),angcuts.c_str()); //NOTE: USE ANGCUTS FOR BG TRUTH SPECTRUM. 9/14/23. //NOTE: USE ANGULAR OR CUTS HERE //NOTE: OLD KEEP FOR DEBUGGING
 
     // Turn off automatic stats
     gStyle->SetOptStat(0);
