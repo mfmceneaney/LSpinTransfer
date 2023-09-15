@@ -887,11 +887,11 @@ TArrayF* LambdaMassFitMCFIXPARAMS(
 
     // Fix overal fit function signal parameters to those obtained from MC true signal only fit
     int k = 0;
-    func->FixParameter(k,func_sig->GetParameter(k++));
-    func->FixParameter(k,func_sig->GetParameter(k++));
-    func->FixParameter(k,func_sig->GetParameter(k++));
-    func->FixParameter(k,func_sig->GetParameter(k++));
-    func->FixParameter(k,func_sig->GetParameter(k++)); //NOTE: ONLY 5 SIGNAL PARAMETERS
+    func->FixParameter(0,func_sig->GetParameter(0));
+    func->FixParameter(1,func_sig->GetParameter(1));
+    func->FixParameter(2,func_sig->GetParameter(2));
+    func->FixParameter(3,func_sig->GetParameter(3));
+    func->FixParameter(4,func_sig->GetParameter(4)); //NOTE: ONLY 5 SIGNAL PARAMETERS
 
     //----------------------------------------------------------------------// END
 
