@@ -13,7 +13,26 @@ import shutil
 import yaml
 import sys
 
-def get_list(divisions,aggregat_keys=[]):
+def get_list(divisions,aggregate_keys=[]):
+
+    # Create map of elements of elements of divisions and combine completely into each other for one list
+    data_list = []
+    for i, key in enumerate(divisions):
+        if key in aggregate_keys: continue
+        if i==0:
+                for el in divisions[key]:
+                    data_list.append({key: el})
+        else:
+            data_list_new = []
+            for d in data_list:
+                for el in divisions[key]:
+                    data_list_new.append(d.copy())
+                    data_list_new[-1][key] = el
+            data_list = data_list_new
+
+    return data_list
+
+def get_list_new(divisions,aggregate_keys=[]):
 
     # Create map of elements of elements of divisions and combine completely into each other for one list
     data_list = []
@@ -37,7 +56,10 @@ def get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_
     """
     NOTE: Structure of var_lims should be like so: {'xvar':[xvar_min,xvar_max]}.
     NOTE: get_out_file_name() should take any **kwargs, although it should not necessarily use all of them.
+
+    NOTE: return [[filename for values in aggregate_keys] for combinations in divisions[~aggregate_keys]+var_lims]
     """
+    
 
     # Create map of elements of elements of divisions and combine completely into each other for one list
     data_list = get_list(divisions)
@@ -94,16 +116,26 @@ def get_data_from_tgrapherror(
     ):
 
     # Get TGraphErrors from ROOT file
-    f = ur.open(path)
-    g = [np.array(f[name].member('fX')), f[name].member('fY'), f[name].member('fEX'), f[name].member('fEY')]
+    try:
+        f = ur.open(path)
+        g = [np.array(f[name].member('fX')), f[name].member('fY'), f[name].member('fEX'), f[name].member('fEY')]
 
-    return g
+        return g
+    except FileNotFoundError:
+        print("DEBUGGING: FileNotFoundError: ",path)
+        print("\t Returning empty list")
+        return []
 
 def get_arrs(out_file_list):
     
     # Loop files
     for filename in out_file_list:
-        glist.append(get_data_from_tgrapherror(filename))
+        g = get_data_from_tgrapherror(filename)
+        if len(g)>0: glist.append(g)
+
+    if len(glist)==0:
+        print("ERROR: len(glist)==0")
+        return []
 
     # Convert to numpy
     glist = np.array(glist)
@@ -233,6 +265,7 @@ if __name__=="__main__":
 
     # NOW AGGREGATE RESULTS FOR DIFFERENT SEEDS...
     # -> Input output name and parameters -> method define here for getting output name
+    # -> Check if file exists, if not print error and continue...
     # -> Read TGraphErrors from output name file
     # -> Compute bands and means
     # -> Plot and output to csv
@@ -248,33 +281,55 @@ if __name__=="__main__":
         'z_ppim':[0.0,10.0],
     }
     out_file_list = get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_file_name,aggregate_keys)
-    # return [[filename for values in aggregate_keys] for combinations in divisions[~aggregate_keys]] 
+    # return [[filename for values in aggregate_keys] for combinations in divisions[~aggregate_keys]+var_lims]
     #NOTE: THAT var_lims keys will be added to divisions
     # 2 get list calls one with aggregate keys and then the rest of the keys as aggregate keys
-    # Then you can create the file lists appropriatel I think...
+    # Then you can create the file lists appropriately I think...
 
-    def get_loop_dic(divisions,var,lims,aggregate_keys):
-        
-        #NOTE: NEVER AGGREGATE ACROSS VAR SINCE THOSE ARE DIFFERENT KINEMATIC BINNINGS.
+    xlimss = {
+        'Q2':[1.0,11.0],
+        'W':[2.0,5.0],
+        'x':[0.0,1.0],
+        'xF_ppim':[0.0,1.0],
+        'y':[0.0,1.0],
+        'z_ppim':[0.0,1.1],
+    }
+    ylimss = [-0.5,0.5]
+    titles = {
+        'costheta1':'$Spin Transfer along P_{\Lambda}$',
+        'costheta1':'$Spin Transfer along P_{\gamma^{*}}$',
+    }
+    xtitles = {
+        'Q2':'$Q^{2}$',
+        'W':'$W$',
+        'x':'$x$',
+        'xF_ppim':'$x_{F p\pi^{-}}$',
+        'y':'$y$',
+        'z_ppim':'$z_{p\pi^{-}}$',
+    }
+    ytitle = '$D_{LL\'}^{\Lambda}$'
 
-    for var, lims in var_lims:
-        loop_dic = get_loop_dic(divisions,var,lims,aggregate_keys)
-        # -> Get list of aggregate divisions file name lists and dictionary of constants not aggregated over
-        for dic1, file_list in loop_dic:
-            arrs = get_arrs(file_list)
-            outpath = get_out_path(var,lims,dic1,base_dir)
-            get_plots(
-                **arrs,
-                xlims = xlimss[var],
-                ylims = ylimss[var],
-                title = titles[var],
-                xtitle = xtitles[var],
-                ytitle = ytitle,
-                sgasym = dic1['sgasym'],
-                bgasym = dic1['bgasym'],
-                outpath = outpath,
-                verbose = verbose
-            )
+    def apply_get_plots(out_file_list,get_plots,base_dir='',xlimss={},ylims=[0.0,1.0],titles={},xtitles={},ytitle='',verbose=True)
+        for config, file_list in out_file_list:
+            print("DEBUGGING: config = ",config)#DEBUGGING
+            print("DEBUGGING: file_list = ",file_list)#DEBUGGING
+            # arrs = get_arrs(file_list)
+            # outpath = get_out_path(base_dir,**config)
+            # get_plots(
+            #     **arrs,
+            #     xlims   = xlimss[var],
+            #     ylims   = ylimss[var],
+            #     title   = titles[config['fitvar']],
+            #     xtitle  = xtitles[var],
+            #     ytitle  = ytitle,
+            #     sgasym  = config['sgasym'],
+            #     bgasym  = config['bgasym'],
+            #     outpath = outpath,
+            #     verbose = verbose
+            # )
+        return
+
+    apply_get_plots(out_file_list,get_plots,base_dir=base_dir,xlimss=xlimss,ylims=ylims,title=title,xtitles=xtitles,ytitle=ytitle,verbose=True)
 
 
 
