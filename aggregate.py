@@ -226,7 +226,7 @@ def get_plots(
     elinewidth=2.0
     capsize=18
     capthick=2.0
-    color='black'
+    ### color='black'
     marker='o'
     linestyle=None
     linewidth=0.0
