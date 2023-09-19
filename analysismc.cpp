@@ -155,7 +155,7 @@ void analysis(const YAML::Node& node) {
     if (node["inject_seed"]) {
         seed = node["inject_seed"].as<int>();
     }
-    std::cout << "inject_seed: " << inject_seed << std::endl;
+    std::cout << "inject_seed: " << seed << std::endl;
 
     double sgasym;
     if (node["sgasym"]) {
