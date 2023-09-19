@@ -51,7 +51,7 @@ def get_list_new(divisions,aggregate_keys=[]):
 
     return data_list
 
-def get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_file_name):
+def get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_file_name,aggregate_keys):
 
     """
     NOTE: Structure of var_lims should be like so: {'xvar':[xvar_min,xvar_max]}.
@@ -62,27 +62,47 @@ def get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_
     
 
     # Create map of elements of elements of divisions and combine completely into each other for one list
-    data_list = get_list(divisions)
+    data_list = get_list(divisions,aggregate_keys=aggregate_keys)
 
     # List for each job directory name
-    out_file_list = []
+    out_file_list = [] # -> {"outdirs":[], "aggregate_keys":{}, "data_list":{}, "file_list":{}}
 
     # Loop resulting list
-    for data_list_i in data_list:
+    for _data_list_i in data_list:
 
-        # Get job directory name
-        job_dir = os.path.join(base_dir,"__".join(["_".join([key,str(data_list_i[key])]) for key in data_list_i]))
-        job_dir = os.path.abspath(job_dir) #NOTE: Since dictionary is not copied this should just edit the original entry in data_list.
-        data_list_i["outdir"] = job_dir
-
-        # Loop binning variables and get their names and limits
+        # Add in aggregate keys
+        data_list_i = dict(_data_list_i)
+        
+        # Loop binning variables first
         for xvar in var_lims:
             xvar_min = var_lims[xvar][0]
             xvar_max = var_lims[xvar][1]
-            out_file_name = get_out_file_name(xvar=xvar,xvar_min=xvar_min,xvar_max=xvar_max,**data_list_i)
-            print("DEBUGGING: job_dir = ",job_dir)#DEBGGING
-            print("DEBUGGING: out_file_name = ",out_file_name)#DEBGGING
-            out_file_list.append(os.path.join(os.path.abspath(job_dir),out_file_name))
+            data_list_i_xvar = dict(_data_list_i)
+            data_list_i_xvar['binvar'] = xvar
+            data_list_i_xvar[xvar] = var_lims[xvar]
+
+            output_dict = {"data_list":data_list_i_xvar, "file_list":[]}
+
+            # Loop aggregate keys and build file list for current binning
+            for key in aggregate_keys:
+                print(key,divisions[key])#DEBUGGING
+                for value in divisions[key]:
+                
+                    data_list_i_val = dict(_data_list_i) #NOTE: CLONE OVERALL DICT NOT data_list_i SINCE THAT HAS BINNING VARIABLE LIMITS IN IT.
+                    data_list_i_val[key] = value
+
+                    # Get job directory and output file name
+                    job_dir = os.path.join(base_dir,"__".join(["_".join([key,str(data_list_i_val[key])]) for key in data_list_i_val]))
+                    job_dir = os.path.abspath(job_dir) #NOTE: Since dictionary is not copied this should just edit the original entry in data_list.
+                    out_file_name = get_out_file_name(xvar=xvar,xvar_min=xvar_min,xvar_max=xvar_max,**data_list_i)
+                    out_file_name = os.path.join(job_dir,out_file_name)
+                    print("DEBUGGING: job_dir = ",job_dir)#DEBGGING
+                    print("DEBUGGING: out_file_name = ",out_file_name)#DEBGGING
+
+                    output_dict["file_list"].append(out_file_name)
+
+            # Now add output_dict to your overall file list
+            out_file_list.append(output_dict)
 
     return out_file_list
 
@@ -127,6 +147,9 @@ def get_data_from_tgrapherror(
         return []
 
 def get_arrs(out_file_list):
+
+    # Initialize output list
+    glist = []
     
     # Loop files
     for filename in out_file_list:
@@ -135,7 +158,14 @@ def get_arrs(out_file_list):
 
     if len(glist)==0:
         print("ERROR: len(glist)==0")
-        return []
+        return {
+            'x_mean':[],
+            'y_mean':[],
+            'xerr_mean':[],
+            'yerr_mean':[],
+            'y_min':[],
+            'y_max':[],
+            }
 
     # Convert to numpy
     glist = np.array(glist)
@@ -169,7 +199,10 @@ def get_plots(
     title = 'Injection Results',
     xtitle = '$Q^{2} (GeV^{2})$',
     ytitle = '$D_{LL\'}^{\Lambda}$',
-    injected_asym = 0.10,
+    sgasym = 0.10,
+    bgasym = 0.00,
+    color  = 'blue', #NOTE: COLOR OF DATA POINTS
+    bcolor = 'gray', #NOTE:
     outpath = 'out.pdf',
     verbose = True
     ):
@@ -206,16 +239,19 @@ def get_plots(
     plt.title(title,usetex=True)
     plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
-    fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band')
+    fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
-                        color='blue', marker='o', linestyle=linestyle,
+                        color=color, marker='o', linestyle=linestyle,
                         linewidth=linewidth, markersize=markersize,label='Mean')
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
-    if injected_asym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
-    ax1.axhline(injected_asym, color='red',linestyle='--',linewidth=axlinewidth)
+    if sgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
+    ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth)
+    if bgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
+    ax1.axhline(bgasym, color='blue',linestyle='--',linewidth=axlinewidth)
     plt.legend(loc='best')
-    f1.savefig(filename1)
+    print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
+    f1.savefig(outpath)
 
 #---------- MAIN ----------#
 if __name__=="__main__":
@@ -225,7 +261,7 @@ if __name__=="__main__":
     fitvars = {"fitvar":["costheta1","costheta2"]}
     sgasyms = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     bgasyms = {"bgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
-    seeds   = {"inject_seed":[2]}
+    seeds   = {"inject_seed":[2**i for i in range(16)]}
 
     #TODO: MAKE METHOD WHERE YOU SPECIFY KEYS ACROSS WHICH TO AGGREGATE AND KEYS OVER WHICH TO LOOP
     # -> I.E., AGGREGATE OVER INJECT_SEED, BUT LOOP EVERYTHING ELSE...
@@ -239,6 +275,9 @@ if __name__=="__main__":
     divisions = dict(
         methods,
         **fitvars,
+        **sgasyms,
+        **bgasyms,
+        **seeds,
     )
 
     xlims = (0.0,1.0)
@@ -271,7 +310,7 @@ if __name__=="__main__":
     # -> Plot and output to csv
 
     # Get list of directories across which to aggregate
-    aggregate_keys = ["seed"]
+    aggregate_keys = ["inject_seed"]
     var_lims = {
         'Q2':[1.0,11.0],
         'W':[2.0,5.0],
@@ -286,6 +325,14 @@ if __name__=="__main__":
     # 2 get list calls one with aggregate keys and then the rest of the keys as aggregate keys
     # Then you can create the file lists appropriately I think...
 
+    #DEBUGGING: BEGIN
+    # for out_file_dict in out_file_list:
+    #     print("--------------------------------------------------------------------------------")
+    #     for key in out_file_dict:
+    #         print(key,":",out_file_dict[key])
+    # sys.exit(0)#DEBUGGING
+    #DEBUGGING: END
+
     xlimss = {
         'Q2':[1.0,11.0],
         'W':[2.0,5.0],
@@ -296,8 +343,12 @@ if __name__=="__main__":
     }
     ylimss = [-0.5,0.5]
     titles = {
-        'costheta1':'$Spin Transfer along P_{\Lambda}$',
-        'costheta1':'$Spin Transfer along P_{\gamma^{*}}$',
+        'costheta1':'Spin Transfer along $P_{\Lambda}$',
+        'costheta2':'Spin Transfer along $P_{\gamma^{*}}$',
+    }
+    colors = {
+        'costheta1':'blue',
+        'costheta2':'red',
     }
     xtitles = {
         'Q2':'$Q^{2}$',
@@ -309,27 +360,44 @@ if __name__=="__main__":
     }
     ytitle = '$D_{LL\'}^{\Lambda}$'
 
-    def apply_get_plots(out_file_list,get_plots,base_dir='',xlimss={},ylims=[0.0,1.0],titles={},xtitles={},ytitle='',verbose=True)
-        for config, file_list in out_file_list:
-            print("DEBUGGING: config = ",config)#DEBUGGING
-            print("DEBUGGING: file_list = ",file_list)#DEBUGGING
-            # arrs = get_arrs(file_list)
-            # outpath = get_out_path(base_dir,**config)
-            # get_plots(
-            #     **arrs,
-            #     xlims   = xlimss[var],
-            #     ylims   = ylimss[var],
-            #     title   = titles[config['fitvar']],
-            #     xtitle  = xtitles[var],
-            #     ytitle  = ytitle,
-            #     sgasym  = config['sgasym'],
-            #     bgasym  = config['bgasym'],
-            #     outpath = outpath,
-            #     verbose = verbose
-            # )
+    def get_outpath(base_dir,aggregate_keys,**config):
+
+        job_config_name  = 'aggregate_'+'_'.join([str(key) for key in aggregate_keys])+'__'
+        job_config_name += "__".join(["_".join([key,str(config[key]) if type(config[key]) is not list else "_".join([str(el) for el in config[key]]) ]) for key in config])
+        job_config_name += '.pdf'
+        outpath = os.path.abspath(os.path.join(base_dir,job_config_name))
+
+        return outpath
+
+    def apply_get_plots(out_file_list,get_outpath,get_plots,base_dir='',xlimss={},ylims=[0.0,1.0],titles={},xtitles={},ytitle='',verbose=True,aggregate_keys={},colors={}): 
+        for el in out_file_list:
+            config = el["data_list"]
+            file_list = el["file_list"]
+            print("DEBUGGING: config = ",el["data_list"])#DEBUGGING
+            print("DEBUGGING: file_list = ",el["file_list"])#DEBUGGING
+            arrs = get_arrs(file_list)
+            outpath = get_outpath(base_dir,aggregate_keys,**config)
+            print("DEBUGGING: outpath = ",outpath)
+            binvar = config['binvar'] #NOTE: VARIABLE IN WHICH THE BINNING IS DONE
+            fitvar = config['fitvar'] #NOTE: VARIABLE FOR COS THETA
+            print("DEBUGGING: binvar = ",binvar)
+            print("DEBUGGING: ylimss = ",ylimss)
+            get_plots(
+                **arrs,
+                xlims   = xlimss[binvar],
+                ylims   = ylimss,
+                title   = titles[fitvar],
+                xtitle  = xtitles[binvar],
+                ytitle  = ytitle,
+                sgasym  = config['sgasym'] if 'sgasym' in config.keys() else 0.00,
+                bgasym  = config['bgasym'] if 'bgasym' in config.keys() else 0.00,
+                color   = colors[fitvar],
+                outpath = outpath,
+                verbose = verbose
+            )
         return
 
-    apply_get_plots(out_file_list,get_plots,base_dir=base_dir,xlimss=xlimss,ylims=ylims,title=title,xtitles=xtitles,ytitle=ytitle,verbose=True)
+    apply_get_plots(out_file_list,get_outpath,get_plots,base_dir=base_dir,xlimss=xlimss,ylims=ylims,titles=titles,xtitles=xtitles,ytitle=ytitle,verbose=True,aggregate_keys=aggregate_keys,colors=colors)
 
 
 
