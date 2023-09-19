@@ -168,7 +168,10 @@ def get_arrs(out_file_list):
             }
 
     # Convert to numpy
-    glist = np.array(glist)
+    glist  = np.array(glist)
+    print("DEBUGGING: gshape = ",np.shape(glist))#DEBUGGING
+    glist  = np.swapaxes(glist,0,1)
+    print("DEBUGGING: gshape new = ",np.shape(glist))
 
     # Get arrays
     x_mean    = np.mean(glist[0],axis=0) #NOTE: Get mean across different graphs (axis=0) but not across bins (axis=1)
