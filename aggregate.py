@@ -301,7 +301,7 @@ if __name__=="__main__":
                         xvar_max=1.000,
                         sgasym=0.10,
                         bgasym=0.00,
-                        use_mc=false,
+                        use_mc=False,
                         **kwargs
                         ):
                     
