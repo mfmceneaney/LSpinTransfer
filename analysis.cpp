@@ -133,6 +133,12 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "use_bgfraction: " << use_bgfraction << std::endl;
 
+    int seed = 2;
+    if (node["inject_seed"]) {
+        seed = node["inject_seed"].as<int>();
+    }
+    std::cout << "inject_seed: " << inject_seed << std::endl;
+
     bool inject_asym = false;
     if (node["inject_asym"]) {
         inject_asym = node["inject_asym"].as<bool>();
@@ -219,7 +225,6 @@ void analysis(const YAML::Node& node) {
     ROOT::EnableImplicitMT(nthreads);
 
     // Create random number generator for MC asymmetry injection
-    int seed = 2;
     TRandom *gRandom = new TRandom(seed); //NOTE: IMPORTANT: Need `new` here to get a pointer.
 
     // Numerical constants
