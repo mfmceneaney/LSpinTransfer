@@ -291,17 +291,29 @@ void analysis(const YAML::Node& node) {
                     .Define(depolarization_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y_mc"}) //NOTE: CHANGED y->y_mc, JUST FOR SANITY CHECKING.  //NOTE: CHANGE y->y_mc FOR SANITY CHECKING MC ASYMMETRY INJECTION
                     .Define(depol_name_mc.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
+                    .Define("XS", [&alpha,&bgasym,&sgasym,&beam_polarization,&dtheta_p_max,&dtheta_pim_max]
+                        (float Dy, float costheta, float pid_parent_p_mc, float row_parent_p_mc, float row_parent_pim_mc, float dtheta_p, float dtheta_pim) {
+                            return (float)((pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max) ? 0.5*(1.0 + alpha*Dy*beam_polarization*sgasym*costheta) : 0.5*(1.0 + alpha*Dy*beam_polarization*bgasym*costheta)); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.                  
+                        },
+                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"pid_parent_p_mc","row_parent_p_mc","row_parent_pim_mc","dtheta_p","dtheta_pim"})
+                    .Define(helicity_name.c_str(), [](float my_rand_var, float XS) {
+                        return (float)(my_rand_var<XS ? 1.0 : -1.0);
+                    },
+                    {"my_rand_var","XS"});
+                    /* NOTE: OLD
                     .Define(helicity_name.c_str(), [&alpha,&bgasym,&sgasym,&beam_polarization,&dtheta_p_max,&dtheta_pim_max,&dphi_p_max,&dphi_pim_max]
                         (float Dy, float costheta, float my_rand_var, float pid_parent_p_mc, float row_parent_p_mc, float row_parent_pim_mc, float dtheta_p, float dtheta_pim, float dphi_p, float dphi_pim) {
                         return (float)(my_rand_var<(
-                            (dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max /*&& dphi_p<dphi_p_max && dphi_pim<dphi_pim_max*/) 
+                            (dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max && dphi_p<dphi_p_max && dphi_pim<dphi_pim_max) 
                             ? ((pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc)
                             ? 0.5*(1.0 + alpha*Dy*beam_polarization*sgasym*costheta) : 0.5*(1.0 + alpha*Dy*beam_polarization*bgasym*costheta)) : 0.5) //NOTE: COULD INJECT ASYM HERE FOR BG -> THEN NEED BGASYM AND SGASYM AS ARGS FOR THESE FUNCS.
                             ? 1.0 : -1.0); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
                         },
                         {depol_name_mc.c_str(),fitvar_mc.c_str(),"my_rand_var","pid_parent_p_mc","row_parent_p_mc","row_parent_pim_mc","dtheta_p","dtheta_pim","dphi_p","dphi_pim"}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+                    */
 
     double my_testvar  = (double)*frame.Mean("my_rand_var");
+    double my_testvar1 = (double)*frame.Mean("XS");
     double my_testvar2 = (double)*frame.Mean(helicity_name.c_str());
 
     // Create output log
