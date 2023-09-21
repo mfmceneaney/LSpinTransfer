@@ -297,7 +297,7 @@ void analysis(const YAML::Node& node) {
                         return (float)(0.5*(1.0 + alpha*Dy*beam_polarization*sgasym*costheta)); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
                         },
                         {depol_name_mc.c_str(),fitvar_mc.c_str()})
-                    .Define(fivar_new.c_str(), [](float XS, float fitvar) { return (float)fitvar*XS; }, {"XS", fitvar.c_str()})
+                    .Define(fitvar_new.c_str(), [](float XS, float fitvar) { return (float)fitvar*XS; }, {"XS", fitvar.c_str()})
                     .Define(helicity_name.c_str(), [](float my_rand_var, float XS) {
                         return (float)(my_rand_var<0.5 ? 1.0 : -1.0); //NOTE: ASSIGN RANDOM HELICITIES
                     },
