@@ -299,9 +299,12 @@ void analysis(const YAML::Node& node) {
                         {depol_name_mc.c_str(),fitvar_mc.c_str(),"my_rand_var","pid_parent_p_mc","row_parent_p_mc","row_parent_pim_mc","dtheta_p","dtheta_pim","dphi_p","dphi_pim"}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
                     */
 
-    double my_testvar  = (double)*frame.Mean("my_rand_var");
-    double my_testvar1 = (double)*frame.Mean("XS");
-    double my_testvar2 = (double)*frame.Mean(helicity_name.c_str());
+    if (inject_asym) {
+        double my_testvar  = (double)*frame.Mean("my_rand_var");
+        double my_testvar1 = (double)*frame.Mean("XS");
+        double my_testvar2 = (double)*frame.Mean(helicity_name.c_str());
+    }
+    
 
     // Create output log
     std::ofstream outf; outf.open(logpath.c_str());
