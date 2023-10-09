@@ -111,6 +111,7 @@ def offset_graph_x(g, offset):
     for idx in range(npoints):
         g[0][idx] += offset
 
+"""
 def convert_graph_to_csv(
     filename,
     x,
@@ -129,6 +130,73 @@ def convert_graph_to_csv(
         if yerr is not None: data_i.append(yerr[i])
 
     np.savetxt(filename, data, headers=headers, fmt=fmt)
+"""
+
+import numpy as np
+
+def convert_graph_to_csv(
+    filename,
+    x,
+    y,
+    xerr=None,
+    yerr=None,
+    mins=None,
+    maxs=None,
+    delimiter=",",
+    header=None,
+    fmt=None,
+    comments=None
+    ):
+
+    """
+    if __name__=="__main__":
+        filename  = "test.txt"
+        x         = [1.0, 2.0, 3.0, 4.0, 5.0]
+        xerr      = [0.0, 0.0, 0.0, 0.0, 0.0]
+        y         = [0.1, 0.2, 0.3, 0.4, 0.5]
+        yerr      = [0.1, 0.1, 0.1, 0.1, 0.1]
+        mins      = [-0.1, -0.1, -0.1, -0.1, -0.1]
+        maxs      = [0.1, 0.1, 0.1, 0.1, 0.1]
+        delimiter = ","
+        header    = delimiter.join(["bin","x","y","xerr","yerr"])
+        fmt       = ["%d","%10.3f","%10.3f","%10.3f","%10.3f","%10.3f","%10.3f"]
+        comments  = ""
+
+        convert_graph_to_csv(
+            filename,
+            x,
+            y,
+            xerr=xerr,
+            yerr=yerr,
+            mins=mins,
+            maxs=maxs,
+            delimiter=delimiter,
+            header=header,
+            fmt=fmt,
+            comments=comments
+            )
+    """
+
+    data = []
+    for i, el in enumerate(x):
+        data.append([i, x[i], y[i], xerr[i], yerr[i], mins[i], maxs[i]])
+
+    data = np.array(data)
+
+    header = "REPLACEMENT_HEADER"+header
+
+    np.savetxt(filename, data, header=header, delimiter=delimiter, fmt=fmt)
+
+    # Read in the file
+    with open(filename, 'r') as file:
+        filedata = file.read()
+
+    # Replace the target string
+    filedata = filedata.replace('# REPLACEMENT_HEADER', '')
+
+    # Write the file out again
+    with open(filename, 'w') as file:
+        file.write(filedata)
 
 def get_data_from_tgrapherror(
     path = 'HB_costheta1_Q2_1.000_10.000_sgasym_0.00_bgasym_0.00.root',
@@ -254,6 +322,26 @@ def get_plots(
     plt.legend(loc='best')
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
+
+    # Save plot data to csv
+    delimiter = ","
+    header    = delimiter.join(["bin","x","y","xerr","yerr","ymin","ymax"])
+    fmt       = ["%d","%10.3f","%10.3f","%10.3f","%10.3f","%10.3f","%10.3f"]
+    comments  = ""
+
+    convert_graph_to_csv(
+        outpath+'.csv',
+        x_mean,
+        y_mean,
+        xerr=xerr_mean,
+        yerr=yerr_mean,
+        mins=y_min,
+        maxs=y_max,
+        delimiter=delimiter,
+        header=header,
+        fmt=fmt,
+        comments=comments
+        )
 
 #---------- MAIN ----------#
 if __name__=="__main__":
