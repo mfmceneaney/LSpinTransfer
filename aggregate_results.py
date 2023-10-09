@@ -81,7 +81,7 @@ def get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_
             data_list_i_xvar['binvar'] = xvar
             data_list_i_xvar[xvar] = var_lims[xvar]
 
-            output_dict = {"data_list":data_list_i_xvar, "file_list":[]}
+            output_dict = {"data_list":data_list_i_xvar, "file_list":[],"dir_list":[]}
 
             # Case that aggregate keys is length 0
             if len(aggregate_keys)==0:
@@ -94,6 +94,7 @@ def get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_
                 print("DEBUGGING: job_dir = ",job_dir)#DEBGGING
                 print("DEBUGGING: out_file_name = ",out_file_name)#DEBGGING
                 output_dict["file_list"].append(out_file_name)
+                output_dict["dir_list"].append(job_dir)
                 
             # Loop aggregate keys and build file list for current binning
             for key in aggregate_keys:
@@ -112,6 +113,7 @@ def get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_
                     print("DEBUGGING: out_file_name = ",out_file_name)#DEBGGING
 
                     output_dict["file_list"].append(out_file_name)
+                    output_dict["dir_list"].append(job_dir)
 
             # Now add output_dict to your overall file list
             out_file_list.append(output_dict)
@@ -152,12 +154,12 @@ def convert_graph_to_csv(
     y,
     xerr=None,
     yerr=None,
-    mins=None,
-    maxs=None,
+    xerr_syst=None,
+    yerr_syst=None,
     delimiter=",",
     header=None,
     fmt=None,
-    comments=None
+    comments='',
     ):
 
     """
@@ -190,8 +192,10 @@ def convert_graph_to_csv(
     """
 
     data = []
+    if xerr_syst is None or len(xerr_syst)==0: xerr_syst = [0.0 for el in x]
+    if yerr_syst is None or len(yerr_syst)==0: yerr_syst = [0.0 for el in x]
     for i, el in enumerate(x):
-        data.append([i, x[i], y[i], xerr[i], yerr[i]]) #, mins[i], maxs[i]])
+        data.append([i, x[i], y[i], xerr[i], yerr[i], xerr_syst[i], yerr_syst[i]])
 
     data = np.array(data)
 
@@ -278,8 +282,10 @@ def get_plots(
     y_mean = [],
     xerr_mean = [],
     yerr_mean = [],
-    y_min = [],
-    y_max = [],
+    xerr_syst = [],
+    yerr_syst = [],
+    y_min  = [],
+    y_max  = [],
     xlims = [0.0,1.0],
     ylims = [0.0,1.0],
     title = 'Injection Results',
@@ -290,7 +296,8 @@ def get_plots(
     color  = 'blue', #NOTE: COLOR OF DATA POINTS
     bcolor = 'gray', #NOTE:
     outpath = 'out.pdf',
-    verbose = True
+    verbose = True,
+    yaml_args = {},
     ):
 
     # Set font sizes
@@ -317,6 +324,10 @@ def get_plots(
     gridlinewidth=0.5
     axlinewidth=1
 
+    xbins = yaml_args['binvars'][xvar]['bins']
+    xerr_syst = [0.00 for x in range(len(xbins)-1)]
+    yerr_syst = [0.05 for x in range(len(xbins)-1)] #NOTE: ADD IF STATMENT HERE #TODO #DEBUGGING !!!!!!!!!!!!!!!!!
+
     # Plot 
     figsize = (16,10)
     f1, ax1 = plt.subplots(figsize=figsize)
@@ -325,6 +336,7 @@ def get_plots(
     plt.title(title,usetex=True)
     plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
+    s1 = plt.hist([1 for i in range(len(systematics))], weights=np.multiply(yerr_syst,g1[1]), bins=xbins, color='gray', alpha=0.5, label='Systematic Error')
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
@@ -340,8 +352,8 @@ def get_plots(
 
     # Save plot data to csv
     delimiter = ","
-    header    = delimiter.join(["bin","x","y","xerr","yerr"]) #,"ymin","ymax"])
-    fmt       = ["%d","%10.3f","%10.3f","%10.3f","%10.3f"] #,"%10.3f","%10.3f"]
+    header    = delimiter.join(["bin","x","y","xerr","yerr","xerr_syst","yerr_syst"])
+    fmt       = ["%d","%10.3f","%10.3f","%10.3f","%10.3f","%10.3f","%10.3f"]
     comments  = ""
 
     convert_graph_to_csv(
@@ -350,8 +362,8 @@ def get_plots(
         y_mean,
         xerr=xerr_mean,
         yerr=yerr_mean,
-        mins=None, #y_min,
-        maxs=None, #y_max,
+        xerr_syst=xerr_syst,
+        yerr_syst=yerr_syst,
         delimiter=delimiter,
         header=header,
         fmt=fmt,
@@ -378,6 +390,7 @@ if __name__=="__main__":
     submit_path = base_dir+"submit.sh"
     yaml_path   = base_dir+"args.yaml"
     out_path    = base_dir+"jobs.txt"
+    input_yaml  = "args.yaml"
     divisions = dict(
         methods,
         **fitvars,
@@ -477,14 +490,19 @@ if __name__=="__main__":
         outpath = os.path.abspath(os.path.join(base_dir,job_config_name))
 
         return outpath
-
-    def apply_get_plots(out_file_list,get_outpath,get_plots,base_dir='',xlimss={},ylims=[0.0,1.0],titles={},xtitles={},ytitle='',verbose=True,aggregate_keys={},colors={}): 
+    
+    def apply_get_plots(out_file_list,get_outpath,get_plots,base_dir='',xlimss={},ylims=[0.0,1.0],titles={},xtitles={},ytitle='',verbose=True,aggregate_keys={},colors={},input_yaml=input_yaml,systematics_function=None): 
         for el in out_file_list:
             config = el["data_list"]
             file_list = el["file_list"]
+            job_dir   = el["dir_list"][0] #NOTE: JUST USE FIRST ENTRY EVEN IF AGGREGATING, SHOULDN'T BE AGGREGATING FOR DATA ANYWAY THOUGH.
+            yaml_path = os.path.abspath(os.path.join(job_dir,yaml_name)) #NOTE: THIS ASSUMES BINNING SAME FOR BOTH CT1/CT2
+            yaml_args = {}
+            with open(yaml_path) as f:
+                yaml_args = yaml.safe_load(f)
             print("DEBUGGING: config = ",el["data_list"])#DEBUGGING
             print("DEBUGGING: file_list = ",el["file_list"])#DEBUGGING
-            arrs = get_arrs(file_list)
+            arrs = get_arrs(file_list,systematics_function=systematics_function)
             outpath = get_outpath(base_dir,aggregate_keys,**config)
             print("DEBUGGING: outpath = ",outpath)
             binvar = config['binvar'] #NOTE: VARIABLE IN WHICH THE BINNING IS DONE
@@ -502,7 +520,8 @@ if __name__=="__main__":
                 bgasym  = config['bgasym'] if 'bgasym' in config.keys() else 0.00,
                 color   = colors[fitvar],
                 outpath = outpath,
-                verbose = verbose
+                verbose = verbose,
+                yaml_args = yaml_args,
             )
         return
 
