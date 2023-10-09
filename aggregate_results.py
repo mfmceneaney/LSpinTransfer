@@ -496,7 +496,7 @@ if __name__=="__main__":
             config = el["data_list"]
             file_list = el["file_list"]
             job_dir   = el["dir_list"][0] #NOTE: JUST USE FIRST ENTRY EVEN IF AGGREGATING, SHOULDN'T BE AGGREGATING FOR DATA ANYWAY THOUGH.
-            yaml_path = os.path.abspath(os.path.join(job_dir,yaml_name)) #NOTE: THIS ASSUMES BINNING SAME FOR BOTH CT1/CT2
+            yaml_path = os.path.abspath(os.path.join(job_dir,input_yaml)) #NOTE: THIS ASSUMES BINNING SAME FOR BOTH CT1/CT2
             yaml_args = {}
             with open(yaml_path) as f:
                 yaml_args = yaml.safe_load(f)
