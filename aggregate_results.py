@@ -327,7 +327,10 @@ def get_plots(
 
     xbins = yaml_args['binvars'][xvar]['bins']
     xerr_syst = [0.00 for x in range(len(xbins)-1)]
-    yerr_syst = [0.05 for x in range(len(xbins)-1)] #NOTE: ADD IF STATMENT HERE #TODO #DEBUGGING !!!!!!!!!!!!!!!!!
+    yerr_syst = [0.1 for x in range(len(xbins)-1)] #NOTE: ADD IF STATMENT HERE #TODO #DEBUGGING !!!!!!!!!!!!!!!!!
+    print("DEBUGGING: xvar = ",xvar)
+    print("DEBUGGING: xbins = ",xbins)
+    # yerr_syst = np.multiply(yerr_syst,y_mean)
 
     # Plot 
     figsize = (16,10)
@@ -337,7 +340,9 @@ def get_plots(
     plt.title(title,usetex=True)
     plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
-    s1 = plt.hist([1 for i in range(len(yerr_syst))], weights=np.multiply(yerr_syst,y_mean), bins=xbins, color='gray', alpha=0.5, label='Systematic Error')
+
+    #TODO: DEBUGGING MESSAGE FOR BINS SEE IF SOMETHING GETS MESSED UP THERE AND MAKE SURE YOU ARE SETTING CORRECTLY...
+    s1 = plt.hist([1 for i in range(len(yerr_syst))], weights=yerr_syst, bins=xbins, color='gray', alpha=0.5, label='Systematic Error')
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
