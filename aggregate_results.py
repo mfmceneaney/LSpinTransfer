@@ -502,7 +502,9 @@ if __name__=="__main__":
                 yaml_args = yaml.safe_load(f)
             print("DEBUGGING: config = ",el["data_list"])#DEBUGGING
             print("DEBUGGING: file_list = ",el["file_list"])#DEBUGGING
-            arrs = get_arrs(file_list,systematics_function=systematics_function)
+            arrs = get_arrs(file_list)
+            xerr_syst = []#DEBUGGING: JUST SET TO DEFAULT ARGS FOR NOW
+            yerr_syst = []#DEBUGGING: JUST SET TO DEFAULT ARGS FOR NOW
             outpath = get_outpath(base_dir,aggregate_keys,**config)
             print("DEBUGGING: outpath = ",outpath)
             binvar = config['binvar'] #NOTE: VARIABLE IN WHICH THE BINNING IS DONE
@@ -511,6 +513,8 @@ if __name__=="__main__":
             print("DEBUGGING: ylimss = ",ylimss)
             get_plots(
                 **arrs,
+                xerr_syst = xerr_syst,
+                yerr_syst = yerr_syst,
                 xlims   = xlimss[binvar],
                 ylims   = ylimss,
                 title   = titles[fitvar],
