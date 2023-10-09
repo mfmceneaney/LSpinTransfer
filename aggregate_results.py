@@ -337,7 +337,7 @@ def get_plots(
     plt.title(title,usetex=True)
     plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
-    s1 = plt.hist([1 for i in range(len(yerr_syst))], weights=np.multiply(yerr_syst,g1[1]), bins=xbins, color='gray', alpha=0.5, label='Systematic Error')
+    s1 = plt.hist([1 for i in range(len(yerr_syst))], weights=np.multiply(yerr_syst,y_mean), bins=xbins, color='gray', alpha=0.5, label='Systematic Error')
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
