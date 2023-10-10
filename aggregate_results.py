@@ -412,7 +412,7 @@ if __name__=="__main__":
     verbose = True
     asym_str = 'sgasym_0.00_bgasym_0.00'
     method = 'HB'
-    ylims = (-0.5,0.5)
+    ylims = (-0.2,0.3)
 
     def get_out_file_name(method='method',
                         fitvar='fitvar',
