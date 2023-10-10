@@ -131,9 +131,6 @@ def convert_graph_to_csv(
 
     np.savetxt(filename, data, headers=headers, fmt=fmt)
 """
-
-import numpy as np
-
 def convert_graph_to_csv(
     filename,
     x,
