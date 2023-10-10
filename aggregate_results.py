@@ -327,10 +327,8 @@ def get_plots(
 
     xbins = yaml_args['binvars'][xvar]['bins']
     xerr_syst = [0.00 for x in range(len(xbins)-1)]
-    yerr_syst = [0.1 for x in range(len(xbins)-1)] #NOTE: ADD IF STATMENT HERE #TODO #DEBUGGING !!!!!!!!!!!!!!!!!
-    print("DEBUGGING: xvar = ",xvar)
-    print("DEBUGGING: xbins = ",xbins)
-    # yerr_syst = np.multiply(yerr_syst,y_mean)
+    yerr_syst = [0.1  for x in range(len(xbins)-1)] #NOTE: ADD IF STATMENT HERE #TODO #DEBUGGING !!!!!!!!!!!!!!!!!
+    yerr_syst = np.multiply(yerr_syst,y_mean)
 
     # Plot 
     figsize = (16,10)
