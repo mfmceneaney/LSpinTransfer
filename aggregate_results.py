@@ -357,7 +357,7 @@ def get_plots(
     # Save plot data to csv
     delimiter = ","
     header    = delimiter.join(["bin","x","y","xerr","yerr","xerrsyst","yerrsyst"]) #NOTE: CAN'T HAVE UNDERSCORE IN COLUMN NAMES FOR LATEX CSVSIMPLE
-    fmt       = ["%d","%10.3f","%10.3f","%10.3f","%10.3f","%10.3f","%10.3f"]
+    fmt       = ["%d","%.3g","%.3g","%.3g","%.3g","%.3g","%.3g"]
     comments  = ""
 
     convert_graph_to_csv(
