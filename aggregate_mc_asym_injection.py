@@ -576,7 +576,7 @@ if __name__=="__main__":
         delimiter = ","
         new_xtitles = [re.sub('[0-9]{1}','',re.sub('_','',el)) for el in xtitles.keys()]
         header    = delimiter.join(["sgasym",*new_xtitles])
-        fmt       = ["%.3g",*["%.3g" for i in range(len(xtitles))]]
+        fmt       = ["%.3f",*["%.3g" for i in range(len(xtitles))]]
         config_keys = ['method','binvar','bgasym']
         save_tables(
             tables,base_dir,header,delimiter,fmt
