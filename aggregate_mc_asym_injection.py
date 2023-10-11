@@ -549,10 +549,11 @@ if __name__=="__main__":
 
                 # Write to CSV
                 data = np.array(table)
-                _header = "REPLACEMENT_HEADER"+_header
+                new_header = "REPLACEMENT_HEADER"+_header #NOTE: DO NO NAME THIS _header!
+                print("DEBUGGING: header = ",_header)
                 print("DEBUGGING: np.shape(data) = ",np.shape(data))
                 print("DEBUGGING: np.shape(fmt)  = ",np.shape(_fmt))
-                np.savetxt(_filename, data, header=_header, delimiter=_delimiter, fmt=_fmt)
+                np.savetxt(_filename, data, header=new_header, delimiter=_delimiter, fmt=_fmt)
 
                 # Read in the file
                 with open(_filename, 'r') as file:
