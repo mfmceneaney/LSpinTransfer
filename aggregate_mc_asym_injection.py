@@ -12,6 +12,7 @@ import os
 import shutil
 import yaml
 import sys
+import re
 
 def get_list(divisions,aggregate_keys=[]):
 
@@ -570,7 +571,8 @@ if __name__=="__main__":
 
         # Save aggregated data to csv
         delimiter = ","
-        header    = delimiter.join(["sgasym",*xtitles.keys()])
+        new_xtitles = [re.sub('[0-9]{1}','',re.sub('_','',el)) for el in xtitles.keys()]
+        header    = delimiter.join(["sgasym",*new_xtitles])
         fmt       = ["%.3g",*["%.3g" for i in range(len(xtitles))]]
         config_keys = ['method','binvar','bgasym']
         save_tables(
