@@ -529,7 +529,7 @@ if __name__=="__main__":
 
         #TODO: PREPROCESSOR: GET STRUCTURE OF DICTIONARY TO MODIFY
         # Save aggregated data to csv
-        def save_tables(_tables,_base_dir,_header,_delimiter,_fmt,_config_keys=['method','binvar','bgasym']):
+        def save_tables(_tables,_base_dir,_header,_delimiter,_fmt):
             #NOTE: STRUCTURE OF TABLES IS [[config, table] for combos of values for config_keys]
 
             for config, table in _tables: # _config, table in _tables
@@ -573,7 +573,7 @@ if __name__=="__main__":
         fmt       = ["%.3g",*["%.3g" for i in range(len(xtitles))]]
         config_keys = ['method','binvar','bgasym']
         save_tables(
-            tables,base_dir,header,delimiter,fmt,config_keys=['method','fitvar','bgasym']
+            tables,base_dir,header,delimiter,fmt
         )
 
         return
