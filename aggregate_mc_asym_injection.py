@@ -506,7 +506,7 @@ if __name__=="__main__":
                 _config = {key:config[key] for key in _config_keys}
                 _config = "__".join(["_".join([key,str(_config[key])]) for key in _config])
                 if _config not in tables.keys():
-                    tables[_config] = np.zeroes(_table_shape)
+                    tables[_config] = np.zeros(_table_shape)
 
                 # Get coordinates and add to table
                 row = _row_map[config[row_key]]
