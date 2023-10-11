@@ -529,7 +529,7 @@ if __name__=="__main__":
 
         #TODO: PREPROCESSOR: GET STRUCTURE OF DICTIONARY TO MODIFY
         # Save aggregated data to csv
-        def save_tables(_tables,base_dir,header,delimiter,fmt,config_keys=['method','binvar','bgasym']):
+        def save_tables(_tables,_base_dir,_header,_delimiter,_fmt,_config_keys=['method','binvar','bgasym']):
             #NOTE: STRUCTURE OF TABLES IS [[config, table] for combos of values for config_keys]
 
             for config, table in _tables: # _config, table in _tables
@@ -541,28 +541,28 @@ if __name__=="__main__":
                 #         config[key] = _config[key]
 
                 # Set filename
-                filename = "aggregate_table___"
-                filename += config #"__".join(["_".join([key,str(config[key])]) for key in config])
-                filename += ".csv"
-                filename = os.path.join(base_dir,filename)
-                print("DEBUGGING: output csv filename -> ",filename)
+                _filename = "aggregate_table___"
+                _filename += config #"__".join(["_".join([key,str(config[key])]) for key in config])
+                _filename += ".csv"
+                _filename = os.path.join(_base_dir,_filename)
+                print("DEBUGGING: output csv filename -> ",_filename)
 
                 # Write to CSV
                 data = np.array(table)
-                header = "REPLACEMENT_HEADER"+header
+                _header = "REPLACEMENT_HEADER"+_header
                 print("DEBUGGING: np.shape(data) = ",np.shape(data))
-                print("DEBUGGING: np.shape(fmt)  = ",np.shape(fmt))
-                np.savetxt(filename, data, header=header, delimiter=delimiter, fmt=fmt)
+                print("DEBUGGING: np.shape(fmt)  = ",np.shape(_fmt))
+                np.savetxt(_filename, data, header=_header, delimiter=_delimiter, fmt=_fmt)
 
                 # Read in the file
-                with open(filename, 'r') as file:
+                with open(_filename, 'r') as file:
                     filedata = file.read()
 
                 # Replace the target string
                 filedata = filedata.replace('# REPLACEMENT_HEADER', '')
 
                 # Write the file out again
-                with open(filename, 'w') as file:
+                with open(_filename, 'w') as file:
                     file.write(filedata)
 
             return
