@@ -498,7 +498,8 @@ if __name__=="__main__":
                 config  = config, #NOTE: FOR ADDING ENTRIES TO KEEPER
             )
 
-        def get_tables(_keeper,_config_keys,_row_key,_col_key,_row_map,_col_map,_table_shape):
+        def get_tables(_keeper,_config_keys,_row_key,_col_key,_row_map,_col_map,_table_shape,row_header_key=''):
+            if row_header_key != '': _table_shape = (_table_shape[0],_table_shape[1]+1)
             tables = {}
             for config, chi2, systematic in _keeper:
 
@@ -512,6 +513,7 @@ if __name__=="__main__":
                 row = _row_map[config[row_key]]
                 col = _col_map[config[col_key]]
                 tables[_config][row][col] = chi2
+                tables[_config][row][0] = config[row_header_key]
                 
             # Convert to list and return
             tables = [[key,tables[key]] for key in tables]
@@ -522,7 +524,8 @@ if __name__=="__main__":
         col_map = {el:i for i, el in enumerate(xtitles.keys())}
         row_map = {el:i for i, el in enumerate(sgasyms['sgasym'])}
         table_shape = (len(sgasyms['sgasym']),len(xtitles.keys())) #NOTE: DIM = (NROWS,NCOLUMNS)
-        tables = get_tables(keeper,config_keys,row_key,col_key,row_map,col_map,table_shape)
+        row_header_key = 'sgasym'
+        tables = get_tables(keeper,config_keys,row_key,col_key,row_map,col_map,table_shape,row_header_key=row_header_key)
 
         #TODO: PREPROCESSOR: GET STRUCTURE OF DICTIONARY TO MODIFY
         # Save aggregated data to csv
@@ -547,6 +550,8 @@ if __name__=="__main__":
                 # Write to CSV
                 data = np.array(table)
                 header = "REPLACEMENT_HEADER"+header
+                print("DEBUGGING: np.shape(data) = ",np.shape(data))
+                print("DEBUGGING: np.shape(fmt)  = ",np.shape(fmt))
                 np.savetxt(filename, data, header=header, delimiter=delimiter, fmt=fmt)
 
                 # Read in the file
