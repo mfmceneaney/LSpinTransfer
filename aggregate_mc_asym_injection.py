@@ -324,9 +324,11 @@ def get_plots(
     # f1.savefig(outpath)
 
     #NOTE: ADDED BEGIN
+    y_mean_overall = np.mean(y_mean)
+    yerr_overall   = np.sqrt(np.mean(np.square(yerr_mean)))
     chi = np.sqrt(np.mean(np.square(np.add(y_mean,-sgasym))))
     systematic = chi/(sgasym if sgasym!=0 else 1.0)
-    keeper.append([config,chi,systematic])
+    keeper.append([config,[y_mean_overall,yerr_overall,chi,systematic]])
     #NOTE: ADDED END
 
     # Save plot data to csv
@@ -502,10 +504,10 @@ if __name__=="__main__":
         def get_tables(_keeper,_config_keys,_row_key,_col_key,_row_map,_col_map,_table_shape,row_header_key=''):
             offset = 0
             if row_header_key != '':
-                _table_shape = (_table_shape[0],_table_shape[1]+1)
+                _table_shape[1] += 1
                 offset = 1
             tables = {}
-            for config, chi, systematic in _keeper:
+            for config, item in _keeper:
 
                 # Check if table for config in tables
                 _config = {key:config[key] for key in _config_keys}
@@ -516,8 +518,8 @@ if __name__=="__main__":
                 # Get coordinates and add to table
                 row = _row_map[config[row_key]]
                 col = _col_map[config[col_key]]
-                tables[_config][row][col+offset] = chi #NOTE: +1 IS IMPORTANT
-                tables[_config][row][0] = config[row_header_key]
+                tables[_config][row][col+offset] = item #NOTE: +1 IS IMPORTANT
+                tables[_config][row][0][0] = config[row_header_key] #NOTE: THIS IS STILL A LIST SO ONLY SET FIRST ENTRY.
                 
             # Convert to list and return
             tables = [[key,tables[key]] for key in tables]
@@ -527,7 +529,8 @@ if __name__=="__main__":
         col_key, row_key  = ['binvar','sgasym']
         col_map = {el:i for i, el in enumerate(xtitles.keys())}
         row_map = {el:i for i, el in enumerate(sgasyms['sgasym'])}
-        table_shape = (len(sgasyms['sgasym']),len(xtitles.keys())) #NOTE: DIM = (NROWS,NCOLUMNS)
+        nitems = 4 # y, yerr, chi, systematic
+        table_shape = [len(sgasyms['sgasym']),len(xtitles.keys()),nitems] #NOTE: DIM = (NROWS,NCOLUMNS,NITEMS) #NOTE: ALSO THIS NEEDS TO BE A LIST NOT A TUPLE.
         row_header_key = 'sgasym'
         tables = get_tables(keeper,config_keys,row_key,col_key,row_map,col_map,table_shape,row_header_key=row_header_key)
 
@@ -545,14 +548,67 @@ if __name__=="__main__":
                 #         config[key] = _config[key]
 
                 # Set filename
-                _filename = "aggregate_table___"
+                _filename = "aggregate_table_chi___"
                 _filename += config #"__".join(["_".join([key,str(config[key])]) for key in config])
                 _filename += ".csv"
                 _filename = os.path.join(_base_dir,_filename)
                 print("DEBUGGING: output csv filename -> ",_filename)
 
                 # Write to CSV
-                data = np.array(table)
+                data = []
+                for _row in table:
+                    new_row = []
+                    for i, el in enumerate(_row):
+                        if i==0 and using_row_header: new_row.append(_row[i][0]) #NOTE: ONLY DO THIS IF using_row_header.
+                        else: new_row.append(_row[i][2]) #NOTE: ONLY 3RD ENTRY
+                    data.append(new_row)
+                data = np.array(data)
+                new_header = "REPLACEMENT_HEADER"+_header #NOTE: DO NOT NAME THIS _header!
+                print("DEBUGGING: header = ",_header)
+                print("DEBUGGING: np.shape(data) = ",np.shape(data))
+                print("DEBUGGING: np.shape(fmt)  = ",np.shape(_fmt))
+                np.savetxt(_filename, data, header=new_header, delimiter=_delimiter, fmt=_fmt)
+
+                # Read in the file
+                with open(_filename, 'r') as file:
+                    filedata = file.read()
+
+                # Replace the target string
+                filedata = filedata.replace('# REPLACEMENT_HEADER', '')
+
+                # Write the file out again
+                with open(_filename, 'w') as file:
+                    file.write(filedata)
+
+            return
+
+        def save_result_tables(_tables,_base_dir,_header,_delimiter,_fmt):
+            #NOTE: STRUCTURE OF TABLES IS [[config, table] for combos of values for config_keys]
+
+            for config, table in _tables: # _config, table in _tables
+
+                # # Form truncated config dictionary for naming
+                # config = {}
+                # for key in _config:
+                #     if key in config_keys:
+                #         config[key] = _config[key]
+
+                # Set filename
+                _filename = "aggregate_table_results___"
+                _filename += config #"__".join(["_".join([key,str(config[key])]) for key in config])
+                _filename += ".csv"
+                _filename = os.path.join(_base_dir,_filename)
+                print("DEBUGGING: output csv filename -> ",_filename)
+
+                # Write to CSV
+                data = []
+                for _row in table:
+                    new_row = []
+                    for i, el in enumerate(_row):
+                        if i==0 and using_row_header: new_row.append(_row[i][0]) #NOTE: ONLY DO THIS IF using_row_header.
+                        else: new_row.extend(_row[i][0:2]) #NOTE: ONLY FIRST TWO ENTRIES
+                    data.append(new_row)
+                data = np.array(data)
                 new_header = "REPLACEMENT_HEADER"+_header #NOTE: DO NO NAME THIS _header!
                 print("DEBUGGING: header = ",_header)
                 print("DEBUGGING: np.shape(data) = ",np.shape(data))
@@ -572,13 +628,23 @@ if __name__=="__main__":
 
             return
 
-        # Save aggregated data to csv
+        # Save aggregated chi to csv
         delimiter = ","
         new_xtitles = [re.sub('[0-9]{1}','',re.sub('_','',el)) for el in xtitles.keys()]
         header    = delimiter.join(["sgasym",*new_xtitles])
         fmt       = ["%.3f",*["%.3g" for i in range(len(xtitles))]]
         config_keys = ['method','binvar','bgasym']
         save_tables(
+            tables,base_dir,header,delimiter,fmt
+        )
+
+        # Save aggregated results and errors to csv
+        delimiter = ","
+        new_xtitles = [re.sub('[0-9]{1}','',re.sub('_','',el)) for el in xtitles.keys()]
+        header    = delimiter.join(["sgasym",*[*[el,el+'err'] for el in new_xtitles]]) #NOTE: HAVE TO ADD ERRORS COLUMN HEADERS HERE
+        fmt       = ["%.3f",*["%.3g" for i in range(len(xtitles))]]
+        config_keys = ['method','binvar','bgasym']
+        save_result_tables(
             tables,base_dir,header,delimiter,fmt
         )
 
