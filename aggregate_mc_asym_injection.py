@@ -641,11 +641,12 @@ if __name__=="__main__":
         # Save aggregated results and errors to csv
         delimiter = ","
         new_xtitles = [re.sub('[0-9]{1}','',re.sub('_','',el)) for el in xtitles.keys()]
-        header    = ["sgasym",*new_xtitles]
+        header = new_xtitles
         new_header = []
         for el in header:
             new_header.extend([el,el+'err'])
         header = new_header #NOTE: HAVE TO ADD ERRORS COLUMN HEADERS HERE
+        header    = ["sgasym",*new_xtitles]
         header = delimiter.join(header)
         fmt       = ["%.3f",*["%.3g" for i in range(2*len(xtitles))]]
         config_keys = ['method','binvar','bgasym']
