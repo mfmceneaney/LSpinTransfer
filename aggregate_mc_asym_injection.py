@@ -504,7 +504,7 @@ if __name__=="__main__":
 
                 # Check if table for config in tables
                 _config = {key:config[key] for key in _config_keys}
-                _config = "__".join(["_".join([key,str(_config[key]) for key in _config])])
+                _config = "__".join(["_".join([key,str(_config[key])]) for key in _config])
                 if _config not in tables.keys():
                     tables[_config] = np.zeroes(_table_shape)
 
