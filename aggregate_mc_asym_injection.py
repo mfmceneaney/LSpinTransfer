@@ -323,9 +323,9 @@ def get_plots(
     # f1.savefig(outpath)
 
     #NOTE: ADDED BEGIN
-    chi2 = np.mean(np.square(np.add(y_mean,-sgasym)))
-    systematic = np.sqrt(chi2)/(sgasym if sgasym!=0 else 1.0)
-    keeper.append([config,chi2,systematic])
+    chi = np.sqrt(np.mean(np.square(np.add(y_mean,-sgasym))))
+    systematic = chi/(sgasym if sgasym!=0 else 1.0)
+    keeper.append([config,chi,systematic])
     #NOTE: ADDED END
 
     # Save plot data to csv
@@ -501,7 +501,7 @@ if __name__=="__main__":
         def get_tables(_keeper,_config_keys,_row_key,_col_key,_row_map,_col_map,_table_shape,row_header_key=''):
             if row_header_key != '': _table_shape = (_table_shape[0],_table_shape[1]+1)
             tables = {}
-            for config, chi2, systematic in _keeper:
+            for config, chi, systematic in _keeper:
 
                 # Check if table for config in tables
                 _config = {key:config[key] for key in _config_keys}
@@ -512,7 +512,7 @@ if __name__=="__main__":
                 # Get coordinates and add to table
                 row = _row_map[config[row_key]]
                 col = _col_map[config[col_key]]
-                tables[_config][row][col] = chi2
+                tables[_config][row][col] = chi
                 tables[_config][row][0] = config[row_header_key]
                 
             # Convert to list and return
