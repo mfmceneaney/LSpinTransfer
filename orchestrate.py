@@ -56,7 +56,7 @@ def create_jobs(divisions,base_dir,submit_path,yaml_path):
         # Replace path to yaml with path to job yaml in submit script
         with open(submit_path_i, 'r') as submit_i:
             doc = submit_i.read()
-        doc = doc.replace(os.path.abspath(yaml_path),os.path.abspath(yaml_path_i)) #NOTE: YAML SHOULD SPECIFY THE OUTPUT DIRECTORY FOR THE JOB. COULD HAVE A DEFAULT JOB DIRECTORY TO REPLACE THOUGH...
+        doc = doc.replace(os.path.abspath(base_dir),os.path.abspath(job_dir)) #NOTE: YAML SHOULD SPECIFY THE OUTPUT DIRECTORY FOR THE JOB. COULD HAVE A DEFAULT JOB DIRECTORY TO REPLACE THOUGH...
         with open(submit_path_i, 'w') as submit_i:
             submit_i.write(doc)
 
