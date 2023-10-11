@@ -323,8 +323,8 @@ def get_plots(
     f1.savefig(outpath)
 
     #NOTE: ADDED BEGIN
-    chi2 = np.mean(np.square(np.add(y_mean,-injected_asym)))
-    systematic = np.sqrt(chi2)/(injected_asym if injected_asym!=0 else 1.0)
+    chi2 = np.mean(np.square(np.add(y_mean,-sgasym)))
+    systematic = np.sqrt(chi2)/(sgasym if sgasym!=0 else 1.0)
     keeper.append([config,chi2,systematic])
     #NOTE: ADDED END
 
