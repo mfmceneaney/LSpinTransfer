@@ -647,7 +647,7 @@ if __name__=="__main__":
             new_header.extend([el,el+'err'])
         header = new_header #NOTE: HAVE TO ADD ERRORS COLUMN HEADERS HERE
         header = delimiter.join(header)
-        fmt       = ["%.3f",*["%.3g" for i in range(len(xtitles))]]
+        fmt       = ["%.3f",*["%.3g" for i in range(2*len(xtitles))]]
         config_keys = ['method','binvar','bgasym']
         save_result_tables(
             tables,base_dir,header,delimiter,fmt,using_row_header=True
