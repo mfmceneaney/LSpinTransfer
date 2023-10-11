@@ -646,7 +646,7 @@ if __name__=="__main__":
         for el in header:
             new_header.extend([el,el+'err'])
         header = new_header #NOTE: HAVE TO ADD ERRORS COLUMN HEADERS HERE
-        header    = ["sgasym",*new_xtitles]
+        header    = ["sgasym",*header]
         header = delimiter.join(header)
         fmt       = ["%.3f",*["%.3g" for i in range(2*len(xtitles))]]
         config_keys = ['method','binvar','bgasym']
