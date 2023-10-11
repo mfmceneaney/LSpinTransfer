@@ -115,9 +115,9 @@ void GetBinMigration2D() {
     names.push_back("Q2"); titles.push_back("Q^{2}"); names_mc.push_back("Q2_mc"); titles_mc.push_back("Q^{2}_{MC}"); binlims.push_back(getBinLims(100,1.0,10.0));
     names.push_back("W"); titles.push_back("W"); names_mc.push_back("W_mc"); titles_mc.push_back("W_{MC}"); binlims.push_back(getBinLims(100,2.0,4.0));
     names.push_back("y"); titles.push_back("y"); names_mc.push_back("y_mc"); titles_mc.push_back("y_{MC}"); binlims.push_back(getBinLims(100,0.2,0.8));
-    names.push_back("x"); titles.push_back("x"); names_mc.push_back("x_mc"); titles_mc.push_back("x_{MC}"); binlims.push_back(getBinLims(100,0.05,1.0));
+    names.push_back("x"); titles.push_back("x"); names_mc.push_back("x_mc"); titles_mc.push_back("x_{MC}"); binlims.push_back(getBinLims(100,0.05,0.8)); //NOTE: LIMITS BASED ON CLAS12 ACCEPTANCE
     names.push_back("xF_ppim"); titles.push_back("x_{F p#pi^{-}}"); names_mc.push_back("xF_ppim_mc"); titles_mc.push_back("x_{F p#pi^{-} MC}"); binlims.push_back(getBinLims(100,0.0,1.0));
-    names.push_back("z_ppim"); titles.push_back("z_{p#pi^{-}}"); names_mc.push_back("z_ppim_mc"); titles_mc.push_back("z_{p#pi^{-} MC}"); binlims.push_back(getBinLims(110,0.1,1.1));
+    names.push_back("z_ppim"); titles.push_back("z_{p#pi^{-}}"); names_mc.push_back("z_ppim_mc"); titles_mc.push_back("z_{p#pi^{-} MC}"); binlims.push_back(getBinLims(100,0.1,1.1));
 
 
 
