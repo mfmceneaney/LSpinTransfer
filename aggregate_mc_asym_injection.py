@@ -536,7 +536,7 @@ if __name__=="__main__":
 
         #TODO: PREPROCESSOR: GET STRUCTURE OF DICTIONARY TO MODIFY
         # Save aggregated data to csv
-        def save_tables(_tables,_base_dir,_header,_delimiter,_fmt):
+        def save_tables(_tables,_base_dir,_header,_delimiter,_fmt, using_row_header=True):
             #NOTE: STRUCTURE OF TABLES IS [[config, table] for combos of values for config_keys]
 
             for config, table in _tables: # _config, table in _tables
@@ -582,7 +582,7 @@ if __name__=="__main__":
 
             return
 
-        def save_result_tables(_tables,_base_dir,_header,_delimiter,_fmt):
+        def save_result_tables(_tables,_base_dir,_header,_delimiter,_fmt,using_row_header=True):
             #NOTE: STRUCTURE OF TABLES IS [[config, table] for combos of values for config_keys]
 
             for config, table in _tables: # _config, table in _tables
@@ -635,7 +635,7 @@ if __name__=="__main__":
         fmt       = ["%.3f",*["%.3g" for i in range(len(xtitles))]]
         config_keys = ['method','binvar','bgasym']
         save_tables(
-            tables,base_dir,header,delimiter,fmt
+            tables,base_dir,header,delimiter,fmt,using_row_header=True
         )
 
         # Save aggregated results and errors to csv
@@ -649,7 +649,7 @@ if __name__=="__main__":
         fmt       = ["%.3f",*["%.3g" for i in range(len(xtitles))]]
         config_keys = ['method','binvar','bgasym']
         save_result_tables(
-            tables,base_dir,header,delimiter,fmt
+            tables,base_dir,header,delimiter,fmt,using_row_header=True
         )
 
         return
