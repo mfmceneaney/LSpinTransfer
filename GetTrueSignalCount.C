@@ -39,6 +39,7 @@ void getTrueSignalFractionsPlot(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJitted
 
     // Create canvas and draw multigraph
     TCanvas *c1 = new TCanvas("c_true_signal_fractions");
+    c1->SetBottomMargin(0.125);
     c1->cd();
     g->Draw(drawopt);
 

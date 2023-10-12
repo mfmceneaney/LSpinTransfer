@@ -47,6 +47,7 @@ void plot(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> d1,
 
   // Create histogram stack
   TCanvas *c1 = new TCanvas(Form("c_data_mc_%s",varName));
+  c1->SetBottomMargin(0.125);
   c1->cd();
   THStack *h_stack = new THStack();
   h_stack->SetName(Form("hs_data_mc_%s",varName));
@@ -95,6 +96,7 @@ void plot2d(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> d,
 
   // Draw histogram
   TCanvas *c1 = new TCanvas(Form("c_%s__%s_%s",extraname,varName1,varName2));
+  c1->SetBottomMargin(0.125);
   c1->cd();
   h->Draw("COLZ");
   c1->Write();

@@ -43,6 +43,7 @@ void getBinMigrationPlots(
 
     // Create canvas and draw histogram
     TCanvas *c1 = new TCanvas(Form("c2d_bin_migration_%s",varName.c_str()));
+    c1->SetBottomMargin(0.125);
     c1->cd();
     h2->Draw(drawopt);
 

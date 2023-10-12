@@ -53,6 +53,7 @@ void getTrueSignalFractionsPlotBinned(ROOT::RDF::RInterface<ROOT::Detail::RDF::R
 
     // Create canvas and draw
     TCanvas *c1 = new TCanvas("c2d_true_signal_fractions");
+    c1->SetBottomMargin(0.125);
     c1->cd();
     h2d->Draw(drawopt);
 
