@@ -112,13 +112,13 @@ void PlotComparisons() {
     timer.Start();
 
     // Parameters for DATA tree
-    const char *path1    = "/volatile/clas12/users/mfmce/data_jobs_rga_ppim_6_14_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
+    const char *path1    = "/volatile/clas12/users/mfmce/data_jobs_rga_ppim_FLAG_MIN_MATCH_AND_FRACTION_DELTAP_9_13_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
     const char *tree1    = "t";
     const char *cuts1    = "mass_ppim<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
     const char *drawopt  = "";//"PE1";
 
     // Parameters for MC tree
-    const char *path2    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_7_7_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
+    const char *path2    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_FLAG_MIN_MATCH_AND_FRACTION_DELTAP_9_13_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
     const char *tree2    = "t";
     const char *cuts2    = "mass_ppim<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
     // const char *drawopt  = "";//"PE1";
@@ -247,7 +247,7 @@ void PlotComparisons() {
     names.push_back("x"); nbins.push_back(100); binlims.push_back({0.0,1.0}); labels.push_back("x");
 
     names.push_back("mass_ppim"); nbins.push_back(100); binlims.push_back({1.08,1.24}); labels.push_back("M_{p#pi^{-}}");
-    names.push_back("z_ppim"); nbins.push_back(100); binlims.push_back({0.0,1.0}); labels.push_back("z_{p#pi^{-}}");
+    names.push_back("z_ppim"); nbins.push_back(100); binlims.push_back({0.0,1.25}); labels.push_back("z_{p#pi^{-}}");
     names.push_back("xF_ppim"); nbins.push_back(100); binlims.push_back({-1.0,1.0}); labels.push_back("x_{F p#pi^{-}}");
     names.push_back("costheta1"); nbins.push_back(100); binlims.push_back({-1.0,1.0}); labels.push_back("cos(#theta) along P_{#Lambda}");
     names.push_back("costheta2"); nbins.push_back(100); binlims.push_back({-1.0,1.0}); labels.push_back("cos(#theta) along P_{#gamma *}");
