@@ -1056,9 +1056,9 @@ void getKinBinnedGraphGausCBDiff(
 
             //Now do the same with a Gauss signal function
             std::string  massoutdir_gauss = Form("mass_fit_gauss_bin_%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
-            std::string  bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
+            // std::string  bin_title_gauss  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
             TArrayF* massFitData_gauss = LambdaMassFitGauss(
-                        massoutdir,
+                        massoutdir_gauss,
                         outroot,
                         bin_frame,
                         mass_name,
