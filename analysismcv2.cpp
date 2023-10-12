@@ -103,6 +103,7 @@ void analysis(const YAML::Node& node) {
                 // Set bin limits if just given nbins and outer limits
                 std::vector<double> vec = bins;
                 if (nbins>0 && bins.size()==2) {
+                    vec = {}; //NOTE: IMPORTANT!  RESET VEC IF INFERRING BINWIDTH.
                     double binwidth = (bins[1] - bins[0])/nbins;
                     for (int bin=0; bin<nbins+1; bin++) {
                         double binval = bins[0] + binwidth * bin;
