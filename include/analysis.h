@@ -1128,6 +1128,10 @@ void getKinBinnedGraphGausCBDiff(
         double stddev  = binData->GetAt(3);
         int    count   = binData->GetAt(4);
 
+        // Initiate gaussian data
+        double dll_gauss     = binData->GetAt(0);
+        double dll_gauss_err = binData->GetAt(1);
+
         // Sideband subtraction background correction
         if (epsilon==1.00) {out << " *** WARNING *** epsilon = 1 -> No BG correction made.\n";}
         else {
