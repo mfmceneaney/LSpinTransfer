@@ -140,9 +140,9 @@ void FindBinLims() {
     
     // Set list of variable names to search
     std::vector<std::string> names;
-    // names.push_back("Q2");
-    // names.push_back("W");
-    // names.push_back("y");
+    names.push_back("Q2");
+    names.push_back("W");
+    names.push_back("y");
     names.push_back("x");
     names.push_back("xF_ppim");
     names.push_back("z_ppim");
