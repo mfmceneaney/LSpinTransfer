@@ -89,6 +89,7 @@ TArrayF* getKinBinLF(
 
     // Draw and fit histogram
     TCanvas *c1 = new TCanvas();
+    c1->SetBottomMargin(0.125);
     c1->cd(0);
     histP->SetMinimum(0);
     histP->SetMaximum(2);
@@ -531,6 +532,7 @@ void getKinBinnedGraph(
 
     // Plot results graph
     TCanvas *c1 = new TCanvas();
+    c1->SetBottomMargin(0.125);
     c1->cd(0);
 
     // Stylistic choices that aren't really necessary
@@ -878,6 +880,7 @@ void getKinBinnedGraphMC(
 
     // Plot results graph
     TCanvas *c1 = new TCanvas();
+    c1->SetBottomMargin(0.125);
     c1->cd(0);
 
     // Stylistic choices that aren't really necessary
@@ -1264,6 +1267,7 @@ void getKinBinnedGraphGausCBDiff(
 
     // Plot results graph
     TCanvas *c1 = new TCanvas();
+    c1->SetBottomMargin(0.125);
     c1->cd(0);
 
     // Stylistic choices that aren't really necessary
@@ -1440,6 +1444,7 @@ void getKinBinnedMassFits(
 
     // Plot results graph
     TCanvas *c1 = new TCanvas();
+    c1->SetBottomMargin(0.125);
     c1->cd(0);
 
     // Stylistic choices that aren't really necessary
@@ -1639,6 +1644,7 @@ void getKinBinnedMassFitsMC(
 
     // Plot results graph
     TCanvas *c1 = new TCanvas();
+    c1->SetBottomMargin(0.125);
     c1->cd(0);
 
     // Stylistic choices that aren't really necessary
@@ -1838,6 +1844,7 @@ void getKinBinnedMassFitsMCFIXPARAMS(
 
     // Plot results graph
     TCanvas *c1 = new TCanvas();
+    c1->SetBottomMargin(0.125);
     c1->cd(0);
 
     // Stylistic choices that aren't really necessary

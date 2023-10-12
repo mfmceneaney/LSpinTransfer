@@ -348,6 +348,7 @@ TArrayF* LambdaMassFitGauss(
 
     // Create canvas
     TCanvas *c1 = new TCanvas("c1");
+    c1->SetBottomMargin(0.125);
 
     // Create histogram
     auto h1 = (TH1D) *frame.Histo1D({"h1",varName.c_str(),nbins,varMin,varMax},varName.c_str());
@@ -661,6 +662,7 @@ TArrayF* LambdaMassFitMC(
 
     // Create canvas
     TCanvas *c1 = new TCanvas("c1");
+    c1->SetBottomMargin(0.125);
 
     // Create histogram
     auto h1 = (TH1D) *frame.Filter(cuts.c_str()).Histo1D({"h1",varName.c_str(),nbins,varMin,varMax},varName.c_str());
@@ -1060,6 +1062,7 @@ TArrayF* LambdaMassFitMCFIXPARAMS(
 
     // Create canvas
     TCanvas *c1 = new TCanvas("c1");
+    c1->SetBottomMargin(0.125);
 
     // Create histogram
     auto h1 = (TH1D) *frame.Filter(cuts.c_str()).Histo1D({"h1",varName.c_str(),nbins,varMin,varMax},varName.c_str());
@@ -1491,6 +1494,7 @@ void LambdaMassFitMCDecomposition(
 
     // Canvases and Histograms
     TCanvas *c1 = new TCanvas("c1","c1",698*1.5,476*1.5); //NOTE: JUST SCALED DEFAULT SIZES.
+    c1->SetBottomMargin(0.125);
 
     // Create histogram
     auto h1 = (TH1D) *frame.Filter(cuts).Histo1D({"h1",varName.c_str(),nbins,varMin,varMax},varName.c_str());
