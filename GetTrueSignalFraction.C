@@ -107,8 +107,7 @@ void GetTrueSignalFraction() {
             ? TMath::Abs(phi_pim-phi_pim_mc) : 2*TMath::Pi() - TMath::Abs(phi_pim-phi_pim_mc));
             },{"phi_pim","phi_pim_mc"})
         .Filter(cuts)
-        .Filter(mccuts)
-        .Filter(sigcut);
+        .Filter(mccuts);
     
     // Open output file
     TFile *f = TFile::Open("h_true_signal_count.root","RECREATE");
