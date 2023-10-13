@@ -123,11 +123,11 @@ void GetTrueSignalCount() {
     double dtheta_p_max   = 6*TMath::Pi()/180;
     double dtheta_pim_max = 6*TMath::Pi()/180;
     std::string match_cut = Form("pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && abs(dtheta_p)<%.4f && abs(dtheta_pim)<%.4f",dtheta_p_max,dtheta_pim_max);
-
-    int    nsteps       = 50;
-    double bin_min      = 1.14;
-    double bin_max      = 1.18;
-    double bin_min_step = 0.0004;
+    std::string binvar    = "mass_ppim";
+    int    nsteps         = 75;
+    double bin_min        = 1.14;
+    double bin_max        = 1.18;
+    double bin_min_step   = 0.0004;
     for (int i=0; i<nsteps; i++) {
         bin_min   += bin_min_step;
         std::string bin_cut = Form("%s>%.4f && %s<%.4f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
