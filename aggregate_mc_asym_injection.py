@@ -326,7 +326,7 @@ def get_plots(
     #NOTE: ADDED BEGIN
     y_mean_overall = np.mean(y_mean)
     yerr_overall   = np.sqrt(np.mean(np.square(yerr_mean)))
-    chi = np.sqrt(np.mean(np.square(np.add(y_mean,-sgasym))))
+    chi = np.std(np.add(y_mean,-sgasym))
     systematic = chi/(sgasym if sgasym!=0 else 1.0)
     keeper.append([config,[y_mean_overall,yerr_overall,chi,systematic]])
     #NOTE: ADDED END
