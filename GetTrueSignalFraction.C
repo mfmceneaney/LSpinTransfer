@@ -58,7 +58,7 @@ void getTrueSignalFractionsPlot(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJitted
 
 } // void getTrueSignalFractionsPlot()
 
-void GetTrueSignalCount() {
+void GetTrueSignalFraction() {
 
     // Parameters for MC tree
     const char *path    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_FLAG_MIN_MATCH_AND_FRACTION_DELTAP_9_13_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
@@ -141,4 +141,4 @@ void GetTrueSignalCount() {
     // Close output file
     f->Close();
 
-} // GetTrueSignalCount()
+} // GetTrueSignalFraction()
