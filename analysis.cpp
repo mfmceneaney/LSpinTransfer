@@ -257,13 +257,13 @@ void analysis(const YAML::Node& node) {
 
     // Reset signal cuts if requested
     if (sg_min>0.0 && sg_max>0.0) {
-        sgcuts = Form("%s>%.8f && %s<%.8f",mass_name,sg_min,mass_name,sg_max);
+        sgcuts = Form("%s>%.8f && %s<%.8f",mass_name.c_str(),sg_min,mass_name.c_str(),sg_max);
         std::cout << "REASSIGNED: sgcuts: " << sgcuts << std::endl;
     }
 
     // Reset background cuts if requested
     if (u_sb_min>0.0 && u_sb_max>0.0 && l_sb_min>0.0 && l_sb_max>0.0) {
-        bgcuts = Form("(%s>%.8f && %s<%.8f) || (%s>%.8f && %s<%.8f)",mass_name,l_sb_min,mass_name,l_sb_max,mass_name,u_sb_min,mass_name,u_sb_max);
+        bgcuts = Form("(%s>%.8f && %s<%.8f) || (%s>%.8f && %s<%.8f)",mass_name.c_str(),l_sb_min,mass_name.c_str(),l_sb_max,mass_name.c_str(),u_sb_min,mass_name.c_str(),u_sb_max);
         std::cout << "REASSIGNED: bgcuts: " << bgcuts << std::endl;
     }
 
