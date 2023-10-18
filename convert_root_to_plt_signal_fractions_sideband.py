@@ -71,7 +71,7 @@ def get_plots(
     marker='o'
     linestyle=None
     linewidth=0.0
-    markersize=20
+    markersize=10
     gridlinewidth=0.5
     axlinewidth=1
 
@@ -100,14 +100,14 @@ def get_plots(
 if __name__=="__main__":
 
     verbose = True
-    ylims = (0.0,0.20)
+    ylims = (0.0,0.30)
 
     packages = [
         {
             'graph_name' : 'g_true_signal_fractions',
             'inpath1' : 'h_true_signal_count_UPPER.root',
             'xvar_name' : 'Upper Sideband Min $M_{p\pi^{-}}$ (GeV)',
-            'xlims' : (1.135,1.175),
+            'xlims' : (1.14,1.171),
             'ylims' : ylims,
             'verbose' : True,            
         },
@@ -115,7 +115,7 @@ if __name__=="__main__":
             'graph_name' : 'g_true_signal_fractions',
             'inpath1' : 'h_true_signal_count_LOWER.root',
             'xvar_name' : 'Lower Sideband Max $M_{p\pi^{-}}$ (GeV)',
-            'xlims' : (1.085,1.125),
+            'xlims' : (1.09,1.101),
             'ylims' : ylims,
             'verbose' : True,            
         },
