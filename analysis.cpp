@@ -218,6 +218,57 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "logpath: " << logpath << std::endl;
 
+    //NOTE: ADDED FOR TESTING 10/18/23
+    double u_sb_min = 0.0;
+    if (node["u_sb_min"]) {
+        u_sb_min = node["u_sb_min"].as<double>();
+    }
+    std::cout << "u_sb_min: " << u_sb_min << std::endl;
+
+    double u_sb_max = 0.0;
+    if (node["u_sb_max"]) {
+        u_sb_max = node["u_sb_max"].as<double>();
+    }
+    std::cout << "u_sb_max: " << u_sb_max << std::endl;
+
+    double l_sb_min = 0.0;
+    if (node["l_sb_min"]) {
+        l_sb_min = node["l_sb_min"].as<double>();
+    }
+    std::cout << "l_sb_min: " << l_sb_min << std::endl;
+
+    double l_sb_max = 0.0;
+    if (node["l_sb_max"]) {
+        l_sb_max = node["l_sb_max"].as<double>();
+    }
+    std::cout << "l_sb_max: " << l_sb_max << std::endl;
+
+    double sg_min = 0.0;
+    if (node["sg_min"]) {
+        sg_min = node["sg_min"].as<double>();
+    }
+    std::cout << "sg_min: " << sg_min << std::endl;
+
+    double sg_max = 0.0;
+    if (node["sg_max"]) {
+        sg_max = node["sg_max"].as<double>();
+    }
+    std::cout << "sg_max: " << sg_max << std::endl;
+
+    // Reset signal cuts if requested
+    if (sg_min>0.0 && sg_max>0.0) {
+        sgcuts = Form("%s>%.8f && %s<%.8f",mass_name,sg_min,mass_name,sg_max);
+        std::cout << "REASSIGNED: sgcuts: " << sgcuts << std::endl;
+    }
+
+    // Reset background cuts if requested
+    if (u_sb_min>0.0 && u_sb_max>0.0 && l_sb_min>0.0 && l_sb_max>0.0) {
+        bgcuts = Form("(%s>%.8f && %s<%.8f) || (%s>%.8f && %s<%.8f)",mass_name,l_sb_min,mass_name,l_sb_max,mass_name,u_sb_min,mass_name,u_sb_max);
+        std::cout << "REASSIGNED: bgcuts: " << bgcuts << std::endl;
+    }
+
+    //NOTE: END ADDED FOR TESTING 10/18/23
+
     //----------------------------------------------------------------------------------------------------//
     // ANALYSIS
     //----------------------------------------------------------------------------------------------------//
