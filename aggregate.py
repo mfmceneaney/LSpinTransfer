@@ -83,6 +83,19 @@ def get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_
 
             output_dict = {"data_list":data_list_i_xvar, "file_list":[]}
 
+            # Case that aggregate keys is length 0
+            if len(aggregate_keys)==0:
+                print("len(aggregate_keys) = ",0)
+                # Get job directory and output file name
+                job_dir = os.path.join(base_dir,"__".join(["_".join([key,str(data_list_i[key])]) for key in data_list_i]))
+                job_dir = os.path.abspath(job_dir) #NOTE: Since dictionary is not copied this should just edit the original entry in data_list.
+                out_file_name = get_out_file_name(use_mc=use_mc,xvar=xvar,xvar_min=xvar_min,xvar_max=xvar_max,**data_list_i)
+                out_file_name = os.path.join(job_dir,out_file_name)
+                print("DEBUGGING: job_dir = ",job_dir)#DEBGGING
+                print("DEBUGGING: out_file_name = ",out_file_name)#DEBGGING
+                output_dict["file_list"].append(out_file_name)
+                output_dict["dir_list"].append(job_dir)
+
             # Loop aggregate keys and build file list for current binning
             for key in aggregate_keys:
                 print(key,divisions[key])#DEBUGGING
