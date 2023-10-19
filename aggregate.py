@@ -465,8 +465,8 @@ if __name__=="__main__":
 
     def get_outpath(base_dir,aggregate_keys,**config):
 
-        job_config_name  = 'aggregate_'+'_'.join([str(key) for key in aggregate_keys])+'__'
-        job_config_name += "__".join(["_".join([key,str(config[key]) if type(config[key]) is not list else "_".join([str(el) for el in config[key]]) ]) for key in config])
+        job_config_name  = 'aggregate_'+'_'.join([str(key) for key in sorted(aggregate_keys)])+'__'
+        job_config_name += "__".join(["_".join([key,str(config[key]) if type(config[key]) is not list else "_".join([str(el) for el in config[key]]) ]) for key in sorted(config)])
         job_config_name += '.pdf'
         outpath = os.path.abspath(os.path.join(base_dir,job_config_name))
 
