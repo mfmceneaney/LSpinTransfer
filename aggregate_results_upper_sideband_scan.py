@@ -105,7 +105,7 @@ def get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_
                     data_list_i_val[key] = value
 
                     # Get job directory and output file name
-                    job_dir = os.path.join(base_dir,"__".join(["_".join([key,str(data_list_i_val[key])]) for key in data_list_i_val]))
+                    job_dir = os.path.join(base_dir,"__".join(["_".join([key,str(data_list_i_val[key])]) for key in sorted(data_list_i_val)]))
                     job_dir = os.path.abspath(job_dir) #NOTE: Since dictionary is not copied this should just edit the original entry in data_list.
                     out_file_name = get_out_file_name(use_mc=use_mc,xvar=xvar,xvar_min=xvar_min,xvar_max=xvar_max,**data_list_i)
                     out_file_name = os.path.join(job_dir,out_file_name)
