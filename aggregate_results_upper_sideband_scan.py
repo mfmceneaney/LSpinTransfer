@@ -516,7 +516,8 @@ if __name__=="__main__":
                 yaml_args = yaml.safe_load(f)
             print("DEBUGGING: config = ",el["data_list"])#DEBUGGING
             print("DEBUGGING: file_list = ",el["file_list"])#DEBUGGING
-            x_means = [dlist['sg_min'] for dlist in el["data_list"]]
+            x_means = el["data_list"]['sg_min']
+            print("DEBUGGING: x_means = ",x_means)#DEBUGGING
             arrs = get_arrs(file_list,x_means)
             xerr_syst = []#DEBUGGING: JUST SET TO DEFAULT ARGS FOR NOW
             yerr_syst = []#DEBUGGING: JUST SET TO DEFAULT ARGS FOR NOW
