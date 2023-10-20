@@ -99,6 +99,7 @@ def get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_
             # Loop aggregate keys and build file list for current binning
             for key in aggregate_keys:
                 print(key,divisions[key])#DEBUGGING
+                output_dict["data_list"][key] = divisions[key]
                 for value in divisions[key]:
                 
                     data_list_i_val = dict(_data_list_i) #NOTE: CLONE OVERALL DICT NOT data_list_i SINCE THAT HAS BINNING VARIABLE LIMITS IN IT.
