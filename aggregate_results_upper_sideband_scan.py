@@ -193,8 +193,8 @@ def convert_graph_to_csv(
     """
 
     data = []
-    if xerr_syst is None or len(xerr_syst)==0: xerr_syst = [0.0 for el in x]
-    if yerr_syst is None or len(yerr_syst)==0: yerr_syst = [0.0 for el in x]
+    if xerr_syst is None or len(xerr_syst)!=0: xerr_syst = [0.0 for el in x]
+    if yerr_syst is None or len(yerr_syst)!=0: yerr_syst = [0.0 for el in x]
     for i, el in enumerate(x):
         data.append([i, x[i], y[i], xerr[i], yerr[i], xerr_syst[i], yerr_syst[i]])
 
