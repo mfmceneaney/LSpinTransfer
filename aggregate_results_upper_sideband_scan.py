@@ -343,7 +343,7 @@ def get_plots(
     plt.ylabel(ytitle,usetex=True)
 
     #TODO: DEBUGGING MESSAGE FOR BINS SEE IF SOMETHING GETS MESSED UP THERE AND MAKE SURE YOU ARE SETTING CORRECTLY...
-    s1 = plt.hist(x_mean, weights=yerr_syst, bins=xbins, color='gray', alpha=0.5, label='Systematic Error') #NOTE: THAT HISTOGRAM X DATA SHOULD JUST USE BIN X MEANS SO THAT EACH BIN GETS ONE ENTRY AND THEN YOU CAN SCALE APPROPRIATELY WITH THE WEIGHTS ARGUMENT.
+    # s1 = plt.hist(x_mean, weights=yerr_syst, bins=xbins, color='gray', alpha=0.5, label='Systematic Error') #NOTE: THAT HISTOGRAM X DATA SHOULD JUST USE BIN X MEANS SO THAT EACH BIN GETS ONE ENTRY AND THEN YOU CAN SCALE APPROPRIATELY WITH THE WEIGHTS ARGUMENT.
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
@@ -369,8 +369,8 @@ def get_plots(
         y_mean,
         xerr=xerr_mean,
         yerr=yerr_mean,
-        xerr_syst=xerr_syst,
-        yerr_syst=yerr_syst,
+        xerr_syst=None,
+        yerr_syst=None,
         delimiter=delimiter,
         header=header,
         fmt=fmt,
@@ -476,7 +476,7 @@ if __name__=="__main__":
         # 'z_ppim':[0.0,1.1],
         'mass_ppim':[1.138,1.162], # [round(1.14+0.0004*i,4) for i in range(50)]
     }
-    ylimss = [-0.5,0.5]
+    ylimss = [-0.1,0.1]
     titles = {
         'costheta1':'Spin Transfer along $P_{\Lambda}$',
         'costheta2':'Spin Transfer along $P_{\gamma^{*}}$',
