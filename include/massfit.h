@@ -1900,18 +1900,6 @@ TArrayF* LambdaMassFitGaussMC(
     sNBg.Form("N_{bg} = %.2e #pm %.0f",i_bg,i_bg_err);
 
     // Add Legend
-    TLegend *legend=new TLegend(0.5,0.2,0.875,0.625);
-    legend->SetTextSize(0.04);
-    legend->SetHeader("Fit Info:","c");
-    legend->SetMargin(0.1);
-    legend->AddEntry((TObject*)0, sChi2, Form(" %g ",chi2));
-    legend->AddEntry((TObject*)0, sSigma, Form(" %g ",sigma));
-    legend->AddEntry((TObject*)0, sMu, Form(" %g ",mu));
-    legend->AddEntry((TObject*)0, sNSig, Form(" %g ",i_sig));
-    legend->AddEntry((TObject*)0, sNBg, Form(" %g ",i_bg));
-    legend->Draw();
-
-    // Add Legend
     TLegend *legend=new TLegend(0.45,0.15,0.89,0.45); //NOTE: FOR WITH MC DECOMP below
     legend->SetNColumns(2);
     legend->SetTextSize(0.04);
