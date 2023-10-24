@@ -2146,7 +2146,7 @@ void getKinBinnedMassFitsMCGauss(
         if (!use_bgfraction) {
             std::string massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
             std::string bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
-            LambdaMassFitGaussMCDecomposition(
+            LambdaMassFitMCDecomposition(
                         massoutdir,
                         outroot,
                         bin_frame,
