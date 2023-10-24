@@ -75,18 +75,18 @@ TArrayF* LambdaMassFit(
     // func->SetParameters(0.5,2,0.006,1.1157,10000,h->GetBinContent(nbins),37,1.24);
     func->SetParameters(0.5,2,0.006,1.1157,h->GetMaximum()/4,h->GetBinContent(nbins),37,1.24);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
-    // // func->FixParameter(6,37);
+    // func->FixParameter(6,37);
     // func->SetParLimits(0,0.0,1000.0);
     // func->SetParLimits(5,0.0,h->GetBinContent(nbins)+1000);
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
 
-    // //DEBUGGING: BEGIN
-    // // Plot original function
-    // TF1 *f_original = (TF1*)func->Clone("f_original");
-    // f_original->SetLineColor(8);
-    // f_original->Draw("SAME");
-    // //DEBUGGING: END
+    //DEBUGGING: BEGIN
+    // Plot original function
+    TF1 *f_original = (TF1*)func->Clone("f_original");
+    f_original->SetLineColor(8);
+    f_original->Draw("SAME");
+    //DEBUGGING: END
 
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
@@ -383,12 +383,12 @@ TArrayF* LambdaMassFitGauss(
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
 
-    // //DEBUGGING: BEGIN
-    // // Plot original function
-    // TF1 *f_original = (TF1*)func->Clone("f_original");
-    // f_original->SetLineColor(8);
-    // f_original->Draw("SAME");
-    // //DEBUGGING: END
+    //DEBUGGING: BEGIN
+    // Plot original function
+    TF1 *f_original = (TF1*)func->Clone("f_original");
+    f_original->SetLineColor(8);
+    f_original->Draw("SAME");
+    //DEBUGGING: END
 
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
@@ -767,6 +767,13 @@ TArrayF* LambdaMassFitMC(
     // func->SetParLimits(5,0.0,h->GetBinContent(nbins)+1000);
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
+
+    //DEBUGGING: BEGIN
+    // Plot original function
+    TF1 *f_original = (TF1*)func->Clone("f_original");
+    f_original->SetLineColor(8);
+    f_original->Draw("SAME");
+    //DEBUGGING: END
 
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
@@ -1748,6 +1755,13 @@ TArrayF* LambdaMassFitGaussMC(
     // func->SetParLimits(5,0.0,h->GetBinContent(nbins)+1000);
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
+
+    //DEBUGGING: BEGIN
+    // Plot original function
+    TF1 *f_original = (TF1*)func->Clone("f_original");
+    f_original->SetLineColor(8);
+    f_original->Draw("SAME");
+    //DEBUGGING: END
 
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
