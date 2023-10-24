@@ -87,7 +87,7 @@ def get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_
             if len(aggregate_keys)==0:
                 print("len(aggregate_keys) = ",0)
                 # Get job directory and output file name
-                job_dir = os.path.join(base_dir,"__".join(["_".join([key,str(data_list_i[key])]) for key in data_list_i]))
+                job_dir = os.path.join(base_dir,"__".join(["_".join([key,str(data_list_i[key])]) for key in sorted(data_list_i)]))
                 job_dir = os.path.abspath(job_dir) #NOTE: Since dictionary is not copied this should just edit the original entry in data_list.
                 out_file_name = get_out_file_name(use_mc=use_mc,xvar=xvar,xvar_min=xvar_min,xvar_max=xvar_max,**data_list_i)
                 out_file_name = os.path.join(job_dir,out_file_name)
@@ -105,7 +105,7 @@ def get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_
                     data_list_i_val[key] = value
 
                     # Get job directory and output file name
-                    job_dir = os.path.join(base_dir,"__".join(["_".join([key,str(data_list_i_val[key])]) for key in data_list_i_val]))
+                    job_dir = os.path.join(base_dir,"__".join(["_".join([key,str(data_list_i_val[key])]) for key in sorted(data_list_i_val)]))
                     job_dir = os.path.abspath(job_dir) #NOTE: Since dictionary is not copied this should just edit the original entry in data_list.
                     out_file_name = get_out_file_name(use_mc=use_mc,xvar=xvar,xvar_min=xvar_min,xvar_max=xvar_max,**data_list_i)
                     out_file_name = os.path.join(job_dir,out_file_name)
@@ -488,8 +488,8 @@ if __name__=="__main__":
 
     def get_outpath(base_dir,aggregate_keys,**config):
 
-        job_config_name  = 'aggregate_'+'_'.join([str(key) for key in aggregate_keys])+'__'
-        job_config_name += "__".join(["_".join([key,str(config[key]) if type(config[key]) is not list else "_".join([str(el) for el in config[key]]) ]) for key in config])
+        job_config_name  = 'aggregate_'+'_'.join([str(key) for key in sorted(aggregate_keys)])+'__'
+        job_config_name += "__".join(["_".join([key,str(config[key]) if type(config[key]) is not list else "_".join([str(el) for el in config[key]]) ]) for key in sorted(config)])
         job_config_name += '.pdf'
         outpath = os.path.abspath(os.path.join(base_dir,job_config_name))
 
