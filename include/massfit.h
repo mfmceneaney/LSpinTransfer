@@ -77,9 +77,10 @@ TArrayF* LambdaMassFit(
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
     // func->FixParameter(6,37);
     // func->SetParLimits(0,0.0,1000.0);
-    func->SetParLimits(5,h->GetBinContent(nbins)-1000,h->GetBinContent(nbins)+10000);
+    // func->SetParLimits(5,h->GetBinContent(nbins)-1000,h->GetBinContent(nbins)+10000);
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
+    func->SetParLimits(1,2.0,1000.0);
 
     //DEBUGGING: BEGIN
     // Plot original function
@@ -375,11 +376,11 @@ TArrayF* LambdaMassFitGauss(
     // Set Fitting fn
     TF1 *func = new TF1("fit","[2]*TMath::Gaus(x,[1],[0],true) + [3]*(1 - [4]*(x-[5])*(x-[5]))",varMin,varMax);
     // func->SetParameters(0.5,2,0.006,1.1157,10000,h->GetBinContent(nbins),37,1.24);
-    func->SetParameters(0.006,1.1157,h->GetMaximum()/4,h->GetBinContent(nbins),37,1.24);
+    func->SetParameters(0.006,1.1157,h->GetMaximum()/1000,h->GetBinContent(nbins),37,1.24);
     func->SetParNames("sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
     // // func->FixParameter(6,37);
     // func->SetParLimits(0,0.0,1000.0);
-    func->SetParLimits(5,h->GetBinContent(nbins)-1000,h->GetBinContent(nbins)+10000);
+    // func->SetParLimits(5,h->GetBinContent(nbins)-1000,h->GetBinContent(nbins)+10000);
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
 
