@@ -51,6 +51,7 @@ void LMassFit() {
     // Load histogram from file if already exists, just comment out above histograam blocks.
     TFile *f = TFile::Open("h.root");
     TH1D  *h = (TH1D*)f->Get(varName.c_str());
+    h->Draw(drawopt.c_str());
     */
 
     // CLAS12 Watermark                                                                                                  
