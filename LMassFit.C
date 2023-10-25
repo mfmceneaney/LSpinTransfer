@@ -47,9 +47,11 @@ void LMassFit() {
 
     h->SaveAs("h.root");
 
-    // // Load histogram from file if already exists, just comment out above histograam blocks.
-    // TF1  *f = TFile::Open("h.root");
-    // TH1D *h = (TH1D*)f->GetObject("h");
+    /*
+    // Load histogram from file if already exists, just comment out above histograam blocks.
+    TFile *f = TFile::Open("h.root");
+    TH1D  *h = (TH1D*)f->Get(varName.c_str());
+    */
 
     // CLAS12 Watermark                                                                                                  
     TLatex *lt = new TLatex(0.15,0.5,"CLAS12 Preliminary");
