@@ -111,7 +111,7 @@ TArrayF* LambdaMassFit(
     }
     out<<"DEBUGGING: sigma_init  = "<<sigma_init<<std::endl;
     //DEBUGGING: END
-    func->SetParameters(0.5,2,0.006,1.1157,h->GetMaximum()/4,h->GetBinContent(nbins)*1.0,37,1.24);
+    func->SetParameters(0.5,2,0.006,1.1157,sig_max_init,hmax,beta,m0);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
     // func->FixParameter(6,37);
     // func->SetParLimits(0,0.0,1000.0);
