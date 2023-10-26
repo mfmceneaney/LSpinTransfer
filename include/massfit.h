@@ -458,7 +458,7 @@ TArrayF* LambdaMassFitGauss(
     func->SetParNames("sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
     // // func->FixParameter(6,37);
     // func->SetParLimits(0,0.0,1000.0);
-    func->SetParLimits(5,h->GetBinContent(nbins)*0.98,h->GetBinContent(nbins)*10.0);
+    func->SetParLimits(3,h->GetBinContent(nbins)*0.98,h->GetBinContent(nbins)*10.0);
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
 
@@ -1831,7 +1831,7 @@ TArrayF* LambdaMassFitGaussMC(
     func->SetParNames("sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
     // // func->FixParameter(6,37);
     // func->SetParLimits(0,0.0,1000.0);
-    func->SetParLimits(5,h->GetBinContent(nbins)-1000,h->GetBinContent(nbins)+10000);
+    func->SetParLimits(3,h->GetBinContent(nbins)-1000,h->GetBinContent(nbins)+10000);
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
 
