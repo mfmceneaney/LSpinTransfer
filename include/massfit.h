@@ -73,6 +73,44 @@ TArrayF* LambdaMassFit(
     // Set Fitting fn
     TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*(1 - [6]*(x-[7])*(x-[7]))",varMin,varMax);
     // func->SetParameters(0.5,2,0.006,1.1157,10000,h->GetBinContent(nbins),37,1.24);
+    // DEBUGGING: BEGIN
+
+    // First figure out roughly where background maxes out
+    double m0 = varMax;
+    double midVal = h->GetBinContent((int)nbins/2);
+    double endVal = h->GetBinContent(nbins);
+    double delVal = (endVal-midVal)/endVal;
+    out<<"DEBUGGING: delVal = "<<delVal<<std::endl;
+    if (delVal>0.25) m0 = varMax*1.04;
+    if (delVal<0.0) m0 = varMax*0.96;
+    // DEBUGGING: END
+    double true_prod_min = 1.078;
+    double beta = 1/((true_prod_min-m0)*(true_prod_min-m0));
+    double hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0));
+    out<<"DEBUGGING: true_prod_min = "<<true_prod_min<<std::endl;
+    out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
+    //DEBUGGING: BEGIN
+
+    // Set intial signal parameters
+    double fit_min = varMin;
+    double sigma_init = 0.006;
+    double firstVal = h->GetBinContent(1);
+    double hfmidVal = h->GetBinContent((int)(0.10*nbins));
+    double lwdelVal = (firstVal)/hfmidVal;
+    out<<"DEBUGGING: lwdelVal = "<<lwdelVal<<std::endl;
+    double sig_max_init = h->GetMaximum()/4;
+    if (lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
+      //sigma_init = 0.006;
+      sig_max_init = h->GetMaximum()/10; //REDUCE SIGNAL COEFFICIENT
+      double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM
+      out<<"DEBUGGING: prod_min = "<<prod_min<<std::endl;
+      beta = 1/((prod_min-m0)*(prod_min-m0));
+      hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0));
+      out<<"DEBUGGING: REASSIGNED m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
+      fit_min = varMin + (varMax-varMin)*0.10;//IGNORE WHATEVER IS HAPPENING AT REALLY LOW MASS_PPIM
+    }
+    out<<"DEBUGGING: sigma_init  = "<<sigma_init<<std::endl;
+    //DEBUGGING: END
     func->SetParameters(0.5,2,0.006,1.1157,h->GetMaximum()/4,h->GetBinContent(nbins)*1.0,37,1.24);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
     // func->FixParameter(6,37);
@@ -90,7 +128,7 @@ TArrayF* LambdaMassFit(
     //DEBUGGING: END
 
     // Fit and get signal and bg covariance matrices
-    TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+    TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,7,5,7)); // Make sure these match up!
@@ -373,10 +411,50 @@ TArrayF* LambdaMassFitGauss(
     lt->SetNDC();
     lt->Draw();
 
+    // DEBUGGING: BEGIN
+
+    // First figure out roughly where background maxes out
+    double m0 = varMax;
+    double midVal = h->GetBinContent((int)nbins/2);
+    double endVal = h->GetBinContent(nbins);
+    double delVal = (endVal-midVal)/endVal;
+    out<<"DEBUGGING: delVal = "<<delVal<<std::endl;
+    if (delVal>0.25) m0 = varMax*1.04;
+    if (delVal<0.0) m0 = varMax*0.96;
+    // DEBUGGING: END
+    double true_prod_min = 1.078;
+    double beta = 1/((true_prod_min-m0)*(true_prod_min-m0));
+    double hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0));
+    out<<"DEBUGGING: true_prod_min = "<<true_prod_min<<std::endl;
+    out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
+
+    //DEBUGGING: BEGIN
+
+    // Set intial signal parameters
+    double fit_min = varMin;
+    double sigma_init = 0.006;
+    double firstVal = h->GetBinContent(1);
+    double hfmidVal = h->GetBinContent((int)(0.10*nbins));
+    double lwdelVal = (firstVal)/hfmidVal;
+    out<<"DEBUGGING: lwdelVal = "<<lwdelVal<<std::endl;
+    double sig_max_init = h->GetMaximum()/4;
+    if (lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
+      //sigma_init = 0.006;
+      sig_max_init = h->GetMaximum()/10; //REDUCE SIGNAL COEFFICIENT
+      double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM
+      out<<"DEBUGGING: prod_min = "<<prod_min<<std::endl;
+      beta = 1/((prod_min-m0)*(prod_min-m0));
+      hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0));
+      out<<"DEBUGGING: REASSIGNED m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
+      fit_min = varMin + (varMax-varMin)*0.10;//IGNORE WHATEVER IS HAPPENING AT REALLY LOW MASS_PPIM
+    }
+    out<<"DEBUGGING: sigma_init  = "<<sigma_init<<std::endl;
+    //DEBUGGING: END
+
     // Set Fitting fn
     TF1 *func = new TF1("fit","[2]*TMath::Gaus(x,[1],[0],true) + [3]*(1 - [4]*(x-[5])*(x-[5]))",varMin,varMax);
     // func->SetParameters(0.5,2,0.006,1.1157,10000,h->GetBinContent(nbins),37,1.24);
-    func->SetParameters(0.006,1.1157,h->GetMaximum()/1000,h->GetBinContent(nbins),37,1.24);
+    func->SetParameters(0.006,1.1157,h->GetMaximum()/1000,hmax,beta,m0);
     func->SetParNames("sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
     // // func->FixParameter(6,37);
     // func->SetParLimits(0,0.0,1000.0);
@@ -392,7 +470,7 @@ TArrayF* LambdaMassFitGauss(
     //DEBUGGING: END
 
     // Fit and get signal and bg covariance matrices
-    TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+    TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,2,0,2));
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(3,5,3,5)); // Make sure these match up!
