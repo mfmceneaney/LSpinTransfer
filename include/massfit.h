@@ -59,6 +59,9 @@ TArrayF* LambdaMassFit(
     h->GetYaxis()->SetTitleSize(0.06);
     h->GetYaxis()->SetTitleOffset(0.87);
 
+    // Set y axes limits
+    h->GetYaxis()->SetRangeUser(0.0,1.05*h->GetMaximum());
+
     // Draw histogram
     h->Draw(drawopt.c_str());
 
@@ -428,6 +431,9 @@ TArrayF* LambdaMassFitGauss(
     h->GetYaxis()->SetTitleSize(0.06);
     h->GetYaxis()->SetTitleOffset(0.87);
 
+    // Set y axes limits
+    h->GetYaxis()->SetRangeUser(0.0,1.05*h->GetMaximum());
+
     // Draw histogram
     h->Draw(drawopt.c_str());
 
@@ -781,6 +787,9 @@ TArrayF* LambdaMassFitMC(
     h->GetYaxis()->SetTitle("Counts");
     h->GetYaxis()->SetTitleSize(0.06);
     h->GetYaxis()->SetTitleOffset(0.87);
+
+    // Set y axes limits
+    h->GetYaxis()->SetRangeUser(0.0,1.05*h->GetMaximum());
 
     // Create MC Truth histogram
     auto h1_true = (TH1D) *frame.Filter(mccuts.c_str()).Histo1D({"h1_true",varName.c_str(),nbins,varMin,varMax},varName.c_str());
@@ -1188,6 +1197,9 @@ TArrayF* LambdaMassFitMCFIXPARAMS(
     h->GetYaxis()->SetTitle("Counts");
     h->GetYaxis()->SetTitleSize(0.06);
     h->GetYaxis()->SetTitleOffset(0.87);
+
+    // Set y axes limits
+    h->GetYaxis()->SetRangeUser(0.0,1.05*h->GetMaximum());
 
     // Create MC Truth histogram
     auto h1_true = (TH1D) *frame.Filter(mccuts.c_str()).Histo1D({"h1_true",varName.c_str(),nbins,varMin,varMax},varName.c_str());
@@ -1621,6 +1633,9 @@ void LambdaMassFitMCDecomposition(
     h->GetYaxis()->SetTitleSize(0.06);
     h->GetYaxis()->SetTitleOffset(0.87);
 
+    // Set y axes limits
+    h->GetYaxis()->SetRangeUser(0.0,1.05*h->GetMaximum());
+
     // Create MC Truth histogram
     auto h1_true = (TH1D) *frame.Filter(mccuts).Histo1D({"h1_true",varName.c_str(),nbins,varMin,varMax},varName.c_str());
     TH1D *h_true = (TH1D*)h1_true.Clone("h1_true");
@@ -1769,6 +1784,9 @@ TArrayF* LambdaMassFitGaussMC(
     h->GetYaxis()->SetTitle("Counts");
     h->GetYaxis()->SetTitleSize(0.06);
     h->GetYaxis()->SetTitleOffset(0.87);
+
+    // Set y axes limits
+    h->GetYaxis()->SetRangeUser(0.0,1.05*h->GetMaximum());
 
     // Create MC Truth histogram
     auto h1_true = (TH1D) *frame.Filter(mccuts.c_str()).Histo1D({"h1_true",varName.c_str(),nbins,varMin,varMax},varName.c_str());
