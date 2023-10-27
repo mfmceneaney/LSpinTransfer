@@ -73,16 +73,16 @@ TArrayF* LambdaMassFit(
     // Set Fitting fn
     TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*(1 - [6]*(x-[7])*(x-[7]))",varMin,varMax);
     // func->SetParameters(0.5,2,0.006,1.1157,10000,h->GetBinContent(nbins),37,1.24);
-    // DEBUGGING: BEGIN
+    //DEBUGGING: BEGIN
 
     // First figure out roughly where background maxes out
-    double m0 = varMax;
+    double m0 = varMax;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...
     double midVal = h->GetBinContent((int)nbins/2);
     double endVal = h->GetBinContent(nbins);
     double delVal = (endVal-midVal)/endVal;
     out<<"DEBUGGING: delVal = "<<delVal<<std::endl;
     if (delVal>0.25) m0 = varMax*1.04;
-    if (delVal<0.0) m0 = varMax*0.96;
+    if (delVal<0.1) m0 = varMax*0.96;
     // DEBUGGING: END
     double true_prod_min = 1.078;
     double beta = 1/((true_prod_min-m0)*(true_prod_min-m0));
@@ -90,6 +90,21 @@ TArrayF* LambdaMassFit(
     out<<"DEBUGGING: true_prod_min = "<<true_prod_min<<std::endl;
     out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
     //DEBUGGING: BEGIN
+
+    //For xF binning
+    int bin1  = 1;
+    int bin2  = (int)(0.10*nbins);
+    int bin3  = (int)(0.15*nbins);
+    double x1 = h->GetBinCenter(bin1);
+    double x2 = h->GetBinCenter(bin2);
+    double x3 = h->GetBinCenter(bin3);
+    double y1 = h->GetBinContent(bin1);
+    double y2 = h->GetBinContent(bin2);
+    double y3 = h->GetBinContent(bin3);
+    double myratio = ((y2-y1)/h->GetMaximum()) / ((x2-x1)/(varMax-varMin));
+    double myratio2 = ( (y3-y2) / (x3-x2) )  /  ( (y2-y1) / (x2-x1) ); //NOTE: GET RATIO OF SLOPE IN REGION (2,3) TO SLOPE IN REGION (1,2)
+    out<<"DEBUGGING: myratio = "<<myratio<<std::endl;
+    out<<"DEBUGGING: myratio2 = "<<myratio2<<std::endl;
 
     // Set intial signal parameters
     double fit_min = varMin;
@@ -99,19 +114,32 @@ TArrayF* LambdaMassFit(
     double lwdelVal = (firstVal)/hfmidVal;
     out<<"DEBUGGING: lwdelVal = "<<lwdelVal<<std::endl;
     double sig_max_init = h->GetMaximum()/4;
-    if (lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
+    if ( myratio<1.5) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
       //sigma_init = 0.006;
       sig_max_init = h->GetMaximum()/10; //REDUCE SIGNAL COEFFICIENT
       double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM
-      out<<"DEBUGGING: prod_min = "<<prod_min<<std::endl;
+      out<<"DEBUGGING: REASSIGNED prod_min = "<<prod_min<<std::endl;
       beta = 1/((prod_min-m0)*(prod_min-m0));
       hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0));
       out<<"DEBUGGING: REASSIGNED m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
       fit_min = varMin + (varMax-varMin)*0.10;//IGNORE WHATEVER IS HAPPENING AT REALLY LOW MASS_PPIM
     }
+    double fit_max = varMax;
+    if (delVal<0.15/*myratio2<1.1*/) { // THIS IS THE CASE WHEN YOU'RE CUTTING OUT LOTS OF HIGH MASS_PPIM BG AND BG SHAPE IS NO LONGER REALLY QUADRATIC...COULD FIND BETTER FUNCTIO\
+N MAYBE...
+      fit_min = varMin + (varMax-varMin)*0.00;//IGNORE WHATEVER IS HAPPENING AT REALLY LOW MASS_PPIM
+      fit_max = varMax - (varMax-varMin)*0.00;//IGNORE WHATEVER IS HAPPENING AT REALLY HIGH MASS_PPIM
+      //out<<"DEBUGGING: REASSIGNED fit_min = "<<fit_min<<std::endl;
+      out<<"DEBUGGING: REASSIGNED fit_max = "<<fit_max<<std::endl;
+      sigma_init = 0.009;
+      sig_max_init = h->GetMaximum()/3;
+      out<<"DEBUGGING: REASSIGNED sigma_init, sig_max_init = "<<sigma_init<<" , "<<sig_max_init<<std::endl;
+    }
     out<<"DEBUGGING: sigma_init  = "<<sigma_init<<std::endl;
+    double alpha_init = 1.0;
+    double n_init     = 2.0;
     //DEBUGGING: END
-    func->SetParameters(0.5,2,0.006,1.1157,sig_max_init,hmax,beta,m0);
+    func->SetParameters(alpha_init,n_init,sigma_init,1.1157,sig_max_init,hmax,beta,m0);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
     // func->FixParameter(6,37);
     // func->SetParLimits(0,0.0,1000.0);
@@ -212,55 +240,55 @@ TArrayF* LambdaMassFit(
     auto i_bg = bg->Integral(LBInt, UBInt)/BinWidth;
     auto i_bg_err = bg->IntegralError(LBInt,UBInt,bg->GetParameters(),bgMat->GetMatrixArray())/BinWidth;
 
-    //----------------------------------------------------------------------------------------------------//
-    // DEBUGGING: Added 7/25/23
+    // //----------------------------------------------------------------------------------------------------//
+    // // DEBUGGING: Added 7/25/23
 
-    // Lower sideband
-    double LBInt_ls = 1.08;
-    double UBInt_ls = 1.10;
+    // // Lower sideband
+    // double LBInt_ls = 1.08;
+    // double UBInt_ls = 1.10;
 
-    // Fit fn:
-    out << "i_fitf lower sideband" << std::endl;
-    auto i_fitf_ls = func->Integral(LBInt_ls,UBInt_ls)/BinWidth;
-    auto i_fitf_err_ls = func->IntegralError(LBInt_ls,UBInt_ls,func->GetParameters(),covMat->GetMatrixArray())/BinWidth;
-    i_fitf_err_ls = 0.0;
-    i_fitf_ls = h->IntegralAndError(h->FindBin(LBInt_ls),h->FindBin(UBInt_ls),i_fitf_err_ls);
+    // // Fit fn:
+    // out << "i_fitf lower sideband" << std::endl;
+    // auto i_fitf_ls = func->Integral(LBInt_ls,UBInt_ls)/BinWidth;
+    // auto i_fitf_err_ls = func->IntegralError(LBInt_ls,UBInt_ls,func->GetParameters(),covMat->GetMatrixArray())/BinWidth;
+    // i_fitf_err_ls = 0.0;
+    // i_fitf_ls = h->IntegralAndError(h->FindBin(LBInt_ls),h->FindBin(UBInt_ls),i_fitf_err_ls);
 
-    // Signal:
-    out << "i_sig lower sideband" << std::endl;
-    auto i_sig_ls = sig->Integral(LBInt_ls, UBInt_ls)/BinWidth;
-    auto i_sig_err_ls = sig->IntegralError(LBInt_ls,UBInt_ls,sig->GetParameters(),sigMat->GetMatrixArray())/BinWidth;
-    i_sig_err_ls = 0.0;
-    i_sig_ls = hist->IntegralAndError(hist->FindBin(LBInt_ls),hist->FindBin(UBInt_ls),i_sig_err_ls);//NOTE: THIS MAY BE INCORRECT!
+    // // Signal:
+    // out << "i_sig lower sideband" << std::endl;
+    // auto i_sig_ls = sig->Integral(LBInt_ls, UBInt_ls)/BinWidth;
+    // auto i_sig_err_ls = sig->IntegralError(LBInt_ls,UBInt_ls,sig->GetParameters(),sigMat->GetMatrixArray())/BinWidth;
+    // i_sig_err_ls = 0.0;
+    // i_sig_ls = hist->IntegralAndError(hist->FindBin(LBInt_ls),hist->FindBin(UBInt_ls),i_sig_err_ls);//NOTE: THIS MAY BE INCORRECT!
 
-    // Background:
-    out << "i_bg lower sideband" << std::endl;
-    auto i_bg_ls = bg->Integral(LBInt_ls, UBInt_ls)/BinWidth;
-    auto i_bg_err_ls = bg->IntegralError(LBInt_ls,UBInt_ls,bg->GetParameters(),bgMat->GetMatrixArray())/BinWidth;
+    // // Background:
+    // out << "i_bg lower sideband" << std::endl;
+    // auto i_bg_ls = bg->Integral(LBInt_ls, UBInt_ls)/BinWidth;
+    // auto i_bg_err_ls = bg->IntegralError(LBInt_ls,UBInt_ls,bg->GetParameters(),bgMat->GetMatrixArray())/BinWidth;
 
-    // Upper sideband
-    double LBInt_us = 1.15;
-    double UBInt_us = 1.18;
+    // // Upper sideband
+    // double LBInt_us = 1.15;
+    // double UBInt_us = 1.18;
 
-    // Fit fn:
-    out << "i_fitf upper sideband" << std::endl;
-    auto i_fitf_us = func->Integral(LBInt_us,UBInt_us)/BinWidth;
-    auto i_fitf_err_us = func->IntegralError(LBInt_us,UBInt_us,func->GetParameters(),covMat->GetMatrixArray())/BinWidth;
-    i_fitf_err_us = 0.0;
-    i_fitf_us = h->IntegralAndError(h->FindBin(LBInt_us),h->FindBin(UBInt_us),i_fitf_err_us);
+    // // Fit fn:
+    // out << "i_fitf upper sideband" << std::endl;
+    // auto i_fitf_us = func->Integral(LBInt_us,UBInt_us)/BinWidth;
+    // auto i_fitf_err_us = func->IntegralError(LBInt_us,UBInt_us,func->GetParameters(),covMat->GetMatrixArray())/BinWidth;
+    // i_fitf_err_us = 0.0;
+    // i_fitf_us = h->IntegralAndError(h->FindBin(LBInt_us),h->FindBin(UBInt_us),i_fitf_err_us);
 
-    // Signal:
-    out << "i_sig upper sideband" << std::endl;
-    auto i_sig_us = sig->Integral(LBInt_us, UBInt_us)/BinWidth;
-    auto i_sig_err_us = sig->IntegralError(LBInt_us,UBInt_us,sig->GetParameters(),sigMat->GetMatrixArray())/BinWidth;
-    i_sig_err_us = 0.0;
-    i_sig_us = hist->IntegralAndError(hist->FindBin(LBInt_us),hist->FindBin(UBInt_us),i_sig_err_us);//NOTE: THIS MAY BE INCORRECT!
+    // // Signal:
+    // out << "i_sig upper sideband" << std::endl;
+    // auto i_sig_us = sig->Integral(LBInt_us, UBInt_us)/BinWidth;
+    // auto i_sig_err_us = sig->IntegralError(LBInt_us,UBInt_us,sig->GetParameters(),sigMat->GetMatrixArray())/BinWidth;
+    // i_sig_err_us = 0.0;
+    // i_sig_us = hist->IntegralAndError(hist->FindBin(LBInt_us),hist->FindBin(UBInt_us),i_sig_err_us);//NOTE: THIS MAY BE INCORRECT!
 
-    // Background:
-    out << "i_bg upper sideband" << std::endl;
-    auto i_bg_us = bg->Integral(LBInt_us, UBInt_us)/BinWidth;
-    auto i_bg_err_us = bg->IntegralError(LBInt_us,UBInt_us,bg->GetParameters(),bgMat->GetMatrixArray())/BinWidth;
-    //----------------------------------------------------------------------------------------------------//
+    // // Background:
+    // out << "i_bg upper sideband" << std::endl;
+    // auto i_bg_us = bg->Integral(LBInt_us, UBInt_us)/BinWidth;
+    // auto i_bg_err_us = bg->IntegralError(LBInt_us,UBInt_us,bg->GetParameters(),bgMat->GetMatrixArray())/BinWidth;
+    // //----------------------------------------------------------------------------------------------------//
 
     // Get Legend Entries
     TString sChi2, sNDF, sAlpha, sN, sSigma, sMu, sC1, sA0, sA1, sA2, sNSig, sNBg, sNTot;
@@ -295,24 +323,24 @@ TArrayF* LambdaMassFit(
     float epsilon = (float) i_bg / i_fitf;
     float epsilon_err = (float) TMath::Sqrt(TMath::Power(i_bg_err / i_fitf,2)+TMath::Power((i_bg * i_fitf_err)/(i_fitf * i_fitf),2));
 
-    //----------------------------------------------------------------------------------------------------//
-    // DEBUGGING: Added 7/25/23
+    // //----------------------------------------------------------------------------------------------------//
+    // // DEBUGGING: Added 7/25/23
 
-    // Compute epsilon lower sideband
-    float epsilon_ls = (float) i_bg_ls / i_fitf_ls;
-    float epsilon_err_ls = (float) TMath::Sqrt(TMath::Power(i_bg_err_ls / i_fitf_ls,2)+TMath::Power((i_bg_ls * i_fitf_err_ls)/(i_fitf_ls * i_fitf_ls),2));
+    // // Compute epsilon lower sideband
+    // float epsilon_ls = (float) i_bg_ls / i_fitf_ls;
+    // float epsilon_err_ls = (float) TMath::Sqrt(TMath::Power(i_bg_err_ls / i_fitf_ls,2)+TMath::Power((i_bg_ls * i_fitf_err_ls)/(i_fitf_ls * i_fitf_ls),2));
 
-    // Compute epsilon upper sideband
-    float epsilon_us = (float) i_bg_us / i_fitf_us;
-    float epsilon_err_us = (float) TMath::Sqrt(TMath::Power(i_bg_err_us / i_fitf_us,2)+TMath::Power((i_bg_us * i_fitf_err_us)/(i_fitf_us * i_fitf_us),2));
+    // // Compute epsilon upper sideband
+    // float epsilon_us = (float) i_bg_us / i_fitf_us;
+    // float epsilon_err_us = (float) TMath::Sqrt(TMath::Power(i_bg_err_us / i_fitf_us,2)+TMath::Power((i_bg_us * i_fitf_err_us)/(i_fitf_us * i_fitf_us),2));
 
-    // Compute combined epsilon sidebands
-    auto n_ls = (int) *frame.Filter(Form("%s>=%.16f && %s<%.16f",varName.c_str(),LBInt_ls,varName.c_str(),UBInt_ls)).Count();
-    auto n_us = (int) *frame.Filter(Form("%s>=%.16f && %s<%.16f",varName.c_str(),LBInt_us,varName.c_str(),UBInt_us)).Count();
-    float epsilon_sb = (float) (n_ls * epsilon_ls + n_us * epsilon_us)/(n_ls + n_us);
-    float epsilon_err_sb = (float) TMath::Sqrt(TMath::Power(n_ls * epsilon_ls,2) + TMath::Power(n_us * epsilon_us,2))/(n_ls + n_us);
+    // // Compute combined epsilon sidebands
+    // auto n_ls = (int) *frame.Filter(Form("%s>=%.16f && %s<%.16f",varName.c_str(),LBInt_ls,varName.c_str(),UBInt_ls)).Count();
+    // auto n_us = (int) *frame.Filter(Form("%s>=%.16f && %s<%.16f",varName.c_str(),LBInt_us,varName.c_str(),UBInt_us)).Count();
+    // float epsilon_sb = (float) (n_ls * epsilon_ls + n_us * epsilon_us)/(n_ls + n_us);
+    // float epsilon_err_sb = (float) TMath::Sqrt(TMath::Power(n_ls * epsilon_ls,2) + TMath::Power(n_us * epsilon_us,2))/(n_ls + n_us);
 
-    //----------------------------------------------------------------------------------------------------//
+    // //----------------------------------------------------------------------------------------------------//
 
     //TODO: Could output fit results to outstream and/or could save to some sort of tree int pwd...
 
@@ -321,15 +349,15 @@ TArrayF* LambdaMassFit(
     int i = 0;
     arr->AddAt(epsilon,i++);
     arr->AddAt(epsilon_err,i++);
-    //----------------------------------------------------------------------------------------------------//
-    //NOTE: Added 7/25/23
-    arr->AddAt(epsilon_ls,i++);
-    arr->AddAt(epsilon_err_ls,i++);
-    arr->AddAt(epsilon_us,i++);
-    arr->AddAt(epsilon_err_us,i++);
-    arr->AddAt(epsilon_sb,i++);
-    arr->AddAt(epsilon_err_sb,i++);
-    //----------------------------------------------------------------------------------------------------//
+    // //----------------------------------------------------------------------------------------------------//
+    // //NOTE: Added 7/25/23
+    // arr->AddAt(epsilon_ls,i++);
+    // arr->AddAt(epsilon_err_ls,i++);
+    // arr->AddAt(epsilon_us,i++);
+    // arr->AddAt(epsilon_err_us,i++);
+    // arr->AddAt(epsilon_sb,i++);
+    // arr->AddAt(epsilon_err_sb,i++);
+    // //----------------------------------------------------------------------------------------------------//
     arr->AddAt(i_sig,i++);
     arr->AddAt(i_sig_err,i++);
     arr->AddAt(i_bg,i++);
