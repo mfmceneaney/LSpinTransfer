@@ -217,7 +217,7 @@ void LMassFitMC_DOUBLE_POLY2() {
     double alpha_init = 1.0;
     double n_init     = 2.0;
     double par9       = 1.1157 + 0.02;
-    double par8       = 0.1 * 1/((prod_min - par9)*(prod_min - par9));
+    double par8       = 0.1 * 1/((true_prod_min - par9)*(true_prod_min - par9));
 
     //fit_min = varMin;//DEBUGGING 10/30/23
     //DEBUGGING: END
