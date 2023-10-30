@@ -22,6 +22,33 @@ void LMassFitPoly4SimpleMC() {
     std::string mccuts_true_pion   = Form("(%s) && (pid_parent_pim_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts.c_str(),false_proton_true_pion_cuts.c_str());
     std::string mccuts_true_bg     = Form("(%s) && (!(pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc) || !(%s))",cuts.c_str(),angcuts.c_str()); //NOTE: USE ANGCUTS FOR FULL BG TRUTH SPECTRUM. 9/14/23. //NOTE: USE ANGULAR OR CUTS HERE //NOTE: OLD KEEP FOR DEBUGGING
 
+    std::string tree = "t";
+    std::string path = "/volatile/clas12/users/mfmce/data_jobs_rga_ppim_FLAG_MIN_MATCH_AND_FRACTION_DELTAP_9_13_23/skim_ppim_*.root";
+    std::string cuts = "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0 && z_ppim>=0.0 && z_ppim<0.6";//Q2>=2.663 && Q2<11.0                                                 
+    std::string name = "LMassFitPoly4Simple";
+
+    // Mass fit options
+    std::string varName = "mass_ppim";
+    int    nbins        = 100;
+    double varMin       = 1.08;
+    double varMax       = 1.24;
+
+    // Miscellaneous
+    std::string drawopt = "";
+    std::string title   = "";
+    std::ostream &out=std::cout;
+
+    // Switch off histogram stats
+    gStyle->SetOptStat(0);
+
+    // Allow multithreading
+    int nthreads = 8;
+    ROOT::EnableImplicitMT(nthreads);
+
+    // Open RDataFrame
+    ROOT::RDataFrame d(tree.c_str(), path.c_str());
+    auto frame = d.Filter(cuts.c_str());
+
     // Switch off histogram stats
     gStyle->SetOptStat(0);
 
