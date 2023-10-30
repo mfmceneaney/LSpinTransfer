@@ -17,7 +17,7 @@ void LMassFitPoly4SimpleMC() {
     std::string angorcuts = Form("(%s) || (%s)",protonangcuts.c_str(),pionangcuts.c_str());
     std::string nomultiplicitycut = "!TMath::IsNaN(costheta1_mc) && !TMath::IsNaN(costheta2_mc)";
     std::string cuts_all = "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0 && z_ppim>=0.0 && z_ppim<0.6";//Q2>=2.663 && Q2<11.0                                                 
-    std::string cuts = Form("%s && (%s)",cuts_all,nomultiplicitycut); //NOTE: ONLY LOOK AT MC EVENTS WHICH ARE EITHER BACKGROUND OR LAMBDA NOT PROTON PION COMBOS FROM MC TRUTH
+    std::string cuts = Form("%s && (%s)",cuts_all.c_str(),nomultiplicitycut.c_str()); //NOTE: ONLY LOOK AT MC EVENTS WHICH ARE EITHER BACKGROUND OR LAMBDA NOT PROTON PION COMBOS FROM MC TRUTH
     std::string mccuts  = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts.c_str(),angcuts.c_str()); //NOTE YOU NEED ANGLE CHECKING FOR ALL TRUTH SIGNAL ITEMS SINCE YOU CAN HAVE COMBINATIONS FROM MC THAT WOULDN'T SHOW UP IN DATA SPECIFICALLY FOR TRUE PROTON FALSE PION
     std::string mccuts_true_proton = Form("(%s) && (pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts.c_str(),true_proton_false_pion_cuts.c_str());
     std::string mccuts_true_pion   = Form("(%s) && (pid_parent_pim_mc==3122 && row_parent_p_mc==row_parent_pim_mc && (%s))",cuts.c_str(),false_proton_true_pion_cuts.c_str());
