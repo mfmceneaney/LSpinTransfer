@@ -253,8 +253,8 @@ void analysis(const YAML::Node& node) {
         // Set poly4 mask
         int poly4bins[nbins];
         for (int entry=0; entry<poly4map[binvar.c_str()].size(); entry++) {
-            int bin = poly4map[binvar.c_str()][entry];
-            if (bin<=nbins) poly4bins[bin]-1 = 1;
+            int bin = poly4map[binvar.c_str()][entry]-1;
+            if (bin<nbins) poly4bins[bin] = 1;
         }
         for (int bin=0; bin<bins_.size(); bin++) { bins[bin] = bins_[bin]; }
 
