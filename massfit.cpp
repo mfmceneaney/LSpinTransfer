@@ -79,7 +79,7 @@ void analysis(const YAML::Node& node) {
     std::cout << "fitvar: " << fitvar << std::endl;
 
     std::map<std::string,std::vector<double>> binvars;
-    std::map<std::string,std::vector<double>> poly4map;
+    std::map<std::string,std::vector<int>> poly4map;
     if (node["binvars"]) {
         if (node["binvars"].IsMap()) {
             std::cout<<"binvars:"<<std::endl;//DEBUGGING
