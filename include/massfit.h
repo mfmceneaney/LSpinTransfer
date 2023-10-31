@@ -838,22 +838,36 @@ TArrayF* LambdaMassFitGauss(
     // DEBUGGING: BEGIN
 
     // First figure out roughly where background maxes out
-    double m0 = varMax;
+    double m0 = varMax;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...
     double midVal = h->GetBinContent((int)nbins/2);
     double endVal = h->GetBinContent(nbins);
     double delVal = (endVal-midVal)/endVal;
     out<<"DEBUGGING: delVal = "<<delVal<<std::endl;
     if (delVal>0.25) m0 = varMax*1.04;
-    if (delVal<0.0) m0 = varMax*0.96;
+    if (delVal<0.1) m0 = varMax*0.96;
     // DEBUGGING: END
     double true_prod_min = 1.078;
     double beta = 1/((true_prod_min-m0)*(true_prod_min-m0));
     double hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0));
     out<<"DEBUGGING: true_prod_min = "<<true_prod_min<<std::endl;
     out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
-
     //DEBUGGING: BEGIN
 
+    //For xF binning
+    int bin1  = 1;
+    int bin2  = (int)(0.10*nbins);
+    int bin3  = (int)(0.15*nbins);
+    double x1 = h->GetBinCenter(bin1);
+    double x2 = h->GetBinCenter(bin2);
+    double x3 = h->GetBinCenter(bin3);
+    double y1 = h->GetBinContent(bin1);
+    double y2 = h->GetBinContent(bin2);
+    double y3 = h->GetBinContent(bin3);
+    double myratio = ((y2-y1)/h->GetMaximum()) / ((x2-x1)/(varMax-varMin));
+    double myratio2 = ( (y3-y2) / (x3-x2) )  /  ( (y2-y1) / (x2-x1) ); //NOTE: GET RATIO OF SLOPE IN REGION (2,3) TO SLOPE IN REGION (1,2)
+    out<<"DEBUGGING: myratio = "<<myratio<<std::endl;
+    out<<"DEBUGGING: myratio2 = "<<myratio2<<std::endl;
+    
     // Set intial signal parameters
     double fit_min = varMin;
     double sigma_init = 0.006;
@@ -862,18 +876,33 @@ TArrayF* LambdaMassFitGauss(
     double lwdelVal = (firstVal)/hfmidVal;
     out<<"DEBUGGING: lwdelVal = "<<lwdelVal<<std::endl;
     double sig_max_init = h->GetMaximum()/4;
-    if (lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
+    if ( myratio<1.5) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
       //sigma_init = 0.006;
       sig_max_init = h->GetMaximum()/10; //REDUCE SIGNAL COEFFICIENT
-      double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM
+      double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM 
       out<<"DEBUGGING: prod_min = "<<prod_min<<std::endl;
       beta = 1/((prod_min-m0)*(prod_min-m0));
       hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0));
       out<<"DEBUGGING: REASSIGNED m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
       fit_min = varMin + (varMax-varMin)*0.10;//IGNORE WHATEVER IS HAPPENING AT REALLY LOW MASS_PPIM
     }
+    double fit_max = varMax;
+    if (delVal<0.15/*myratio2<1.1*/) { // THIS IS THE CASE WHEN YOU'RE CUTTING OUT LOTS OF HIGH MASS_PPIM BG AND BG SHAPE IS NO LONGER REALLY QUADRATIC...COULD FIND BETTER FUNCTION MAYBE...
+      fit_min = varMin + (varMax-varMin)*0.00;//IGNORE WHATEVER IS HAPPENING AT REALLY LOW MASS_PPIM
+      fit_max = varMax - (varMax-varMin)*0.00;//IGNORE WHATEVER IS HAPPENING AT REALLY HIGH MASS_PPIM
+      //out<<"DEBUGGING: REASSIGNED fit_min = "<<fit_min<<std::endl;
+      out<<"DEBUGGING: REASSIGNED fit_max = "<<fit_max<<std::endl;
+      sigma_init = 0.009;
+      sig_max_init = h->GetMaximum()/3;
+      out<<"DEBUGGING: REASSIGNED fit_min, sigma_init, sig_max_init = "<<fit_min<<" , "<<sigma_init<<" , "<<sig_max_init<<std::endl;
+    }
     out<<"DEBUGGING: sigma_init  = "<<sigma_init<<std::endl;
+    double alpha_init = 1.0;
+    double n_init     = 2.0;
+
+    //fit_min = varMin;//DEBUGGING 10/30/23
     //DEBUGGING: END
+    //func->SetParameters(0.5,2,0.006,1.1157,h->GetMaximum()/4,h->GetBinContent(nbins)+1000,50,1.22);
 
     // Set Fitting fn
     TF1 *func = new TF1("fit","[2]*TMath::Gaus(x,[1],[0],true) + [3]*(1 - [4]*(x-[5])*(x-[5]))",varMin,varMax);
