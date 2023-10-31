@@ -25,7 +25,7 @@ void LMassFitPoly4MC() {
 
     std::string tree = "t";
     std::string path = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_FLAG_MIN_MATCH_AND_FRACTION_DELTAP_9_13_23/skim_ppim_*.root";
-    std::string name = "LMassFitPoly4Simple";
+    std::string name = "LMassFitPoly4MC";
 
     // Mass fit options
     std::string varName = "mass_ppim";
@@ -247,7 +247,7 @@ void LMassFitPoly4MC() {
     TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
-    TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,9,5,9)); // Make sure these match up!
+    TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,10,5,10)); // Make sure these match up!
 
     // Crystal Ball fit parameters
     double alpha = func->GetParameter(0);
@@ -340,6 +340,10 @@ void LMassFitPoly4MC() {
     out << "i_bg" << std::endl;
     auto i_bg = bg->Integral(LBInt, UBInt)/BinWidth;
     auto i_bg_err = bg->IntegralError(LBInt,UBInt,bg->GetParameters(),bgMat->GetMatrixArray())/BinWidth;
+
+    out << "DEBUGGING: i_fitf ± i_fitf_err = " << i_fitf << " ± " << i_fitf_err << std::endl;
+    out << "DEBUGGING: i_bg   ± i_bg_err   = " << i_bg   << " ± " << i_bg_err   << std::endl;
+    out << "DEBUGGING: i_sig  ± i_sig_err  = " << i_sig  << " ± " << i_sig_err  << std::endl;
 
     //----------------------------------------------------------------------------------------------------//
     // DEBUGGING: Added 7/25/23
