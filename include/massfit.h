@@ -1952,7 +1952,7 @@ TArrayF* LambdaMassFitMC(
 
 } // TArrayF* LambdaMassFitMC()
 
-TArrayF* LambdaMassFitMCPoly4BG(
+TArrayF* LambdaMassFitPoly4BGMC(
                         std::string  outdir,
                         TFile *outroot,
                         ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
@@ -2448,7 +2448,7 @@ TArrayF* LambdaMassFitMCPoly4BG(
 
     return arr;
 
-} // TArrayF* LambdaMassFitMCPoly4BG()
+} // TArrayF* LambdaMassFitPoly4BGMC()
 
 TArrayF* LambdaMassFitMCFIXPARAMS(
                         std::string  outdir,
