@@ -1335,6 +1335,7 @@ void getKinBinnedMassFits(
                     std::string  binvar, // Variable name to bin in
                     int          nbins,   // Number of bins
                     double     * bins,    // Bin limits (length=nbins+1)
+                    int        * poly4bins,// mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
                     double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     bool         use_bgfraction, // whether to use specified epsilon
                     double       alpha,   // Lambda weak decay asymmetry parameter
@@ -1399,7 +1400,9 @@ void getKinBinnedMassFits(
         if (!use_bgfraction) {
             std::string massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
             std::string bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
-            TArrayF* massFitData = LambdaMassFit(
+            TArrayF* massFitData;
+            if (poly4bins[i-1]==0) {
+                massFitData = LambdaMassFit(
                         massoutdir,
                         outroot,
                         bin_frame,
@@ -1411,6 +1414,20 @@ void getKinBinnedMassFits(
                         bin_title,
                         out
                         );
+            } else {
+                massFitData = LambdaMassFitPoly4BG(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
+            }
 
             epsilon = massFitData->GetAt(0);
             bgfraction_err = massFitData->GetAt(1);
