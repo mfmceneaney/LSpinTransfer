@@ -523,8 +523,8 @@ N MAYBE...
     func->SetParameters(alpha_init,n_init,sigma_init,1.1157,sig_max_init,hmax,par6,par7,par8,par9,par10);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol4 a0","Pol4 a1","Pol4 a2","Pol4 a3","Pol4 a4","Pol4 a5");
     // func->FixParameter(6,37);
-    // func->SetParLimits(0,0.0,1000.0);
-    func->SetParLimits(5,h->GetBinContent(nbins)*0.98,h->GetBinContent(nbins)*10.0);
+    func->SetParLimits(0,0.0,1000.0);
+    // func->SetParLimits(5,h->GetBinContent(nbins)*0.98,h->GetBinContent(nbins)*10.0);
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
     func->SetParLimits(1,2.0,1000.0);
@@ -1287,7 +1287,7 @@ TArrayF* LambdaMassFitGaussPoly4BG(
     func->SetParNames("sigma","Mu","C1","Pol2 max","Pol4 a0","Pol4 a1","Pol4 a2","Pol4 a3","Pol4 a4","Pol4 a5");
     // // func->FixParameter(6,37);
     // func->SetParLimits(0,0.0,1000.0);
-    func->SetParLimits(3,h->GetBinContent(nbins)*0.98,h->GetBinContent(nbins)*10.0);
+    // func->SetParLimits(3,h->GetBinContent(nbins)*0.98,h->GetBinContent(nbins)*10.0);
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
 
@@ -2172,10 +2172,10 @@ TArrayF* LambdaMassFitPoly4BGMC(
     func->SetParameters(alpha_init,n_init,sigma_init,1.1157,sig_max_init,hmax,par6,par7,par8,par9,par10);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol4 a0","Pol4 a1","Pol4 a2","Pol4 a3","Pol4 a4","Pol4 a5");
     // // func->FixParameter(6,37);
-    // func->SetParLimits(0,0.0,1000.0);
-    func->SetParLimits(5,h->GetBinContent(nbins)-1000,h->GetBinContent(nbins)+10000);
+    func->SetParLimits(0,0.0,1000.0);
+    // func->SetParLimits(5,h->GetBinContent(nbins)-1000,h->GetBinContent(nbins)+10000);
     // func->SetParLimits(7,0.0,1.26);
-    // func->SetParLimits(1,2.0,100.0);
+    func->SetParLimits(1,2.0,100.0);
 
     //DEBUGGING: BEGIN
     // Plot original function
@@ -3658,7 +3658,7 @@ TArrayF* LambdaMassFitGaussPoly4BGMC(
     func->SetParNames("sigma","Mu","C1","Pol4 a0","Pol4 a1","Pol4 a2","Pol4 a3","Pol4 a4","Pol4 a5");
     // // func->FixParameter(6,37);
     // func->SetParLimits(0,0.0,1000.0);
-    func->SetParLimits(3,h->GetBinContent(nbins)-1000,h->GetBinContent(nbins)+10000);
+    // func->SetParLimits(3,h->GetBinContent(nbins)-1000,h->GetBinContent(nbins)+10000);
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
 
