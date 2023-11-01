@@ -1613,7 +1613,7 @@ void getKinBinnedMassFitsMC(
             TArrayF* massFitData;
             if (poly4bins[i-1]==0) {
                 out<<"DEBUGGING: -----> Call to LambdaMassFitMC"<<std::endl;//DEBUGGING
-                massFitData = LambdaMassFit(
+                massFitData = LambdaMassFitMC(
                         massoutdir,
                         outroot,
                         bin_frame,
