@@ -252,11 +252,11 @@ void analysis(const YAML::Node& node) {
 
         // Set poly4 mask
         int poly4bins[nbins];
+        for (int entry=0; entry<nbins; entry++) { poly4bins[entry] = 0; }
         for (int entry=0; entry<poly4map[binvar.c_str()].size(); entry++) {
             int bin = poly4map[binvar.c_str()][entry]-1;
             if (bin<nbins) poly4bins[bin] = 1;
         }
-        out<<"DEBUGGING: poly4bins = { "; for (int j=0; j<nbins; j++) { out<<poly4bins[j]<<" "; }; out<<std::endl;//DEBUGGING
         for (int bin=0; bin<bins_.size(); bin++) { bins[bin] = bins_[bin]; }
 
         // Set binvar outdir name
