@@ -1402,6 +1402,7 @@ void getKinBinnedMassFits(
             std::string bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
             TArrayF* massFitData;
             if (poly4bins[i-1]==0) {
+                out<<"DEBUGGING: -----> Call to LambdaMassFit"<<std::endl;//DEBUGGING
                 massFitData = LambdaMassFit(
                         massoutdir,
                         outroot,
@@ -1415,6 +1416,7 @@ void getKinBinnedMassFits(
                         out
                         );
             } else {
+                out<<"DEBUGGING: -----> Call to LambdaMassFitPoly4BG()"<<std::endl;//DEBUGGING
                 massFitData = LambdaMassFitPoly4BG(
                         massoutdir,
                         outroot,
