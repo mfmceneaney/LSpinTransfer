@@ -79,6 +79,7 @@ void analysis(const YAML::Node& node) {
     std::cout << "fitvar: " << fitvar << std::endl;
 
     std::map<std::string,std::vector<double>> binvars;
+    std::map<std::string,std::vector<int>> poly4map;
     if (node["binvars"]) {
         if (node["binvars"].IsMap()) {
             std::cout<<"binvars:"<<std::endl;//DEBUGGING
@@ -95,6 +96,10 @@ void analysis(const YAML::Node& node) {
                 std::vector<double> bins;
                 if (node["binvars"][name]["bins"]) {
                     bins = node["binvars"][name]["bins"].as<std::vector<double>>();
+                }
+                std::vector<int> poly4bins;
+                if (node["binvars"][name]["poly4bins"]) {
+                    poly4bins = node["binvars"][name]["poly4bins"].as<std::vector<int>>();
                 }
                 
                 // Set bin limits if just given nbins and outer limits
@@ -115,6 +120,14 @@ void analysis(const YAML::Node& node) {
                 for (int bin=0; bin<vec.size(); bin++) {
                     if (bin!=vec.size()-1) { std::cout<<vec[bin]<<", "; }
                     else { std::cout<<vec[bin]<<" ]"<<std::endl; }
+                } //DEBUGGING
+
+                // Add to poly4 bin variables map
+                poly4map.insert(std::pair<std::string, std::vector<int>>(name, poly4bins));
+                std::cout<<"\t"<<name<<": [ ";//DEBUGGING
+                for (int bin=0; bin<poly4bins.size(); bin++) {
+                    if (bin!=poly4bins.size()-1) { std::cout<<poly4bins[bin]<<", "; }
+                    else { std::cout<<poly4bins[bin]<<" ]"<<std::endl; }
                 } //DEBUGGING
             }
         }
@@ -248,6 +261,14 @@ void analysis(const YAML::Node& node) {
         std::vector<double> bins_ = it->second;
         const int nbins = bins_.size()-1; //NOTE: IMPORTANT: -1 is because you give bin limits!
         double bins[nbins];
+
+        // Set poly4 mask
+        int poly4bins[nbins];
+        for (int entry=0; entry<nbins; entry++) { poly4bins[entry] = 0; }
+        for (int entry=0; entry<poly4map[binvar.c_str()].size(); entry++) {
+            int bin = poly4map[binvar.c_str()][entry]-1;
+            if (bin<nbins) poly4bins[bin] = 1;
+        }
         for (int bin=0; bin<bins_.size(); bin++) { bins[bin] = bins_[bin]; }
 
         // Set binvar outdir name
@@ -264,6 +285,7 @@ void analysis(const YAML::Node& node) {
                     binvar, // std::string  binvar, // Variable name to bin in
                     nbins, // int          nbins,   // Number of bins
                     bins, // double     * bins,    // Bin limits (length=nbins+1)
+                    poly4bins,// int        * poly4bins,// mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
                     bgfraction, // double       epsilon_, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     use_bgfraction, // bool         use_epsilon, // whether to use specified epsilon
                     alpha, // double       alpha,   // Lambda weak decay asymmetry parameter

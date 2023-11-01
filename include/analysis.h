@@ -1335,7 +1335,7 @@ void getKinBinnedMassFits(
                     std::string  binvar, // Variable name to bin in
                     int          nbins,   // Number of bins
                     double     * bins,    // Bin limits (length=nbins+1)
-                    int        * poly4bins,// mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
+                    int        * poly4bins, // mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
                     double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     bool         use_bgfraction, // whether to use specified epsilon
                     double       alpha,   // Lambda weak decay asymmetry parameter
@@ -1524,6 +1524,7 @@ void getKinBinnedMassFitsMC(
                     std::string  binvar, // Variable name to bin in
                     int          nbins,   // Number of bins
                     double     * bins,    // Bin limits (length=nbins+1)
+                    int        * poly4bins, // mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
                     double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     bool         use_bgfraction, // whether to use specified epsilon
                     double       alpha,   // Lambda weak decay asymmetry parameter
@@ -1609,7 +1610,10 @@ void getKinBinnedMassFitsMC(
                         bin_title,
                         out
                         );
-            TArrayF* massFitData = LambdaMassFitMC(
+            TArrayF* massFitData;
+            if (poly4bins[i-1]==0) {
+                out<<"DEBUGGING: -----> Call to LambdaMassFitMC"<<std::endl;//DEBUGGING
+                massFitData = LambdaMassFit(
                         massoutdir,
                         outroot,
                         bin_frame,
@@ -1623,6 +1627,23 @@ void getKinBinnedMassFitsMC(
                         bin_title,
                         out
                         );
+            } else {
+                out<<"DEBUGGING: -----> Call to LambdaMassFitPoly4BGMC()"<<std::endl;//DEBUGGING
+                massFitData = LambdaMassFitPoly4BGMC(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        dtheta_p_max,
+                        dtheta_pim_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
+            }
 
             out<<"DEBUGGING: in analysis.h after calling LambdaMassFitMC(): massoutdir = "<<massoutdir<<std::endl;//DEBUGGING
             out<<"DEBUGGING: in analysis.h after calling LambdaMassFitMC(): bin_title = "<<bin_title<<std::endl;//DEBUGGING
@@ -1924,6 +1945,7 @@ void getKinBinnedMassFitsGauss(
                     std::string  binvar, // Variable name to bin in
                     int          nbins,   // Number of bins
                     double     * bins,    // Bin limits (length=nbins+1)
+                    int        * poly4bins, // mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
                     double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     bool         use_bgfraction, // whether to use specified epsilon
                     double       alpha,   // Lambda weak decay asymmetry parameter
@@ -1988,7 +2010,11 @@ void getKinBinnedMassFitsGauss(
         if (!use_bgfraction) {
             std::string massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
             std::string bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
-            TArrayF* massFitData = LambdaMassFitGauss(
+            TArrayF* massFitData;
+
+            if (poly4bins[i-1]==0) {
+                out<<"DEBUGGING: -----> Call to LambdaMassFitGauss()"<<std::endl;//DEBUGGING
+                massFitData = LambdaMassFitGauss(
                         massoutdir,
                         outroot,
                         bin_frame,
@@ -2000,6 +2026,21 @@ void getKinBinnedMassFitsGauss(
                         bin_title,
                         out
                         );
+            } else {
+                out<<"DEBUGGING: -----> Call to LambdaMassFitGaussPoly4BG()"<<std::endl;//DEBUGGING
+                massFitData = LambdaMassFitGaussPoly4BG(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
+            }
 
             epsilon = massFitData->GetAt(0);
             bgfraction_err = massFitData->GetAt(1);
@@ -2094,6 +2135,7 @@ void getKinBinnedMassFitsMCGauss(
                     std::string  binvar, // Variable name to bin in
                     int          nbins,   // Number of bins
                     double     * bins,    // Bin limits (length=nbins+1)
+                    int        * poly4bins, // mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
                     double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     bool         use_bgfraction, // whether to use specified epsilon
                     double       alpha,   // Lambda weak decay asymmetry parameter
@@ -2179,7 +2221,11 @@ void getKinBinnedMassFitsMCGauss(
                         bin_title,
                         out
                         );
-            TArrayF* massFitData = LambdaMassFitGaussMC(
+            TArrayF* massFitData;
+
+            if (poly4bins[i-1]==0) {
+                out<<"DEBUGGING: -----> Call to LambdaMassFitGaussMC()"<<std::endl;//DEBUGGING
+                massFitData = LambdaMassFitGaussMC(
                         massoutdir,
                         outroot,
                         bin_frame,
@@ -2193,6 +2239,23 @@ void getKinBinnedMassFitsMCGauss(
                         bin_title,
                         out
                         );
+            } else {
+                out<<"DEBUGGING: -----> Call to LambdaMassFitGaussPoly4BGMC()"<<std::endl;//DEBUGGING
+                massFitData = LambdaMassFitGaussPoly4BGMC(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        dtheta_p_max,
+                        dtheta_pim_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
+            }
 
             out<<"DEBUGGING: in analysis.h after calling LambdaMassFitGaussMC(): massoutdir = "<<massoutdir<<std::endl;//DEBUGGING
             out<<"DEBUGGING: in analysis.h after calling LambdaMassFitGaussMC(): bin_title = "<<bin_title<<std::endl;//DEBUGGING
