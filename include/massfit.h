@@ -3437,7 +3437,7 @@ TArrayF* LambdaMassFitGaussMC(
 
 } // TArrayF* LambdaMassFitGaussMC()
 
-TArrayF* LambdaMassFitGaussPoly4MC(
+TArrayF* LambdaMassFitGaussPoly4BGMC(
                         std::string  outdir,
                         TFile *outroot,
                         ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
@@ -3923,4 +3923,4 @@ TArrayF* LambdaMassFitGaussPoly4MC(
 
     return arr;
 
-} // TArrayF* LambdaMassFitGaussPoly4MC()
+} // TArrayF* LambdaMassFitGaussPoly4BGMC()
