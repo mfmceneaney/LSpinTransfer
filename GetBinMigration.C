@@ -187,16 +187,16 @@ void GetBinMigration() {
     std::vector<std::string> labels;
     const char * drawopt = "APE";
 
-    names.push_back("Q2"); names_mc.push_back("Q2_mc"); nbins.push_back(5); binlims.push_back({1.0, 1.2142, 1.4986, 1.9157, 2.6630, 11.0}); labels.push_back("Q^{2} (GeV^{2})");
-    names.push_back("W"); names_mc.push_back("W_mc"); nbins.push_back(5); binlims.push_back({2.0, 2.2033, 2.4357, 2.7120, 3.0841, 5.0}); labels.push_back("W (GeV)");
-    names.push_back("y"); names_mc.push_back("y_mc"); nbins.push_back(5); binlims.push_back({0.0, 0.2912, 0.3568, 0.4362, 0.5480, 0.8}); labels.push_back("y");
-    names.push_back("x"); names_mc.push_back("x_mc"); nbins.push_back(5); binlims.push_back({0.0, 0.1568, 0.2110, 0.2629, 0.3377, 1.0}); labels.push_back("x");
+    names.push_back("Q2"); names_mc.push_back("Q2_mc"); nbins.push_back(5); binlims.push_back({1.0000, 1.2248, 1.5243, 1.9571, 2.7212, 11.0}); labels.push_back("Q^{2} (GeV^{2})");
+    names.push_back("W"); names_mc.push_back("W_mc"); nbins.push_back(5); binlims.push_back({2.0000, 2.2569, 2.4926, 2.7605, 3.1145, 5.0}); labels.push_back("W (GeV)");
+    names.push_back("y"); names_mc.push_back("y_mc"); nbins.push_back(5); binlims.push_back({0.0000, 0.3071, 0.3736, 0.4517, 0.5635, 0.8}); labels.push_back("y");
+    names.push_back("x"); names_mc.push_back("x_mc"); nbins.push_back(5); binlims.push_back({0.0000, 0.1515, 0.2033, 0.2564, 0.3339, 1.0}); labels.push_back("x");
 
-    // names.push_back("mass_ppim");  names_mc.push_back("mass_ppim_mc"); nbins.push_back(5); binlims.push_back({1.08,1.24}); labels.push_back("M_{p#pi^{-}}");
-    names.push_back("z_ppim"); names_mc.push_back("z_ppim_mc"); nbins.push_back(5); binlims.push_back({0.0, 0.6038, 0.7041, 0.7972, 0.9060, 10.0}); labels.push_back("z_{p#pi^{-}}");
-    names.push_back("xF_ppim"); names_mc.push_back("xF_ppim_mc"); nbins.push_back(5); binlims.push_back({0.0, 0.0542, 0.1168, 0.1945, 0.3064, 1.0}); labels.push_back("x_{F p#pi^{-}}");
-    // names.push_back("costheta1"); names_mc.push_back("costheta1_mc"); nbins.push_back(10); binlims.push_back({-1.0,1.0}); labels.push_back("cos(#theta) along P_{#Lambda}");
-    // names.push_back("costheta2"); names_mc.push_back("costheta2_mc"); nbins.push_back(10); binlims.push_back({-1.0,1.0}); labels.push_back("cos(#theta) along P_{#gamma *}");
+    // names.push_back("mass_ppim");  names_mc.push_back("mass_ppim_mc"); nbins.push_back(10); binlims.push_back({1.08,1.24}); labels.push_back("M_{p#pi^{-}}");
+    names.push_back("z_ppim"); names_mc.push_back("z_ppim_mc"); nbins.push_back(5); binlims.push_back({0.0000, 0.5928, 0.6856, 0.7698, 0.8597, 1.0}); labels.push_back("z_{p#pi^{-}}");
+    names.push_back("xF_ppim"); names_mc.push_back("xF_ppim_mc"); nbins.push_back(5); binlims.push_back({0.0000, 0.0504, 0.1082, 0.1784, 0.2775, 1.0}); labels.push_back("x_{F p#pi^{-}}");
+    names.push_back("costheta1"); names_mc.push_back("costheta1_mc"); nbins.push_back(10); binlims.push_back({-1.0,1.0}); labels.push_back("cos(#theta) along P_{#Lambda}");
+    names.push_back("costheta2"); names_mc.push_back("costheta2_mc"); nbins.push_back(10); binlims.push_back({-1.0,1.0}); labels.push_back("cos(#theta) along P_{#gamma *}");
 
     // Plot bin migrations for kinematics not dependent on lambda
     for (int i=0; i<names.size(); i++) {
