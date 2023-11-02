@@ -1,5 +1,5 @@
 
-void LMassFitGaussPoly4MC() {
+void LMassFitGaussPoly4BGMC() {
   
     double dtheta_p_max = 6.0;
     double dtheta_pim_max = 6.0;
@@ -25,7 +25,7 @@ void LMassFitGaussPoly4MC() {
 
     std::string tree = "t";
     std::string path = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_FLAG_MIN_MATCH_AND_FRACTION_DELTAP_9_13_23/skim_ppim_*.root";
-    std::string name = "LMassFitGaussPoly4MC";
+    std::string name = "LMassFitGaussPoly4BGMC";
 
     // Mass fit options
     std::string varName = "mass_ppim";
@@ -456,4 +456,4 @@ void LMassFitGaussPoly4MC() {
     c1->SaveAs(Form("c1_%s.pdf",name.c_str()));
     h->SaveAs(Form("h_%s.root",name.c_str()));
 
-} // void LMassFitGaussPoly4MC()
+} // void LMassFitGaussPoly4BGMC()
