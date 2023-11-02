@@ -127,11 +127,11 @@ if __name__=="__main__":
     packages = [
         {
             'method' : method,
-            'inpath1' : method+'_CT1/'+method+'_costheta1_Q2_1.000_10.000_'+asym_str+'.root',
-            'inpath2' : method+'_CT2/'+method+'_costheta2_Q2_1.000_10.000_'+asym_str+'.root',
+            'inpath1' : method+'_CT1/'+method+'_costheta1_Q2_1.000_11.000_'+asym_str+'.root',
+            'inpath2' : method+'_CT2/'+method+'_costheta2_Q2_1.000_11.000_'+asym_str+'.root',
             'xvar' : 'Q2',
             'xvar_name' : 'Q^{2} (GeV^{2})',
-            'xlims' : (1.0,10.0),
+            'xlims' : (1.0,11.0),
             'ylims' : ylims,
             'injected_asym' : injected_asym,
         },
@@ -167,8 +167,8 @@ if __name__=="__main__":
         },
         {
             'method' : method,
-            'inpath1' : method+'_CT1/'+method+'_costheta1_z_ppim_0.000_1.000_'+asym_str+'.root',
-            'inpath2' : method+'_CT2/'+method+'_costheta2_z_ppim_0.000_1.000_'+asym_str+'.root',
+            'inpath1' : method+'_CT1/'+method+'_costheta1_z_ppim_0.000_10.000_'+asym_str+'.root',
+            'inpath2' : method+'_CT2/'+method+'_costheta2_z_ppim_0.000_10.000_'+asym_str+'.root',
             'xvar' : 'z_ppim',
             'xvar_name' : 'z_{p\pi^{-}}',
             'xlims' : (0.3,1.0),
