@@ -12,8 +12,8 @@ void findBinLimits(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void>
     std::vector<double> bin_means_err;
     std::vector<double> bin_lims;
 
-    double varMin = (double)*frame.Max(varName);
-    double varMax = (double)*frame.Min(varName);
+    double varMin = (double)*frame.Min(varName);
+    double varMax = (double)*frame.Max(varName);
     int    count  = (int)*frame.Count();
     double targetbincount = (double)count/nbins;
 
@@ -23,42 +23,50 @@ void findBinLimits(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void>
 
     // Find bin lims
     int nsteps;
-    double threshold = 0.05*targetbincount; //NOTE: This is a threshold in counts which will be an int....
+    double threshold = 0.01*targetbincount; //NOTE: This is a threshold in counts which will be an int....
     for (int i=0; i<nbins; i++) {
-        double binmin = (i==0 ? (double)varMin : bin_lims.at(bin_lims.size()-2)); //NOTE: NEED TO SET OUTSIDE OR ADD.....
-        double binmax = (i==0 ? (double)(varMin) : bin_lims.at(bin_lims.size()-1));
+        double binmin = (i==0 ? (double)varMin : bin_lims.at(bin_lims.size()-1)); //NOTE: NEED TO SET OUTSIDE OR ADD.....
+        double binmax = (i==nbins-1 ? (double)varMax: binmin);
         std::string bin_cut = Form("%s>=%.16f && %s<%.16f",varName.c_str(),binmin,varName.c_str(),binmax);
         int bincount = (int)*frame.Filter(bin_cut).Count();
         bool pass_flag = false;
+        step = (double)(varMax-varMin)/nbins;//IMPORTANT! NEED TO RESET IN CASE IT'S NEGATIVE BUT ALSO SO IT DOESN'T START REALLY SMALL.
         double delta = TMath::Abs(bincount-targetbincount);
-        std::cout<<"DEBUGGING pass_flag = "<<pass_flag<<std::endl;//DEBUGGING
-        while (delta>threshold) {
+        // std::cout<<"DEBUGGING: BEGIN BIN i = "<<i<<std::endl;//DEBUGGING
+        // std::cout<<"DEBUGGING pass_flag = "<<pass_flag<<std::endl;//DEBUGGING
+        // std::cout<<"DEBUGGING: initial bin_cut = "<<bin_cut<<std::endl;//DEBUGGING
+        if (i<nbins-1) { //NOTE: BREAK ON LAST BIN SINCE THERE'S ONLY A FINITE AMOUNT LEFT
+            while (delta>threshold) {
 
-            // Set the flags for whether or not you surpassed the bin count
-            if (bincount>targetbincount)  { pass_flag = true;  }
-            if (bincount<=targetbincount) { pass_flag = false; }
+                // Set the flags for whether or not you surpassed the bin count
+                if (bincount>targetbincount)  { pass_flag = true;  }
+                if (bincount<=targetbincount) { pass_flag = false; }
 
-            // Reset upper bin limit
-            binmax += step;
+                // Reset upper bin limit
+                binmax += step;
 
-            // Reset bin cut with new bin lims
-            bin_cut = Form("%s>=%.16f && %s<%.16f",varName.c_str(),binmin,varName.c_str(),binmax);
+                // Reset bin cut with new bin lims
+                bin_cut = Form("%s>=%.16f && %s<%.16f",varName.c_str(),binmin,varName.c_str(),binmax);
 
-            // Reset bin count with new bin lims
-            bincount = (int)*frame.Filter(bin_cut.c_str()).Count();
+                // Reset bin count with new bin lims
+                bincount = (int)*frame.Filter(bin_cut.c_str()).Count();
 
-            // Reset step size if passed targetbincount and switch step direction
-            if (pass_flag && bincount<=targetbincount) step *= -1; //NOTE: IF YOU DID PASS THE BIN COUNT ALREADY AND ARE NOW LESS 
-            if (!pass_flag && bincount>targetbincount) step *= -1; //NOTE: IF YOU DIDN'T 
-            if (delta<step) step *=0.1;
+                // Reset step size if passed targetbincount and switch step direction
+                if (pass_flag && bincount<=targetbincount) step *= -0.3; //NOTE: IF YOU DID PASS THE BIN COUNT ALREADY AND ARE NOW LESS 
+                if (!pass_flag && bincount>targetbincount) step *= -0.3; //NOTE: IF YOU DIDN'T 
+                // if (delta_var<step) step *=0.1;
 
-            // Reset delta of bin count to target
-            delta = TMath::Abs(bincount-targetbincount);
-            std::cout<<"DEBUGGING: step    = "<<step<<std::endl;//DEBUGGING
-            std::cout<<"DEBUGGING: delta   = "<<delta<<std::endl;//DEBUGGING
-            std::cout<<"DEBUGGING: bin_cut = "<<bin_cut<<std::endl;//DEBUGGING
+                // Reset delta of bin count to target
+                delta = TMath::Abs(bincount-targetbincount);
+                // std::cout<<"____________________________________________________________"<<std::endl;//DEBUGGING
+                // std::cout<<"DEBUGGING: step                = "<<step<<std::endl;//DEBUGGING
+                // std::cout<<"DEBUGGING: bincount            = "<<bincount<<std::endl;//DEBUGGING
+                // std::cout<<"DEBUGGING: |bincount - target| = "<<delta<<std::endl;//DEBUGGING
+                // std::cout<<"DEBUGGING: \% diff             = "<<100*(delta/targetbincount)<<"\%"<<std::endl;//DEBUGGING
+                // std::cout<<"DEBUGGING: bin_cut             = "<<bin_cut<<std::endl;//DEBUGGING
 
-        } // while(delta<threshold)
+            } // while(delta<threshold)
+        } // if (i<nbins-1)
 
         double binmean = (double)*frame.Filter(bin_cut).Mean(varName.c_str());
         double binstd  = (double)*frame.Filter(bin_cut).StdDev(varName.c_str());
@@ -73,12 +81,17 @@ void findBinLimits(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void>
         std::cout<<" mean     = "<<binmean<<std::endl;//DEBUGGING
         std::cout<<" stddev   = "<<binstd<<std::endl;//DEBUGGING
         std::cout<<" bincount = "<<bincount<<std::endl;//DEBUGGING
+        std::cout<<"DEBUGGING: step                = "<<step<<std::endl;//DEBUGGING
+        std::cout<<"DEBUGGING: bincount            = "<<bincount<<std::endl;//DEBUGGING
+        std::cout<<"DEBUGGING: |bincount - target| = "<<delta<<std::endl;//DEBUGGING
+        std::cout<<"DEBUGGING: \% diff             = "<<100*(delta/targetbincount)<<"\%"<<std::endl;//DEBUGGING
+        std::cout<<"DEBUGGING: bin_cut             = "<<bin_cut<<std::endl;//DEBUGGING
         bin_lims.push_back(binmax);
 
     } // for (int i=0; i<nbins; i++) {
 
     // Print out bin limits
-    std::cout<<varName<<" = ["<<std::endl;//DEBUGGING
+    std::cout<<varName<<" = [";//DEBUGGING
     for (int i=0; i<nbins; i++) {
         double binmin = bin_lims.at(i);
         std::string limstring = Form(" %.4f,",binmin);
@@ -91,9 +104,9 @@ void findBinLimits(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void>
 void FindBinLims() {
 
     // Parameters for MC tree
-    const char *path    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_7_7_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
+    const char *path    = "/volatile/clas12/users/mfmce/data_jobs_rga_ppim_FLAG_MIN_MATCH_AND_FRACTION_DELTAP_9_13_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
     const char *tree    = "t";
-    const char *cuts    = "mass_ppim<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0 && y<0.8 && xF_ppim>0.0";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
+    const char *cuts    = "mass_ppim<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0 && y<0.8 && xF_ppim>0.0 && z_ppim<1.05";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
     // const char *drawopt  = "";//"PE1";
 
     gStyle->SetOptStat(0);

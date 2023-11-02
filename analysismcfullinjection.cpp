@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <fstream>
+#include <string>
 
 // YAML Includes
 #include <yaml-cpp/yaml.h>
@@ -11,6 +12,8 @@
 // ROOT Includes
 #include <TFile.h>
 #include <ROOT/RDataFrame.hxx>
+#include <TRandom.h>
+#include <TMath.h>
 
 // Project Includes
 #include <analysis.h>
@@ -144,6 +147,30 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "use_bgfraction: " << use_bgfraction << std::endl;
 
+    // double dtheta_p_max = 6.0*TMath::Pi()/180; //NOTE: IN RADIANS!
+    // if (node["dtheta_p_max"]) {
+    //     dtheta_p_max = node["dtheta_p_max"].as<double>();
+    // }
+    // std::cout << "dtheta_p_max: " << dtheta_p_max << std::endl;
+
+    // double dtheta_pim_max = 6.0*TMath::Pi()/180; //NOTE: IN RADIANS!
+    // if (node["dtheta_pim_max"]) {
+    //     dtheta_pim_max = node["dtheta_pim_max"].as<double>();
+    // }
+    // std::cout << "dtheta_pim_max: " << dtheta_pim_max << std::endl;
+
+    bool inject_asym = false;
+    if (node["inject_asym"]) {
+        inject_asym = node["inject_asym"].as<bool>();
+    }
+    std::cout << "inject_asym: " << inject_asym << std::endl;
+
+    int seed = 2;
+    if (node["inject_seed"]) {
+        seed = node["inject_seed"].as<int>();
+    }
+    std::cout << "inject_seed: " << seed << std::endl;
+
     double sgasym;
     if (node["sgasym"]) {
         sgasym = node["sgasym"].as<double>();
@@ -206,7 +233,7 @@ void analysis(const YAML::Node& node) {
 
     int marker_style = 20;
     if (node["marker_style"]) {
-        marker_style = node["marker_style"].as<int>();
+        marker_style = node["marker_style"].as<int>(); 
     }
     std::cout << "marker_style: " << marker_style << std::endl;
 
@@ -223,16 +250,82 @@ void analysis(const YAML::Node& node) {
     // Allow multithreading
     ROOT::EnableImplicitMT(nthreads);
 
-    // Create RDataFrame for statistics capabilities and reading tree and set branch names to use
-    ROOT::RDataFrame d(tree, inpath);
-    const char * depolarization_name = "Dy";
-    const char * helicity_name       = "heli";
-    auto frame = d.Filter(cuts.c_str())
-                    .Define(helicity_name, "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
-                    .Define(depolarization_name, [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}); // NEEDED FOR CALCULATIONS LATER
+    // Create random number generator for MC asymmetry injection
+    TRandom *gRandom = new TRandom(seed); //NOTE: IMPORTANT: Need `new` here to get a pointer.
 
     // Numerical constants
     double alpha = 0.748;  // ±0.007 Weak decay asymmetry parameter
+
+    // Set MC Track matching angular limits
+    double dtheta_p_max = 6*TMath::Pi()/180; //NOTE: DEBUGGING COULD JUST SET THESE FROM MAIN OR FROM ARGS.
+    double dtheta_pim_max = 6*TMath::Pi()/180;
+    double dphi_p_max = 10*TMath::Pi()/180;
+    double dphi_pim_max = 10*TMath::Pi()/180;
+
+    // Add all absolute bin limits to overall cuts
+    std::string binlims_cuts = "";
+    for (auto it = binvars.begin(); it != binvars.end(); ++it) { //TODO: How to check if too many binning variables...
+
+        // Get bin variable name and bin limits
+        std::string binvar = it->first;
+        std::vector<double> bins_ = it->second;
+        double binmin = bins_.at(0);
+        double binmax = bins_.at(bins_.size()-1);
+
+        // Add to bin limits cuts
+        binlims_cuts = Form("%s && %s>=%.16f && %s<%.16f",binlims_cuts.c_str(),binvar.c_str(),binmin,binvar.c_str(),binmax);
+
+    } // for (auto it = binvars.begin(); it != binvars.end(); ++it) {
+    std::cout<<"DEBUGGING: binlims_cuts = "<<binlims_cuts.c_str()<<std::endl;//DEBUGGING
+
+    // Create RDataFrame for statistics capabilities and reading tree and set branch names to use
+    ROOT::RDataFrame d(tree, inpath);
+    std::string depolarization_name = "Dy";
+    std::string helicity_name       = "heli";
+    std::string depol_name_mc       = "Dy_mc";
+    std::string fitvar_mc = Form("%s_mc",fitvar.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
+    fitvar = fitvar_mc; //NOTE: THIS IS JUST FOR SANITY CHECKING
+    std::string mc_cuts = "!TMath::IsNaN(costheta1_mc) && !TMath::IsNaN(costheta2_mc) && sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0";//NOTE: NOT SURE THAT THESE ARE STILL NECESSARY, 9/14/23.
+    std::cout<<"DEBUGGING: in analysis.cpp: mc_cuts = \n\t"<<mc_cuts<<std::endl;//DEBUGGING
+    auto frame = (!inject_asym) ? d.Filter(cuts.c_str())
+                    .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
+                    .Define(depolarization_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}) :
+                    d // INJECT ASYMMETRY BELOW
+                    .Define("dtheta_p",[](float theta_p, float theta_p_mc){ return TMath::Abs(theta_p-theta_p_mc); },{"theta_p","theta_p_mc"})
+                    .Define("dtheta_pim",[](float theta_pim, float theta_pim_mc){ return TMath::Abs(theta_pim-theta_pim_mc); },{"theta_pim","theta_pim_mc"})
+                    .Define("dphi_p",[](float phi_p, float phi_p_mc){
+                        return (float) (TMath::Abs(phi_p-phi_p_mc)<TMath::Pi()
+                        ? TMath::Abs(phi_p-phi_p_mc) : 2*TMath::Pi() - TMath::Abs(phi_p-phi_p_mc));
+                        },{"phi_p","phi_p_mc"})
+                    .Define("dphi_pim",[](float phi_pim, float phi_pim_mc){
+                        return (float) (TMath::Abs(phi_pim-phi_pim_mc)<TMath::Pi()
+                        ? TMath::Abs(phi_pim-phi_pim_mc) : 2*TMath::Pi() - TMath::Abs(phi_pim-phi_pim_mc));
+                        },{"phi_pim","phi_pim_mc"})
+                    .Filter(Form("(%s) && (%s)",cuts.c_str(),mc_cuts.c_str()))
+                    .Define(depolarization_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y_mc"}) //NOTE: CHANGED y->y_mc, JUST FOR SANITY CHECKING.  //NOTE: CHANGE y->y_mc FOR SANITY CHECKING MC ASYMMETRY INJECTION
+                    .Define(depol_name_mc.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
+                    .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
+                    .Define("XS", [&alpha,&bgasym,&sgasym,&beam_polarization]
+                        (float Dy, float costheta) {
+                        return (float)(0.5*(1.0 + alpha*Dy*beam_polarization*sgasym*costheta)); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
+                        },
+                        {depol_name_mc.c_str(),fitvar_mc.c_str()})
+                    .Define(helicity_name.c_str(), [](float my_rand_var, float XS) {
+                        return (float)(my_rand_var<XS ? 1.0 : -1.0);
+                    },
+                    {"my_rand_var","XS"});
+                    /* NOTE: OLD
+                    .Define(helicity_name.c_str(), [&alpha,&bgasym,&sgasym,&beam_polarization,&dtheta_p_max,&dtheta_pim_max,&dphi_p_max,&dphi_pim_max]
+                        (float Dy, float costheta, float my_rand_var, float pid_parent_p_mc, float row_parent_p_mc, float row_parent_pim_mc, float dtheta_p, float dtheta_pim, float dphi_p, float dphi_pim) {
+                        return (float)(my_rand_var<(0.5*(1.0 + alpha*Dy*beam_polarization*sgasym*costheta)
+                            ? 1.0 : -1.0)); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
+                        },
+                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"my_rand_var","pid_parent_p_mc","row_parent_p_mc","row_parent_pim_mc","dtheta_p","dtheta_pim","dphi_p","dphi_pim"}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+                    */
+
+    double my_testvar  = (double)*frame.Mean("my_rand_var");
+    double my_testvar1 = (double)*frame.Mean("XS");
+    double my_testvar2 = (double)*frame.Mean(helicity_name.c_str());
 
     // Create output log
     std::ofstream outf; outf.open(logpath.c_str());
@@ -263,7 +356,7 @@ void analysis(const YAML::Node& node) {
         std::string binvar_outdir = Form("binvar_%s",binvar.c_str());
 
         // Get 1D graph binned in given kinematic variable.
-        getKinBinnedMassFits(
+        getKinBinnedGraphMC(
                     binvar_outdir,
                     outroot, // TFile *outroot,
                     frame, // ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> __frame__,
@@ -273,21 +366,27 @@ void analysis(const YAML::Node& node) {
                     binvar, // std::string  binvar, // Variable name to bin in
                     nbins, // int          nbins,   // Number of bins
                     bins, // double     * bins,    // Bin limits (length=nbins+1)
-                    poly4bins,// int        * poly4bins,// mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
-                    bgfraction, // double       epsilon_, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
-                    use_bgfraction, // bool         use_epsilon, // whether to use specified epsilon
+                    poly4bins, // int        * poly4bins,// mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
+                    1.0, // double       epsilon_, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
+                    true, // bool         use_epsilon, // whether to use specified epsilon
                     alpha, // double       alpha,   // Lambda weak decay asymmetry parameter
                     beam_polarization, // double       pol,     // Luminosity averaged beam polarization
                     mass_name,// std::string  mass_name, // mass variable name for signal fit
                     n_mass_bins,// int          n_mass_bins, // number of mass bins
                     mass_min,// double       mass_min,   // mass variable max for signal fit
                     mass_max,// double       mass_max,   // mass variable min for signal fit
+                    dtheta_p_max,// double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
+                    dtheta_pim_max,// double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     mass_draw_opt,// std::string  mass_draw_opt, // mass variable hist draw option for fit
                     sgasym,// double       sgasym   = 0.00,        // Asymmetry to inject to signal in MC
                     bgasym,// double       bgasym   = 0.00,        // Asymmetry to inject to background in MC
                     depolarization_name,// std::string  depol    = "Dy",        // Branch name for depolarization factor
                     helicity_name,// std::string  helicity = "heli",      // Branch name for helicity
                     fitvar,// std::string  fitvar   = "costheta1", // cos(theta) leaf name to use
+                    fitvar_mc,// std::string fitvar_mc           = "costheta1_mc",
+                    depol_name_mc,// std::string  depol_name_mc       = "Dy_mc",
+                    inject_asym,// bool inject = false, // flag for whether to inject asymmetry
+                    gRandom,// TRandom * gRandom = TRandom(), // Random number generator to use
                     // //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
                     // //   double       fitvarMin = -1.0,       // fit variable minimum
                     // //   double       fitvarMax = 1.0,        // fit variable maximum
