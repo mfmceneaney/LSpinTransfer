@@ -122,16 +122,16 @@ void analysis(const YAML::Node& node) {
                 std::cout<<"\t"<<name<<": [ ";//DEBUGGING
                 for (int bin=0; bin<vec.size(); bin++) {
                     if (bin!=vec.size()-1) { std::cout<<vec[bin]<<", "; }
-                    else { std::cout<<vec[bin]<<" ]"<<std::endl; }
-                } //DEBUGGING
+                }
+                std::cout<<vec[bin]<<" ]"<<std::endl;
 
                 // Add to poly4 bin variables map
                 poly4map.insert(std::pair<std::string, std::vector<int>>(name, poly4bins));
                 std::cout<<"\t"<<name<<": [ ";//DEBUGGING
                 for (int bin=0; bin<poly4bins.size(); bin++) {
                     if (bin!=poly4bins.size()-1) { std::cout<<poly4bins[bin]<<", "; }
-                    else { std::cout<<poly4bins[bin]<<" ]"<<std::endl; }
-                } //DEBUGGING
+                }
+                std::cout<<poly4bins[bin]<<" ]"<<std::endl;
             }
         }
     }
