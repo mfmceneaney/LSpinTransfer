@@ -109,9 +109,9 @@ if __name__=="__main__":
     fitvars = {"fitvar":["costheta1","costheta2"]}
     sgasyms = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     bgasyms = {"bgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
-    seeds   = {"inject_seed":[2]}
-    # seeds   = {"inject_seed":[2**i for i in range(16)]}
-    sgcuts  = {"sgcut":["mass_ppim>1.08 && mass_ppim<1.11","mass_ppim>1.15 && mass_ppim<1.18","(mass_ppim>1.08 && mass_ppim<1.11) || (mass_ppim>1.15 && mass_ppim<1.18)"]}
+    seeds   = {"inject_seed":[2**i for i in range(16)]}
+    sgmins  = {"sg_min":[round(1.14+0.0004*i,4) for i in range(50)]}
+    sgmaxs  = {"sg_max":[1.18]}
 
     #TODO: Add argumeents for outdir and random seed in analysis.cpp
 
@@ -127,21 +127,96 @@ if __name__=="__main__":
     create_jobs(divisions,base_dir,submit_path,yaml_path)
     submit_jobs(divisions,base_dir,submit_path,out_path)
 
-    # # Sidebands file paths and config #NOTE: TODO: FIX NAMING OR JUST CREATE MANUALLY...WITH SETTING ORIGINAL SIGNAL CUT...
-    # base_dir    = "sidebands/"
-    # submit_path = base_dir+"submit.sh"
-    # yaml_path   = base_dir+"args.yaml"
-    # out_path    = base_dir+"jobs.txt"
-    # divisions = dict(
-    #     methods,
-    #     **fitvars,
-    #     **sgcuts,
-    # )
-    # create_jobs(divisions,base_dir,submit_path,yaml_path)
-    # submit_jobs(divisions,base_dir,submit_path,out_path)
+    # PID file paths and config
+    base_dir    = "systematics/pid/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = dict(
+        methods,
+        **fitvars,
+    )
+    create_jobs(divisions,base_dir,submit_path,yaml_path)
+    submit_jobs(divisions,base_dir,submit_path,out_path)
+
+    # Mass fit systematics file paths and config
+    base_dir    = "systematics/mass_fit/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = dict(
+        methods,
+        **fitvars,
+    )
+    create_jobs(divisions,base_dir,submit_path,yaml_path)
+    submit_jobs(divisions,base_dir,submit_path,out_path)
+
+    # Sideband systematics file paths and config
+    base_dir    = "systematics/sideband/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = dict(
+        methods,
+        **fitvars,
+    )
+    create_jobs(divisions,base_dir,submit_path,yaml_path)
+    submit_jobs(divisions,base_dir,submit_path,out_path)
+
+    # mass_ppim kinematics systematics file paths and config
+    base_dir    = "systematics/kinematics_mass_ppim/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = dict(
+        methods,
+        **fitvars,
+    )
+    create_jobs(divisions,base_dir,submit_path,yaml_path)
+    submit_jobs(divisions,base_dir,submit_path,out_path)
+
+    # xF_ppim kinematics systematics file paths and config
+    base_dir    = "systematics/kinematics_xF_ppim/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = dict(
+        methods,
+        **fitvars,
+    )
+    create_jobs(divisions,base_dir,submit_path,yaml_path)
+    submit_jobs(divisions,base_dir,submit_path,out_path)
+
+    # Upper sideband systematics file paths and config
+    base_dir    = "systematics/upper_sideband_scan/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = dict(
+        methods,
+        **fitvars,
+        **sgmins,
+        **sgmaxs,
+    )
+    create_jobs(divisions,base_dir,submit_path,yaml_path)
+    submit_jobs(divisions,base_dir,submit_path,out_path)
+
+    # Upper sideband scan systematics file paths and config
+    base_dir    = "systematics/upper_sideband_scan/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = dict(
+        methods,
+        **fitvars,
+        **sgmins,
+        **sgmaxs,
+    )
+    create_jobs(divisions,base_dir,submit_path,yaml_path)
+    submit_jobs(divisions,base_dir,submit_path,out_path)
 
     # MC asymmetry injection file paths and config
-    base_dir    = "mc_asym_injection/"
+    base_dir    = "systematics/mc_asym_injection/"
     submit_path = base_dir+"submit.sh"
     yaml_path   = base_dir+"args.yaml"
     out_path    = base_dir+"jobs.txt"
