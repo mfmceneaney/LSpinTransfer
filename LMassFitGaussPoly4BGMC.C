@@ -192,10 +192,10 @@ void LMassFitGaussPoly4BGMC() {
     double hfmidVal = h->GetBinContent((int)(0.10*nbins));
     double lwdelVal = (firstVal)/hfmidVal;
     out<<"DEBUGGING: lwdelVal = "<<lwdelVal<<std::endl;
-    double sig_max_init = h->GetMaximum()/4;
+    double sig_max_init = h->GetMaximum()*TMath::Sqrt(2*TMath::Pi())*sigma_init/4;
     if ( myratio<1.5) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
       //sigma_init = 0.006;
-      sig_max_init = h->GetMaximum()/10; //REDUCE SIGNAL COEFFICIENT
+      sig_max_init = h->GetMaximum()*TMath::Sqrt(2*TMath::Pi())*sigma_init/10; //REDUCE SIGNAL COEFFICIENT
       double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM 
       out<<"DEBUGGING: prod_min = "<<prod_min<<std::endl;
       beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
@@ -210,12 +210,12 @@ void LMassFitGaussPoly4BGMC() {
       //out<<"DEBUGGING: REASSIGNED fit_min = "<<fit_min<<std::endl;
       out<<"DEBUGGING: REASSIGNED fit_max = "<<fit_max<<std::endl;
       sigma_init = 0.009;
-      sig_max_init = h->GetMaximum()/3;
+      sig_max_init = h->GetMaximum()*TMath::Sqrt(2*TMath::Pi())*sigma_init/3;
       out<<"DEBUGGING: REASSIGNED fit_min, sigma_init, sig_max_init = "<<fit_min<<" , "<<sigma_init<<" , "<<sig_max_init<<std::endl;
     }
     out<<"DEBUGGING: sigma_init  = "<<sigma_init<<std::endl;
     double alpha_init = 1.0;
-    double n_init     = 2.0;
+    double n_init     = 3.0;
 
     //fit_min = varMin;//DEBUGGING 10/30/23
     //DEBUGGING: END
