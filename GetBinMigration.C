@@ -144,7 +144,9 @@ void GetBinMigration() {
     // Parameters for MC tree
     const char *path    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_FLAG_MIN_MATCH_AND_FRACTION_DELTAP_9_13_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
     const char *tree    = "t";
-    const char *cuts    = "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
+    const char *cuts    = "xF_ppim>0.0 && z_ppim<1.00 && mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
+    const char *cutsxF  = "xF_ppim>-1.0 && z_ppim<1.00 && mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0"; //NOTE: REMOVE XF cut to look at end bin migration -> Really need to look at pid of parent of parent though for lambdas....if it is quark or diquark...
+    const char *cutsz   = "xF_ppim>0.0 && z_ppim<1.05 && mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0"; //NOTE: REMOVE XF cut to look at end bin migration -> Really need to look at pid of parent of parent though for lambdas....if it is quark or diquark...
     // const char *drawopt  = "";//"PE1";
     gStyle->SetOptStat(0);
 
@@ -180,6 +182,7 @@ void GetBinMigration() {
     f->cd();
     
     // Set maps for 2D plots
+    std::vector<std::string> cuts_;
     std::vector<std::string> names;
     std::vector<std::string> names_mc;
     std::vector<int> nbins;
@@ -187,20 +190,21 @@ void GetBinMigration() {
     std::vector<std::string> labels;
     const char * drawopt = "APE";
 
-    names.push_back("Q2"); names_mc.push_back("Q2_mc"); nbins.push_back(5); binlims.push_back({1.0000, 1.2248, 1.5243, 1.9571, 2.7212, 11.0}); labels.push_back("Q^{2} (GeV^{2})");
-    names.push_back("W"); names_mc.push_back("W_mc"); nbins.push_back(5); binlims.push_back({2.0000, 2.2569, 2.4926, 2.7605, 3.1145, 5.0}); labels.push_back("W (GeV)");
-    names.push_back("y"); names_mc.push_back("y_mc"); nbins.push_back(5); binlims.push_back({0.0000, 0.3071, 0.3736, 0.4517, 0.5635, 0.8}); labels.push_back("y");
-    names.push_back("x"); names_mc.push_back("x_mc"); nbins.push_back(5); binlims.push_back({0.0000, 0.1515, 0.2033, 0.2564, 0.3339, 1.0}); labels.push_back("x");
+    cuts_.push_back(cuts); names.push_back("Q2"); names_mc.push_back("Q2_mc"); nbins.push_back(5); binlims.push_back({1.0000, 1.2248, 1.5243, 1.9571, 2.7212, 11.0}); labels.push_back("Q^{2} (GeV^{2})");
+    cuts_.push_back(cuts); names.push_back("W"); names_mc.push_back("W_mc"); nbins.push_back(5); binlims.push_back({2.0000, 2.2569, 2.4926, 2.7605, 3.1145, 5.0}); labels.push_back("W (GeV)");
+    cuts_.push_back(cuts); names.push_back("y"); names_mc.push_back("y_mc"); nbins.push_back(5); binlims.push_back({0.0000, 0.3071, 0.3736, 0.4517, 0.5635, 0.8}); labels.push_back("y");
+    cuts_.push_back(cuts); names.push_back("x"); names_mc.push_back("x_mc"); nbins.push_back(5); binlims.push_back({0.0000, 0.1515, 0.2033, 0.2564, 0.3339, 1.0}); labels.push_back("x");
 
-    // names.push_back("mass_ppim");  names_mc.push_back("mass_ppim_mc"); nbins.push_back(10); binlims.push_back({1.08,1.24}); labels.push_back("M_{p#pi^{-}}");
-    names.push_back("z_ppim"); names_mc.push_back("z_ppim_mc"); nbins.push_back(5); binlims.push_back({0.0000, 0.5928, 0.6856, 0.7698, 0.8597, 1.0}); labels.push_back("z_{p#pi^{-}}");
-    names.push_back("xF_ppim"); names_mc.push_back("xF_ppim_mc"); nbins.push_back(5); binlims.push_back({0.0000, 0.0504, 0.1082, 0.1784, 0.2775, 1.0}); labels.push_back("x_{F p#pi^{-}}");
-    names.push_back("costheta1"); names_mc.push_back("costheta1_mc"); nbins.push_back(10); binlims.push_back({-1.0,1.0}); labels.push_back("cos(#theta) along P_{#Lambda}");
-    names.push_back("costheta2"); names_mc.push_back("costheta2_mc"); nbins.push_back(10); binlims.push_back({-1.0,1.0}); labels.push_back("cos(#theta) along P_{#gamma *}");
+    cuts_.push_back(cuts); names.push_back("mass_ppim");  names_mc.push_back("mass_ppim_mc"); nbins.push_back(10); binlims.push_back({1.08,1.24}); labels.push_back("M_{p#pi^{-}}");
+    cuts_.push_back(cutsz); names.push_back("z_ppim"); names_mc.push_back("z_ppim_mc"); nbins.push_back(5); binlims.push_back({0.0000, 0.5928, 0.6856, 0.7698, 0.8597, 1.0}); labels.push_back("z_{p#pi^{-}}");
+    cuts_.push_back(cutsxF); names.push_back("xF_ppim"); names_mc.push_back("xF_ppim_mc"); nbins.push_back(5); binlims.push_back({0.0000, 0.0504, 0.1082, 0.1784, 0.2775, 1.0}); labels.push_back("x_{F p#pi^{-}}");
+    cuts_.push_back(cuts); names.push_back("costheta1"); names_mc.push_back("costheta1_mc"); nbins.push_back(10); binlims.push_back({-1.0,1.0}); labels.push_back("cos(#theta) along P_{#Lambda}");
+    cuts_.push_back(cuts); names.push_back("costheta2"); names_mc.push_back("costheta2_mc"); nbins.push_back(10); binlims.push_back({-1.0,1.0}); labels.push_back("cos(#theta) along P_{#gamma *}");
 
     // Plot bin migrations for kinematics not dependent on lambda
     for (int i=0; i<names.size(); i++) {
-      getBinMigrationPlots(frame,names[i],names_mc[i],nbins[i],binlims[i],labels[i].c_str(),drawopt,f);
+      auto frame_ = frame.Filter(cuts_[i].c_str());
+      getBinMigrationPlots(frame_,names[i],names_mc[i],nbins[i],binlims[i],labels[i].c_str(),drawopt,f);
     }
 
     // Close output file
