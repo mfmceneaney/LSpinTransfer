@@ -140,7 +140,7 @@ N MAYBE...
     }
     out<<"DEBUGGING: sigma_init  = "<<sigma_init<<std::endl;
     double alpha_init = 1.0;
-    double n_init     = 2.0;
+    double n_init     = 3.0;
     //DEBUGGING: END
     func->SetParameters(alpha_init,n_init,sigma_init,1.1157,sig_max_init,hmax,beta,m0);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
@@ -898,7 +898,7 @@ TArrayF* LambdaMassFitGauss(
     }
     out<<"DEBUGGING: sigma_init  = "<<sigma_init<<std::endl;
     double alpha_init = 1.0;
-    double n_init     = 2.0;
+    double n_init     = 3.0;
 
     //fit_min = varMin;//DEBUGGING 10/30/23
     //DEBUGGING: END
