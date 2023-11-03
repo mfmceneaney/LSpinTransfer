@@ -3,7 +3,7 @@ outpath: "outfile.root"
 inpath: "/path/to/*.root"
 tree: "t"
 nthreads: 8
-cuts: "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0"
+cuts: "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0"
 sgcuts: "mass_ppim>1.11 && mass_ppim<1.13"
 bgcuts: "(mass_ppim>1.08 && mass_ppim<1.11) || (mass_ppim>1.15 && mass_ppim<1.18)"
 method: "HB"
