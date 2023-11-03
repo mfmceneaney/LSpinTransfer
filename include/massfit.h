@@ -221,8 +221,8 @@ N MAYBE...
 
     Double_t BinWidth = (varMax - varMin) / nbins;
 
-    LBInt = 1.11; //DEBUGGING
-    UBInt = 1.13;
+    LBInt = 1.1104; //DEBUGGING
+    UBInt = 1.12959;
 
     // Fit fn:
     out << "i_fitf" << std::endl;
@@ -559,8 +559,8 @@ TArrayF* LambdaMassFitPoly4BG(
 
     Double_t BinWidth = (varMax - varMin) / nbins;
 
-    LBInt = 1.11; //DEBUGGING
-    UBInt = 1.13;
+    LBInt = 1.1104; //DEBUGGING
+    UBInt = 1.12959;
 
     // Fit fn:
     out << "i_fitf" << std::endl;
@@ -937,8 +937,8 @@ TArrayF* LambdaMassFitGauss(
 
     Double_t BinWidth = (varMax - varMin) / nbins;
 
-    LBInt = 1.11; //DEBUGGING
-    UBInt = 1.13;
+    LBInt = 1.1104; //DEBUGGING
+    UBInt = 1.12959;
 
     // Fit fn:
     out << "i_fitf" << std::endl;
@@ -1269,8 +1269,8 @@ TArrayF* LambdaMassFitGaussPoly4BG(
 
     Double_t BinWidth = (varMax - varMin) / nbins;
 
-    LBInt = 1.11; //DEBUGGING
-    UBInt = 1.13;
+    LBInt = 1.1104; //DEBUGGING
+    UBInt = 1.12959;
 
     // Fit fn:
     out << "i_fitf" << std::endl;
@@ -1665,8 +1665,8 @@ TArrayF* LambdaMassFitMC(
 
     Double_t BinWidth = (varMax - varMin) / nbins;
 
-    LBInt = 1.11; //DEBUGGING
-    UBInt = 1.13;
+    LBInt = 1.1104; //DEBUGGING
+    UBInt = 1.12959;
 
     //NOTE: ADDED 9/7/23                                                                                                                                           
     std::string sig_region_cut = Form("%s>%.8f && %s<%.8f",varName.c_str(),LBInt,varName.c_str(),UBInt);
@@ -2108,8 +2108,8 @@ TArrayF* LambdaMassFitPoly4BGMC(
 
     Double_t BinWidth = (varMax - varMin) / nbins;
 
-    LBInt = 1.11; //DEBUGGING
-    UBInt = 1.13;
+    LBInt = 1.1104; //DEBUGGING
+    UBInt = 1.12959;
 
     //NOTE: ADDED 9/7/23                                                                                                                                           
     std::string sig_region_cut = Form("%s>%.8f && %s<%.8f",varName.c_str(),LBInt,varName.c_str(),UBInt);
@@ -2542,8 +2542,8 @@ TArrayF* LambdaMassFitMCFIXPARAMS(
 
     Double_t BinWidth = (varMax - varMin) / nbins;
 
-    LBInt = 1.11; //DEBUGGING
-    UBInt = 1.13;
+    LBInt = 1.1104; //DEBUGGING
+    UBInt = 1.12959;
 
     //NOTE: ADDED 9/7/23                                                                                                                                                                      
     std::string sig_region_cut = Form("%s>%.8f && %s<%.8f",varName.c_str(),LBInt,varName.c_str(),UBInt);
@@ -3174,8 +3174,8 @@ TArrayF* LambdaMassFitGaussMC(
 
     Double_t BinWidth = (varMax - varMin) / nbins;
 
-    LBInt = 1.11; //DEBUGGING
-    UBInt = 1.13;
+    LBInt = 1.1104; //DEBUGGING
+    UBInt = 1.12959;
 
     //NOTE: ADDED 9/7/23                                                                                                                                                                      
     std::string sig_region_cut = Form("%s>%.8f && %s<%.8f",varName.c_str(),LBInt,varName.c_str(),UBInt);
@@ -3607,8 +3607,8 @@ TArrayF* LambdaMassFitGaussPoly4BGMC(
 
     Double_t BinWidth = (varMax - varMin) / nbins;
 
-    LBInt = 1.11; //DEBUGGING
-    UBInt = 1.13;
+    LBInt = 1.1104; //DEBUGGING
+    UBInt = 1.12959;
 
     //NOTE: ADDED 9/7/23                                                                                                                                                                      
     std::string sig_region_cut = Form("%s>%.8f && %s<%.8f",varName.c_str(),LBInt,varName.c_str(),UBInt);
