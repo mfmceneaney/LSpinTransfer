@@ -117,7 +117,7 @@ TArrayF* LambdaMassFit(
     double lwdelVal = (firstVal)/hfmidVal;
     out<<"DEBUGGING: lwdelVal = "<<lwdelVal<<std::endl;
     double sig_max_init = h->GetMaximum()/4;
-    if ( myratio<1.5) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
+    if ( myratio<1.4) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
       //sigma_init = 0.006;
       sig_max_init = h->GetMaximum()/10; //REDUCE SIGNAL COEFFICIENT
       double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM
@@ -139,7 +139,7 @@ N MAYBE...
       out<<"DEBUGGING: REASSIGNED sigma_init, sig_max_init = "<<sigma_init<<" , "<<sig_max_init<<std::endl;
     }
     out<<"DEBUGGING: sigma_init  = "<<sigma_init<<std::endl;
-    double alpha_init = 1.0;
+    double alpha_init = 0.5;
     double n_init     = 3.0;
     //DEBUGGING: END
     func->SetParameters(alpha_init,n_init,sigma_init,1.1157,sig_max_init,hmax,beta,m0);
@@ -488,7 +488,7 @@ TArrayF* LambdaMassFitPoly4BG(
     double lwdelVal = (firstVal)/hfmidVal;
     out<<"DEBUGGING: lwdelVal = "<<lwdelVal<<std::endl;
     double sig_max_init = h->GetMaximum()/4;
-    if ( myratio<1.5) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
+    if ( myratio<1.4) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
       //sigma_init = 0.006;
       sig_max_init = h->GetMaximum()/10; //REDUCE SIGNAL COEFFICIENT
       double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM
@@ -510,8 +510,8 @@ N MAYBE...
       out<<"DEBUGGING: REASSIGNED sigma_init, sig_max_init = "<<sigma_init<<" , "<<sig_max_init<<std::endl;
     }
     out<<"DEBUGGING: sigma_init  = "<<sigma_init<<std::endl;
-    double alpha_init = 1.0;
-    double n_init     = 2.0;
+    double alpha_init = 0.5;
+    double n_init     = 3.0;
 
     //NOTE: a = m0 and everything is multiplied by beta
     double par6  = 1-beta*m0*m0*m0*m0;
@@ -876,7 +876,7 @@ TArrayF* LambdaMassFitGauss(
     double lwdelVal = (firstVal)/hfmidVal;
     out<<"DEBUGGING: lwdelVal = "<<lwdelVal<<std::endl;
     double sig_max_init = h->Integral()/100*TMath::Sqrt(2*TMath::Pi())*sigma_init;
-    if ( myratio<1.5) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
+    if ( myratio<1.4) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
       //sigma_init = 0.006;
       sig_max_init = h->Integral()/1000*TMath::Sqrt(2*TMath::Pi())*sigma_init; //REDUCE SIGNAL COEFFICIENT
       double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM 
@@ -897,7 +897,7 @@ TArrayF* LambdaMassFitGauss(
       out<<"DEBUGGING: REASSIGNED fit_min, sigma_init, sig_max_init = "<<fit_min<<" , "<<sigma_init<<" , "<<sig_max_init<<std::endl;
     }
     out<<"DEBUGGING: sigma_init  = "<<sigma_init<<std::endl;
-    double alpha_init = 1.0;
+    double alpha_init = 0.5;
     double n_init     = 3.0;
 
     //fit_min = varMin;//DEBUGGING 10/30/23
@@ -1244,7 +1244,7 @@ TArrayF* LambdaMassFitGaussPoly4BG(
     double lwdelVal = (firstVal)/hfmidVal;
     out<<"DEBUGGING: lwdelVal = "<<lwdelVal<<std::endl;
     double sig_max_init = h->Integral()/100*TMath::Sqrt(2*TMath::Pi())*sigma_init;
-    if ( myratio<1.5) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
+    if ( myratio<1.4) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
       //sigma_init = 0.006;
       sig_max_init = h->Integral()/1000*TMath::Sqrt(2*TMath::Pi())*sigma_init; //REDUCE SIGNAL COEFFICIENT
       double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM 
@@ -1265,8 +1265,8 @@ TArrayF* LambdaMassFitGaussPoly4BG(
       out<<"DEBUGGING: REASSIGNED fit_min, sigma_init, sig_max_init = "<<fit_min<<" , "<<sigma_init<<" , "<<sig_max_init<<std::endl;
     }
     out<<"DEBUGGING: sigma_init  = "<<sigma_init<<std::endl;
-    double alpha_init = 1.0;
-    double n_init     = 2.0;
+    double alpha_init = 0.5;
+    double n_init     = 3.0;
 
     //fit_min = varMin;//DEBUGGING 10/30/23
     //DEBUGGING: END
@@ -2131,7 +2131,7 @@ TArrayF* LambdaMassFitPoly4BGMC(
     double lwdelVal = (firstVal)/hfmidVal;
     out<<"DEBUGGING: lwdelVal = "<<lwdelVal<<std::endl;
     double sig_max_init = h->GetMaximum()/4;
-    if ( myratio<1.5) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
+    if ( myratio<1.4) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
       //sigma_init = 0.006;
       sig_max_init = h->GetMaximum()/10; //REDUCE SIGNAL COEFFICIENT
       double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM 
@@ -2152,8 +2152,8 @@ TArrayF* LambdaMassFitPoly4BGMC(
       out<<"DEBUGGING: REASSIGNED fit_min, sigma_init, sig_max_init = "<<fit_min<<" , "<<sigma_init<<" , "<<sig_max_init<<std::endl;
     }
     out<<"DEBUGGING: sigma_init  = "<<sigma_init<<std::endl;
-    double alpha_init = 1.0;
-    double n_init     = 2.0;
+    double alpha_init = 0.5;
+    double n_init     = 3.0;
 
     //fit_min = varMin;//DEBUGGING 10/30/23
     //DEBUGGING: END
@@ -3216,7 +3216,7 @@ TArrayF* LambdaMassFitGaussMC(
     double lwdelVal = (firstVal)/hfmidVal;
     out<<"DEBUGGING: lwdelVal = "<<lwdelVal<<std::endl;
     double sig_max_init = h->Integral()/100*TMath::Sqrt(2*TMath::Pi())*sigma_init;
-    if ( myratio<1.5) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
+    if ( myratio<1.4) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
       //sigma_init = 0.006;
       sig_max_init = h->Integral()/1000*TMath::Sqrt(2*TMath::Pi())*sigma_init; //REDUCE SIGNAL COEFFICIENT
       double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM 
@@ -3237,7 +3237,7 @@ TArrayF* LambdaMassFitGaussMC(
       out<<"DEBUGGING: REASSIGNED fit_min, sigma_init, sig_max_init = "<<fit_min<<" , "<<sigma_init<<" , "<<sig_max_init<<std::endl;
     }
     out<<"DEBUGGING: sigma_init  = "<<sigma_init<<std::endl;
-    double alpha_init = 1.0;
+    double alpha_init = 0.5;
     double n_init     = 3.0;
 
     // Set Fitting fn
@@ -3681,7 +3681,7 @@ TArrayF* LambdaMassFitGaussPoly4BGMC(
     double lwdelVal = (firstVal)/hfmidVal;
     out<<"DEBUGGING: lwdelVal = "<<lwdelVal<<std::endl;
     double sig_max_init = h->Integral()/100*TMath::Sqrt(2*TMath::Pi())*sigma_init;
-    if ( myratio<1.5) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
+    if ( myratio<1.4) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
       //sigma_init = 0.006;
       sig_max_init = h->Integral()/1000*TMath::Sqrt(2*TMath::Pi())*sigma_init; //REDUCE SIGNAL COEFFICIENT
       double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM 
@@ -3702,8 +3702,8 @@ TArrayF* LambdaMassFitGaussPoly4BGMC(
       out<<"DEBUGGING: REASSIGNED fit_min, sigma_init, sig_max_init = "<<fit_min<<" , "<<sigma_init<<" , "<<sig_max_init<<std::endl;
     }
     out<<"DEBUGGING: sigma_init  = "<<sigma_init<<std::endl;
-    double alpha_init = 1.0;
-    double n_init     = 2.0;
+    double alpha_init = 0.5;
+    double n_init     = 3.0;
 
     //fit_min = varMin;//DEBUGGING 10/30/23
     //DEBUGGING: END
