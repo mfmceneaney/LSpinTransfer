@@ -445,15 +445,28 @@ TArrayF* LambdaMassFitPoly4BG(
     lt->Draw();
 
     //DEBUGGING: BEGIN
+    double midVal = h->GetBinContent((int)nbins/2);
+    double endVal = h->GetBinContent(nbins);
+    double delVal = (endVal-midVal)/endVal;
+    out<<"DEBUGGING: delVal = "<<delVal<<std::endl;
 
     // First figure out roughly where background maxes out
-    double m0 = varMax*1.15;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...
+    double m0 = varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...
 
     double true_prod_min = 1.078;
     double beta = 1/((true_prod_min-m0)*(true_prod_min-m0)*(true_prod_min-m0)*(true_prod_min-m0));
     double hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));
     out<<"DEBUGGING: true_prod_min = "<<true_prod_min<<std::endl;
     out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
+    if (delVal<0.20) {
+      double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM                                                                                                                      
+      m0 = varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...                                                                                                          
+      out<<"DEBUGGING: Reassigned m0 = "<<m0<<std::endl;
+      beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
+      hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));
+      out<<"DEBUGGING: Reassigned hmax = "<<hmax<<std::endl;
+      out<<"DEBUGGING: Reassigned beta = "<<beta<<std::endl;
+    }
 
     // Set intial signal parameters
     double fit_min = varMin;
@@ -1158,15 +1171,28 @@ TArrayF* LambdaMassFitGaussPoly4BG(
     lt->Draw();
 
     //DEBUGGING: BEGIN
+    double midVal = h->GetBinContent((int)nbins/2);
+    double endVal = h->GetBinContent(nbins);
+    double delVal = (endVal-midVal)/endVal;
+    out<<"DEBUGGING: delVal = "<<delVal<<std::endl;
 
     // First figure out roughly where background maxes out
-    double m0 = varMax*1.15;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...
+    double m0 = varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...
 
     double true_prod_min = 1.078;
     double beta = 1/((true_prod_min-m0)*(true_prod_min-m0)*(true_prod_min-m0)*(true_prod_min-m0));
     double hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));
     out<<"DEBUGGING: true_prod_min = "<<true_prod_min<<std::endl;
     out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
+    if (delVal<0.20) {
+      double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM                                                                                                                      
+      m0 = varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...                                                                                                          
+      out<<"DEBUGGING: Reassigned m0 = "<<m0<<std::endl;
+      beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
+      hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));
+      out<<"DEBUGGING: Reassigned hmax = "<<hmax<<std::endl;
+      out<<"DEBUGGING: Reassigned beta = "<<beta<<std::endl;
+    }
 
     // Set intial signal parameters
     double fit_min = varMin;
@@ -1995,15 +2021,28 @@ TArrayF* LambdaMassFitPoly4BGMC(
     // lt->Draw();
 
     //DEBUGGING: BEGIN
+    double midVal = h->GetBinContent((int)nbins/2);
+    double endVal = h->GetBinContent(nbins);
+    double delVal = (endVal-midVal)/endVal;
+    out<<"DEBUGGING: delVal = "<<delVal<<std::endl;
 
     // First figure out roughly where background maxes out
-    double m0 = varMax*1.15;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...
+    double m0 = varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...
 
     double true_prod_min = 1.078;
     double beta = 1/((true_prod_min-m0)*(true_prod_min-m0)*(true_prod_min-m0)*(true_prod_min-m0));
     double hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));
     out<<"DEBUGGING: true_prod_min = "<<true_prod_min<<std::endl;
     out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
+    if (delVal<0.20) {
+      double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM                                                                                                                      
+      m0 = varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...                                                                                                          
+      out<<"DEBUGGING: Reassigned m0 = "<<m0<<std::endl;
+      beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
+      hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));
+      out<<"DEBUGGING: Reassigned hmax = "<<hmax<<std::endl;
+      out<<"DEBUGGING: Reassigned beta = "<<beta<<std::endl;
+    }
 
     // Set intial signal parameters
     double fit_min = varMin;
@@ -3496,15 +3535,28 @@ TArrayF* LambdaMassFitGaussPoly4BGMC(
     // lt->Draw();
 
     //DEBUGGING: BEGIN
+    double midVal = h->GetBinContent((int)nbins/2);
+    double endVal = h->GetBinContent(nbins);
+    double delVal = (endVal-midVal)/endVal;
+    out<<"DEBUGGING: delVal = "<<delVal<<std::endl;
 
     // First figure out roughly where background maxes out
-    double m0 = varMax*1.15;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...
+    double m0 = varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...
 
     double true_prod_min = 1.078;
     double beta = 1/((true_prod_min-m0)*(true_prod_min-m0)*(true_prod_min-m0)*(true_prod_min-m0));
     double hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));
     out<<"DEBUGGING: true_prod_min = "<<true_prod_min<<std::endl;
     out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
+    if (delVal<0.20) {
+      double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM                                                                                                                      
+      m0 = varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...                                                                                                          
+      out<<"DEBUGGING: Reassigned m0 = "<<m0<<std::endl;
+      beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
+      hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));
+      out<<"DEBUGGING: Reassigned hmax = "<<hmax<<std::endl;
+      out<<"DEBUGGING: Reassigned beta = "<<beta<<std::endl;
+    }
 
     // Set intial signal parameters
     double fit_min = varMin;
