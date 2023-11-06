@@ -459,7 +459,7 @@ TArrayF* LambdaMassFitPoly4BG(
     out<<"DEBUGGING: true_prod_min = "<<true_prod_min<<std::endl;
     out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
     if (delVal<0.20) {
-      double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM                                                                                                                      
+      double prod_min = varMin - (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM                                                                                                                      
       m0 = varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...                                                                                                          
       out<<"DEBUGGING: Reassigned m0 = "<<m0<<std::endl;
       beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
@@ -1185,7 +1185,7 @@ TArrayF* LambdaMassFitGaussPoly4BG(
     out<<"DEBUGGING: true_prod_min = "<<true_prod_min<<std::endl;
     out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
     if (delVal<0.20) {
-      double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM                                                                                                                      
+      double prod_min = varMin - (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM                                                                                                                      
       m0 = varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...                                                                                                          
       out<<"DEBUGGING: Reassigned m0 = "<<m0<<std::endl;
       beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
@@ -2035,7 +2035,7 @@ TArrayF* LambdaMassFitPoly4BGMC(
     out<<"DEBUGGING: true_prod_min = "<<true_prod_min<<std::endl;
     out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
     if (delVal<0.20) {
-      double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM                                                                                                                      
+      double prod_min = varMin - (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM                                                                                                                      
       m0 = varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...                                                                                                          
       out<<"DEBUGGING: Reassigned m0 = "<<m0<<std::endl;
       beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
@@ -3549,7 +3549,7 @@ TArrayF* LambdaMassFitGaussPoly4BGMC(
     out<<"DEBUGGING: true_prod_min = "<<true_prod_min<<std::endl;
     out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
     if (delVal<0.20) {
-      double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM                                                                                                                      
+      double prod_min = varMin - (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM                                                                                                                      
       m0 = varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...                                                                                                          
       out<<"DEBUGGING: Reassigned m0 = "<<m0<<std::endl;
       beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
