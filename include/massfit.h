@@ -213,6 +213,11 @@ N MAYBE...
     // Signal hist
     TH1D *hist = (TH1D*)h->Clone("hist");
     hist->Add(bghist,-1);
+    //NOTE: ADDED FOR CASE OF MODIFIED FIT_MIN.  Set bin contents to zero below fit minimum.
+    if (fit_min>varMin) {
+      int h_min_bin = hist->FindBin(fit_min);
+      for (int i=0; i<h_min_bin; i++) { hist->SetBinContent(i,0.0); }
+    }
     hist->Draw("SAME");
     bghist->Draw("SAME");
 
@@ -576,6 +581,11 @@ TArrayF* LambdaMassFitPoly4BG(
     // Signal hist
     TH1D *hist = (TH1D*)h->Clone("hist");
     hist->Add(bghist,-1);
+    //NOTE: ADDED FOR CASE OF MODIFIED FIT_MIN.  Set bin contents to zero below fit minimum.
+    if (fit_min>varMin) {
+      int h_min_bin = hist->FindBin(fit_min);
+      for (int i=0; i<h_min_bin; i++) { hist->SetBinContent(i,0.0); }
+    }
     hist->Draw("SAME");
     bghist->Draw("SAME");
 
@@ -956,6 +966,11 @@ TArrayF* LambdaMassFitGauss(
     // Signal hist
     TH1D *hist = (TH1D*)h->Clone("hist");
     hist->Add(bghist,-1);
+    //NOTE: ADDED FOR CASE OF MODIFIED FIT_MIN.  Set bin contents to zero below fit minimum.
+    if (fit_min>varMin) {
+      int h_min_bin = hist->FindBin(fit_min);
+      for (int i=0; i<h_min_bin; i++) { hist->SetBinContent(i,0.0); }
+    }
     hist->Draw("SAME");
     bghist->Draw("SAME");
 
@@ -1313,6 +1328,11 @@ TArrayF* LambdaMassFitGaussPoly4BG(
     // Signal hist
     TH1D *hist = (TH1D*)h->Clone("hist");
     hist->Add(bghist,-1);
+    //NOTE: ADDED FOR CASE OF MODIFIED FIT_MIN.  Set bin contents to zero below fit minimum.
+    if (fit_min>varMin) {
+      int h_min_bin = hist->FindBin(fit_min);
+      for (int i=0; i<h_min_bin; i++) { hist->SetBinContent(i,0.0); }
+    }
     hist->Draw("SAME");
     bghist->Draw("SAME");
 
@@ -3233,6 +3253,11 @@ TArrayF* LambdaMassFitGaussMC(
     // Signal hist
     TH1D *hist = (TH1D*)h->Clone("hist");
     hist->Add(bghist,-1);
+    //NOTE: ADDED FOR CASE OF MODIFIED FIT_MIN.  Set bin contents to zero below fit minimum.
+    if (fit_min>varMin) {
+      int h_min_bin = hist->FindBin(fit_min);
+      for (int i=0; i<h_min_bin; i++) { hist->SetBinContent(i,0.0); }
+    }
     hist->Draw("SAME");
     bghist->Draw("SAME");
 
