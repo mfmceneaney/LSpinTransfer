@@ -3,7 +3,7 @@ void LMassFitGauss() {
 
     std::string tree = "t";
     std::string path = "/volatile/clas12/users/mfmce/data_jobs_rga_ppim_FLAG_MIN_MATCH_AND_FRACTION_DELTAP_9_13_23/skim_ppim_*.root";
-    std::string cuts = "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
+    std::string cuts = "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0 && y>=0.0 && y<0.307";
     std::string name = "LMassFitGauss";
     
     // Mass fit options
