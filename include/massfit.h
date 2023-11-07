@@ -469,6 +469,16 @@ TArrayF* LambdaMassFitPoly4BG(
       out<<"DEBUGGING: Reassigned hmax = "<<hmax<<std::endl;
       out<<"DEBUGGING: Reassigned beta = "<<beta<<std::endl;
     }
+    if (delVal>0.20 && deVal<0.22) {
+      m0 = varMax*1.0;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...                                                                                                          
+      out<<"DEBUGGING: Reassigned m0 = "<<m0<<std::endl;
+      beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
+      hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));
+      out<<"DEBUGGING: Reassigned hmax = "<<hmax<<std::endl;
+      out<<"DEBUGGING: Reassigned beta = "<<beta<<std::endl;
+      sigma_init = 0.003;
+      out<<"DEEBUGGING: Reassigned sigma_init = "<<sigma_init<<std::endl;
+    }
 
     // Set intial signal parameters
     double fit_min = varMin;
@@ -1196,6 +1206,16 @@ TArrayF* LambdaMassFitGaussPoly4BG(
       hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));
       out<<"DEBUGGING: Reassigned hmax = "<<hmax<<std::endl;
       out<<"DEBUGGING: Reassigned beta = "<<beta<<std::endl;
+    }
+    if (delVal>0.20 && deVal<0.22) {
+      m0 = varMax*1.0;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...                                                                                                          
+      out<<"DEBUGGING: Reassigned m0 = "<<m0<<std::endl;
+      beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
+      hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));
+      out<<"DEBUGGING: Reassigned hmax = "<<hmax<<std::endl;
+      out<<"DEBUGGING: Reassigned beta = "<<beta<<std::endl;
+      sigma_init = 0.003;
+      out<<"DEEBUGGING: Reassigned sigma_init = "<<sigma_init<<std::endl;
     }
 
     // Set intial signal parameters
