@@ -117,14 +117,16 @@ TArrayF* LambdaMassFit(
     double lwdelVal = (firstVal)/hfmidVal;
     out<<"DEBUGGING: lwdelVal = "<<lwdelVal<<std::endl;
     double sig_max_init = h->GetMaximum()/4;
-    if ( myratio<1.4) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
+    if (myratio<1.5) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
       //sigma_init = 0.006;
       sig_max_init = h->GetMaximum()/10; //REDUCE SIGNAL COEFFICIENT
-      double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM
-      out<<"DEBUGGING: REASSIGNED prod_min = "<<prod_min<<std::endl;
-      beta = 1/((prod_min-m0)*(prod_min-m0));
-      hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0));
-      out<<"DEBUGGING: REASSIGNED m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
+      if (myratio<1.3) {
+        double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM
+        out<<"DEBUGGING: REASSIGNED prod_min = "<<prod_min<<std::endl;
+        beta = 1/((prod_min-m0)*(prod_min-m0));
+        hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0));
+        out<<"DEBUGGING: REASSIGNED m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
+      }
       fit_min = varMin + (varMax-varMin)*0.10;//IGNORE WHATEVER IS HAPPENING AT REALLY LOW MASS_PPIM
     }
     double fit_max = varMax;
@@ -843,14 +845,16 @@ TArrayF* LambdaMassFitGauss(
     double lwdelVal = (firstVal)/hfmidVal;
     out<<"DEBUGGING: lwdelVal = "<<lwdelVal<<std::endl;
     double sig_max_init = h->Integral()/100*TMath::Sqrt(2*TMath::Pi())*sigma_init;
-    if ( myratio<1.4) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
+    if (myratio<1.5) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
       //sigma_init = 0.006;
       sig_max_init = h->Integral()/1000*TMath::Sqrt(2*TMath::Pi())*sigma_init; //REDUCE SIGNAL COEFFICIENT
-      double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM 
-      out<<"DEBUGGING: prod_min = "<<prod_min<<std::endl;
-      beta = 1/((prod_min-m0)*(prod_min-m0));
-      hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0));
-      out<<"DEBUGGING: REASSIGNED m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
+      if (myratio<1.3) {
+        double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM 
+        out<<"DEBUGGING: prod_min = "<<prod_min<<std::endl;
+        beta = 1/((prod_min-m0)*(prod_min-m0));
+        hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0));
+        out<<"DEBUGGING: REASSIGNED m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
+      }
       fit_min = varMin + (varMax-varMin)*0.10;//IGNORE WHATEVER IS HAPPENING AT REALLY LOW MASS_PPIM
     }
     double fit_max = varMax;
@@ -3110,14 +3114,16 @@ TArrayF* LambdaMassFitGaussMC(
     double lwdelVal = (firstVal)/hfmidVal;
     out<<"DEBUGGING: lwdelVal = "<<lwdelVal<<std::endl;
     double sig_max_init = h->Integral()/100*TMath::Sqrt(2*TMath::Pi())*sigma_init;
-    if ( myratio<1.4) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
+    if (myratio<1.5) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
       //sigma_init = 0.006;
       sig_max_init = h->Integral()/1000*TMath::Sqrt(2*TMath::Pi())*sigma_init; //REDUCE SIGNAL COEFFICIENT
-      double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM 
-      out<<"DEBUGGING: prod_min = "<<prod_min<<std::endl;
-      beta = 1/((prod_min-m0)*(prod_min-m0));
-      hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0));
-      out<<"DEBUGGING: REASSIGNED m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
+      if (myratio<1.3) {
+        double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM 
+        out<<"DEBUGGING: prod_min = "<<prod_min<<std::endl;
+        beta = 1/((prod_min-m0)*(prod_min-m0));
+        hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0));
+        out<<"DEBUGGING: REASSIGNED m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
+      }
       fit_min = varMin + (varMax-varMin)*0.10;//IGNORE WHATEVER IS HAPPENING AT REALLY LOW MASS_PPIM
     }
     double fit_max = varMax;
