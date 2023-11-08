@@ -178,7 +178,7 @@ void PlotBeforeAfterCuts() {
       .Filter(cuts2); // NEEDED FOR CALCULATIONS LATER
     
     // Open output file
-    TFile *f = TFile::Open("h_kinematics_comparisons.root","RECREATE");
+    TFile *f = TFile::Open("PlotBeforeAfterCuts.root","RECREATE");
     f->cd();
 
     // Get 1D Plots

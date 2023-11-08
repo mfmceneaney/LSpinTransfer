@@ -294,17 +294,17 @@ void PlotComparisons() {
     // names.push_back("vz_p"); nbins.push_back(100); binlims.push_back({-25.0,25.0}); labels.push_back("v_{z p} (cm)");
     // names.push_back("vz_pim"); nbins.push_back(100); binlims.push_back({-25.0,25.0}); labels.push_back("v_{z #pi^{-}} (cm)");
 
-    // // Plot correlations data
-    // const char *extraname1 = "2d_data";
-    // for (int i=0; i<names.size(); i++) {
-    //   for (int j=0; j<names.size(); j++) {
-    //     if (i==j) continue;//NOTE: SKIP IDENTITIES
-    //     if (!(((i>8 && j>8) && j==i+3) || (i<=8 && j<=8))) continue; //NOTE: Creates block combos with just beta vs. p (y vs. x)
-    //     plot2d(frame1,extraname1,names[i].c_str(),nbins[i],binlims[i][0],binlims[i][1],labels[i].c_str(),
-    //                         names[j].c_str(),nbins[j],binlims[j][0],binlims[j][1],labels[j].c_str(),
-    //                         drawopt,f);
-    //   }
-    // }
+    // Plot correlations data
+    const char *extraname1 = "2d_data";
+    for (int i=0; i<names.size(); i++) {
+      for (int j=0; j<names.size(); j++) {
+        if (i==j) continue;//NOTE: SKIP IDENTITIES
+        if (!(((i>8 && j>8) && j==i+3) || (i<=8 && j<=8))) continue; //NOTE: Creates block combos with just beta vs. p (y vs. x)
+        plot2d(frame1,extraname1,names[i].c_str(),nbins[i],binlims[i][0],binlims[i][1],labels[i].c_str(),
+                            names[j].c_str(),nbins[j],binlims[j][0],binlims[j][1],labels[j].c_str(),
+                            drawopt,f);
+      }
+    }
 
     // Plot correlations MC
     const char *extraname2 = "2d_mc";
