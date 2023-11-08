@@ -1254,7 +1254,7 @@ TArrayF* LambdaMassFitGaussPoly4BG(
     //DEBUGGING: END
 
     // Set Fitting fn
-    TF1 *func = new TF1("fit","[2]*TMath::Gaus(x,[1],[0],true) + [5]*([6] + [7]*x + [8]*x*x + [9]*x*x*x + [10]*x*x*x*x)",varMin,varMax);
+    TF1 *func = new TF1("fit","[2]*TMath::Gaus(x,[1],[0],true) + [3]*([4] + [5]*x + [6]*x*x + [7]*x*x*x + [8]*x*x*x*x)",varMin,varMax);
     // func->SetParameters(0.5,2,0.006,1.1157,10000,h->GetBinContent(nbins),37,1.24);
     func->SetParameters(0.006,1.1157,h->GetMaximum()/1000,hmax,par6,par7,par8,par9,par10);
     func->SetParNames("sigma","Mu","C1","Pol2 max","Pol4 a0","Pol4 a1","Pol4 a2","Pol4 a3","Pol4 a4","Pol4 a5");
