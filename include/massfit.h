@@ -153,12 +153,7 @@ N MAYBE...
     // func->SetParLimits(1,2.0,100.0);
     func->SetParLimits(1,2.0,1000.0);
 
-    //DEBUGGING: BEGIN
-    // Plot original function
-    TF1 *f_original = (TF1*)func->Clone("f_original");
-    f_original->SetLineColor(8);
-    f_original->Draw("SAME");
-    //DEBUGGING: END
+
 
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
@@ -515,12 +510,7 @@ TArrayF* LambdaMassFitPoly4BG(
     // func->SetParLimits(1,2.0,100.0);
     func->SetParLimits(1,2.0,1000.0);
 
-    //DEBUGGING: BEGIN
-    // Plot original function
-    TF1 *f_original = (TF1*)func->Clone("f_original");
-    f_original->SetLineColor(8);
-    f_original->Draw("SAME");
-    //DEBUGGING: END
+
 
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
@@ -908,13 +898,6 @@ TArrayF* LambdaMassFitGauss(
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
 
-    //DEBUGGING: BEGIN
-    // Plot original function
-    TF1 *f_original = (TF1*)func->Clone("f_original");
-    f_original->SetLineColor(8);
-    f_original->Draw("SAME");
-    //DEBUGGING: END
-
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
@@ -1263,13 +1246,6 @@ TArrayF* LambdaMassFitGaussPoly4BG(
     // func->SetParLimits(3,h->GetBinContent(nbins)*0.98,h->GetBinContent(nbins)*10.0);
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
-
-    //DEBUGGING: BEGIN
-    // Plot original function
-    TF1 *f_original = (TF1*)func->Clone("f_original");
-    f_original->SetLineColor(8);
-    f_original->Draw("SAME");
-    //DEBUGGING: END
 
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
@@ -1669,12 +1645,7 @@ TArrayF* LambdaMassFitMC(
     // func->SetParLimits(7,0.0,1.26);
     func->SetParLimits(1,2.0,100.0);
 
-    //DEBUGGING: BEGIN
-    // Plot original function
-    TF1 *f_original = (TF1*)func->Clone("f_original");
-    f_original->SetLineColor(8);
-    f_original->Draw("SAME");
-    //DEBUGGING: END
+
 
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
@@ -2119,12 +2090,7 @@ TArrayF* LambdaMassFitPoly4BGMC(
     // func->SetParLimits(7,0.0,1.26);
     func->SetParLimits(1,2.0,100.0);
 
-    //DEBUGGING: BEGIN
-    // Plot original function
-    TF1 *f_original = (TF1*)func->Clone("f_original");
-    f_original->SetLineColor(8);
-    f_original->Draw("SAME");
-    //DEBUGGING: END
+
 
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
@@ -3195,13 +3161,6 @@ TArrayF* LambdaMassFitGaussMC(
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
 
-    //DEBUGGING: BEGIN
-    // Plot original function
-    TF1 *f_original = (TF1*)func->Clone("f_original");
-    f_original->SetLineColor(8);
-    f_original->Draw("SAME");
-    //DEBUGGING: END
-
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
@@ -3639,13 +3598,6 @@ TArrayF* LambdaMassFitGaussPoly4BGMC(
     // func->SetParLimits(3,h->GetBinContent(nbins)-1000,h->GetBinContent(nbins)+10000);
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
-
-    //DEBUGGING: BEGIN
-    // Plot original function
-    TF1 *f_original = (TF1*)func->Clone("f_original");
-    f_original->SetLineColor(8);
-    f_original->Draw("SAME");
-    //DEBUGGING: END
 
     // Fit and get signal and bg covariance matrices
     TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
