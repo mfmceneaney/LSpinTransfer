@@ -3688,7 +3688,7 @@ TArrayF* LambdaMassFitGaussPoly4BGMC(
     sig->Draw("SAME");
 
     // Set the bg fn:
-    TF1 *bg = new TF1("bg","[[0]*([1] + [2]*x + [3]*x*x + [4]*x*x*x + [5]*x*x*x*x)",varMin,varMax);
+    TF1 *bg = new TF1("bg","[0]*([1] + [2]*x + [3]*x*x + [4]*x*x*x + [5]*x*x*x*x)",varMin,varMax);
     bg->SetParameters(a0,a1,a2,a3,a4,a5);
     Double_t errsBg[] = {Ea0,Ea1,Ea2,Ea3,Ea4,Ea5};
     bg->SetParErrors(errsBg);
