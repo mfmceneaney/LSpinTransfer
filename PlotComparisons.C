@@ -178,60 +178,60 @@ void PlotComparisons() {
       .Filter(cuts2); // NEEDED FOR CALCULATIONS LATER
     
     // Open output file
-    TFile *f = TFile::Open("h_kinematics_comparisons.root","RECREATE");
+    TFile *f = TFile::Open("PlotComparisons.root","RECREATE");
     f->cd();
 
-    // // Get 1D Plots
-    // plot(frame1,frame2,"Q2",100,1.0,10.0,"Q^{2} (GeV^{2})",drawopt,f);
-    // plot(frame1,frame2,"W",100,2.0,4.5,"W (GeV)",drawopt,f);
-    // plot(frame1,frame2,"y",100,0.0,1.0,"y",drawopt,f);
-    // plot(frame1,frame2,"x",100,0.0,1.0,"x",drawopt,f);
+    // Get 1D Plots
+    plot(frame1,frame2,"Q2",100,1.0,10.0,"Q^{2} (GeV^{2})",drawopt,f);
+    plot(frame1,frame2,"W",100,2.0,4.5,"W (GeV)",drawopt,f);
+    plot(frame1,frame2,"y",100,0.0,1.0,"y",drawopt,f);
+    plot(frame1,frame2,"x",100,0.0,1.0,"x",drawopt,f);
 
-    // plot(frame1,frame2,"mass_ppim",100,1.08,1.24,"M_{p#pi^{-}}",drawopt,f);
-    // plot(frame1,frame2,"z_ppim",100,0.0,1.0,"z_{p#pi^{-}}",drawopt,f);
-    // plot(frame1,frame2,"xF_ppim",100,-1.0,1.0,"x_{F p#pi^{-}}",drawopt,f);
-    // plot(frame1,frame2,"costheta1",100,-1.0,1.0,"cos(#theta) along P_{#Lambda}",drawopt,f);
-    // plot(frame1,frame2,"costheta2",100,-1.0,1.0,"cos(#theta) along P_{#gamma *}",drawopt,f);
+    plot(frame1,frame2,"mass_ppim",100,1.08,1.24,"M_{p#pi^{-}}",drawopt,f);
+    plot(frame1,frame2,"z_ppim",100,0.0,1.0,"z_{p#pi^{-}}",drawopt,f);
+    plot(frame1,frame2,"xF_ppim",100,-1.0,1.0,"x_{F p#pi^{-}}",drawopt,f);
+    plot(frame1,frame2,"costheta1",100,-1.0,1.0,"cos(#theta) along P_{#Lambda}",drawopt,f);
+    plot(frame1,frame2,"costheta2",100,-1.0,1.0,"cos(#theta) along P_{#gamma *}",drawopt,f);
 
-    // plot(frame1,frame2,"pt_e",100,0.0,2.0,"p_{T e^{-}} (GeV)",drawopt,f);
-    // plot(frame1,frame2,"pt_p",100,0.0,2.0,"p_{T p} (GeV)",drawopt,f);
-    // plot(frame1,frame2,"pt_pim",100,0.0,2.0,"p_{T #pi^{-}} (GeV)",drawopt,f);
+    plot(frame1,frame2,"pt_e",100,0.0,2.0,"p_{T e^{-}} (GeV)",drawopt,f);
+    plot(frame1,frame2,"pt_p",100,0.0,2.0,"p_{T p} (GeV)",drawopt,f);
+    plot(frame1,frame2,"pt_pim",100,0.0,2.0,"p_{T #pi^{-}} (GeV)",drawopt,f);
 
-    // plot(frame1,frame2,"p_e",100,0.0,10.0,"p_{e^{-}} (GeV)",drawopt,f);
-    // plot(frame1,frame2,"p_p",100,0.0,10.0,"p_{p} (GeV)",drawopt,f);
-    // plot(frame1,frame2,"p_pim",100,0.0,10.0,"p_{#pi^{-}} (GeV)",drawopt,f);
+    plot(frame1,frame2,"p_e",100,0.0,10.0,"p_{e^{-}} (GeV)",drawopt,f);
+    plot(frame1,frame2,"p_p",100,0.0,10.0,"p_{p} (GeV)",drawopt,f);
+    plot(frame1,frame2,"p_pim",100,0.0,10.0,"p_{#pi^{-}} (GeV)",drawopt,f);
 
-    // plot(frame1,frame2,"pz_e",100,0.0,10.0,"p_{z e^{-}} (GeV)",drawopt,f);
-    // plot(frame1,frame2,"pz_p",100,0.0,10.0,"p_{z p} (GeV)",drawopt,f);
-    // plot(frame1,frame2,"pz_pim",100,0.0,10.0,"p_{z #pi^{-}} (GeV)",drawopt,f);
+    plot(frame1,frame2,"pz_e",100,0.0,10.0,"p_{z e^{-}} (GeV)",drawopt,f);
+    plot(frame1,frame2,"pz_p",100,0.0,10.0,"p_{z p} (GeV)",drawopt,f);
+    plot(frame1,frame2,"pz_pim",100,0.0,10.0,"p_{z #pi^{-}} (GeV)",drawopt,f);
 
-    // plot(frame1,frame2,"theta_e",100,0.0,TMath::Pi(),"#theta_{e^{-}}",drawopt,f);
-    // plot(frame1,frame2,"theta_p",100,0.0,TMath::Pi(),"#theta_{p}",drawopt,f);
-    // plot(frame1,frame2,"theta_pim",100,0.0,TMath::Pi(),"#theta_{#pi^{-}}",drawopt,f);
+    plot(frame1,frame2,"theta_e",100,0.0,TMath::Pi(),"#theta_{e^{-}}",drawopt,f);
+    plot(frame1,frame2,"theta_p",100,0.0,TMath::Pi(),"#theta_{p}",drawopt,f);
+    plot(frame1,frame2,"theta_pim",100,0.0,TMath::Pi(),"#theta_{#pi^{-}}",drawopt,f);
 
-    // plot(frame1,frame2,"phi_e_2",100,0.0,2*TMath::Pi(),"#phi_{e^{-}}",drawopt,f);
-    // plot(frame1,frame2,"phi_p_2",100,0.0,2*TMath::Pi(),"#phi_{p}",drawopt,f);
-    // plot(frame1,frame2,"phi_pim_2",100,0.0,2*TMath::Pi(),"#phi_{#pi^{-}}",drawopt,f);
+    plot(frame1,frame2,"phi_e_2",100,0.0,2*TMath::Pi(),"#phi_{e^{-}}",drawopt,f);
+    plot(frame1,frame2,"phi_p_2",100,0.0,2*TMath::Pi(),"#phi_{p}",drawopt,f);
+    plot(frame1,frame2,"phi_pim_2",100,0.0,2*TMath::Pi(),"#phi_{#pi^{-}}",drawopt,f);
 
-    // plot(frame1,frame2,"beta_e",100,0.0,1.2,"#beta_{e^{-}} (GeV)",drawopt,f);
-    // plot(frame1,frame2,"beta_p",100,0.0,1.2,"#beta_{p} (GeV)",drawopt,f);
-    // plot(frame1,frame2,"beta_pim",100,0.0,1.2,"#beta_{#pi^{-}} (GeV)",drawopt,f);
+    plot(frame1,frame2,"beta_e",100,0.0,1.2,"#beta_{e^{-}} (GeV)",drawopt,f);
+    plot(frame1,frame2,"beta_p",100,0.0,1.2,"#beta_{p} (GeV)",drawopt,f);
+    plot(frame1,frame2,"beta_pim",100,0.0,1.2,"#beta_{#pi^{-}} (GeV)",drawopt,f);
 
-    // plot(frame1,frame2,"chi2pid_e",100,-10.0,10.0,"#chi^{2}_{PID e^{-}} (GeV)",drawopt,f);
-    // plot(frame1,frame2,"chi2pid_p",100,-10.0,10.0,"#chi^{2}_{PID p} (GeV)",drawopt,f);
-    // plot(frame1,frame2,"chi2pid_pim",100,-10.0,10.0,"#chi^{2}_{PID #pi^{-}} (GeV)",drawopt,f);
+    plot(frame1,frame2,"chi2pid_e",100,-10.0,10.0,"#chi^{2}_{PID e^{-}} (GeV)",drawopt,f);
+    plot(frame1,frame2,"chi2pid_p",100,-10.0,10.0,"#chi^{2}_{PID p} (GeV)",drawopt,f);
+    plot(frame1,frame2,"chi2pid_pim",100,-10.0,10.0,"#chi^{2}_{PID #pi^{-}} (GeV)",drawopt,f);
 
-    // plot(frame1,frame2,"vT_e",100,0.0,5.0,"v_{T e^{-}} (cm)",drawopt,f);
-    // plot(frame1,frame2,"vT_p",100,0.0,5.0,"v_{T p} (cm)",drawopt,f);
-    // plot(frame1,frame2,"vT_pim",100,0.0,5.0,"v_{T #pi^{-}} (cm)",drawopt,f);
+    plot(frame1,frame2,"vT_e",100,0.0,5.0,"v_{T e^{-}} (cm)",drawopt,f);
+    plot(frame1,frame2,"vT_p",100,0.0,5.0,"v_{T p} (cm)",drawopt,f);
+    plot(frame1,frame2,"vT_pim",100,0.0,5.0,"v_{T #pi^{-}} (cm)",drawopt,f);
 
-    // plot(frame1,frame2,"v_e",100,0.0,30.0,"v_{e^{-}} (cm)",drawopt,f);
-    // plot(frame1,frame2,"v_p",100,0.0,30.0,"v_{p} (cm)",drawopt,f);
-    // plot(frame1,frame2,"v_pim",100,0.0,30.0,"v_{#pi^{-}} (cm)",drawopt,f);
+    plot(frame1,frame2,"v_e",100,0.0,30.0,"v_{e^{-}} (cm)",drawopt,f);
+    plot(frame1,frame2,"v_p",100,0.0,30.0,"v_{p} (cm)",drawopt,f);
+    plot(frame1,frame2,"v_pim",100,0.0,30.0,"v_{#pi^{-}} (cm)",drawopt,f);
 
-    // plot(frame1,frame2,"vz_e",100,-25.0,25.0,"v_{z e^{-}} (cm)",drawopt,f);
-    // plot(frame1,frame2,"vz_p",100,-25.0,25.0,"v_{z p} (cm)",drawopt,f);
-    // plot(frame1,frame2,"vz_pim",100,-25.0,25.0,"v_{z #pi^{-}} (cm)",drawopt,f);
+    plot(frame1,frame2,"vz_e",100,-25.0,25.0,"v_{z e^{-}} (cm)",drawopt,f);
+    plot(frame1,frame2,"vz_p",100,-25.0,25.0,"v_{z p} (cm)",drawopt,f);
+    plot(frame1,frame2,"vz_pim",100,-25.0,25.0,"v_{z #pi^{-}} (cm)",drawopt,f);
 
     // TODO: beta,chi2pid,vertex 1D plots
     // TODO: figure out how to get energy dep...
@@ -294,29 +294,29 @@ void PlotComparisons() {
     // names.push_back("vz_p"); nbins.push_back(100); binlims.push_back({-25.0,25.0}); labels.push_back("v_{z p} (cm)");
     // names.push_back("vz_pim"); nbins.push_back(100); binlims.push_back({-25.0,25.0}); labels.push_back("v_{z #pi^{-}} (cm)");
 
-    // Plot correlations data
-    const char *extraname1 = "2d_data";
-    for (int i=0; i<names.size(); i++) {
-      for (int j=0; j<names.size(); j++) {
-        if (i==j) continue;//NOTE: SKIP IDENTITIES
-        if (!(((i>8 && j>8) && j==i+3) || (i<=8 && j<=8))) continue; //NOTE: Creates block combos with just beta vs. p (y vs. x)
-        plot2d(frame1,extraname1,names[i].c_str(),nbins[i],binlims[i][0],binlims[i][1],labels[i].c_str(),
-                            names[j].c_str(),nbins[j],binlims[j][0],binlims[j][1],labels[j].c_str(),
-                            drawopt,f);
-      }
-    }
+    // // Plot correlations data
+    // const char *extraname1 = "2d_data";
+    // for (int i=0; i<names.size(); i++) {
+    //   for (int j=0; j<names.size(); j++) {
+    //     if (i==j) continue;//NOTE: SKIP IDENTITIES
+    //     if (!(((i>8 && j>8) && j==i+3) || (i<=8 && j<=8))) continue; //NOTE: Creates block combos with just beta vs. p (y vs. x)
+    //     plot2d(frame1,extraname1,names[i].c_str(),nbins[i],binlims[i][0],binlims[i][1],labels[i].c_str(),
+    //                         names[j].c_str(),nbins[j],binlims[j][0],binlims[j][1],labels[j].c_str(),
+    //                         drawopt,f);
+    //   }
+    // }
 
-    // Plot correlations MC
-    const char *extraname2 = "2d_mc";
-    for (int i=0; i<names.size(); i++) {
-      for (int j=0; j<names.size(); j++) {
-        if (i==j) continue;//NOTE: SKIP IDENTITIES
-        if (!(((i>8 && j>8) && j==i+3) || (i<=8 && j<=8))) continue; //NOTE: Creates block combos with just beta vs. p (y vs. x)
-        plot2d(frame2,extraname2,names[i].c_str(),nbins[i],binlims[i][0],binlims[i][1],labels[i].c_str(),
-                            names[j].c_str(),nbins[j],binlims[j][0],binlims[j][1],labels[j].c_str(),
-                            drawopt,f);
-      }
-    }
+    // // Plot correlations MC
+    // const char *extraname2 = "2d_mc";
+    // for (int i=0; i<names.size(); i++) {
+    //   for (int j=0; j<names.size(); j++) {
+    //     if (i==j) continue;//NOTE: SKIP IDENTITIES
+    //     if (!(((i>8 && j>8) && j==i+3) || (i<=8 && j<=8))) continue; //NOTE: Creates block combos with just beta vs. p (y vs. x)
+    //     plot2d(frame2,extraname2,names[i].c_str(),nbins[i],binlims[i][0],binlims[i][1],labels[i].c_str(),
+    //                         names[j].c_str(),nbins[j],binlims[j][0],binlims[j][1],labels[j].c_str(),
+    //                         drawopt,f);
+    //   }
+    // }
 
     // Close output file
     f->Close();
