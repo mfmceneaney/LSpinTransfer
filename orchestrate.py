@@ -163,6 +163,30 @@ if __name__=="__main__":
     create_jobs(divisions,base_dir,submit_path,yaml_path)
     submit_jobs(divisions,base_dir,submit_path,out_path)
 
+    # Upper sideband systematics file paths and config
+    base_dir    = "systematics/upper_sideband/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = dict(
+        methods,
+        **fitvars,
+    )
+    create_jobs(divisions,base_dir,submit_path,yaml_path)
+    submit_jobs(divisions,base_dir,submit_path,out_path)
+
+    # Lower sideband systematics file paths and config
+    base_dir    = "systematics/lower_sideband/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = dict(
+        methods,
+        **fitvars,
+    )
+    create_jobs(divisions,base_dir,submit_path,yaml_path)
+    submit_jobs(divisions,base_dir,submit_path,out_path)
+
     # mass_ppim kinematics systematics file paths and config
     base_dir    = "systematics/kinematics_mass_ppim/"
     submit_path = base_dir+"submit.sh"
@@ -188,20 +212,6 @@ if __name__=="__main__":
     submit_jobs(divisions,base_dir,submit_path,out_path)
 
     # Upper sideband systematics file paths and config
-    base_dir    = "systematics/upper_sideband_scan/"
-    submit_path = base_dir+"submit.sh"
-    yaml_path   = base_dir+"args.yaml"
-    out_path    = base_dir+"jobs.txt"
-    divisions = dict(
-        methods,
-        **fitvars,
-        **sgmins,
-        **sgmaxs,
-    )
-    create_jobs(divisions,base_dir,submit_path,yaml_path)
-    submit_jobs(divisions,base_dir,submit_path,out_path)
-
-    # Upper sideband scan systematics file paths and config
     base_dir    = "systematics/upper_sideband_scan/"
     submit_path = base_dir+"submit.sh"
     yaml_path   = base_dir+"args.yaml"
