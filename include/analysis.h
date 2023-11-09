@@ -1265,8 +1265,8 @@ void getKinBinnedGraphGausCBDiff(
             dll_err = TMath::Abs(TMath::Sqrt(dll_err*dll_err+epsilon*epsilon*bg_dll_err*bg_dll_err) / (1 - epsilon));
 
             // Compute results with gaussian epsilon
-            dll    = (dll - epsilon * bg_dll) / (1 - epsilon);
-            dll_err = TMath::Abs(TMath::Sqrt(dll_err*dll_err+epsilon*epsilon*bg_dll_err*bg_dll_err) / (1 - epsilon));
+            dll_gauss    = (dll - epsilon_gauss * bg_dll) / (1 - epsilon_gauss);
+            dll_gauss_err = TMath::Abs(TMath::Sqrt(dll_err*dll_err+epsilon_gauss*epsilon_gauss*bg_dll_err*bg_dll_err) / (1 - epsilon_gauss));
 
             // Reassign dll to difference
             dll = dll - dll_gauss;
