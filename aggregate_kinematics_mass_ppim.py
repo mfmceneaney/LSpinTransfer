@@ -437,7 +437,7 @@ if __name__=="__main__":
     # Get list of directories across which to aggregate
     aggregate_keys = []
     var_lims = {
-        'mass_ppim_ppim':[1.08,1.24],
+        'mass_ppim':[1.08,1.24],
     }
     out_file_list = get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_file_name,use_mc,aggregate_keys)
 
@@ -455,6 +455,7 @@ if __name__=="__main__":
     #DEBUGGING: END
 
     xlimss = {
+        'mass_ppim':[1.08,1.24],
         'Q2':[1.0,11.0],
         'W':[2.0,5.0],
         'x':[0.0,1.0],
@@ -472,6 +473,7 @@ if __name__=="__main__":
         'costheta2':'red',
     }
     xtitles = {
+        'mass_ppim':'$M_{p\pi^{-}$ (GeV)',
         'Q2':'$Q^{2}$',
         'W':'$W$',
         'x':'$x$',
