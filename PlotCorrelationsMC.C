@@ -178,7 +178,7 @@ void PlotCorrelationsMC() {
       .Filter(cuts2); // NEEDED FOR CALCULATIONS LATER
     
     // Open output file
-    TFile *f = TFile::Open("PlotCorrelations.root","RECREATE");
+    TFile *f = TFile::Open("PlotCorrelationsMC.root","RECREATE");
     f->cd();
 
     // // Get 1D Plots
