@@ -390,7 +390,7 @@ if __name__=="__main__":
     # -> e.g., loop keys if key is aggregate run aggregation otherwise you're creating a new file each time...
 
     # Results file paths and config
-    base_dir    = "results_10_4_23/"
+    base_dir    = "results/"
     submit_path = base_dir+"submit.sh"
     yaml_path   = base_dir+"args.yaml"
     out_path    = base_dir+"jobs.txt"
