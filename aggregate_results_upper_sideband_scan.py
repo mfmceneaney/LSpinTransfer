@@ -449,7 +449,7 @@ if __name__=="__main__":
         # 'x':[0.0,1.0],
         # 'xF_ppim':[0.0,1.0],
         # 'y':[0.0,0.8],
-        # 'z_ppim':[0.0,10.0],
+        # 'z_ppim':[0.0,1.0],
         'mass_ppim':[1.08,1.24],
     }
     out_file_list = get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_file_name,use_mc,aggregate_keys)

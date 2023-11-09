@@ -420,7 +420,7 @@ if __name__=="__main__":
         'x':[0.0,1.0],
         'xF_ppim':[0.0,1.0],
         'y':[0.0,1.0],
-        'z_ppim':[0.0,10.0],
+        'z_ppim':[0.0,1.0],
     }
     out_file_list = get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_file_name,use_mc,aggregate_keys)
     # return [[filename for values in aggregate_keys] for combinations in divisions[~aggregate_keys]+var_lims]
