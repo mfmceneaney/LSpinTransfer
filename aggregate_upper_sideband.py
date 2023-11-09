@@ -326,9 +326,9 @@ def get_plots(
     axlinewidth=1
 
     xbins = yaml_args['binvars'][xvar]['bins']
-    xerr_syst = [0.00 for x in range(len(xbins)-1)]
-    yerr_syst = [0.1  for x in range(len(xbins)-1)] #NOTE: ADD IF STATMENT HERE #TODO #DEBUGGING !!!!!!!!!!!!!!!!!
-    yerr_syst = np.multiply(yerr_syst,y_mean)
+    xerr_syst = None #[0.00 for x in range(len(xbins)-1)]
+    yerr_syst = None #[0.1  for x in range(len(xbins)-1)] #NOTE: ADD IF STATMENT HERE #TODO #DEBUGGING !!!!!!!!!!!!!!!!!
+    #yerr_syst = np.multiply(yerr_syst,y_mean)#NOTE: THIS DOES NOT GET THE DIMENSIONS CORRECTLY, THINK CAREFULLY BEFORE UNCOMMENTING
 
     # Plot 
     figsize = (16,10)
@@ -479,7 +479,7 @@ if __name__=="__main__":
         'costheta2':'red',
     }
     xtitles = {
-        'mass_ppim':'$M_{p\pi^{-}$ (GeV)',
+        'mass_ppim':'$M_{p\pi^{-}}$ (GeV)',
         'Q2':'$Q^{2}$',
         'W':'$W$',
         'x':'$x$',
