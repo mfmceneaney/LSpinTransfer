@@ -278,59 +278,58 @@ def get_plots(
     config = {},
     ):
 
-    # # Set font sizes
-    # plt.rc('font', size=25) #controls default text size
-    # plt.rc('axes', titlesize=50) #fontsize of the title
-    # plt.rc('axes', labelsize=50) #fontsize of the x and y labels
-    # plt.rc('xtick', labelsize=25) #fontsize of the x tick labels
-    # plt.rc('ytick', labelsize=25) #fontsize of the y tick labels
-    # plt.rc('legend', fontsize=20) #fontsize of the legend
+    # Set font sizes
+    plt.rc('font', size=25) #controls default text size
+    plt.rc('axes', titlesize=50) #fontsize of the title
+    plt.rc('axes', labelsize=50) #fontsize of the x and y labels
+    plt.rc('xtick', labelsize=25) #fontsize of the x tick labels
+    plt.rc('ytick', labelsize=25) #fontsize of the y tick labels
+    plt.rc('legend', fontsize=20) #fontsize of the legend
 
-    # # Get some nicer plot settings
-    # plt.rcParams['font.family'] = 'serif'
-    # plt.rcParams['figure.autolayout'] = True
+    # Get some nicer plot settings
+    plt.rcParams['font.family'] = 'serif'
+    plt.rcParams['figure.autolayout'] = True
 
-    # ecolor='black'
-    # elinewidth=2.0
-    # capsize=18
-    # capthick=2.0
-    # ### color='black'
-    # marker='o'
-    # linestyle=None
-    # linewidth=0.0
-    # markersize=20
-    # gridlinewidth=0.5
-    # axlinewidth=1
+    ecolor='black'
+    elinewidth=2.0
+    capsize=18
+    capthick=2.0
+    ### color='black'
+    marker='o'
+    linestyle=None
+    linewidth=0.0
+    markersize=20
+    gridlinewidth=0.5
+    axlinewidth=1
 
-    # # Plot 
-    # figsize = (16,10)
-    # f1, ax1 = plt.subplots(figsize=figsize)
-    # plt.xlim(*xlims)
-    # plt.ylim(*ylims)
-    # plt.title(title,usetex=True)
-    # plt.xlabel(xtitle,usetex=True)
-    # plt.ylabel(ytitle,usetex=True)
-    # fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
-    # g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
-    #                     ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
-    #                     color=color, marker='o', linestyle=linestyle,
-    #                     linewidth=linewidth, markersize=markersize,label='Mean $D_{LL\'}^{\Lambda}$')
-    # plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
-    # if sgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
-    # ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth, label='Injected Signal Asymmetry')
-    # if bgasym!=0: ax1.axhline(bgasym, color='blue',linestyle='--',linewidth=axlinewidth, label='Injected Background Asymmetry')
-    # plt.legend(loc='best')
-    # print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
-    # f1.savefig(outpath)
+    # Plot 
+    figsize = (16,10)
+    f1, ax1 = plt.subplots(figsize=figsize)
+    plt.xlim(*xlims)
+    plt.ylim(*ylims)
+    plt.title(title,usetex=True)
+    plt.xlabel(xtitle,usetex=True)
+    plt.ylabel(ytitle,usetex=True)
+    fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
+    g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
+                        ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
+                        color=color, marker='o', linestyle=linestyle,
+                        linewidth=linewidth, markersize=markersize,label='Mean $D_{LL\'}^{\Lambda}$')
+    plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
+    if sgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
+    ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth, label='Injected Signal Asymmetry')
+    if bgasym!=0: ax1.axhline(bgasym, color='blue',linestyle='--',linewidth=axlinewidth, label='Injected Background Asymmetry')
+    plt.legend(loc='best')
+    print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
+    f1.savefig(outpath)
 
-    #NOTE: ADDED BEGIN
+    # Compute group values
     y_mean_overall = np.mean(y_mean)
     yerr_overall   = np.sqrt(np.mean(np.square(yerr_mean)))
     chi = np.std(np.add(y_mean,-sgasym))
     systematic = chi/(sgasym if sgasym!=0 else 1.0)
     keeper.append([config,[y_mean_overall,yerr_overall,chi,systematic]])
-    #NOTE: ADDED END
-
+    
     # Save plot data to csv
     delimiter = ","
     header    = delimiter.join(["bin","x","y","xerr","yerr","ymin","ymax"])
