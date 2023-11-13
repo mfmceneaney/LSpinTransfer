@@ -1268,6 +1268,18 @@ void getKinBinnedGraphGausCBDiff(
             dll_gauss    = (dll - epsilon_gauss * bg_dll) / (1 - epsilon_gauss);
             dll_gauss_err = TMath::Abs(TMath::Sqrt(dll_err*dll_err+epsilon_gauss*epsilon_gauss*bg_dll_err*bg_dll_err) / (1 - epsilon_gauss));
 
+            // DEBUGGING OUTPUT MESSAGE
+            out <<"--- DEBUGGING CB GAUSS DIFF ---\n";
+            out <<" epsilon       = " << epsilon << "\n";
+            out <<" epsilon_gauss = " << epsilon << "\n";
+            out <<" bg_dll        = " << bg_dll << "\n";
+            out <<" BG CORRECTED QUANTITIES\n";
+            out <<" dll           = " << dll << "\n";
+            out <<" dll_gauss     = " << dll_gauss << "\n";
+            out <<" delta cb - g  = " << (dll-dll_gauss) << "\n";
+            out << "------------------------------\n";
+            // DEBUGGING OUTPUT MESSAGE END
+
             // Reassign dll to difference
             dll = dll - dll_gauss;
             dll_err = TMath::Sqrt(dll_err*dll_err+dll_gauss_err*dll_gauss_err);
