@@ -1261,8 +1261,8 @@ void getKinBinnedGraphGausCBDiff(
             double bg_mean    = bgBinData->GetAt(2);
             double bg_stddev  = bgBinData->GetAt(3);
             int    bg_count   = bgBinData->GetAt(4);
-            dll    = (dll - epsilon * bg_dll) / (1 - epsilon);
-            dll_err = TMath::Abs(TMath::Sqrt(dll_err*dll_err+epsilon*epsilon*bg_dll_err*bg_dll_err) / (1 - epsilon));
+            double dll_cb     = (dll - epsilon * bg_dll) / (1 - epsilon);
+            double dll_cb_err = TMath::Abs(TMath::Sqrt(dll_err*dll_err+epsilon*epsilon*bg_dll_err*bg_dll_err) / (1 - epsilon));
 
             // Compute results with gaussian epsilon
             dll_gauss    = (dll - epsilon_gauss * bg_dll) / (1 - epsilon_gauss);
@@ -1271,17 +1271,18 @@ void getKinBinnedGraphGausCBDiff(
             // DEBUGGING OUTPUT MESSAGE
             out <<"--- DEBUGGING CB GAUSS DIFF ---\n";
             out <<" epsilon       = " << epsilon << "\n";
-            out <<" epsilon_gauss = " << epsilon << "\n";
+            out <<" epsilon_gauss = " << epsilon_gauss << "\n";
             out <<" bg_dll        = " << bg_dll << "\n";
-            out <<" BG CORRECTED QUANTITIES\n";
             out <<" dll           = " << dll << "\n";
+            out <<" BG CORRECTED QUANTITIES\n";
+            out <<" dll_cb        = " << dll_cb << "\n";
             out <<" dll_gauss     = " << dll_gauss << "\n";
-            out <<" delta cb - g  = " << (dll-dll_gauss) << "\n";
+            out <<" delta cb - g  = " << (dll_cb-dll_gauss) << "\n";
             out << "------------------------------\n";
             // DEBUGGING OUTPUT MESSAGE END
 
             // Reassign dll to difference
-            dll = dll - dll_gauss;
+            dll = dll_cb - dll_gauss;
             dll_err = TMath::Sqrt(dll_err*dll_err+dll_gauss_err*dll_gauss_err);
 
             // Output message
