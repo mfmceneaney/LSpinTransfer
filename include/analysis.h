@@ -1479,6 +1479,12 @@ void getKinBinnedMassFits(
     double bgfractions[nbins];
     double bgfractions_err[nbins];
 
+    // Initialize chi2 and parameter arrays
+    double chi2s[nbins];
+    const int npars = 5; //NOTE: ONLY LOOK AT CB SIGNAL PARAMS
+    double pars[npars][nbins];
+    double pars_err[npars][nbins];
+
     // Loop bins and get data
     for (int i=1; i<=nbins; i++) {
         double bin_min = bins[i-1];
@@ -1527,6 +1533,18 @@ void getKinBinnedMassFits(
 
             epsilon = massFitData->GetAt(0);
             bgfraction_err = massFitData->GetAt(1);
+
+            // Get chi2
+            chi2s[i-1] = massFitData->GetAt(8);
+
+            // Get parameters and parameter errors
+            int par_idx_start = 9;
+            int pars_err_idx_start = 10;
+            int par_idx_step  = 2;
+            for (int par_idx=0; par_idx<npars; par_idx++) {
+                pars[par_idx][i-1] = (double)massFitData->GetAt((int)(pars_idx_start+par_idx_step*par_idx));
+                pars_err[par_idx][i-1] = (double)massFitData->GetAt((int)(pars_err_idx_start+par_idx_step*par_idx));
+            }
         }
         
         auto mean  = (double)*bin_frame.Mean(binvar.c_str());
@@ -1558,6 +1576,68 @@ void getKinBinnedMassFits(
     // Create graph of epsilons from mass fits binned in binvar
     TGraphErrors *gr_epsilon = new TGraphErrors(nbins,means,bgfractions,errx,bgfractions_err);
     gr_epsilon->Write("gr_epsilon");
+
+    // Create graph of chi2 from mass fits binned in binvar
+    TGraphErrors *gr_epsilon = new TGraphErrors(nbins,means,chi2s,errx,errx);
+    gr_chi2->Write("gr_chi2");
+    
+    TCanvas *c1__ = new TCanvas();
+    c1__->SetBottomMargin(0.125);
+    c1__->cd(0);
+
+    // Stylistic choices that aren't really necessary
+    gStyle->SetEndErrorSize(5); gStyle->SetTitleFontSize(0.05);
+    gr_chi2->SetMarkerSize(1.25);
+    gr_chi2->GetXaxis()->SetTitleSize(0.05);
+    gr_chi2->GetXaxis()->SetTitleOffset(0.9);
+    gr_chi2->GetYaxis()->SetTitleSize(0.05);
+    gr_chi2->GetYaxis()->SetTitleOffset(0.9);
+
+    // More necessary stylistic choices
+    gr_chi2->SetTitle("");
+    gr_chi2->SetMarkerColor(marker_color); // 4  blue
+    gr_chi2->SetMarkerStyle(marker_style); // 20 circle
+    gr_chi2->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
+    gr_chi2->GetXaxis()->SetTitle(binvar.c_str());
+    gr_chi2->GetYaxis()->SetTitle("#chi^{2}/NDF");
+    gr_chi2->Draw("PA");
+
+    // Set outname and save
+    TString fname;
+    fname.Form("chi2_%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
+    c1__->Print(fname+".pdf");
+
+    // Create graphs of parameters from mass fits binned in binvar
+    for (int par_idx=0; par_idx<npars; par_idx++) {
+        TGraphErrors *gr_par = new TGraphErrors(nbins,means,pars[par_idx],errx,pars_err[par_idx]); //NOTE: THIS RELIES ON DIMENSIONS OF pars AND pars_err being oriented correctly: (nPars,nBins).
+        gr_par->Write(Form("gr_par%d",par_idx));
+
+        TCanvas *c1_ = new TCanvas();
+        c1_->SetBottomMargin(0.125);
+        c1_->cd(0);
+
+        // Stylistic choices that aren't really necessary
+        gStyle->SetEndErrorSize(5); gStyle->SetTitleFontSize(0.05);
+        gr_par->SetMarkerSize(1.25);
+        gr_par->GetXaxis()->SetTitleSize(0.05);
+        gr_par->GetXaxis()->SetTitleOffset(0.9);
+        gr_par->GetYaxis()->SetTitleSize(0.05);
+        gr_par->GetYaxis()->SetTitleOffset(0.9);
+
+        // More necessary stylistic choices
+        gr_par->SetTitle("");
+        gr_par->SetMarkerColor(marker_color); // 4  blue
+        gr_par->SetMarkerStyle(marker_style); // 20 circle
+        gr_par->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
+        gr_par->GetXaxis()->SetTitle(binvar.c_str());
+        gr_par->GetYaxis()->SetTitle(Form("par%d",par_idx));
+        gr_par->Draw("PA");
+
+        // Set outname and save
+        TString fname;
+        fname.Form("par%d_%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",par_idx,(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
+        c1_->Print(fname+".pdf");
+    }
 
     // Plot results graph
     TCanvas *c1 = new TCanvas();
@@ -1673,6 +1753,12 @@ void getKinBinnedMassFitsMC(
     double bgfractions_true[nbins];
     double bgfractions_true_err[nbins];
 
+    // Initialize chi2 and parameter arrays
+    double chi2s[nbins];
+    const int npars = 5; //NOTE: ONLY LOOK AT CB SIGNAL PARAMS
+    double pars[npars][nbins];
+    double pars_err[npars][nbins];
+
     // Loop bins and get data
     for (int i=1; i<=nbins; i++) {
         double bin_min = bins[i-1];
@@ -1746,6 +1832,19 @@ void getKinBinnedMassFitsMC(
             bgfraction_err = massFitData->GetAt(1);
             epsilon_true = massFitData->GetAt(2);
             bgfraction_true_err = massFitData->GetAt(3);
+
+
+            // Get chi2
+            chi2s[i-1] = massFitData->GetAt(8);
+
+            // Get parameters and parameter errors
+            int par_idx_start = 9;
+            int pars_err_idx_start = 10;
+            int par_idx_step  = 2;
+            for (int par_idx=0; par_idx<npars; par_idx++) {
+                pars[par_idx][i-1] = (double)massFitData->GetAt((int)(pars_idx_start+par_idx_step*par_idx));
+                pars_err[par_idx][i-1] = (double)massFitData->GetAt((int)(pars_err_idx_start+par_idx_step*par_idx));
+            }
         }
         
         auto mean  = (double)*bin_frame.Mean(binvar.c_str());
@@ -1779,6 +1878,68 @@ void getKinBinnedMassFitsMC(
     // Create graph of epsilons from mass fits binned in binvar
     TGraphErrors *gr_epsilon = new TGraphErrors(nbins,means,bgfractions_true,errx,bgfractions_true_err);
     gr_epsilon->Write("gr_epsilon");
+
+    // Create graph of chi2 from mass fits binned in binvar
+    TGraphErrors *gr_epsilon = new TGraphErrors(nbins,means,chi2s,errx,errx);
+    gr_chi2->Write("gr_chi2");
+
+    TCanvas *c1__ = new TCanvas();
+    c1__->SetBottomMargin(0.125);
+    c1__->cd(0);
+
+    // Stylistic choices that aren't really necessary
+    gStyle->SetEndErrorSize(5); gStyle->SetTitleFontSize(0.05);
+    gr_chi2->SetMarkerSize(1.25);
+    gr_chi2->GetXaxis()->SetTitleSize(0.05);
+    gr_chi2->GetXaxis()->SetTitleOffset(0.9);
+    gr_chi2->GetYaxis()->SetTitleSize(0.05);
+    gr_chi2->GetYaxis()->SetTitleOffset(0.9);
+
+    // More necessary stylistic choices
+    gr_chi2->SetTitle("");
+    gr_chi2->SetMarkerColor(marker_color); // 4  blue
+    gr_chi2->SetMarkerStyle(marker_style); // 20 circle
+    gr_chi2->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
+    gr_chi2->GetXaxis()->SetTitle(binvar.c_str());
+    gr_chi2->GetYaxis()->SetTitle("#chi^{2}/NDF");
+    gr_chi2->Draw("PA");
+
+    // Set outname and save
+    TString fname;
+    fname.Form("chi2_%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
+    c1__->Print(fname+".pdf");
+
+    // Create graphs of parameters from mass fits binned in binvar
+    for (int par_idx=0; par_idx<npars; par_idx++) {
+        TGraphErrors *gr_par = new TGraphErrors(nbins,means,pars[par_idx],errx,pars_err[par_idx]); //NOTE: THIS RELIES ON DIMENSIONS OF pars AND pars_err being oriented correctly: (nPars,nBins).
+        gr_par->Write(Form("gr_par%d",par_idx));
+
+        TCanvas *c1_ = new TCanvas();
+        c1_->SetBottomMargin(0.125);
+        c1_->cd(0);
+
+        // Stylistic choices that aren't really necessary
+        gStyle->SetEndErrorSize(5); gStyle->SetTitleFontSize(0.05);
+        gr_par->SetMarkerSize(1.25);
+        gr_par->GetXaxis()->SetTitleSize(0.05);
+        gr_par->GetXaxis()->SetTitleOffset(0.9);
+        gr_par->GetYaxis()->SetTitleSize(0.05);
+        gr_par->GetYaxis()->SetTitleOffset(0.9);
+
+        // More necessary stylistic choices
+        gr_par->SetTitle("");
+        gr_par->SetMarkerColor(marker_color); // 4  blue
+        gr_par->SetMarkerStyle(marker_style); // 20 circle
+        gr_par->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
+        gr_par->GetXaxis()->SetTitle(binvar.c_str());
+        gr_par->GetYaxis()->SetTitle(Form("par%d",par_idx));
+        gr_par->Draw("PA");
+
+        // Set outname and save
+        TString fname;
+        fname.Form("par%d_%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",par_idx,(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
+        c1_->Print(fname+".pdf");
+    }
 
     // Plot results graph
     TCanvas *c1 = new TCanvas();
