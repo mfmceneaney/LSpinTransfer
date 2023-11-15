@@ -106,7 +106,7 @@ void GetBinMigration2DFinalBins() {
       .Filter(cuts); // NEEDED FOR CALCULATIONS LATER
     
     // Open output file
-    TFile *f = TFile::Open("h_bin_migration.root","RECREATE");
+    TFile *f = TFile::Open("h_bin_migration_2D_final_bins.root","RECREATE");
     f->cd();
     
     // Set maps for 2D plots
