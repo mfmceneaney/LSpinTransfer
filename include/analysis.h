@@ -1539,11 +1539,11 @@ void getKinBinnedMassFits(
 
             // Get parameters and parameter errors
             int par_idx_start = 9;
-            int pars_err_idx_start = 10;
+            int par_err_idx_start = 10;
             int par_idx_step  = 2;
             for (int par_idx=0; par_idx<npars; par_idx++) {
-                pars[par_idx][i-1] = (double)massFitData->GetAt((int)(pars_idx_start+par_idx_step*par_idx));
-                pars_err[par_idx][i-1] = (double)massFitData->GetAt((int)(pars_err_idx_start+par_idx_step*par_idx));
+                pars[par_idx][i-1] = (double)massFitData->GetAt((int)(par_idx_start+par_idx_step*par_idx));
+                pars_err[par_idx][i-1] = (double)massFitData->GetAt((int)(par_err_idx_start+par_idx_step*par_idx));
             }
         }
         
@@ -1578,7 +1578,7 @@ void getKinBinnedMassFits(
     gr_epsilon->Write("gr_epsilon");
 
     // Create graph of chi2 from mass fits binned in binvar
-    TGraphErrors *gr_epsilon = new TGraphErrors(nbins,means,chi2s,errx,errx);
+    TGraphErrors *gr_chi2 = new TGraphErrors(nbins,means,chi2s,errx,errx);
     gr_chi2->Write("gr_chi2");
     
     TCanvas *c1__ = new TCanvas();
@@ -1603,9 +1603,9 @@ void getKinBinnedMassFits(
     gr_chi2->Draw("PA");
 
     // Set outname and save
-    TString fname;
-    fname.Form("chi2_%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
-    c1__->Print(fname+".pdf");
+    TString fname__;
+    fname__.Form("chi2_%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
+    c1__->Print(fname__+".pdf");
 
     // Create graphs of parameters from mass fits binned in binvar
     for (int par_idx=0; par_idx<npars; par_idx++) {
@@ -1634,9 +1634,9 @@ void getKinBinnedMassFits(
         gr_par->Draw("PA");
 
         // Set outname and save
-        TString fname;
-        fname.Form("par%d_%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",par_idx,(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
-        c1_->Print(fname+".pdf");
+        TString fname_;
+        fname_.Form("par%d_%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",par_idx,(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
+        c1_->Print(fname_+".pdf");
     }
 
     // Plot results graph
@@ -1839,11 +1839,11 @@ void getKinBinnedMassFitsMC(
 
             // Get parameters and parameter errors
             int par_idx_start = 9;
-            int pars_err_idx_start = 10;
+            int par_err_idx_start = 10;
             int par_idx_step  = 2;
             for (int par_idx=0; par_idx<npars; par_idx++) {
-                pars[par_idx][i-1] = (double)massFitData->GetAt((int)(pars_idx_start+par_idx_step*par_idx));
-                pars_err[par_idx][i-1] = (double)massFitData->GetAt((int)(pars_err_idx_start+par_idx_step*par_idx));
+                pars[par_idx][i-1] = (double)massFitData->GetAt((int)(par_idx_start+par_idx_step*par_idx));
+                pars_err[par_idx][i-1] = (double)massFitData->GetAt((int)(par_err_idx_start+par_idx_step*par_idx));
             }
         }
         
@@ -1880,7 +1880,7 @@ void getKinBinnedMassFitsMC(
     gr_epsilon->Write("gr_epsilon");
 
     // Create graph of chi2 from mass fits binned in binvar
-    TGraphErrors *gr_epsilon = new TGraphErrors(nbins,means,chi2s,errx,errx);
+    TGraphErrors *gr_chi2 = new TGraphErrors(nbins,means,chi2s,errx,errx);
     gr_chi2->Write("gr_chi2");
 
     TCanvas *c1__ = new TCanvas();
@@ -1905,9 +1905,9 @@ void getKinBinnedMassFitsMC(
     gr_chi2->Draw("PA");
 
     // Set outname and save
-    TString fname;
-    fname.Form("chi2_%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
-    c1__->Print(fname+".pdf");
+    TString fname__;
+    fname__.Form("chi2_%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
+    c1__->Print(fname__+".pdf");
 
     // Create graphs of parameters from mass fits binned in binvar
     for (int par_idx=0; par_idx<npars; par_idx++) {
@@ -1936,9 +1936,9 @@ void getKinBinnedMassFitsMC(
         gr_par->Draw("PA");
 
         // Set outname and save
-        TString fname;
-        fname.Form("par%d_%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",par_idx,(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
-        c1_->Print(fname+".pdf");
+        TString fname_;
+        fname_.Form("par%d_%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",par_idx,(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
+        c1_->Print(fname_+".pdf");
     }
 
     // Plot results graph
