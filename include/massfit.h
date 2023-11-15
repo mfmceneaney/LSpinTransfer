@@ -350,7 +350,7 @@ N MAYBE...
     //TODO: Could output fit results to outstream and/or could save to some sort of tree int pwd...
 
     // Fill return array
-    TArrayF *arr = new TArrayF(30);
+    TArrayF *arr = new TArrayF(31);
     int i = 0;
     arr->AddAt(epsilon,i++);
     arr->AddAt(epsilon_err,i++);
@@ -369,6 +369,7 @@ N MAYBE...
     arr->AddAt(i_bg_err,i++);
     arr->AddAt(i_fitf,i++);
     arr->AddAt(i_fitf_err,i++);
+    arr->AddAt(chi2/ndf,i++);
     arr->AddAt(alpha,i++);
     arr->AddAt(Ealpha,i++);
     arr->AddAt(n,i++);
@@ -713,7 +714,7 @@ TArrayF* LambdaMassFitPoly4BG(
     //TODO: Could output fit results to outstream and/or could save to some sort of tree int pwd...
 
     // Fill return array
-    TArrayF *arr = new TArrayF(36);
+    TArrayF *arr = new TArrayF(37);
     int i = 0;
     arr->AddAt(epsilon,i++);
     arr->AddAt(epsilon_err,i++);
@@ -732,6 +733,7 @@ TArrayF* LambdaMassFitPoly4BG(
     arr->AddAt(i_bg_err,i++);
     arr->AddAt(i_fitf,i++);
     arr->AddAt(i_fitf_err,i++);
+    arr->AddAt(chi2/ndf,i++);
     arr->AddAt(alpha,i++);
     arr->AddAt(Ealpha,i++);
     arr->AddAt(n,i++);
