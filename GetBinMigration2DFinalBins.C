@@ -36,7 +36,7 @@ void getBinMigrationPlots(
     // Create 2d histogram
     std::string name  = Form("h2d_bin_migration_%s",varName.c_str());
     std::string title = Form("Bin Migration in %s",varTitle.c_str());
-    TH1D h1_ = (TH1D*)*frame.Histo1D({"h1_",title.c_str(),nbinsx,xbins},varName.c_str());
+    TH1D h1_ = (TH1D)*frame.Histo1D({"h1_",title.c_str(),nbinsx,xbins},varName.c_str());
     TH1D *h1 = (TH1D*)h1_.Clone(Form("h1_%s",name.c_str()));
     TH2D h2_ = (TH2D)*frame.Histo2D({"h2_",title.c_str(),nbinsx,xbins,nbinsy,ybins},varName.c_str(),mcvarName.c_str());
     TH2D *h2 = (TH2D*)h2_.Clone(name.c_str());
