@@ -5,6 +5,7 @@
 
 import uproot as ur
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 import subprocess
@@ -522,7 +523,7 @@ if __name__=="__main__":
             results_dir = 'results/'
             resultspath = outpath.replace(mydir,results_dir)+'.csv'
             print("DEBUGGING: resultspath = ",resultspath)
-            results = np.loadtxt(resultspath,skiprows=1,delimiter=',')
+            results = pd.read_csv(resultspath)
             print("DEBUGGING: results = ",results)
             print("DEBUGGING: arrs = ",arrs)
             get_plots(
