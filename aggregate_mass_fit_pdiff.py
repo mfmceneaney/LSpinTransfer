@@ -520,7 +520,7 @@ if __name__=="__main__":
             print("DEBUGGING: ylimss = ",ylimss)
             mydir = 'systematics/mass_fit/'
             results_dir = 'results/'
-            resultspath = outpath.replace(mydir,results_dir)
+            resultspath = outpath.replace(mydir,results_dir)+'.csv'
             print("DEBUGGING: resultspath = ",resultspath)
             results = np.loadtxt(resultspath)
             print("DEBUGGING: results = ",results)
