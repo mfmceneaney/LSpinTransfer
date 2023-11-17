@@ -1,5 +1,27 @@
 import numpy as np
 
+def load_TH2(
+    path='h_bin_migration_2D_final_bins.root',
+    name='h2d_bin_migration_Q2',
+    ):
+    """
+    :param: path
+    :param: name
+
+    :returns: TH2 values as np.array
+    """
+
+    # Get TH2D from ROOT file
+    try:
+        f = ur.open(path)
+        g = f[name].values()
+
+        return g
+    except FileNotFoundError:
+        print("DEBUGGING: FileNotFoundError: ",path)
+        print("\t Returning empty list")
+        return []
+
 def compute_systematics(results,bin_migration_mat=None,bin_migration_order=1,systematic_scales_mat=None):
     """
     :description:
