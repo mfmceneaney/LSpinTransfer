@@ -528,7 +528,7 @@ if __name__=="__main__":
             ry = results['y'].to_numpy()
             print("DEBUGGING: results['y'].to_numpy() = ",results['y'].to_numpy())
             print("DEBUGGING: BEFORE: arrs['y_mean'] = ",arrs['y_mean'])
-            arrs['y_mean'] = ((arrs['y_mean'] - ry)/ry)
+            arrs['y_mean'] = ((arrs['y_mean'])/ry)
             print("DEBUGGING: arrs['y_mean'] = ",arrs['y_mean'])
             print("DEBUGGING: results = ",results)
             print("DEBUGGING: arrs = ",arrs)
