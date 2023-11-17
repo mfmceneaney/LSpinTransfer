@@ -524,6 +524,11 @@ if __name__=="__main__":
             resultspath = outpath.replace(mydir,results_dir)+'.csv'
             print("DEBUGGING: resultspath = ",resultspath)
             results = pd.read_csv(resultspath)
+            rx = results['x'].to_numpy()
+            ry = results['y'].to_numpy()
+            print("DEBUGGING: results['y'].to_numpy() = ",results['y'].to_numpy())
+            arrs['y'] = ((arrs['y'] - ry)/ry)
+            print("DEBUGGING: arrs['y'] = ",arrs['y'])
             print("DEBUGGING: results = ",results)
             print("DEBUGGING: arrs = ",arrs)
             get_plots(
@@ -547,4 +552,4 @@ if __name__=="__main__":
 
     apply_get_plots(out_file_list,get_outpath,get_plots,base_dir=base_dir,xlimss=xlimss,ylims=ylims,titles=titles,xtitles=xtitles,ytitle=ytitle,verbose=True,aggregate_keys=aggregate_keys,colors=colors)
 
-    if verbose: plt.show()
+    # if verbose: plt.show()
