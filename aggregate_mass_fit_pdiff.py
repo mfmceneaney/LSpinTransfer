@@ -527,8 +527,8 @@ if __name__=="__main__":
             rx = results['x'].to_numpy()
             ry = results['y'].to_numpy()
             print("DEBUGGING: results['y'].to_numpy() = ",results['y'].to_numpy())
-            arrs['y'] = ((arrs['y'] - ry)/ry)
-            print("DEBUGGING: arrs['y'] = ",arrs['y'])
+            arrs['y_mean'] = ((arrs['y_mean'] - ry)/ry)
+            print("DEBUGGING: arrs['y_mean'] = ",arrs['y_mean'])
             print("DEBUGGING: results = ",results)
             print("DEBUGGING: arrs = ",arrs)
             get_plots(
