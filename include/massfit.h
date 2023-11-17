@@ -117,7 +117,7 @@ TArrayF* LambdaMassFit(
     double lwdelVal = (firstVal)/hfmidVal;
     out<<"DEBUGGING: lwdelVal = "<<lwdelVal<<std::endl;
     double sig_max_init = h->GetMaximum()/4;
-    if (myratio<1.5) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
+    if (myratio<1.25) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
       //sigma_init = 0.006;
       sig_max_init = h->GetMaximum()/10; //REDUCE SIGNAL COEFFICIENT
       if (myratio<1.3) {
