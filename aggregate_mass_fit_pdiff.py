@@ -488,7 +488,7 @@ if __name__=="__main__":
         'y':'$y$',
         'z_ppim':'$z_{p\pi^{-}}$',
     }
-    ytitle = '$\Delta D_{LL\' CB-Gauss}^{\Lambda}$'
+    ytitle = '$\Delta D_{LL\' CB-Gauss}^{\Lambda}/D_{LL\' CB}^{\Lambda}$'
 
     def get_outpath(base_dir,aggregate_keys,**config):
 
