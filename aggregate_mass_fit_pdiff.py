@@ -522,7 +522,7 @@ if __name__=="__main__":
             results_dir = 'results/'
             resultspath = outpath.replace(mydir,results_dir)+'.csv'
             print("DEBUGGING: resultspath = ",resultspath)
-            results = np.loadtxt(resultspath)
+            results = np.loadtxt(resultspath,skiprows=1,delimiter=',')
             print("DEBUGGING: results = ",results)
             print("DEBUGGING: arrs = ",arrs)
             get_plots(
