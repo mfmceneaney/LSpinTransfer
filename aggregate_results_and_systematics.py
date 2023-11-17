@@ -603,22 +603,27 @@ if __name__=="__main__":
             # Load systematics tables
             bin_migration_mat = load_TH2(path='h_bin_migration_2D_final_bins.root',name='h2d_bin_migration_'+binvar)
             mc_asym_injection_aggregate_keys = ['injection_seed']
-            outpath_mc = outpath = get_outpath(base_dir,mc_asym_injection_aggregate_keys,bgasym=0.0,sgasym=0.1,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW
+            outpath_mc = outpath = get_outpath(base_dir,mc_asym_injection_aggregate_keys,bgasym=0.0,sgasym=0.1,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
             mc_asym_injection_outpath = outpath_mc+'_systematics.csv'
             print("DEBUGGING: Loading mc_asym_injection systematics from ",mc_asym_injection_outpath)
             yerr_syst_mc_asym_injection = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection/',outpath=mc_asym_injection_outpath)['yerr'].to_numpy()
             y_corrections_mc_asym_injection = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection/',outpath=mc_asym_injection_outpath)['y'].to_numpy()
 
+            #TODO: GET CB/GAUS DIFF SYSTEMATICS
+            yerr_syst_cb_gauss_diff = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mass_fit/',outpath=outpath)['y'].to_numpy()
+
             # Apply MC corrections
             arrs['y_mean'] += y_corrections_mc_asym_injection
 
             # Compute systematics
+            sgasym = 0.1
+            systematic_scales_mat = yerr_syst_mc_asym_injection / sgasym
             yerr_syst = compute_systematics(
                 arrs['y_mean'],
                 bin_migration_mat=bin_migration_mat,
                 bin_migration_order=1,
-                systematic_scales_mat=None,
-                systematics_additive_mat=None
+                # systematic_scales_mat=systematic_scales_mat,
+                # systematics_additive_mat=yerr_syst_cb_gauss_diff,
             )
 
             get_plots(
