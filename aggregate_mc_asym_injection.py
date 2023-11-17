@@ -250,10 +250,10 @@ def get_arrs(out_file_list,sgasym):
     yerr_mean  = np.mean(np.square(glist[3]),axis=0)
     y_min      = np.min(glist[1],axis=0)
     y_max      = np.max(glist[1],axis=0)
-    ydiff_mean = np.mean(glist[0]-sgasym,axis=0)
-    ydiff_std  = np.std(glist[0]-sgasym,axis=0)
-    ydiff_mins = np.min(glist[0]-sgasym,axis=0)
-    ydiff_maxs = np.max(glist[0]-sgasym,axis=0)
+    ydiff_mean = np.mean(glist[1]-sgasym,axis=0)
+    ydiff_std  = np.std(glist[3]-sgasym,axis=0)
+    ydiff_mins = np.min(glist[1]-sgasym,axis=0)
+    ydiff_maxs = np.max(glist[1]-sgasym,axis=0)
 
     return {
             'x_mean':x_mean,
