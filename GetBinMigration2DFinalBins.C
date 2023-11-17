@@ -44,9 +44,9 @@ void getBinMigrationPlots(
     h2->GetYaxis()->SetTitle(mcvarTitle.c_str());
 
     // Normalize bin migration histogram
-    for (int i=0; i<nbinsx; i++) {
-        double divisor = h1->GetBinContent(i); //NOTE: Divide by number of 
-        for (int j=0; j<nbinsy; j++) {
+    for (int i=1; i<=nbinsx; i++) {
+        double divisor = h1->GetBinContent(i); //NOTE: Divide by number of
+        for (int j=1; j<=nbinsy; j++) {
             double bincontent = (divisor==0) ? 0.0 : (double)h2->GetBinContent(i,j)/divisor;
             h2->SetBinContent(i,j,bincontent);
         }
