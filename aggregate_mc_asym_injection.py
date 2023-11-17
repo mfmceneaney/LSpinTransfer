@@ -233,6 +233,8 @@ def get_arrs(out_file_list,sgasym):
             'y_max':[],
             'ydiff_mean':[],
             'ydiff_std':[],
+            'ydiff_mins':[],
+            'ydiff_maxs':[],
             }
 
     # Convert to numpy
@@ -250,6 +252,8 @@ def get_arrs(out_file_list,sgasym):
     y_max      = np.max(glist[1],axis=0)
     ydiff_mean = np.mean(glist[0]-sgasym,axis=0)
     ydiff_std  = np.std(glist[0]-sgasym,axis=0)
+    ydiff_mins = np.min(glist[0]-sgasym,axis=0)
+    ydiff_maxs = np.max(glist[0]-sgasym,axis=0)
 
     return {
             'x_mean':x_mean,
@@ -260,6 +264,8 @@ def get_arrs(out_file_list,sgasym):
             'y_max':y_max,
             'ydiff_mean':ydiff_mean,
             'ydiff_std':ydiff_std,
+            'ydiff_mins':ydiff_mins,
+            'ydiff_maxs':ydiff_maxs,
             }
 
 def get_plots(
@@ -271,6 +277,8 @@ def get_plots(
     y_max = [],
     ydiff_mean = [],
     ydiff_std = [],
+    ydiff_mins = [],
+    ydiff_maxs = [],
     xlims = [0.0,1.0],
     ylims = [0.0,1.0],
     title = 'Injection Results',
