@@ -212,7 +212,7 @@ def get_data_from_tgrapherror(
         print("\t Returning empty list")
         return []
 
-def get_arrs(out_file_list):
+def get_arrs(out_file_list,sgasym):
 
     # Initialize output list
     glist = []
@@ -231,6 +231,8 @@ def get_arrs(out_file_list):
             'yerr_mean':[],
             'y_min':[],
             'y_max':[],
+            'ydiff_mean':[],
+            'ydiff_std':[],
             }
 
     # Convert to numpy
@@ -240,12 +242,14 @@ def get_arrs(out_file_list):
     print("DEBUGGING: gshape new = ",np.shape(glist))
 
     # Get arrays
-    x_mean    = np.mean(glist[0],axis=0) #NOTE: Get mean across different graphs (axis=0) but not across bins (axis=1)
-    y_mean    = np.mean(glist[1],axis=0)
-    xerr_mean = np.mean(np.square(glist[2]),axis=0)
-    yerr_mean = np.mean(np.square(glist[3]),axis=0)
-    y_min     = np.min(glist[1],axis=0)
-    y_max     = np.max(glist[1],axis=0)
+    x_mean     = np.mean(glist[0],axis=0) #NOTE: Get mean across different graphs (axis=0) but not across bins (axis=1)
+    y_mean     = np.mean(glist[1],axis=0)
+    xerr_mean  = np.mean(np.square(glist[2]),axis=0)
+    yerr_mean  = np.mean(np.square(glist[3]),axis=0)
+    y_min      = np.min(glist[1],axis=0)
+    y_max      = np.max(glist[1],axis=0)
+    ydiff_mean = np.mean(glist[0]-sgasym,axis=0)
+    ydiff_std  = np.std(glist[0]-sgasym,axis=0)
 
     return {
             'x_mean':x_mean,
@@ -253,7 +257,9 @@ def get_arrs(out_file_list):
             'xerr_mean':xerr_mean,
             'yerr_mean':yerr_mean,
             'y_min':y_min,
-            'y_max':y_max
+            'y_max':y_max,
+            'ydiff_mean':ydiff_mean,
+            'ydiff_std':ydiff_std,
             }
 
 def get_plots(
@@ -263,6 +269,8 @@ def get_plots(
     yerr_mean = [],
     y_min = [],
     y_max = [],
+    ydiff_mean = [],
+    ydiff_std = [],
     xlims = [0.0,1.0],
     ylims = [0.0,1.0],
     title = 'Injection Results',
@@ -344,6 +352,23 @@ def get_plots(
         yerr=yerr_mean,
         mins=y_min,
         maxs=y_max,
+        delimiter=delimiter,
+        header=header,
+        fmt=fmt,
+        comments=comments
+        )
+
+    # Save systematics info to csv
+    print("DEBUGGING: sanity check: y_mean-sgasym = ",y_mean-sgasym)
+    print("DEBUGGING: sanity check: ydiff_mean    = ",ydiff_mean)
+    convert_graph_to_csv(
+        outpath+'_systematics.csv',
+        x_mean,
+        ydiff_mean,
+        xerr=xerr_mean,
+        yerr=ydiff_std,
+        mins=ydiff_mins,
+        maxs=ydiff_maxs,
         delimiter=delimiter,
         header=header,
         fmt=fmt,
@@ -480,7 +505,7 @@ if __name__=="__main__":
             file_list = el["file_list"]
             print("DEBUGGING: config = ",el["data_list"])#DEBUGGING
             print("DEBUGGING: file_list = ",el["file_list"])#DEBUGGING
-            arrs = get_arrs(file_list)
+            arrs = get_arrs(file_list,config['sgasym'])
             outpath = get_outpath(base_dir,aggregate_keys,**config)
             print("DEBUGGING: outpath = ",outpath)
             binvar = config['binvar'] #NOTE: VARIABLE IN WHICH THE BINNING IS DONE
