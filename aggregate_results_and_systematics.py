@@ -603,7 +603,7 @@ if __name__=="__main__":
 
             # Load systematics tables
             bin_migration_mat = load_TH2(path='h_bin_migration_2D_final_bins.root',name='h2d_bin_migration_'+binvar)
-            mc_asym_injection_aggregate_keys = ['injection_seed']
+            mc_asym_injection_aggregate_keys = ['inject_seed']
             outpath_mc = outpath = get_outpath(base_dir,mc_asym_injection_aggregate_keys,bgasym=0.0,sgasym=0.1,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
             mc_asym_injection_outpath = outpath_mc+'_systematics.csv'
             print("DEBUGGING: Loading mc_asym_injection systematics from ",mc_asym_injection_outpath)
