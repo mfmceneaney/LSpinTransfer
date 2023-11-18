@@ -353,8 +353,8 @@ def compute_systematics(results,bin_migration_mat=None,bin_migration_order=1,sys
         systematics += np.multiply(results,systematic_scales_mat)
 
      # Apply additive scale systematics, note that these should already be summed over all sources of systematic error
-    if systematic_additive_mat is not None:
-        systematics += systematic_additive_mat
+    if systematics_additive_mat is not None:
+        systematics += systematics_additive_mat
 
     return systematics
 
