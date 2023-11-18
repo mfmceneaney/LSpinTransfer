@@ -518,7 +518,7 @@ if __name__=="__main__":
     # Get list of directories across which to aggregate
     aggregate_keys = []
     var_lims = {
-        'mass_ppim':[1.08,1.24],
+        # 'mass_ppim':[1.08,1.24],
         'Q2':[1.0,11.0],
         'W':[2.0,5.0],
         'x':[0.0,1.0],
