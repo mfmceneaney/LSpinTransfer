@@ -263,8 +263,8 @@ def get_arrs(out_file_list):
     # Get arrays
     x_mean    = np.mean(glist[0],axis=0) #NOTE: Get mean across different graphs (axis=0) but not across bins (axis=1)
     y_mean    = np.mean(glist[1],axis=0)
-    xerr_mean = np.mean(np.square(glist[2]),axis=0)
-    yerr_mean = np.mean(np.square(glist[3]),axis=0)
+    xerr_mean = np.sqrt(np.mean(np.square(glist[2]),axis=0))
+    yerr_mean = np.sqrt(np.mean(np.square(glist[3]),axis=0))
     y_min     = np.min(glist[1],axis=0)
     y_max     = np.max(glist[1],axis=0)
 

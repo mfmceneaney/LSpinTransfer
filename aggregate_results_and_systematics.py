@@ -262,8 +262,8 @@ def get_arrs(out_file_list):
     # Get arrays
     x_mean    = np.mean(glist[0],axis=0) #NOTE: Get mean across different graphs (axis=0) but not across bins (axis=1)
     y_mean    = np.mean(glist[1],axis=0)
-    xerr_mean = np.mean(np.square(glist[2]),axis=0)
-    yerr_mean = np.mean(np.square(glist[3]),axis=0)
+    xerr_mean = np.sqrt(np.mean(np.square(glist[2]),axis=0))
+    yerr_mean = np.sqrt(np.mean(np.square(glist[3]),axis=0))
     y_min     = np.min(glist[1],axis=0)
     y_max     = np.max(glist[1],axis=0)
 
@@ -623,7 +623,7 @@ if __name__=="__main__":
                 arrs['y_mean'],
                 bin_migration_mat=bin_migration_mat,
                 bin_migration_order=1,
-                # systematic_scales_mat=systematic_scales_mat,
+                systematic_scales_mat=systematic_scales_mat,
                 # systematics_additive_mat=yerr_syst_cb_gauss_diff,
             )
 
