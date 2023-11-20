@@ -7,6 +7,7 @@ import uproot as ur
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sbn
 
 import subprocess
 import os
@@ -404,6 +405,74 @@ def compute_systematics(results,bin_migration_mat=None,bin_migration_order=1,sys
 
     return systematics
 
+def plot_systematics(
+                yerr_syst,
+                palette = 'Pastel1',
+                stacked = False,
+                label   = None,
+                xlims   = (0.0,1.0),
+                ylims   = (-1.0,1.0),
+                xvar    = 'Q2',
+                title   = 'Q2',
+                xtitle  = 'Q2',
+                ytitle  = '$\Delta D_{LL\'}^{\Lambda}$',
+                outpath = 'test__systematics.pdf',
+                yaml_args = {},
+                **kwargs,
+            ):
+
+    # Set font sizes
+    plt.rc('font', size=25) #controls default text size
+    plt.rc('axes', titlesize=50) #fontsize of the title
+    plt.rc('axes', labelsize=50) #fontsize of the x and y labels
+    plt.rc('xtick', labelsize=25) #fontsize of the x tick labels
+    plt.rc('ytick', labelsize=25) #fontsize of the y tick labels
+    plt.rc('legend', fontsize=20) #fontsize of the legend
+
+    # Get some nicer plot settings
+    plt.rcParams['font.family'] = 'serif'
+    plt.rcParams['figure.autolayout'] = True
+
+    ecolor='black'
+    elinewidth=2.0
+    capsize=18
+    capthick=2.0
+    ### color='black'
+    marker='o'
+    linestyle=None
+    linewidth=0.0
+    markersize=20
+    gridlinewidth=0.5
+    axlinewidth=1
+
+    xbins = yaml_args['binvars'][xvar]['bins']
+    # xerr_syst = None #[0.00 for x in range(len(xbins)-1)]
+    # yerr_syst = None #[0.1  for x in range(len(xbins)-1)] #NOTE: ADD IF STATMENT HERE #TODO #DEBUGGING !!!!!!!!!!!!!!!!!
+    #yerr_syst = np.multiply(yerr_syst,y_mean)#NOTE: THIS DOES NOT GET THE DIMENSIONS CORRECTLY, THINK CAREFULLY BEFORE UNCOMMENTING
+
+    # Plot 
+    figsize = (16,10)
+    f1, ax1 = plt.subplots(figsize=figsize)
+    plt.xlim(*xlims)
+    plt.ylim(*ylims)
+    plt.title(title,usetex=True)
+    plt.xlabel(xtitle,usetex=True)
+    plt.ylabel(ytitle,usetex=True)
+
+    #TODO: DEBUGGING MESSAGE FOR BINS SEE IF SOMETHING GETS MESSED UP THERE AND MAKE SURE YOU ARE SETTING CORRECTLY...
+    sbn.set_palette(palette)
+    nbins = len(xbins) - 1
+    s1 = plt.hist(xbins, weights=yerr_syst, bins=nbins, alpha=0.5, label=label, stacked=stacked) #NOTE: THAT HISTOGRAM X D
+    plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
+    ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
+    plt.text(0.5, 0.5, 'CLAS12 Preliminary',
+            size=50, rotation=25., color='gray', alpha=0.25,
+            horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
+    plt.legend(loc='best')
+    print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
+    f1.savefig(outpath)
+
+
 def get_plots(
     x_mean = [],
     y_mean = [],
@@ -661,18 +730,74 @@ if __name__=="__main__":
             #TODO: GET CB/GAUS DIFF SYSTEMATICS
             yerr_syst_cb_gauss_diff = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mass_fit/',outpath=outpath+'.csv')['y'].to_numpy()
 
-            # Apply MC corrections
-            arrs['y_mean'] += y_corrections_mc_asym_injection
+            # # Apply MC corrections
+            # arrs['y_mean'] += y_corrections_mc_asym_injection
 
             # Compute systematics
+            alpha_lambda_systematic = 0.0094
+            beam_polarization_systematic = 0.0360
             sgasym = 0.1
             systematic_scales_mat = yerr_syst_mc_asym_injection / sgasym
+            systematic_scales_mat = np.sqrt(np.square(systematic_scales_mat) + np.square(alpha_lambda_systematic) + np.square(beam_polarization_systematic))
+            print("DEBUGGING: BEFORE: systematic_scales_mat = ",systematic_scales_mat)
             yerr_syst = compute_systematics(
                 arrs['y_mean'],
                 bin_migration_mat=bin_migration_mat,
                 bin_migration_order=1,
                 systematic_scales_mat=systematic_scales_mat,
                 # systematics_additive_mat=yerr_syst_cb_gauss_diff,
+            )
+            print("DEBUGGING: AFTER: systematic_scales_mat = ",systematic_scales_mat)
+
+            # Get all systematics individually
+            alpha_lambda_systematics = np.abs(np.multiply(arrs['y_mean'],alpha_lambda_systematic))
+            beam_polarization_systematics = np.abs(np.multiply(arrs['y_mean'],beam_polarization_systematic))
+            mc_asym_injection_systematics = compute_systematics(
+                arrs['y_mean'],
+                bin_migration_mat=None,
+                bin_migration_order=1,
+                systematic_scales_mat=yerr_syst_mc_asym_injection / sgasym,
+                # systematics_additive_mat=yerr_syst_cb_gauss_diff,
+            )
+            bin_migration_systematics = compute_systematics(
+                arrs['y_mean'],
+                bin_migration_mat=bin_migration_mat,
+                bin_migration_order=1,
+                systematic_scales_mat=None,
+                # systematics_additive_mat=yerr_syst_cb_gauss_diff,
+            )
+            # mass_fit_systematics = compute_systematics(
+            #     arrs['y_mean'],
+            #     bin_migration_mat=None,
+            #     bin_migration_order=1,
+            #     systematic_scales_mat=None,
+            #     systematics_additive_mat=yerr_syst_cb_gauss_diff,
+            # )
+            all_systematics = np.moveaxis(
+                np.array(
+                    [el for el in (alpha_lambda_systematics,beam_polarization_systematics,mc_asym_injection_systematics)] #,yerr_syst_cb_gauss_diff)]
+                ),
+                (0,1),
+                (1,0)
+            )
+            print("DEBUGGING: all_systematics.shape = ",all_systematics.shape)
+            labels = ['$\alpha_{\Lambda}$','$P_{B}$','MC','Bin Migration'] #, 'Mass Fit']
+
+            # Get systematics all plotted stacked without results...
+            plot_systematics(
+                arrs['x_mean'],
+                all_systematics,
+                palette = 'Pastel1',
+                stacked = False,
+                label   = labels,
+                xlims   = xlimss[binvar],
+                ylims   = ylimss,
+                xvar    = binvar,
+                title   = titles[fitvar],
+                xtitle  = xtitles[binvar],
+                # ytitle  = ytitle, #NOTE: LET THIS JUST BE DEFAULT FOR NOW.
+                outpath = outpath.replace('.pdf','__systematics.pdf'),
+                yaml_args = yaml_args,
             )
 
             get_plots(
