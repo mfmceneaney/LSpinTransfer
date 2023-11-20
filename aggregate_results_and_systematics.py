@@ -465,7 +465,7 @@ def plot_systematics(
     #TODO: DEBUGGING MESSAGE FOR BINS SEE IF SOMETHING GETS MESSED UP THERE AND MAKE SURE YOU ARE SETTING CORRECTLY...
 
     xbins = x_means
-    nbins = len(xbins) - 1
+    nbins = len(xbins)
     xbins = np.moveaxis(np.array([xbins for el in range(np.shape(yerr_syst)[1])]),(0,1),(1,0))
     s1 = plt.hist(xbins, weights=yerr_syst, bins=nbins, alpha=0.5, label=label, stacked=stacked) #NOTE: THAT HISTOGRAM X D
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
