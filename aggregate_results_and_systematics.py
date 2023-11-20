@@ -386,18 +386,19 @@ def compute_systematics(results,bin_migration_mat=None,bin_migration_order=1,sys
                     for i in range(1,bin_migration_order+1)
                 ],
                 axis=0)
-            systematics += np.diag( # DeltaA = Diag(n.(a.f-f.a)) = Diag(n.[a,f])
+            new_systematics = np.diag( # DeltaA = Diag(n.(a.f-f.a)) = Diag(n.[a,f])
                 np.matmul(
                     neighbors,
                     np.matmul(np.diag(results),bin_migration_mat) - np.matmul(bin_migration_mat,np.diag(results))
                 )
             )
+            systematics = np.sqrt(np.square(systematics) + np.square(new_systematics)) #NOTE: IMPORTANT!  ADD IN QUADRATURE, NOT NECESSARY FOR FIRST STEP THOUGH SINCE YOU JUST SET SYSTEMATICS TO ZERO TO BEGIN WITH.
         else:
             print("WARNING: BIN MIGRATION NOT IMPLEMENTED FOR 2+D BINNING CASES.")
 
     # Apply multiplicative scale systematics, note that these should already be summed over all sources of systematic error
     if systematic_scales_mat is not None:
-        systematics += np.multiply(results,systematic_scales_mat)
+        systematics = np.sqrt(np.square(systematics) + np.square(np.multiply(results,systematic_scales_mat))) #NOTE: IMPORTANT!  ADD IN QUADRATURE.
 
      # Apply additive scale systematics, note that these should already be summed over all sources of systematic error
     if systematics_additive_mat is not None:
@@ -743,14 +744,14 @@ if __name__=="__main__":
             beam_polarization_systematic = 0.0360
             sgasym = 0.1
             systematic_scales_mat = yerr_syst_mc_asym_injection / sgasym
-            systematic_scales_mat = np.sqrt(np.square(systematic_scales_mat) + np.square(alpha_lambda_systematic) + np.square(beam_polarization_systematic))
+            systematic_scales_mat = np.sqrt(np.square(systematic_scales_mat) + np.square(alpha_lambda_systematic) + np.square(beam_polarization_systematic) + np.square(yerr_syst_cb_gauss_diff))
             print("DEBUGGING: BEFORE: systematic_scales_mat = ",systematic_scales_mat)
             yerr_syst = compute_systematics(
                 arrs['y_mean'],
                 bin_migration_mat=bin_migration_mat,
                 bin_migration_order=1,
                 systematic_scales_mat=systematic_scales_mat,
-                # systematics_additive_mat=yerr_syst_cb_gauss_diff,
+                systematics_additive_mat=None,
             )
             print("DEBUGGING: AFTER: systematic_scales_mat = ",systematic_scales_mat)
 
