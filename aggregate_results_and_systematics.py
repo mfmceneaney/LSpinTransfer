@@ -775,12 +775,12 @@ if __name__=="__main__":
                 arrs['y_mean'],
                 bin_migration_mat=None,
                 bin_migration_order=1,
-                systematic_scales_mat=None,
-                systematics_additive_mat=yerr_syst_cb_gauss_diff,
+                systematic_scales_mat=yerr_syst_cb_gauss_diff, #NOTE: USE THIS FOR PDIFF RESULTS.
+                systematics_additive_mat=None,
             )
             all_systematics = np.moveaxis(
                 np.array(
-                    [el for el in (alpha_lambda_systematics,beam_polarization_systematics,mc_asym_injection_systematics,bin_migration_systematics,yerr_syst_cb_gauss_diff)]
+                    [el for el in (alpha_lambda_systematics,beam_polarization_systematics,mc_asym_injection_systematics,bin_migration_systematics,mass_fit_systematics)]
                 ),
                 (0,1),
                 (1,0)
