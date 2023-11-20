@@ -794,7 +794,7 @@ if __name__=="__main__":
                 stacked = False,
                 label   = labels,
                 xlims   = xlimss[binvar],
-                ylims   = ylimss,
+                ylims   = (-0.1,0.1),
                 xvar    = binvar,
                 title   = titles[fitvar],
                 xtitle  = xtitles[binvar],
