@@ -408,7 +408,7 @@ def compute_systematics(results,bin_migration_mat=None,bin_migration_order=1,sys
 def plot_systematics(
                 x_means,
                 yerr_syst,
-                palette = 'Pastel1',
+                palette = 'Dark2',
                 stacked = False,
                 label   = None,
                 xlims   = (0.0,1.0),
@@ -421,6 +421,8 @@ def plot_systematics(
                 # yaml_args = {},
                 **kwargs,
             ):
+
+    sbn.set_palette(palette)
 
     # Set font sizes
     plt.rc('font', size=25) #controls default text size
@@ -461,7 +463,7 @@ def plot_systematics(
     plt.ylabel(ytitle,usetex=True)
 
     #TODO: DEBUGGING MESSAGE FOR BINS SEE IF SOMETHING GETS MESSED UP THERE AND MAKE SURE YOU ARE SETTING CORRECTLY...
-    sbn.set_palette(palette)
+
     xbins = x_means
     nbins = len(xbins) - 1
     xbins = np.moveaxis(np.array([xbins for el in range(np.shape(yerr_syst)[1])]),(0,1),(1,0))
@@ -790,11 +792,11 @@ if __name__=="__main__":
             plot_systematics(
                 arrs['x_mean'],
                 all_systematics,
-                palette = 'Pastel1',
+                palette = 'Dark2',
                 stacked = False,
                 label   = labels,
                 xlims   = xlimss[binvar],
-                ylims   = (-0.1,0.1),
+                ylims   = (-0.05,0.05),
                 xvar    = binvar,
                 title   = titles[fitvar],
                 xtitle  = xtitles[binvar],
