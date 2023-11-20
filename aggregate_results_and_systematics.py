@@ -306,7 +306,7 @@ def load_TH2(
 
 def save_matrix_to_csv(
     bin_migration_mat,
-    base_dir='systematics/bin_migration/', #NOTE: MUST END IN SLASH!
+    base_dir='systematics/bin_migration/',
     binvar='Q2',
     delimiter=",",
     header=None,
@@ -319,7 +319,7 @@ def save_matrix_to_csv(
 
     # Set output filename
     filename = 'bin_migration_mat_'+binvar+'.csv'
-    filename = base_dir+filename
+    filename = os.path.join(base_dir,filename)
     print("DEBUGGING: output filename = ",filename)
 
     # Create new table with int bin labels
