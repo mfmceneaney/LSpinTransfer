@@ -406,6 +406,7 @@ def compute_systematics(results,bin_migration_mat=None,bin_migration_order=1,sys
     return systematics
 
 def plot_systematics(
+                x_means,
                 yerr_syst,
                 palette = 'Pastel1',
                 stacked = False,
@@ -417,7 +418,7 @@ def plot_systematics(
                 xtitle  = 'Q2',
                 ytitle  = '$\Delta D_{LL\'}^{\Lambda}$',
                 outpath = 'test__systematics.pdf',
-                yaml_args = {},
+                # yaml_args = {},
                 **kwargs,
             ):
 
@@ -445,10 +446,10 @@ def plot_systematics(
     gridlinewidth=0.5
     axlinewidth=1
 
-    xbins = yaml_args['binvars'][xvar]['bins']
-    # xerr_syst = None #[0.00 for x in range(len(xbins)-1)]
-    # yerr_syst = None #[0.1  for x in range(len(xbins)-1)] #NOTE: ADD IF STATMENT HERE #TODO #DEBUGGING !!!!!!!!!!!!!!!!!
-    #yerr_syst = np.multiply(yerr_syst,y_mean)#NOTE: THIS DOES NOT GET THE DIMENSIONS CORRECTLY, THINK CAREFULLY BEFORE UNCOMMENTING
+    # xbins = yaml_args['binvars'][xvar]['bins']
+    # # xerr_syst = None #[0.00 for x in range(len(xbins)-1)]
+    # # yerr_syst = None #[0.1  for x in range(len(xbins)-1)] #NOTE: ADD IF STATMENT HERE #TODO #DEBUGGING !!!!!!!!!!!!!!!!!
+    # #yerr_syst = np.multiply(yerr_syst,y_mean)#NOTE: THIS DOES NOT GET THE DIMENSIONS CORRECTLY, THINK CAREFULLY BEFORE UNCOMMENTING
 
     # Plot 
     figsize = (16,10)
@@ -461,7 +462,9 @@ def plot_systematics(
 
     #TODO: DEBUGGING MESSAGE FOR BINS SEE IF SOMETHING GETS MESSED UP THERE AND MAKE SURE YOU ARE SETTING CORRECTLY...
     sbn.set_palette(palette)
+    xbins = x_means
     nbins = len(xbins) - 1
+    xbins = np.moveaxis(np.array([xbins for el in range(np.shape(yerr_syst)[1])]),(0,1),(1,0))
     s1 = plt.hist(xbins, weights=yerr_syst, bins=nbins, alpha=0.5, label=label, stacked=stacked) #NOTE: THAT HISTOGRAM X D
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
@@ -775,16 +778,17 @@ if __name__=="__main__":
             # )
             all_systematics = np.moveaxis(
                 np.array(
-                    [el for el in (alpha_lambda_systematics,beam_polarization_systematics,mc_asym_injection_systematics)] #,yerr_syst_cb_gauss_diff)]
+                    [el for el in (alpha_lambda_systematics,beam_polarization_systematics,mc_asym_injection_systematics,bin_migration_systematics)] #,yerr_syst_cb_gauss_diff)]
                 ),
                 (0,1),
                 (1,0)
             )
             print("DEBUGGING: all_systematics.shape = ",all_systematics.shape)
-            labels = ['$\alpha_{\Lambda}$','$P_{B}$','MC','Bin Migration'] #, 'Mass Fit']
+            labels = ['$\\alpha_{\Lambda}$','$P_{B}$','MC','Bin Migration'] #, 'Mass Fit']
 
             # Get systematics all plotted stacked without results...
             plot_systematics(
+                arrs['x_mean'],
                 all_systematics,
                 palette = 'Pastel1',
                 stacked = False,
@@ -796,7 +800,7 @@ if __name__=="__main__":
                 xtitle  = xtitles[binvar],
                 # ytitle  = ytitle, #NOTE: LET THIS JUST BE DEFAULT FOR NOW.
                 outpath = outpath.replace('.pdf','__systematics.pdf'),
-                yaml_args = yaml_args,
+                # yaml_args = yaml_args,
             )
 
             get_plots(
