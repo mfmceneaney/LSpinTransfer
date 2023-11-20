@@ -771,22 +771,22 @@ if __name__=="__main__":
                 systematic_scales_mat=None,
                 # systematics_additive_mat=yerr_syst_cb_gauss_diff,
             )
-            # mass_fit_systematics = compute_systematics(
-            #     arrs['y_mean'],
-            #     bin_migration_mat=None,
-            #     bin_migration_order=1,
-            #     systematic_scales_mat=None,
-            #     systematics_additive_mat=yerr_syst_cb_gauss_diff,
-            # )
+            mass_fit_systematics = compute_systematics(
+                arrs['y_mean'],
+                bin_migration_mat=None,
+                bin_migration_order=1,
+                systematic_scales_mat=None,
+                systematics_additive_mat=yerr_syst_cb_gauss_diff,
+            )
             all_systematics = np.moveaxis(
                 np.array(
-                    [el for el in (alpha_lambda_systematics,beam_polarization_systematics,mc_asym_injection_systematics,bin_migration_systematics)] #,yerr_syst_cb_gauss_diff)]
+                    [el for el in (alpha_lambda_systematics,beam_polarization_systematics,mc_asym_injection_systematics,bin_migration_systematics,yerr_syst_cb_gauss_diff)]
                 ),
                 (0,1),
                 (1,0)
             )
             print("DEBUGGING: all_systematics.shape = ",all_systematics.shape)
-            labels = ['$\\alpha_{\Lambda}$','$P_{B}$','MC','Bin Migration'] #, 'Mass Fit']
+            labels = ['$\\alpha_{\Lambda}$','$P_{B}$','MC','Bin Migration', 'Mass Fit']
 
             # Get systematics all plotted stacked without results...
             plot_systematics(
