@@ -785,7 +785,6 @@ if __name__=="__main__":
 
             # Get systematics all plotted stacked without results...
             plot_systematics(
-                arrs['x_mean'],
                 all_systematics,
                 palette = 'Pastel1',
                 stacked = False,
