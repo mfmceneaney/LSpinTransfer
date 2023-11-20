@@ -304,6 +304,47 @@ def load_TH2(
         print("\t Returning empty list")
         return []
 
+def save_matrix_to_csv(
+    bin_migration_mat,
+    base_dir='systematics/bin_migration/',
+    binvar='Q2',
+    delimiter=",",
+    header=None,
+    fmt=None,
+    comments='',
+    ):
+
+    if np.shape(bin_migration_mat)[0]!=np.shape(bin_migration_mat)[1] or len(np.shape(bin_migration_mat))!=2:
+        raise TypeError("Bin migration matrix must be square but has shape "+str(np.shape(bin_migration_mat)))
+
+    # Create new table with int bin labels
+    nbins = np.shape(bin_migration_mat)[0]
+    new_shape = list(np.shape(bin_migration_mat)) #NOTE: LIST IS IMPORTANT HERE!
+    new_shape[0] += 1
+    data = np.zeros(new_shape)
+    data[:,0] = [i for i in range(1,nbins+1)]
+    data[0:,1:] = bin_migration_mat
+
+    print("DEBUGGING: np.shape(data) = ",np.shape(data))
+    print("DEBUGGING: np.shape(fmt) = ",np.shape(fmt))#DEBUGGING
+
+    if header is None: header = ' '+delimiter+delimiter.join([i for i in range(1,nbins+1)])
+
+    header = "REPLACEMENT_HEADER"+header
+
+    np.savetxt(filename, data, header=header, delimiter=delimiter, fmt=fmt)
+
+    # Read in the file
+    with open(filename, 'r') as file:
+        filedata = file.read()
+
+    # Replace the target string
+    filedata = filedata.replace('# REPLACEMENT_HEADER', '')
+
+    # Write the file out again
+    with open(filename, 'w') as file:
+        file.write(filedata)
+
 def load_systematics_from_aggregate_csv(results_dir='results/',base_dir='systematics/',outpath='systematics.csv'):
     """
     :description:
@@ -603,6 +644,8 @@ if __name__=="__main__":
 
             # Load systematics tables
             bin_migration_mat = load_TH2(path='h_bin_migration_2D_final_bins.root',name='h2d_bin_migration_'+binvar)
+            fmt = ["%d","%.3g","%.3g","%.3g","%.3g","%.3g"]
+            save_matrix_to_csv(bin_migration_mat,base_dir='systematics/bin_migration/',binvar=binvar,fmt=fmt) #NOTE: SAVE BIN MIGRATION MATRIX TO CSV, MUST BE A SQUARE MATRIX!
             mc_asym_injection_aggregate_keys = ['inject_seed']
             outpath_mc = get_outpath(base_dir,mc_asym_injection_aggregate_keys,bgasym=0.0,sgasym=0.1,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
             mc_asym_injection_outpath = outpath_mc+'_systematics.csv'
