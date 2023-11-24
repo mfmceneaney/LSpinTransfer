@@ -853,8 +853,8 @@ if __name__=="__main__":
                 xerr=arrs['xerr_mean'],
                 yerrs_syst=all_systematics, #NOTE: shape = (nBins,nSystematics)
                 delimiter=",",
-                header=None,
-                fmt=None,
+                header=header,
+                fmt=fmt,
                 comments='',
                 )
 
