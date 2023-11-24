@@ -844,6 +844,7 @@ if __name__=="__main__":
             )
 
             # Save systematics to csv file
+            delimiter = ","
             header = delimiter.join(["bin","x","xerr","alpha","beam","inj","mig","fit"])
             fmt    = ["%d","%.3g","%.3g", "%.3g","%.3g","%.3g","%.3g","%.3g"]
             convert_systematics_to_csv(
