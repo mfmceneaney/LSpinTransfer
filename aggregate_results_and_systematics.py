@@ -217,6 +217,43 @@ def convert_graph_to_csv(
     with open(filename, 'w') as file:
         file.write(filedata)
 
+def convert_systematics_to_csv(
+    filename,
+    x,
+    xerr=None,
+    yerrs_syst=None, #NOTE: shape = (nBins,nSystematics)
+    delimiter=",",
+    header=None,
+    fmt=None,
+    comments='',
+    ):
+
+    data = []
+    if xerr is None or len(xerr)==0: xerr = [0.0 for el in x]
+    if yerrs_syst is None or len(yerrs_syst)==0: yerrs_syst = [[0.0] for el in x]
+    for i, el in enumerate(x):
+        data.append([i, x[i], xerr[i], *yerrs_syst[i]])
+
+    data = np.array(data)
+
+    print("DEBUGGING: np.shape(data) = ",np.shape(data))
+    print("DEBUGGING: np.shape(fmt) = ",np.shape(fmt))#DEBUGGING
+
+    header = "REPLACEMENT_HEADER"+header
+
+    np.savetxt(filename, data, header=header, delimiter=delimiter, fmt=fmt)
+
+    # Read in the file
+    with open(filename, 'r') as file:
+        filedata = file.read()
+
+    # Replace the target string
+    filedata = filedata.replace('# REPLACEMENT_HEADER', '')
+
+    # Write the file out again
+    with open(filename, 'w') as file:
+        file.write(filedata)
+
 def get_data_from_tgrapherror(
     path = 'HB_costheta1_Q2_1.000_10.000_sgasym_0.00_bgasym_0.00.root',
     name = "Graph",
@@ -805,6 +842,20 @@ if __name__=="__main__":
                 outpath = outpath.replace('.pdf','__systematics.pdf'),
                 # yaml_args = yaml_args,
             )
+
+            # Save systematics to csv file
+            header = delimiter.join(["bin","x","xerr","alpha","beam","inj","mig","fit"])
+            fmt    = ["%d","%.3g","%.3g", "%.3g","%.3g","%.3g","%.3g","%.3g"]
+            convert_systematics_to_csv(
+                outpath.replace('.pdf','__systematics.pdf.csv'),
+                arrs['x_mean'],
+                xerr=arrs['xerr_mean'],
+                yerrs_syst=all_systematics, #NOTE: shape = (nBins,nSystematics)
+                delimiter=",",
+                header=None,
+                fmt=None,
+                comments='',
+                )
 
             get_plots(
                 **arrs,
