@@ -773,8 +773,8 @@ if __name__=="__main__":
             #TODO: GET CB/GAUS DIFF SYSTEMATICS
             yerr_syst_cb_gauss_diff = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mass_fit/',outpath=outpath+'.csv')['y'].to_numpy()
 
-            # # Apply MC corrections
-            # arrs['y_mean'] += y_corrections_mc_asym_injection
+            # Apply MC corrections
+            arrs['y_mean'] += y_corrections_mc_asym_injection
 
             # Compute systematics
             alpha_lambda_systematic = 0.0094
