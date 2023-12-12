@@ -270,6 +270,24 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "sg_max: " << sg_max << std::endl;
 
+    int n_fitvar_bins = 10;
+    if (node["n_fitvar_bins"]) {
+        sg_max = node["n_fitvar_bins"].as<int>();
+    }
+    std::cout << "n_fitvar_bins: " << n_fitvar_bins << std::endl;
+
+    double fitvar_min = -1.0;
+    if (node["fitvar_min"]) {
+        sg_max = node["fitvar_min"].as<double>();
+    }
+    std::cout << "fitvar_min: " << fitvar_min << std::endl;
+
+    double fitvar_max = 1.0;
+    if (node["fitvar_max"]) {
+        sg_max = node["fitvar_max"].as<double>();
+    }
+    std::cout << "fitvar_max: " << fitvar_max << std::endl;
+
     // Reset signal cuts if requested
     if (sg_min>0.0 && sg_max>0.0) {
         sgcuts = Form("%s>%.8f && %s<%.8f",mass_name.c_str(),sg_min,mass_name.c_str(),sg_max);
@@ -431,9 +449,9 @@ void analysis(const YAML::Node& node) {
                     depol_name_mc,// std::string  depol_name_mc       = "Dy_mc",
                     inject_asym,// bool inject = false, // flag for whether to inject asymmetry
                     gRandom,// TRandom * gRandom = TRandom(), // Random number generator to use
-                    // //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
-                    // //   double       fitvarMin = -1.0,       // fit variable minimum
-                    // //   double       fitvarMax = 1.0,        // fit variable maximum
+                    n_fitvar_bins,//   int          n_fitvar_bins = 10,          // number of bins for fit variable if using LF or BSA method
+                    fitvar_min,//   double       fitvar_min = -1.0,       // fit variable minimum
+                    fitvar_max,//   double       fitvar_max = 1.0,        // fit variable maximum
                     graph_title, // std::string  title    = "Longitudinal Spin Transfer along #vec{p}_{#Lambda}", // Histogram title
                     marker_color, // int          marker_color = 4,  // 4 is blue
                     marker_style, // int          marker_style = 20, // 20 is circle
