@@ -235,19 +235,19 @@ void analysis(const YAML::Node& node) {
 
     int n_fitvar_bins = 10;
     if (node["n_fitvar_bins"]) {
-        sg_max = node["n_fitvar_bins"].as<int>();
+        n_fitvar_bins = node["n_fitvar_bins"].as<int>();
     }
     std::cout << "n_fitvar_bins: " << n_fitvar_bins << std::endl;
 
     double fitvar_min = -1.0;
     if (node["fitvar_min"]) {
-        sg_max = node["fitvar_min"].as<double>();
+        fitvar_min = node["fitvar_min"].as<double>();
     }
     std::cout << "fitvar_min: " << fitvar_min << std::endl;
 
     double fitvar_max = 1.0;
     if (node["fitvar_max"]) {
-        sg_max = node["fitvar_max"].as<double>();
+        fitvar_max = node["fitvar_max"].as<double>();
     }
     std::cout << "fitvar_max: " << fitvar_max << std::endl;
 
