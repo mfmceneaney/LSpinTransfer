@@ -239,7 +239,7 @@ TArrayF* getKinBinHB(
 
 } // TArrayF* getKinBinHB()
 
-TArrayF* getBSA(
+TArrayF* getKinBinBSA(
     std::string  outdir,
     TFile      * outroot,
     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
@@ -250,14 +250,14 @@ TArrayF* getBSA(
     double       pol,
     std::string  helicity_name = "heli",
     std::string  fitvar        = "phi_h",
-    std::string  fitvartitle   = "#phi_{h p#pi^{-}}",
+    // std::string  fitvartitle   = "#phi_{h p#pi^{-}}",
     int nbinsx                 = 100,
     double xmin                = 0.0,
     double xmax                = 2*TMath::Pi(),
-    const char *drawopt        = "",
     std::ostream &out          = std::cout
     ) {
 
+    std::string  fitvartitle   = "#phi_{h p#pi^{-}}";
     std::string title    = Form("BSA vs. %s",fitvartitle.c_str());
     std::string bintitle = Form("%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
 
@@ -271,8 +271,8 @@ TArrayF* getBSA(
     auto stddev   = (double)*f.StdDev(binvar.c_str());
 
     // Make subdirectory
-    outroot->mkdir(bintitle.c_str());
-    outroot->cd(bintitle.c_str());
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
 
     // Switch off histogram stats
     gStyle->SetOptStat(0);
@@ -296,7 +296,7 @@ TArrayF* getBSA(
     // Draw asymmetry histogram
     TCanvas *c1 = new TCanvas(Form("c1_%s",bintitle.c_str()));
     c1->cd();
-    hasym->Draw(drawopt);
+    hasym->Draw();
 
     // Set fit function
     TF1 *f1 = new TF1("f1","[0]*sin(x)",xmin,xmax);
@@ -393,22 +393,17 @@ void getKinBinnedGraph(
                     std::string  depol_name_mc       = "Dy_mc",        // depolarization name for mc if injecting
                     bool         inject              = false,       // flag for whether to inject asymmetry
                     TRandom     *gRandom             = new TRandom(),   // Random number generator to use
-                    //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
-                    //   double       fitvar_min = -1.0,       // fit variable minimum
-                    //   double       fitvar_max = 1.0,        // fit variable maximum
+                    int          n_fitvar_bins = 10,          // number of bins for fit variable if using LF method
+                    double       fitvar_min = -1.0,       // fit variable minimum
+                    double       fitvar_max = 1.0,        // fit variable maximum
                     std::string  graph_title          = "Longitudinal Spin Transfer along #vec{p}_{#Lambda}", // Histogram title
                     int          marker_color         = 4,  // 4 is blue
                     int          marker_style         = 20, // 20 is circle
                     std::ostream &out                 = std::cout   // Output for all messages
                     ) {
 
-    // Fitting presets for LF method //TODO: Maybe just hardcode within getKinBinLF() ?
-    int  n_fitvar_bins = 10;
-    double fitvar_min = -1;
-    double fitvar_max =  1;
-
     // Check arguments
-    if (method != "LF" && method != "HB") {out << " *** ERROR *** Method must be either LF or HB.  Exiting...\n"; return;}
+    if (method != "LF" && method != "HB" && method != "BSA") {out << " *** ERROR *** Method must be either LF, HB, or BSA.  Exiting...\n"; return;}
     if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
 
     // Starting message
@@ -534,6 +529,24 @@ void getKinBinnedGraph(
                 out
                 );
             }
+        if (method=="BSA") {
+            binData = (TArrayF*) getKinBinBSA(
+                binoutdir,
+                outroot,
+                frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+                sgcuts,
+                binvar,
+                bin_min,
+                bin_max,
+                pol,
+                helicity_name,
+                fitvar,
+                n_fitvar_bins,
+                fitvar_min,
+                fitvar_max,
+                out
+            );
+        }
 
         // Get data
         double dll     = binData->GetAt(0);
@@ -582,6 +595,24 @@ void getKinBinnedGraph(
                     fitvar_max,
                     out
                     );
+            }
+            if (method=="BSA") {
+                bgBinData = (TArrayF*) getKinBinBSA(
+                    sbbinoutdir,
+                    outroot,
+                    frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+                    bgcuts,
+                    binvar,
+                    bin_min,
+                    bin_max,
+                    pol,
+                    helicity_name,
+                    fitvar,
+                    n_fitvar_bins,
+                    fitvar_min,
+                    fitvar_max,
+                    out
+                );
             }
 
             // Get data
