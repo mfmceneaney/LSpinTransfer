@@ -321,8 +321,8 @@ TArrayF* getBSA(
     // Print out fit info
     out << "--------------------------------------------------" << std::endl;
     out << " getBSA():" << std::endl;
-    out << " cuts     = " << cuts << std::endl;
-    out << " bincut   = " << bincut << std::endl;
+    out << " cuts     = " << cuts.c_str() << std::endl;
+    out << " bincut   = " << bin_cut.c_str() << std::endl;
     out << " binmean  = " << mean << "±" << stddev << std::endl;
     out << " bincount = " << count << std::endl;
     out << " pol      = " << pol << std::endl;
