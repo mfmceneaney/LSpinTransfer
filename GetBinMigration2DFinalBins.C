@@ -4,7 +4,7 @@
 * Description: bin migration fraction plots for 1 previous and 1 following bins in kinematics variables.
 */
 
-std::vector<double> getBinLims(const int nbins, double xmax, double xmin) {
+std::vector<double> getBinLims(const int nbins, double xmax, double xmin) { //NOTE: SOME ISSUE WITH THIS WHERE X BINS FIRST NEGATIVE HALF GETS OVERWRITTEN BELOW...r
     std::vector<double> binlims;
     double step = (xmax-xmin)/nbins;//NOTE: nlims IS THE NUMBER OF LIMITS BUT YOU WANT TO DIVIDE BY THE NUMBER OF BINS.
     for (int i=0; i<nbins+1; i++) {
