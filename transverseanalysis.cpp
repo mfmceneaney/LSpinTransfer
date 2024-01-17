@@ -348,17 +348,17 @@ void analysis(const YAML::Node& node) {
     auto frame = (!inject_asym) ? d.Filter(cuts.c_str())
                     .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
                     .Define("_phi_ppim", [](float px_p, float py_p, float px_pim, float py_pim) {
-                        return TMath::ACos((py_p+py_pim)/(px_p+px_pim)) * (px_p+px_pim>=0 ? 1.0 : -1.0);
+                        return (float)(TMath::ACos((py_p+py_pim)/(px_p+px_pim)) * (px_p+px_pim>=0 ? 1.0 : -1.0));
                     }, {"px_p","py_p","px_pim","py_pim"})
                     .Define("phi_ppim", [](float _phi_ppim) {
-                        return (_phi_ppim>0 ? _phi_ppim : 2*TMath::Pi() + _phi_ppim);
+                        return (float)(_phi_ppim>0 ? _phi_ppim : 2*TMath::Pi() + _phi_ppim);
                     }, {"_phi_ppim"}) :
                     d // INJECT ASYMMETRY BELOW
                     .Define("_phi_ppim", [](float px_p, float py_p, float px_pim, float py_pim) {
-                        return TMath::ACos((py_p+py_pim)/(px_p+px_pim)) * (px_p+px_pim>=0 ? 1.0 : -1.0);
+                        return (float)(TMath::ACos((py_p+py_pim)/(px_p+px_pim)) * (px_p+px_pim>=0 ? 1.0 : -1.0));
                     }, {"px_p","py_p","px_pim","py_pim"})
                     .Define("phi_ppim", [](float _phi_ppim) {
-                        return (_phi_ppim>0 ? _phi_ppim : 2*TMath::Pi() + _phi_ppim);
+                        return (float)(_phi_ppim>0 ? _phi_ppim : 2*TMath::Pi() + _phi_ppim);
                     }, {"_phi_ppim"})
                     .Define("dtheta_p",[](float theta_p, float theta_p_mc){ return TMath::Abs(theta_p-theta_p_mc); },{"theta_p","theta_p_mc"})
                     .Define("dtheta_pim",[](float theta_pim, float theta_pim_mc){ return TMath::Abs(theta_pim-theta_pim_mc); },{"theta_pim","theta_pim_mc"})
