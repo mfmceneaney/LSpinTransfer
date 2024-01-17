@@ -656,20 +656,20 @@ void getKinBinnedGraph(
         std::string topcut = "phi_ppim>=0 && phi_ppim<TMath::Pi()"; //NOTE: This requires you to define phi_ppim in the script which uses this method.
         std::string botcut = "phi_ppim>=TMath::Pi() && phi_ppim<2*TMath::Pi()";
         if (method=="transverse") {
-            binData = (TarrayF*) getKinBinTransverse(
-                    binoutdir,
-                    outroot,
-                    frame,
-                    sgcuts,
-                    binvar,
-                    bin_min,
-                    bin_max,
-                    alpha,
-                    fitvar,
-                    topcut,
-                    botcut,
-                    out
-                    );
+            binData = (TArrayF*) getKinBinTransverse(
+                binoutdir,
+                outroot,
+                frame,
+                sgcuts,
+                binvar,
+                bin_min,
+                bin_max,
+                alpha,
+                fitvar,
+                topcut,
+                botcut,
+                out
+            );
         }
 
         // Get data
@@ -739,7 +739,7 @@ void getKinBinnedGraph(
                 );
             }
             if (method=="transverse") {
-            bgBinData = (TarrayF*) getKinBinTransverse(
+                bgBinData = (TArrayF*) getKinBinTransverse(
                     sbbinoutdir,
                     outroot,
                     frame,
@@ -752,7 +752,7 @@ void getKinBinnedGraph(
                     topcut,
                     botcut,
                     out
-                    );
+                );
             }
 
             // Get data
