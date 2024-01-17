@@ -264,7 +264,7 @@ TArrayF* getKinBinTransverse(
 
     // Set bin cuts
     std::string bin_cut      = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
-    std::string cos2_formula = Form("%s^2",fitvar.c_str());
+    std::string cos2_formula = Form("%s*%s",fitvar.c_str(),fitvar.c_str());
     std::string cos2_name    = Form("__%s2",fitvar.c_str());
     auto f                   = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())).Define(cos2_name.c_str(),cos2_formula.c_str());
 
