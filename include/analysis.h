@@ -239,6 +239,112 @@ TArrayF* getKinBinHB(
 
 } // TArrayF* getKinBinHB()
 
+/** 
+* Compute the spontaneous transverse polarization and first moment of the unpolarized cross-section in cos(theta_p)
+* following the method outlined in arXiv:0704.3133.
+* @return TArrayF* arr [p_lambda, p_lambda_err, moment, moment_err, binvar mean, bin count]
+*/
+TArrayF* getKinBinHERMES(
+                    std::string  outdir,
+                    TFile      * outroot,
+                    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
+                    std::string  cuts,
+                    std::string  binvar,
+                    double       bin_min,
+                    double       bin_max,
+                    double       alpha,
+                    std::string  fitvar              = "costheta1",
+                    std::string  topcut              = "",
+                    std::string  botcut              = "",
+                    std::ostream &out                = std::cout
+                    ) {
+
+    // Note: helicity is opposite in HIPO banks for RGA currently, and in Lambdas.root outs. This should be taken care of in the LSpinTranfer() method.
+    double p_lambda, p_lambda_err, moment, moment_err;
+
+    // Set bin cuts
+    std::string bin_cut      = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
+    std::string cos2_formula = Form("%s^2",fitvar.c_str());
+    std::string cos2_name    = Form("__%s2",fitvar.c_str());
+    auto f                   = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())).Define(cos2_name.c_str(),cos2_formula.c_str());
+
+    // Get data
+    auto count      = (int)   *f.Count();
+    auto binvar_ave = (double)*f.Mean(binvar.c_str());
+    auto binvar_err = (double)*f.StdDev(binvar.c_str());
+    auto cos_ave    = (double)*f.Mean(fitvar.c_str());
+    auto cos_err    = (double)*f.StdDev(fitvar.c_str());
+    auto cos2_ave   = (double)*f.Mean(cos2_name.c_str());
+    auto cos2_err   = (double)*f.StdDev(cos2_name.c_str());
+    auto covar      = (double)*f.Define("tocvr", [&cos_ave,&cos2_ave](float cos, float cos2)
+                                { return (cos - cos_ave)*(cos2 - cos2_ave); }, {fitvar.c_str(),cos2_name.c_str()})
+                                .Mean("tocvr");
+
+    // Get top and bottom averages and errors of cos(theta_p)
+    auto cos_top_ave = (double)*f.Filter(topcut.c_str()).Mean(fitvar.c_str());
+    auto cos_top_err = (double)*f.Filter(topcut.c_str()).StdDev(fitvar.c_str());
+    auto cos_bot_ave = (double)*f.Filter(botcut.c_str()).Mean(fitvar.c_str());
+    auto cos_bot_err = (double)*f.Filter(botcut.c_str()).StdDev(fitvar.c_str());
+
+    // Get top and bottom averages and errors of cos^2(theta_p)
+    auto cos2_top_ave = (double)*f.Filter(topcut.c_str()).Mean(cos2_name.c_str());
+    auto cos2_top_err = (double)*f.Filter(topcut.c_str()).StdDev(cos2_name.c_str());
+    auto cos2_bot_ave = (double)*f.Filter(botcut.c_str()).Mean(cos2_name.c_str());
+    auto cos2_bot_err = (double)*f.Filter(botcut.c_str()).StdDev(cos2_name.c_str());
+
+    // Compute useful quantities
+    auto cplus  = 0.5*(cos2_top_ave+cos2_bot_ave);
+    auto cminus = 0.5*(cos2_top_ave-cos2_bot_ave);
+    auto cplus_err = 0.5*TMath::Sqrt(cos_top_err*cos_top_err + cos_bot_err*cos_bot_err);
+    auto cminus_err = cplus_err;
+
+    // Compute results
+    if (count==0)    {out << " *** WARNING *** Count = 0.  You should rebin.";}
+    if (cos2_ave==0) {out << " *** WARNING *** Setting p_lambda = 0. cos2_ave = " << cos2_ave << "\n"; p_lambda=0;}
+    else {
+        p_lambda = 1/alpha * cos_ave/cos2_ave;
+        moment = cminus/(1-cplus*cplus/cos2_ave);
+
+        // p_lambda = 1/alpha * (cplus/cos2_ave) / (1 - cminus*cminus/cos2_ave);
+        // moment = cminus/(1-cplus*cplus/cos2_ave);
+        }
+
+    // Compute errors
+    if (cos2_ave==0 || count==0) {out << " *** WARNING *** Setting p_lambda_err = 0\n"; p_lambda_err=0;}
+    //NOTE: #sigma^2 = variance / count but #mu^2 = (sum / count)^2 so need extra factor of 1/count if dividing
+    // var^2 \propto  ABS( 1/alpha * cos/cos2)^2 * [ d^2(cos)/(cos)^2 + d^2(cos2)/(cos2)^2 - 2*COVAR/(cos*cos2) ]
+    else {
+        p_lambda_err = TMath::Abs(p_lambda) * TMath::Sqrt(1/count*(cos_err*cos_err / (cos_ave*cos_ave) + cos2_err*cos2_err / (cos2_ave*cos2_ave) - 2 * covar / (cos_ave * cos2_ave)));
+        // moment_err   = TMath::Abs(moment)   * TMath::Sqrt(1/count*(cminus_err*cminus_err/(cminus*cminus) + TMath::Pow(cplus*cplus/cos2_ave,2) * (cplus_err*cplus_err + cos2_err*cos2_err/(cos2_ave*cos2_ave)) ));
+        //TODO: Have to also consider covariances of cplus, cminus, cos2_ave, so not sure how to proceed... 1/17/24.
+        // p_lambda_err   = TMath::Abs(p_lambda)   * TMath::Sqrt(1/count*(cminus_err*cminus_err/(cminus*cminus) + TMath::Pow(cplus*cplus/cos2_ave,2) * (cplus_err*cplus_err + cos2_err*cos2_err/(cos2_ave*cos2_ave)) ));
+        }//Double checked this 10/6/23.  All good.
+
+    // Output message
+    out << "--- getKinBinHERMES ---\n";
+    out << " cuts     = " << cuts     << "\n";
+    out << " alpha    = " << alpha    << "\n";
+    out << " fitvar   = " << fitvar   << "\n";
+    out << " bin_cut  = " << bin_cut  << "\n";
+    out << " p_lambda = " << p_lambda << "±" << p_lambda_err << "\n";
+    out << " moment   = " << moment   << "±" << moment_err   << "\n";
+    out << "-------------------\n";
+
+    // Fill return array
+    TArrayF *arr = new TArrayF(5);
+    int k = 0;
+    arr->AddAt(p_lambda,k++);
+    arr->AddAt(p_lambda_err,k++);
+    arr->AddAt(moment,k++);
+    arr->AddAt(moment_err,k++);
+    arr->AddAt(binvar_ave,k++);
+    arr->AddAt(binvar_err,k++);
+    arr->AddAt(count,k++);
+
+    return arr;
+
+} // TArrayF* getKinBinHERMES()
+
 TArrayF* getKinBinBSA(
     std::string  outdir,
     TFile      * outroot,
