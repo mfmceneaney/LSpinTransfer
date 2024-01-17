@@ -244,7 +244,7 @@ TArrayF* getKinBinHB(
 * following the method outlined in arXiv:0704.3133.
 * @return TArrayF* arr [p_lambda, p_lambda_err, moment, moment_err, binvar mean, bin count]
 */
-TArrayF* getKinBinHERMES(
+TArrayF* getKinBinTransverse(
                     std::string  outdir,
                     TFile      * outroot,
                     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
@@ -321,7 +321,7 @@ TArrayF* getKinBinHERMES(
         }//Double checked this 10/6/23.  All good.
 
     // Output message
-    out << "--- getKinBinHERMES ---\n";
+    out << "--- getKinBinTransverse ---\n";
     out << " cuts     = " << cuts     << "\n";
     out << " alpha    = " << alpha    << "\n";
     out << " fitvar   = " << fitvar   << "\n";
@@ -335,15 +335,15 @@ TArrayF* getKinBinHERMES(
     int k = 0;
     arr->AddAt(p_lambda,k++);
     arr->AddAt(p_lambda_err,k++);
-    arr->AddAt(moment,k++);
-    arr->AddAt(moment_err,k++);
+    // arr->AddAt(moment,k++); //NOTE: Don't return these for now so that you can just reuse getKinBinGraph() below and add a method type there...can check moment in output and results accuracy with the mc injection I guess.
+    // arr->AddAt(moment_err,k++);
     arr->AddAt(binvar_ave,k++);
     arr->AddAt(binvar_err,k++);
     arr->AddAt(count,k++);
 
     return arr;
 
-} // TArrayF* getKinBinHERMES()
+} // TArrayF* getKinBinTransverse()
 
 TArrayF* getKinBinBSA(
     std::string  outdir,
@@ -509,7 +509,7 @@ void getKinBinnedGraph(
                     ) {
 
     // Check arguments
-    if (method != "LF" && method != "HB" && method != "BSA") {out << " *** ERROR *** Method must be either LF, HB, or BSA.  Exiting...\n"; return;}
+    if (method != "LF" && method != "HB" && method != "BSA" && method !="transverse") {out << " *** ERROR *** Method must be either LF, HB, BSA, or transverse.  Exiting...\n"; return;}
     if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
 
     // Starting message
@@ -653,6 +653,24 @@ void getKinBinnedGraph(
                 out
             );
         }
+        std::string topcut = "phi_ppim>=0 && phi_ppim<TMath::Pi()"; //NOTE: This requires you to define phi_ppim in the script which uses this method.
+        std::string botcut = "phi_ppim>=TMath::Pi() && phi_ppim<2*TMath::Pi()";
+        if (method=="transverse") {
+            binData = (TarrayF*) getKinBinTransverse(
+                    binoutdir,
+                    outroot,
+                    frame,
+                    sgcuts,
+                    binvar,
+                    bin_min,
+                    bin_max,
+                    alpha,
+                    fitvar,
+                    topcut,
+                    botcut,
+                    out
+                    );
+        }
 
         // Get data
         double dll     = binData->GetAt(0);
@@ -719,6 +737,22 @@ void getKinBinnedGraph(
                     fitvar_max,
                     out
                 );
+            }
+            if (method=="transverse") {
+            bgBinData = (TarrayF*) getKinBinTransverse(
+                    sbbinoutdir,
+                    outroot,
+                    frame,
+                    bgcuts,
+                    binvar,
+                    bin_min,
+                    bin_max,
+                    alpha,
+                    fitvar,
+                    topcut,
+                    botcut,
+                    out
+                    );
             }
 
             // Get data
