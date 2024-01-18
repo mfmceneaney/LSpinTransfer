@@ -44,7 +44,8 @@ TArrayF* getKinBinLF(
                     double       alpha,
                     double       pol,
                     std::string  helicity_name       = "heli",
-                    std::string  fitvar              = "costheta1",
+                    std::string  _fitvar_            = "costheta1",
+                    std::string  depol_name          = "",
                     int          n_fitvar_bins       = 10,
                     double       fitvar_min          = -1,
                     double       fitvar_max          =  1,
@@ -57,7 +58,13 @@ TArrayF* getKinBinLF(
 
     // Set bin cuts
     std::string bin_cut = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
-    auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
+    std::string fitvar = depol_name == "" ? _fitvar_ : Form("LF_%s",_fitvar_.c_str());
+    std::string fitvar_formula = depol_name == "" ? _fitvar_ : Form("%.8f*%s*%s",pol,depol_name.c_str(),_fitvar_.c_str());
+    out << "DEBUGGING: getKinBinLF(): fitvar         = " << fitvar.c_str() << std::endl;
+    out << "DEBUGGING: getKinBinLF(): fitvar_formula = " << fitvar_formula.c_str() << std::endl;
+    auto f = depol_name == "" ? frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())) :
+                frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()))
+                .Define(fitvar.c_str(),fitvar_formula.c_str());
 
     // Set fit function
     TF1 *fitf = new TF1("fitf","[0]+[1]*x",fitvar_min,fitvar_max);
@@ -629,6 +636,7 @@ void getKinBinnedGraph(
                 pol,
                 helicity_name,
                 fitvar,
+                depolarization_name,
                 n_fitvar_bins,
                 fitvar_min,
                 fitvar_max,
@@ -714,6 +722,7 @@ void getKinBinnedGraph(
                     pol,
                     helicity_name,
                     fitvar,
+                    depolarization_name,
                     n_fitvar_bins,
                     fitvar_min,
                     fitvar_max,
@@ -1069,6 +1078,7 @@ void getKinBinnedGraphMC(
                 pol,
                 helicity_name,
                 fitvar,
+                depolarization_name,
                 n_fitvar_bins,
                 fitvar_min,
                 fitvar_max,
@@ -1118,6 +1128,7 @@ void getKinBinnedGraphMC(
                     pol,
                     helicity_name,
                     fitvar,
+                    depolarization_name,
                     n_fitvar_bins,
                     fitvar_min,
                     fitvar_max,
@@ -1487,6 +1498,7 @@ void getKinBinnedGraphGausCBDiff(
                 pol,
                 helicity_name,
                 fitvar,
+                depolarization_name,
                 n_fitvar_bins,
                 fitvar_min,
                 fitvar_max,
@@ -1540,6 +1552,7 @@ void getKinBinnedGraphGausCBDiff(
                     pol,
                     helicity_name,
                     fitvar,
+                    depolarization_name,
                     n_fitvar_bins,
                     fitvar_min,
                     fitvar_max,
