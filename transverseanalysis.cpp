@@ -339,9 +339,9 @@ void analysis(const YAML::Node& node) {
 
     // Create RDataFrame for statistics capabilities and reading tree and set branch names to use
     ROOT::RDataFrame d(tree, inpath);
-    std::string depolarization_name = "Dy";
+    std::string depolarization_name = ""; //NOTE: LEAVE BLANK FOR TRANSVERSE ANALYSIS
     std::string helicity_name       = "heli";
-    std::string depol_name_mc       = "Dy_mc";
+    std::string depol_name_mc       = ""; //NOTE: LEAVE BLANK FOR TRANSVERSE ANALYSIS
     std::string fitvar_mc = Form("%s_mc",fitvar.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string mc_cuts = "!TMath::IsNaN(costheta1_mc) && !TMath::IsNaN(costheta2_mc) && sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0";//NOTE: NOT SURE THAT THESE ARE STILL NECESSARY, 9/14/23.
     std::cout<<"DEBUGGING: in transverseanalysis.cpp: mc_cuts = \n\t"<<mc_cuts<<std::endl;//DEBUGGING
