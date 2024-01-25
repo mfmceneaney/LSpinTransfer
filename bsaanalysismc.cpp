@@ -72,6 +72,18 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "method: " << method << std::endl;
 
+    std::string phi_1_name = "phi_h_kp";
+    if (node["phi_1_name"]) {
+        phi_1_name = node["phi_1_name"].as<std::string>();
+    }
+    std::cout << "phi_1_name: " << phi_1_name << std::endl;
+
+    std::string phi_2_name = "phi_h_ppim";
+    if (node["phi_2_name"]) {
+        phi_2_name = node["phi_2_name"].as<std::string>();
+    }
+    std::cout << "phi_2_name: " << phi_2_name << std::endl;
+
     std::string fitvar = "";
     if (node["fitvar"]) {
         fitvar = node["fitvar"].as<std::string>();
@@ -203,6 +215,48 @@ void analysis(const YAML::Node& node) {
         beam_polarization = node["beam_polarization"].as<double>();
     }
     std::cout << "beam_polarization: " << beam_polarization << std::endl;
+
+    std::string theta_p_name = "theta_p";
+    if (node["theta_p_name"]) {
+        theta_p_name = node["theta_p_name"].as<std::string>();
+    }
+    std::cout << "theta_p_name: " << theta_p_name << std::endl;
+
+    std::string theta_pim_name = "theta_pim";
+    if (node["theta_pim_name"]) {
+        theta_pim_name = node["theta_pim_name"].as<std::string>();
+    }
+    std::cout << "theta_pim_name: " << theta_pim_name << std::endl;
+
+    std::string phi_p_name = "phi_p";
+    if (node["phi_p_name"]) {
+        phi_p_name = node["phi_p_name"].as<std::string>();
+    }
+    std::cout << "phi_p_name: " << phi_p_name << std::endl;
+
+    std::string phi_pim_name = "phi_pim";
+    if (node["phi_pim_name"]) {
+        phi_pim_name = node["phi_pim_name"].as<std::string>();
+    }
+    std::cout << "phi_pim_name: " << phi_pim_name << std::endl;
+
+    std::string pid_parent_p_mc_name = "pid_parent_p_mc";
+    if (node["pid_parent_p_mc_name"]) {
+        pid_parent_p_mc_name = node["pid_parent_p_mc_name"].as<std::string>();
+    }
+    std::cout << "pid_parent_p_mc_name: " << pid_parent_p_mc_name << std::endl;
+
+    std::string row_parent_p_mc_name = "row_parent_p_mc";
+    if (node["row_parent_p_mc_name"]) {
+        row_parent_p_mc_name = node["row_parent_p_mc_name"].as<std::string>();
+    }
+    std::cout << "row_parent_p_mc_name: " << row_parent_p_mc_name << std::endl;
+
+    std::string row_parent_pim_mc_name = "row_parent_pim_mc";
+    if (node["row_parent_pim_mc_name"]) {
+        row_parent_pim_mc_name = node["row_parent_pim_mc_name"].as<std::string>();
+    }
+    std::cout << "row_parent_pim_mc_name: " << row_parent_pim_mc_name << std::endl;
 
     std::string mass_name = "mass_ppim";
     if (node["mass_name"]) {
@@ -373,30 +427,30 @@ void analysis(const YAML::Node& node) {
     for (int idx=0; idx<nparams; idx++) { fbgasyms->SetParameter(idx,bgasyms[idx]); }
     auto frame = (!inject_asym) ? d.Filter(cuts.c_str())
                     .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
-                    .Define(fitvar.c_str(),[](float phi_1, float phi_2){ return (float) (TMath::Abs(phi_1-phi_2)<TMath::Pi() ? TMath::Abs(phi_1-phi_2) : 2*TMath::Pi() - TMath::Abs(phi_1-phi_2));},{"phi_h_kp","phi_h_ppim"}) : //TODO: Add phi_1/phi_2 names as yaml args.
+                    .Define(fitvar.c_str(),[](float phi_1, float phi_2){ return (float) (TMath::Abs(phi_1-phi_2)<TMath::Pi() ? TMath::Abs(phi_1-phi_2) : 2*TMath::Pi() - TMath::Abs(phi_1-phi_2));},{phi_1_name.c_str(),phi_2_name.c_str()}) :
                     d
-                    .Define(fitvar.c_str(),[](float phi_1, float phi_2){ return (float) (TMath::Abs(phi_1-phi_2)<TMath::Pi() ? TMath::Abs(phi_1-phi_2) : 2*TMath::Pi() - TMath::Abs(phi_1-phi_2));},{"phi_h_kp","phi_h_ppim"}) //TODO: Add phi_1/phi_2 names as yaml args.
-                    .Define("dtheta_p",[](float theta_p, float theta_p_mc){ return TMath::Abs(theta_p-theta_p_mc); },{"theta_p","theta_p_mc"})//TODO: Make these namees settable from yaml args too.
-                    .Define("dtheta_pim",[](float theta_pim, float theta_pim_mc){ return TMath::Abs(theta_pim-theta_pim_mc); },{"theta_pim","theta_pim_mc"})//TODO: Make these namees settable from yaml args too.
+                    .Define(fitvar.c_str(),[](float phi_1, float phi_2){ return (float) (TMath::Abs(phi_1-phi_2)<TMath::Pi() ? TMath::Abs(phi_1-phi_2) : 2*TMath::Pi() - TMath::Abs(phi_1-phi_2));},{phi_1_name.c_str(),phi_2_name.c_str()})
+                    .Define("dtheta_p",[](float theta_p, float theta_p_mc){ return TMath::Abs(theta_p-theta_p_mc); },{theta_p_name.c_str(),Form("%s_mc",theta_p_name.c_str())})
+                    .Define("dtheta_pim",[](float theta_pim, float theta_pim_mc){ return TMath::Abs(theta_pim-theta_pim_mc); },{theta_pim_name.c_str(),Form("%s_mc",theta_pim_name.c_str())})
                     .Define("dphi_p",[](float phi_p, float phi_p_mc){
                         return (float) (TMath::Abs(phi_p-phi_p_mc)<TMath::Pi()
                         ? TMath::Abs(phi_p-phi_p_mc) : 2*TMath::Pi() - TMath::Abs(phi_p-phi_p_mc));
-                        },{"phi_p","phi_p_mc"})//TODO: Make these namees settable from yaml args too.
+                        },{phi_p_name.c_str(),Form("%s_mc",phi_p_name.c_str())})
                     .Define("dphi_pim",[](float phi_pim, float phi_pim_mc){
                         return (float) (TMath::Abs(phi_pim-phi_pim_mc)<TMath::Pi()
                         ? TMath::Abs(phi_pim-phi_pim_mc) : 2*TMath::Pi() - TMath::Abs(phi_pim-phi_pim_mc));
-                        },{"phi_pim","phi_pim_mc"})//TODO: Make these namees settable from yaml args too.
+                        },{phi_pim_name.c_str(),Form("%s_mc",phi_pim_name.c_str())})
                     .Filter(Form("(%s) && (%s)",cuts.c_str(),mc_cuts.c_str()))
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
                     .Define("XS", [&fsgasyms,&fbgasyms,&beam_polarization,&dtheta_p_max,&dtheta_pim_max]
                         (float _fitvar_mc_, float pid_parent_p_mc, float row_parent_p_mc, float row_parent_pim_mc, float dtheta_p, float dtheta_pim) {
                             return (float)((pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max) ? 0.5/beam_polarization*fsgasyms->Eval(_fitvar_mc_) : 0.5/beam_polarization*fbgasyms->Eval(_fitvar_mc_)); //NOTE: THIS ASSUMES THAT y and _fitvar_mc_ are zero if no mc truth match found so then distribution is uniform.                  
                         },
-                        {fitvar_mc.c_str(),"pid_parent_p_mc","row_parent_p_mc","row_parent_pim_mc","dtheta_p","dtheta_pim"})//TODO: THESE NEED TO MATCH DELTA NAMES ABOVE
+                        {fitvar_mc.c_str(),pid_parent_p_mc_name.c_str(),row_parent_p_mc_name.c_str(),row_parent_pim_mc_name.c_str(),"dtheta_p","dtheta_pim"})
                     .Define(helicity_name.c_str(), [](float my_rand_var, float XS) {
                         return (float)(my_rand_var<XS ? 1.0 : -1.0);
                     },
-                    {"my_rand_var","XS"});//TODO: Create function from injected parameters?  don't need that here though...can't inject unless using MC mass fit method...
+                    {"my_rand_var","XS"});
 
     if (inject_asym) {
         double my_testvar  = (double)*frame.Mean("my_rand_var");
