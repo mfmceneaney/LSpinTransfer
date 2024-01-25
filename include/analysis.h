@@ -486,14 +486,13 @@ TArrayF* getKinBinBSAGeneric(
     std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
     int          nparams       = 2,
     std::string  fitvar        = "phi_h",
-    // std::string  fitvartitle   = "#phi_{h p#pi^{-}}",
+    std::string  fitvartitle   = "#phi_{h p#pi^{-}}",
     int nbinsx                 = 100,
     double xmin                = 0.0,
     double xmax                = 2*TMath::Pi(),
     std::ostream &out          = std::cout
     ) {
 
-    std::string  fitvartitle   = "#phi_{h p#pi^{-}}";
     std::string title    = Form("BSA vs. %s",fitvartitle.c_str());
     std::string bintitle = Form("%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
 
@@ -525,7 +524,7 @@ TArrayF* getKinBinBSAGeneric(
     hasym->GetXaxis()->SetTitle(fitvartitle.c_str());
     hasym->GetXaxis()->SetTitleSize(0.06);
     hasym->GetXaxis()->SetTitleOffset(0.75);
-    hasym->GetYaxis()->SetTitle("Counts");
+    hasym->GetYaxis()->SetTitle("BSA");
     hasym->GetYaxis()->SetTitleSize(0.06);
     hasym->GetYaxis()->SetTitleOffset(0.87);
 
