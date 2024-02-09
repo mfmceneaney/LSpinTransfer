@@ -496,16 +496,16 @@ if __name__=="__main__":
         'A1':'$A_{LU}^{\sin{2\Delta\phi}}$',
     }
 
-    def get_outpath(base_dir,aggregate_keys,**config):
+    def get_outpath(base_dir,aggregate_keys,asym_name,**config):
 
         job_config_name  = 'aggregate_'+'_'.join([str(key) for key in sorted(aggregate_keys)])+'__'
         job_config_name += "__".join(["_".join([key,str(config[key]) if type(config[key]) is not list else "_".join([str(el) for el in config[key]]) ]) for key in sorted(config)])
-        job_config_name += '.pdf'
+        job_config_name += asym_name+'.pdf'
         outpath = os.path.abspath(os.path.join(base_dir,job_config_name))
 
         return outpath
     
-    def apply_get_plots(out_file_list,get_outpath,get_plots,base_dir='',xlimss={},ylims=[0.0,1.0],titles={},xtitles={},ytitle='',verbose=True,aggregate_keys={},colors={},input_yaml=input_yaml,systematics_function=None): 
+    def apply_get_plots(out_file_list,get_outpath,get_plots,base_dir='',xlimss={},ylims=[0.0,1.0],titles={},xtitles={},ytitle='',verbose=True,aggregate_keys={},colors={},input_yaml=input_yaml,systematics_function=None,asym_name="A0"): 
         for el in out_file_list:
             config = el["data_list"]
             file_list = el["file_list"]
@@ -519,7 +519,7 @@ if __name__=="__main__":
             arrs = get_arrs(file_list)
             xerr_syst = []#DEBUGGING: JUST SET TO DEFAULT ARGS FOR NOW
             yerr_syst = []#DEBUGGING: JUST SET TO DEFAULT ARGS FOR NOW
-            outpath = get_outpath(base_dir,aggregate_keys,**config)
+            outpath = get_outpath(base_dir,aggregate_keys,asym_name,**config)
             print("DEBUGGING: outpath = ",outpath)
             binvar = config['binvar'] #NOTE: VARIABLE IN WHICH THE BINNING IS DONE
             fitvar = config['fitvar'] #NOTE: VARIABLE FOR COS THETA
@@ -544,7 +544,7 @@ if __name__=="__main__":
             )
         return
 
-    apply_get_plots(out_file_list,get_outpath,get_plots,base_dir=base_dir,xlimss=xlimss,ylims=ylims,titles=titles,xtitles=xtitles,ytitle=ytitles[asym_name],verbose=True,aggregate_keys=aggregate_keys,colors=colors)
+    apply_get_plots(out_file_list,get_outpath,get_plots,base_dir=base_dir,xlimss=xlimss,ylims=ylims,titles=titles,xtitles=xtitles,ytitle=ytitles[asym_name],verbose=True,aggregate_keys=aggregate_keys,colors=colors,asym_name=asym_name)
 
 
 
