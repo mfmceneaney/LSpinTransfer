@@ -96,6 +96,18 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "fitvartitle: " << fitvartitle << std::endl;
 
+    std::string suffix1 = "suffix1";
+    if (node["suffix1"]) {
+        suffix1 = node["suffix1"].as<std::string>();
+    }
+    std::cout << "suffix1: " << suffix1 << std::endl;
+
+    std::string suffix2 = "suffix2";
+    if (node["suffix2"]) {
+        suffix2 = node["suffix2"].as<std::string>();
+    }
+    std::cout << "suffix2: " << suffix2 << std::endl;
+
     std::string fitformula = "[0]*sin(x)+[1]*sin(2*x)";
     if (node["fitformula"]) {
         fitformula = node["fitformula"].as<std::string>();
@@ -427,9 +439,11 @@ void analysis(const YAML::Node& node) {
     for (int idx=0; idx<nparams; idx++) { fbgasyms->SetParameter(idx,bgasyms[idx]); }
     auto frame = (!inject_asym) ? d.Filter(cuts.c_str())
                     .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
-                    .Define(fitvar.c_str(),[](float phi_1, float phi_2){ return (float) ((phi_1-phi_2)>=0 ? (phi_1-phi_2) : 2*TMath::Pi() + (phi_1-phi_2));},{phi_1_name.c_str(),phi_2_name.c_str()}) :
+                    .Define(fitvar.c_str(),[](float phi_1, float phi_2){ return (float) ((phi_1-phi_2)>=0 ? (phi_1-phi_2) : 2*TMath::Pi() + (phi_1-phi_2));},{phi_1_name.c_str(),phi_2_name.c_str()})
+                    .Define("ptpt",Form("phperp_%s * phperp_%s",suffix1.c_str(),suffix2.c_str())) :
                     d
                     .Define(fitvar.c_str(),[](float phi_1, float phi_2){ return (float) ((phi_1-phi_2)>=0 ? (phi_1-phi_2) : 2*TMath::Pi() + (phi_1-phi_2));},{phi_1_name.c_str(),phi_2_name.c_str()})
+                    .Define("ptpt",Form("phperp_%s * phperp_%s",suffix1.c_str(),suffix2.c_str()))s
                     .Define("dtheta_p",[](float theta_p, float theta_p_mc){ return TMath::Abs(theta_p-theta_p_mc); },{theta_p_name.c_str(),Form("%s_mc",theta_p_name.c_str())})
                     .Define("dtheta_pim",[](float theta_pim, float theta_pim_mc){ return TMath::Abs(theta_pim-theta_pim_mc); },{theta_pim_name.c_str(),Form("%s_mc",theta_pim_name.c_str())})
                     .Define("dphi_p",[](float phi_p, float phi_p_mc){
