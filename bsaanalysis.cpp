@@ -96,13 +96,13 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "fitvartitle: " << fitvartitle << std::endl;
 
-    std::string suffix1 = "suffix1";
+    std::string suffix1 = "ppim";
     if (node["suffix1"]) {
         suffix1 = node["suffix1"].as<std::string>();
     }
     std::cout << "suffix1: " << suffix1 << std::endl;
 
-    std::string suffix2 = "suffix2";
+    std::string suffix2 = "k";
     if (node["suffix2"]) {
         suffix2 = node["suffix2"].as<std::string>();
     }
