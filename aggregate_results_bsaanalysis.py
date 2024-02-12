@@ -445,6 +445,10 @@ if __name__=="__main__":
         'z_ppim':[0.0,1.0],
         'xF_k':[0.0,1.0],
         'z_k':[0.0,1.0],
+        'zeta_ppim':[0.0,1.0],#TODO: DOUBLE CHECK LIMITS HERE
+        'ptpt':[0.0,2.0],
+        'phperp_ppim':[0.0,2.0],
+        'phperp_k':[0.0,2.0],
     }
     asym_name = "A0"
     out_file_list = get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_file_name,use_mc,aggregate_keys,asym_name=asym_name)
@@ -472,6 +476,10 @@ if __name__=="__main__":
         'z_ppim':[0.0,1.1],
         'xF_k':[0.0,1.0],
         'z_k':[0.0,1.1],
+        'zeta_ppim':[0.0,1.0],#TODO: DOUBLE CHECK LIMITS HERE
+        'ptpt':[0.0,2.0],
+        'phperp_ppim':[0.0,2.0],
+        'phperp_k':[0.0,2.0],
     }
     ylimss = [-0.25,0.25]
     titles = {
@@ -490,6 +498,10 @@ if __name__=="__main__":
         'z_ppim':'$z_{p\pi^{-}}$',
         'xF_k':'$x_{F K^{+}}$',
         'z_k':'$z_{K^{+}}$',
+        'zeta_ppim':'$\zeta_{p\pi^{-}}$',
+        'ptpt':'$P_{K^{+}\perp}P_{p\pi^{-}\perp}$',
+        'phperp_ppim':'$P_{p\pi^{-}\perp}$',
+        'phperp_k':'$P_{K^{+}\perp}$',
     }
     ytitles = {
         'A0':'$A_{LU}^{\sin{\Delta\phi}}$',
