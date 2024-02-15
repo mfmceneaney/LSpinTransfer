@@ -520,6 +520,7 @@ TArrayF* getKinBinBSAGeneric(
 
     // Get asymmetry histogram
     TH1D *hasym = (TH1D*)hplus->GetAsymmetry(hminus);
+    hasym->Scale(1.0/pol);
     hasym->SetTitle(title.c_str());
     hasym->GetXaxis()->SetTitle(fitvartitle.c_str());
     hasym->GetXaxis()->SetTitleSize(0.06);
@@ -561,9 +562,9 @@ TArrayF* getKinBinBSAGeneric(
     out << " pol        = " << pol << std::endl;
     out << " fitformula = " << fitformula.c_str() << std::endl;
     out << " nparams    = " << nparams <<std::endl;
-    out << " params/pol = [" ;
+    out << " params = [" ;
     for (int idx=0; idx<nparams; idx++) {
-        out << pars[idx]/pol << "±" << Epars[idx]/pol;
+        out << pars[idx] << "±" << Epars[idx];
         if (idx<nparams-1) { out << " , "; }
     }
     out << "]" << std::endl;
@@ -577,7 +578,7 @@ TArrayF* getKinBinBSAGeneric(
     legend->SetMargin(0.1);
     legend->AddEntry((TObject*)0, Form("#chi^{2}/NDF = %.2f",chi2ndf), Form(" %g ",chi2));
     for (int idx=0; idx<nparams; idx++) {
-        legend->AddEntry((TObject*)0, Form("A%d = %.3f #pm %.3f",idx,pars[idx]/pol,Epars[idx]/pol), Form(" %g ",chi2));
+        legend->AddEntry((TObject*)0, Form("A%d = %.3f #pm %.3f",idx,pars[idx],Epars[idx]), Form(" %g ",chi2));
     }
     legend->Draw();
 
@@ -597,8 +598,8 @@ TArrayF* getKinBinBSAGeneric(
     arr->AddAt(stddev,k++);
     arr->AddAt(count,k++);
     for (int idx=0; idx<nparams; idx++) {
-        arr->AddAt(pars[idx]/pol,k++);
-        arr->AddAt(Epars[idx]/pol,k++);
+        arr->AddAt(pars[idx],k++);
+        arr->AddAt(Epars[idx],k++);
     }
 
     return arr;
