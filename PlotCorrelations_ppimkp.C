@@ -258,9 +258,11 @@ void PlotCorrelations_ppimkp() {
     names.push_back("x"); nbins.push_back(100); binlims.push_back({0.0,1.0}); labels.push_back("x");
 
     names.push_back("mass_ppim"); nbins.push_back(100); binlims.push_back({1.08,1.24}); labels.push_back("M_{p#pi^{-}}");
+    names.push_back("y_ppim"); nbins.push_back(100); binlims.push_back({0.0,1.0}); labels.push_back("Y_{p#pi^{-}}");
     names.push_back("zeta_ppim"); nbins.push_back(100); binlims.push_back({0.0,1.0}); labels.push_back("#z_{p#pi^{-}}");
     names.push_back("xF_ppim"); nbins.push_back(100); binlims.push_back({-1.0,1.0}); labels.push_back("x_{F p#pi^{-}}");
     names.push_back("phperp_ppim"); nbins.push_back(100); binlims.push_back({0.0,2.0}); labels.push_back("P_{p#pi^{-}#perp}");
+    names.push_back("y_k"); nbins.push_back(100); binlims.push_back({0.0,1.0}); labels.push_back("Y_{K^{+}}");
     names.push_back("z_k"); nbins.push_back(100); binlims.push_back({0.0,1.0}); labels.push_back("z_{K^{+}}");
     names.push_back("xF_k"); nbins.push_back(100); binlims.push_back({-1.0,1.0}); labels.push_back("x_{F K^{+}}");
     names.push_back("phperp_k"); nbins.push_back(100); binlims.push_back({0.0,2.0}); labels.push_back("P_{K^{+}#perp}");
@@ -309,7 +311,7 @@ void PlotCorrelations_ppimkp() {
 
     // Plot correlations data
     const char *extraname1 = "2d_data";
-    int mylim = 12;
+    int mylim = 14;
     for (int i=0; i<names.size(); i++) {
       for (int j=0; j<names.size(); j++) {
         if (i==j) continue;//NOTE: SKIP IDENTITIES
