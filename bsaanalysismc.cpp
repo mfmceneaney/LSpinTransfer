@@ -458,7 +458,7 @@ void analysis(const YAML::Node& node) {
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
                     .Define("XS", [&fsgasyms,&fbgasyms,&beam_polarization,&dtheta_p_max,&dtheta_pim_max]
                         (float _fitvar_mc_, float pid_parent_p_mc, float row_parent_p_mc, float row_parent_pim_mc, float dtheta_p, float dtheta_pim) {
-                            return (float)((pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max) ? 0.5/beam_polarization*fsgasyms->Eval(_fitvar_mc_) : 0.5/beam_polarization*fbgasyms->Eval(_fitvar_mc_)); //NOTE: THIS ASSUMES THAT y and _fitvar_mc_ are zero if no mc truth match found so then distribution is uniform.                  
+                            return (float)((pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max) ? 0.5*(1+beam_polarization*fsgasyms->Eval(_fitvar_mc_)) : 0.5*(1+beam_polarization*fbgasyms->Eval(_fitvar_mc_))); //NOTE: THIS ASSUMES THAT y and _fitvar_mc_ are zero if no mc truth match found so then distribution is uniform.                  
                         },
                         {fitvar_mc.c_str(),pid_parent_p_mc_name.c_str(),row_parent_p_mc_name.c_str(),row_parent_pim_mc_name.c_str(),"dtheta_p","dtheta_pim"})
                     .Define(helicity_name.c_str(), [](float my_rand_var, float XS) {
