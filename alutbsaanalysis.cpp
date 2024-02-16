@@ -355,13 +355,13 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "n_fitvar_bins: " << n_fitvar_bins << std::endl;
 
-    double fitvar_min = 0.0;
+    double fitvar_min = -1.0;
     if (node["fitvar_min"]) {
         fitvar_min = node["fitvar_min"].as<double>();
     }
     std::cout << "fitvar_min: " << fitvar_min << std::endl;
 
-    double fitvar_max = 2*TMath::Pi();
+    double fitvar_max = 1.0;
     if (node["fitvar_max"]) {
         fitvar_max = node["fitvar_max"].as<double>();
     }
