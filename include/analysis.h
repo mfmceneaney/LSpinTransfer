@@ -2443,6 +2443,99 @@ void getKinBinnedGraphGausCBDiff(
 * Get TGraph of D_LL binned in given kinematic variable with or without bg 
 * correction using helicity balance (HB) method or linear fit (LF) method.
 */
+void getKinBinnedMassDistributions(
+                    std::string  outdir,
+                    TFile      * outroot,
+                    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
+                    std::string  sgcuts,  // Signal cuts
+                    std::string  bgcuts,  // Background cuts
+                    TString      method,  // dll calculation method: either helicity balance (HB) or linear fit (LF)
+                    std::string  binvar, // Variable name to bin in
+                    int          nbins,   // Number of bins
+                    double     * bins,    // Bin limits (length=nbins+1)
+                    int        * poly4bins, // mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
+                    double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
+                    bool         use_bgfraction, // whether to use specified epsilon
+                    double       alpha,   // Lambda weak decay asymmetry parameter
+                    double       pol,     // Luminosity averaged beam polarization
+                    std::string  mass_name, // mass variable name for signal fit
+                    int          n_mass_bins, // number of mass bins
+                    double       mass_min,   // mass variable max for signal fit
+                    double       mass_max,   // mass variable min for signal fit
+                    std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
+                    double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
+                    std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
+                    std::string  helicity_name       = "heli",      // Branch name for helicity
+                    std::string  fitvar              = "costheta1", // cos(theta) leaf name to use
+                    //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
+                    //   double       fitvar_min = -1.0,       // fit variable minimum
+                    //   double       fitvar_max = 1.0,        // fit variable maximum
+                    std::string  graph_title          = "Longitudinal Spin Transfer along #vec{p}_{#Lambda}", // Histogram title
+                    int          marker_color         = 4,  // 4 is blue
+                    int          marker_style         = 20, // 20 is circle
+                    std::ostream &out                 = std::cout   // Output for all messages
+                    ) {
+
+    // Fitting presets for LF method //TODO: Maybe just hardcode within getKinBinLF() ?
+    int  n_fitvar_bins = 10;
+    double fitvar_min = -1;
+    double fitvar_max =  1;
+
+    // Check arguments
+    if (method != "LF" && method != "HB") {out << " *** ERROR *** Method must be either LF or HB.  Exiting...\n"; return;}
+    if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
+
+    // Starting message
+    out << "----------------------- getKinBinnedMassDistributions ----------------------\n";
+    out << "Getting " << binvar << " binned hist...\n";
+    out << "bins = { "; for (int i=0; i<nbins; i++) { out << bins[i] << " , ";} out << bins[nbins] << " }\n";
+
+    // Make output directory in ROOT file and cd
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
+
+    // Loop bins and get data
+    for (int i=1; i<=nbins; i++) {
+        double bin_min = bins[i-1];
+        double bin_max = bins[i];
+
+        // Make bin cut on frame
+        std::string bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
+        auto bin_frame = frame.Filter(bin_cut);
+
+        // Get background fraction for bin from mass fit
+        if (!use_bgfraction) {
+            std::string massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+            std::string bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
+
+            out<<"DEBUGGING: -----> Call to LambdaMassDistribution"<<std::endl;//DEBUGGING
+            LambdaMassDistribution(
+                    massoutdir,
+                    outroot,
+                    bin_frame,
+                    mass_name,
+                    n_mass_bins,
+                    mass_min,
+                    mass_max,
+                    mass_draw_opt,
+                    bin_title,
+                    out
+                    );
+        }
+    }
+
+    // Cd out of outdir
+    outroot->cd("..");
+
+    out << "------------------- END of getKinBinnedMassDistributions -------------------\n";
+
+} // void getKinBinnedMassDistributions()
+
+/** 
+* Get TGraph of D_LL binned in given kinematic variable with or without bg 
+* correction using helicity balance (HB) method or linear fit (LF) method.
+*/
 void getKinBinnedMassFits(
                     std::string  outdir,
                     TFile      * outroot,
@@ -2707,6 +2800,100 @@ void getKinBinnedMassFits(
     out << "------------------- END of getKinBinnedMassFits -------------------\n";
 
 } // getKinBinnedMassFits()
+
+/** 
+* Get plots of invariant mass MC spectra and decompositions.
+*/
+void getKinBinnedMassDistributionsMC(
+                    std::string  outdir,
+                    TFile      * outroot,
+                    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
+                    std::string  sgcuts,  // Signal cuts
+                    std::string  bgcuts,  // Background cuts
+                    TString      method,  // dll calculation method: either helicity balance (HB) or linear fit (LF)
+                    std::string  binvar, // Variable name to bin in
+                    int          nbins,   // Number of bins
+                    double     * bins,    // Bin limits (length=nbins+1)
+                    int        * poly4bins, // mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
+                    double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
+                    bool         use_bgfraction, // whether to use specified epsilon
+                    double       alpha,   // Lambda weak decay asymmetry parameter
+                    double       pol,     // Luminosity averaged beam polarization
+                    std::string  mass_name, // mass variable name for signal fit
+                    int          n_mass_bins, // number of mass bins
+                    double       mass_min,   // mass variable max for signal fit
+                    double       mass_max,   // mass variable min for signal fit
+                    double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
+                    double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
+                    std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
+                    double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
+                    std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
+                    std::string  helicity_name       = "heli",      // Branch name for helicity
+                    std::string  fitvar              = "costheta1", // cos(theta) leaf name to use
+                    //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
+                    //   double       fitvar_min = -1.0,       // fit variable minimum
+                    //   double       fitvar_max = 1.0,        // fit variable maximum
+                    std::string  graph_title          = "Longitudinal Spin Transfer along #vec{p}_{#Lambda}", // Histogram title
+                    int          marker_color         = 4,  // 4 is blue
+                    int          marker_style         = 20, // 20 is circle
+                    std::ostream &out                 = std::cout   // Output for all messages
+                    ) {
+
+    // Fitting presets for LF method //TODO: Maybe just hardcode within getKinBinLF() ?
+    int  n_fitvar_bins = 10;
+    double fitvar_min = -1;
+    double fitvar_max =  1;
+
+    // Check arguments
+    if (method != "LF" && method != "HB") {out << " *** ERROR *** Method must be either LF or HB.  Exiting...\n"; return;}
+    if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
+
+    // Starting message
+    out << "----------------------- getKinBinnedMassDistributionsMC ----------------------\n";
+    out << "Getting " << binvar << " binned hist...\n";
+    out << "bins = { "; for (int i=0; i<nbins; i++) { out << bins[i] << " , ";} out << bins[nbins] << " }\n";
+
+    // Make output directory in ROOT file and cd
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
+
+    // Loop bins and get data
+    for (int i=1; i<=nbins; i++) {
+        double bin_min = bins[i-1];
+        double bin_max = bins[i];
+
+        // Make bin cut on frame
+        std::string bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
+        auto bin_frame = frame.Filter(bin_cut);
+
+        // Get background fraction for bin from mass fit
+        std::string massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+        std::string bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
+        LambdaMassFitMCDecomposition(
+                    massoutdir,
+                    outroot,
+                    bin_frame,
+                    mass_name,
+                    n_mass_bins,
+                    mass_min,
+                    mass_max,
+                    dtheta_p_max,
+                    dtheta_pim_max,
+                    mass_draw_opt,
+                    bin_title,
+                    out
+        );
+    }
+
+    // Cd out of outdir
+    outroot->cd("..");
+
+    // Ending message
+    out << "------------------- END of getKinBinnedMassDistributionsMC -------------------\n";
+
+} // void getKinBinnedMassDistributionsMC()
+
 
 /** 
 * Get TGraph of D_LL binned in given kinematic variable with or without bg 
