@@ -25,6 +25,63 @@
 * Description: Fit Lambda mass spectrum and return background fraction in signal region.
 */
 
+void LambdaMassDistribution(
+                    std::string outdir,
+                    TFile *outroot,
+                    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
+                    std::string varName = "mass_ppim",
+                    int    nbins        = 100,
+                    double varMin       = 1.08,
+                    double varMax       = 1.24,
+                    std::string drawopt = "",
+                    std::string title   = "",
+                    std::ostream &out=std::cout
+                    ) {
+
+    // Make output directory in output file
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
+
+    // Switch off histogram stats
+    gStyle->SetOptStat(0);
+
+    // Create canvas
+    TCanvas *c1 = new TCanvas("c1");
+
+    // Create histogram
+    auto h1 = (TH1D) *frame.Histo1D({"h1",varName.c_str(),nbins,varMin,varMax},varName.c_str());
+    TH1D *h = (TH1D*)h1.Clone(varName.c_str());
+    h->SetTitle(title.c_str());
+    h->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
+    h->GetXaxis()->SetTitleSize(0.06);
+    h->GetXaxis()->SetTitleOffset(0.75);
+    h->GetYaxis()->SetTitle("Counts");
+    h->GetYaxis()->SetTitleSize(0.06);
+    h->GetYaxis()->SetTitleOffset(0.87);
+
+    // Set y axes limits
+    h->GetYaxis()->SetRangeUser(0.0,1.05*h->GetMaximum());
+
+    // Draw histogram
+    h->Draw(drawopt.c_str());
+
+    // CLAS12 Watermark                                                                                                  
+    TLatex *lt = new TLatex(0.15,0.5,"CLAS12 Preliminary");
+    lt->SetTextAngle(22.5);
+    lt->SetTextColorAlpha(18,0.5);
+    lt->SetTextSize(0.1);
+    lt->SetNDC();
+    lt->Draw();
+
+    // Save to file and return to above directory
+    c1->SaveAs(Form("c1_%s.pdf",outdir.c_str()));
+    h->SaveAs(Form("h_%s.root",outdir.c_str()));
+    c1->Write(c1->GetName());
+    h->Write(h->GetName());
+    outroot->cd("..");
+
+} // void LambdaMassDistribution()
+
 TArrayF* LambdaMassFit(
                     std::string outdir,
                     TFile *outroot,
