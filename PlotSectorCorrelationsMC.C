@@ -125,8 +125,8 @@ void PlotSectorCorrelationsMC() {
     const char *drawopt  = "";//"PE1";
 
     // Set extra name for 2D correlation files
-    const char *extraname1 = "2d_data";
-    // const char *extraname2 = "2d_mc";
+    // const char *extraname1 = "2d_data";
+    const char *extraname2 = "2d_mc";
 
     gStyle->SetOptStat(0);
 
