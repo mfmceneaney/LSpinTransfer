@@ -85,7 +85,7 @@ void plot(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> d1_, std
     // Loop sectors and call plotting function
     for (int j=0; j<sector_types.size(); j++) {
         const char * sector_type = sector_types.at(j).c_str();
-        for (int i=0; i<=sectors.size(); i++) {
+        for (int i=0; i<sectors.size(); i++) {
             int sector = sectors.at(i);
             plot1DBySector(d1_, sector, sector_type, varName, nbins, varMin, varMax, varTitle, drawopt, f);
         }
@@ -102,7 +102,7 @@ void plot2d(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> d_,
     // Loop sector types and sectors and call plotting function
     for (int j=0; j<sector_types.size(); j++) {
         const char * sector_type = sector_types.at(j).c_str();
-        for (int i=0; i<=sectors.size(); i++) {
+        for (int i=0; i<sectors.size(); i++) {
             int sector = sectors.at(i);
             plot2DBySector(
                 d_, sector, sector_type, extraname,
