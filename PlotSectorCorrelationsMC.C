@@ -245,8 +245,8 @@ void PlotSectorCorrelationsMC() {
     names.push_back("theta_pim_2"); nbins.push_back(100); binlims.push_back({0.0,40.0}); labels.push_back("#theta_{#pi^{-}}");
 
     names.push_back("p_e"); nbins.push_back(100); binlims.push_back({0.0,10.0}); labels.push_back("p_{e^{-}} (GeV)");
-    names.push_back("p_p"); nbins.push_back(100); binlims.push_back({0.0,10.0}); labels.push_back("p_{p} (GeV)");
-    names.push_back("p_pim"); nbins.push_back(100); binlims.push_back({0.0,10.0}); labels.push_back("p_{#pi^{-}} (GeV)");
+    names.push_back("p_p"); nbins.push_back(100); binlims.push_back({0.0,6.0}); labels.push_back("p_{p} (GeV)");
+    names.push_back("p_pim"); nbins.push_back(100); binlims.push_back({0.0,2.0}); labels.push_back("p_{#pi^{-}} (GeV)");
 
     names.push_back("beta_e"); nbins.push_back(100); binlims.push_back({0.0,1.2}); labels.push_back("#beta_{e^{-}}");
     names.push_back("beta_p"); nbins.push_back(100); binlims.push_back({0.0,1.2}); labels.push_back("#beta_{p}");
