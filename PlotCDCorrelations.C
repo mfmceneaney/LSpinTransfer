@@ -243,23 +243,26 @@ void PlotCDCorrelations() {
     names.push_back("phi_p_2"); nbins.push_back(100); binlims.push_back({0.0,360.0}); labels.push_back("#phi_{p}");
     names.push_back("phi_pim_2"); nbins.push_back(100); binlims.push_back({0.0,360.0}); labels.push_back("#phi_{#pi^{-}}");
 
-    names.push_back("theta_e_2"); nbins.push_back(100); binlims.push_back({0.0,40.0}); labels.push_back("#theta_{e^{-}}");
-    names.push_back("theta_p_2"); nbins.push_back(100); binlims.push_back({0.0,40.0}); labels.push_back("#theta_{p}");
-    names.push_back("theta_pim_2"); nbins.push_back(100); binlims.push_back({0.0,40.0}); labels.push_back("#theta_{#pi^{-}}");
-
     names.push_back("p_e"); nbins.push_back(100); binlims.push_back({0.0,10.0}); labels.push_back("p_{e^{-}} (GeV)");
     names.push_back("p_p"); nbins.push_back(100); binlims.push_back({0.0,6.0}); labels.push_back("p_{p} (GeV)");
     names.push_back("p_pim"); nbins.push_back(100); binlims.push_back({0.0,2.0}); labels.push_back("p_{#pi^{-}} (GeV)");
 
-    names.push_back("beta_e"); nbins.push_back(100); binlims.push_back({0.0,1.2}); labels.push_back("#beta_{e^{-}}");
-    names.push_back("beta_p"); nbins.push_back(100); binlims.push_back({0.0,1.2}); labels.push_back("#beta_{p}");
-    names.push_back("beta_pim"); nbins.push_back(100); binlims.push_back({0.0,1.2}); labels.push_back("#beta_{#pi^{-}}");
+    names.push_back("theta_e_2"); nbins.push_back(100); binlims.push_back({0.0,40.0}); labels.push_back("#theta_{e^{-}}");
+    names.push_back("theta_p_2"); nbins.push_back(100); binlims.push_back({0.0,40.0}); labels.push_back("#theta_{p}");
+    names.push_back("theta_pim_2"); nbins.push_back(100); binlims.push_back({0.0,40.0}); labels.push_back("#theta_{#pi^{-}}");
+
+    // names.push_back("beta_e"); nbins.push_back(100); binlims.push_back({0.0,1.2}); labels.push_back("#beta_{e^{-}}");
+    // names.push_back("beta_p"); nbins.push_back(100); binlims.push_back({0.0,1.2}); labels.push_back("#beta_{p}");
+    // names.push_back("beta_pim"); nbins.push_back(100); binlims.push_back({0.0,1.2}); labels.push_back("#beta_{#pi^{-}}");
 
     // Plot correlations data
     for (int i=0; i<names.size(); i++) {
       for (int j=0; j<names.size(); j++) {
+
         if (i==j) continue;//NOTE: SKIP IDENTITIES
-        if (!(((i-j)%3)==0) && i<j) continue; //NOTE: Creates block combos with just like particles
+        if (!(((i-j)%3)==0) && i<j) continue; //NOTE: Creates block combos with just like particles.
+        if (i>5) continue; //NOTE: Do not put theta on x axis.
+        if (j<6) continue; //NOTE: Do not put phi or momentum variable on y axis.
         plot2d(frame1,sector_types,sectors,extraname1,names[i].c_str(),nbins[i],binlims[i][0],binlims[i][1],labels[i].c_str(),
                             names[j].c_str(),nbins[j],binlims[j][0],binlims[j][1],labels[j].c_str(),
                             drawopt,f);
