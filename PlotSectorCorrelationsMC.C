@@ -257,7 +257,7 @@ void PlotSectorCorrelationsMC() {
       for (int j=0; j<names.size(); j++) {
         if (i==j) continue;//NOTE: SKIP IDENTITIES
         if (!(((i-j)%3)==0) && i<j) continue; //NOTE: Creates block combos with just like particles
-        plot2d(frame1,sector_types,nsectors,extraname1,names[i].c_str(),nbins[i],binlims[i][0],binlims[i][1],labels[i].c_str(),
+        plot2d(frame1,sector_types,nsectors,extraname2,names[i].c_str(),nbins[i],binlims[i][0],binlims[i][1],labels[i].c_str(),
                             names[j].c_str(),nbins[j],binlims[j][0],binlims[j][1],labels[j].c_str(),
                             drawopt,f);
       }
