@@ -81,8 +81,8 @@ void plot1DBySector(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void
   auto d1 = d1_.Filter(Form("%s==%d",sector_type,sector));
 
   // Create histogram DATA
-  auto h1 = (TH1D) *d1.Histo1D({Form("h_sector_%d_%s",sector,varName),Form("Sector %d",sector),nbins,varMin,varMax},varName);
-  TH1D *h_data = (TH1D*)h1.Clone(Form("h_sector_%d_%s",sector,varName));
+  auto h1 = (TH1D) *d1.Histo1D({Form("h_%s_%d_%s",sector_type,sector,varName),Form("Sector %d",sector),nbins,varMin,varMax},varName);
+  TH1D *h_data = (TH1D*)h1.Clone(Form("h_%s_%d_%s",sector_type,sector,varName));
   h_data->GetXaxis()->SetTitle(varTitle);
   h_data->GetXaxis()->SetTitleSize(0.06);
   h_data->GetXaxis()->SetTitleOffset(0.75);
