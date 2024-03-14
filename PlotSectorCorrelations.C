@@ -4,6 +4,77 @@
 * Description: e,p,pim MC or Data 1D or 2D kinematics plots by sector (or other sector type identifier)
 */
 
+void plot1DNoSector(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> d1, int sector, const char *sector_type,
+        const char *varName, int nbins, double varMin, double varMax, const char *varTitle, const char *drawopt, TFile *f) {
+
+  // Create histogram DATA
+  auto h1 = (TH1D) *d1.Histo1D({Form("h_%s",varName),"All Sectors",nbins,varMin,varMax},varName);
+  TH1D *h_data = (TH1D*)h1.Clone(Form("h_%s",varName));
+  h_data->GetXaxis()->SetTitle(varTitle);
+  h_data->GetXaxis()->SetTitleSize(0.06);
+  h_data->GetXaxis()->SetTitleOffset(0.75);
+  h_data->GetYaxis()->SetTitle("Counts");
+  h_data->GetYaxis()->SetTitleSize(0.06);
+  h_data->GetYaxis()->SetTitleOffset(0.87);
+  h_data->SetMarkerStyle(20); // 20 is full circle
+  h_data->SetMarkerColor(1); // 1 is black
+  h_data->SetMarkerSize(0.5);
+  h_data->SetLineColor(1); // 1 is black
+  h_data->SetLineWidth(1);
+
+  // Create histogram stack
+  TCanvas *c1 = new TCanvas(Form("c_%s",varName));
+  c1->SetBottomMargin(0.125);
+  c1->cd();
+
+  // Draw histogram
+  h_data->Draw(drawopt);
+
+  // Save canvas
+  c1->Write();
+  c1->SaveAs(Form("%s.pdf",c1->GetName()));
+
+  // Save to file for future use
+  //h->SaveAs(Form("h_%s.root",varName));
+  h_data->Write();
+
+} // void plot1DNoSector()
+
+void plot2DNoSector(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> d,
+        int   sector,
+        const char *sector_type,
+        const char *extraname,
+        const char *varName1, int nbins1, double varMin1, double varMax1, const char *varTitle1,
+        const char *varName2, int nbins2, double varMin2, double varMax2, const char *varTitle2,
+        const char *drawopt, TFile *f) {
+
+  // Create histogram 2D
+  auto h1 = (TH2D) *d.Histo2D({Form("h_%s__%s_%s",extraname,varName1,varName2),
+                              Form("Sector %d",sector),
+                              nbins1,varMin1,varMax1,
+                              nbins2,varMin2,varMax2},
+                              varName1,varName2);
+  TH2D *h = (TH2D*)h1.Clone(Form("h_%s__%s_%s",extraname,varName1,varName2));
+  h->GetXaxis()->SetTitle(varTitle1);
+  h->GetXaxis()->SetTitleSize(0.06);
+  h->GetXaxis()->SetTitleOffset(0.75);
+  h->GetYaxis()->SetTitle(varTitle2);
+  h->GetYaxis()->SetTitleSize(0.06);
+  h->GetYaxis()->SetTitleOffset(0.75);
+
+  // Draw histogram
+  TCanvas *c1 = new TCanvas(Form("c_%s__%s_%s",extraname,varName1,varName2));
+  c1->SetBottomMargin(0.125);
+  c1->cd();
+  h->Draw("COLZ");
+  c1->Write();
+  c1->SaveAs(Form("%s.pdf",c1->GetName()));
+
+  // Save to file for future use
+  h->Write();
+
+} // void plot2DNoSector()
+
 void plot1DBySector(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> d1_, int sector, const char *sector_type,
         const char *varName, int nbins, double varMin, double varMax, const char *varTitle, const char *drawopt, TFile *f) {
 
@@ -206,9 +277,9 @@ void PlotSectorCorrelations() {
     plot(frame1,sector_types,nsectors,"theta_p_2",100,0.0,40.0,"#theta_{p} (deg.)",drawopt,f);
     plot(frame1,sector_types,nsectors,"theta_pim_2",100,0.0,40.0,"#theta_{#pi^{-}} (deg.)",drawopt,f);
 
-    plot(frame1,sector_types,nsectors,"phi_e_2",100,0.0,360.0,"#phi_{e^{-}} (deg.)",drawopt,f);
-    plot(frame1,sector_types,nsectors,"phi_p_2",100,0.0,360.0,"#phi_{p} (deg.)",drawopt,f);
-    plot(frame1,sector_types,nsectors,"phi_pim_2",100,0.0,360.0,"#phi_{#pi^{-}} (deg.)",drawopt,f);
+    plot1DNoSector(frame1,0,"sector_type","phi_e_2",100,0.0,360.0,"#phi_{e^{-}} (deg.)",drawopt,f);
+    plot1DNoSector(frame1,0,"sector_type","phi_p_2",100,0.0,360.0,"#phi_{p} (deg.)",drawopt,f);
+    plot1DNoSector(frame1,0,"sector_type","phi_pim_2",100,0.0,360.0,"#phi_{#pi^{-}} (deg.)",drawopt,f);
 
     // plot(frame1,sector_types,nsectors,"beta_e",100,0.0,1.2,"#beta_{e^{-}} (GeV)",drawopt,f);
     // plot(frame1,sector_types,nsectors,"beta_p",100,0.0,1.2,"#beta_{p} (GeV)",drawopt,f);
@@ -257,9 +328,16 @@ void PlotSectorCorrelations() {
       for (int j=0; j<names.size(); j++) {
         if (i==j) continue;//NOTE: SKIP IDENTITIES
         if (!(((i-j)%3)==0) && i<j) continue; //NOTE: Creates block combos with just like particles
-        plot2d(frame1,sector_types,nsectors,extraname1,names[i].c_str(),nbins[i],binlims[i][0],binlims[i][1],labels[i].c_str(),
+        if (j<3) continue; //NOTE: Do not put phi variable on y axis
+        if (i<3) { //NOTE: Do not plot by sector for phi variable
+            plot2DNoSector(frame1,0,"sector_type",extraname1,names[i].c_str(),nbins[i],binlims[i][0],binlims[i][1],labels[i].c_str(),
                             names[j].c_str(),nbins[j],binlims[j][0],binlims[j][1],labels[j].c_str(),
                             drawopt,f);
+        } else {
+            plot2d(frame1,sector_types,nsectors,extraname1,names[i].c_str(),nbins[i],binlims[i][0],binlims[i][1],labels[i].c_str(),
+                            names[j].c_str(),nbins[j],binlims[j][0],binlims[j][1],labels[j].c_str(),
+                            drawopt,f);
+        }
       }
     }
 
