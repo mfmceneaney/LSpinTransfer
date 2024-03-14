@@ -237,7 +237,7 @@ void PlotSectorCorrelations() {
 
     std::vector<std::string> sector_types;
 
-    sector_types.push_back("sector_p"); sector_types.push_back("sector_pim");
+    sector_types.push_back("sector_e"); sector_types.push_back("sector_p"); sector_types.push_back("sector_pim");
 
     int nsectors = 6; //NOTE: This is assumed to start at 1 and end at nsectors.
 

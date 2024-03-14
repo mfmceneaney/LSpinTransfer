@@ -96,7 +96,7 @@ void plot1DBySector(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void
   h_data->SetLineWidth(1);
 
   // Create histogram stack
-  TCanvas *c1 = new TCanvas(Form("c_sector_%d_%s",sector,varName));
+  TCanvas *c1 = new TCanvas(Form("c_%s_%d_%s",sector_type,sector,varName));
   c1->SetBottomMargin(0.125);
   c1->cd();
 
@@ -237,7 +237,7 @@ void PlotSectorCorrelationsMC() {
 
     std::vector<std::string> sector_types;
 
-    sector_types.push_back("sector_p"); sector_types.push_back("sector_pim");
+    sector_types.push_back("sector_e"); sector_types.push_back("sector_p"); sector_types.push_back("sector_pim");
 
     int nsectors = 6; //NOTE: This is assumed to start at 1 and end at nsectors.
 
