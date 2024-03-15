@@ -121,7 +121,7 @@ void PlotCDCorrelationsMC() {
     timer.Start();
 
     // Parameters for DATA tree
-    const char *path1    = "/volatile/clas12/users/mfmce/data_jobs_rga_ppim_FLAG_MIN_MATCH_AND_FRACTION_DELTAP_9_13_23/skim_ppim_*.root";
+    const char *path1    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_FLAG_MIN_MATCH_AND_FRACTION_DELTAP_9_13_23/skim_ppim_*.root";
     const char *tree1    = "t";
     const char *cuts1    = "mass_ppim<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
     const char *drawopt  = "";//"PE1";
