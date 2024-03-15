@@ -10,7 +10,7 @@ void plot1DBySector(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void
   auto d1 = d1_.Filter(Form("%s==%d",sector_type,sector));
 
   // Create histogram DATA
-  auto h1 = (TH1D) *d1.Histo1D({Form("h_%s_%d_%s",sector_type,sector,varName),Form("Sector %d",sector),nbins,varMin,varMax},varName);
+  auto h1 = (TH1D) *d1.Histo1D({Form("h_%s_%d_%s",sector_type,sector,varName),Form("Detector %d",sector),nbins,varMin,varMax},varName);
   TH1D *h_data = (TH1D*)h1.Clone(Form("h_%s_%d_%s",sector_type,sector,varName));
   h_data->GetXaxis()->SetTitle(varTitle);
   h_data->GetXaxis()->SetTitleSize(0.06);
@@ -55,7 +55,7 @@ void plot2DBySector(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void
 
   // Create histogram 2D
   auto h1 = (TH2D) *d.Histo2D({Form("h_%s_%d_%s__%s_%s",sector_type,sector,extraname,varName1,varName2),
-                              Form("Sector %d",sector),
+                              Form("Detector %d",sector),
                               nbins1,varMin1,varMax1,
                               nbins2,varMin2,varMax2},
                               varName1,varName2);
@@ -206,8 +206,8 @@ void PlotCDCorrelations() {
     // plot(frame1,sector_types,sectors,"phi_pim_2",100,0.0,2*TMath::Pi(),"#phi_{#pi^{-}}",drawopt,f);
 
     plot(frame1,sector_types,sectors,"theta_e_2",100,0.0,40.0,"#theta_{e^{-}} (deg.)",drawopt,f);
-    plot(frame1,sector_types,sectors,"theta_p_2",100,0.0,40.0,"#theta_{p} (deg.)",drawopt,f);
-    plot(frame1,sector_types,sectors,"theta_pim_2",100,0.0,40.0,"#theta_{#pi^{-}} (deg.)",drawopt,f);
+    plot(frame1,sector_types,sectors,"theta_p_2",100,20.0,40.0,"#theta_{p} (deg.)",drawopt,f);
+    plot(frame1,sector_types,sectors,"theta_pim_2",100,20.0,80.0,"#theta_{#pi^{-}} (deg.)",drawopt,f);
 
     plot(frame1,sector_types,sectors,"phi_e_2",100,0.0,360.0,"#phi_{e^{-}} (deg.)",drawopt,f);
     plot(frame1,sector_types,sectors,"phi_p_2",100,0.0,360.0,"#phi_{p} (deg.)",drawopt,f);
@@ -248,8 +248,8 @@ void PlotCDCorrelations() {
     names.push_back("p_pim"); nbins.push_back(100); binlims.push_back({0.0,2.0}); labels.push_back("p_{#pi^{-}} (GeV)");
 
     names.push_back("theta_e_2"); nbins.push_back(100); binlims.push_back({0.0,40.0}); labels.push_back("#theta_{e^{-}}");
-    names.push_back("theta_p_2"); nbins.push_back(100); binlims.push_back({0.0,40.0}); labels.push_back("#theta_{p}");
-    names.push_back("theta_pim_2"); nbins.push_back(100); binlims.push_back({0.0,40.0}); labels.push_back("#theta_{#pi^{-}}");
+    names.push_back("theta_p_2"); nbins.push_back(100); binlims.push_back({20.0,40.0}); labels.push_back("#theta_{p}");
+    names.push_back("theta_pim_2"); nbins.push_back(100); binlims.push_back({20.0,80.0}); labels.push_back("#theta_{#pi^{-}}");
 
     // names.push_back("beta_e"); nbins.push_back(100); binlims.push_back({0.0,1.2}); labels.push_back("#beta_{e^{-}}");
     // names.push_back("beta_p"); nbins.push_back(100); binlims.push_back({0.0,1.2}); labels.push_back("#beta_{p}");
