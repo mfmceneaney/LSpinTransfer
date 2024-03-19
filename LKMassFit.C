@@ -228,10 +228,11 @@ void LKMassFit() {
     sNBg.Form("N_{bg} = %.2e #pm %.0f",i_bg,i_bg_err);
 
     // Add Legend
-    TLegend *legend=new TLegend(0.5,0.2,0.875,0.625);
-    legend->SetTextSize(0.04);
+     TLegend *legend=new TLegend(0.45,0.15,0.89,0.45); //NOTE: FOR WITH MC DECOMP below
+    legend->SetTextSize(0.025);
     legend->SetHeader("Fit Info:","c");
-    legend->SetMargin(0.1);
+    legend->SetNColumns(2);
+    legend->SetMargin(0.05);
     legend->AddEntry((TObject*)0, sChi2, Form(" %g ",chi2));
     legend->AddEntry((TObject*)0, sAlpha, Form(" %g ",alpha));
     legend->AddEntry((TObject*)0, sN, Form(" %g ",n));
