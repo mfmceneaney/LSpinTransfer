@@ -477,11 +477,11 @@ if __name__=="__main__":
         'xF_k':[0.0,1.0],
         'z_k':[0.0,1.1],
         'zeta_ppim':[0.0,1.0],#TODO: DOUBLE CHECK LIMITS HERE
-        'ptpt':[0.0,2.0],
-        'phperp_ppim':[0.0,2.0],
-        'phperp_k':[0.0,2.0],
+        'ptpt':[0.0,1.25],
+        'phperp_ppim':[0.0,1.25],
+        'phperp_k':[0.0,1.25],
     }
-    ylimss = [-0.25,0.25]
+    ylimss = [-0.15,0.05]
     titles = {
         'dphi_h_k_ppim':'Spin Orbit Correlation for $\Lambda K^{+}$',
     }
