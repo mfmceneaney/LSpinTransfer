@@ -4569,6 +4569,206 @@ void LambdaMassFitMCDecomposition(
     
 } // void LambdaMassFitMCDecomposition()
 
+void LambdaKaonMassFitMCDecomposition(
+                            std::string  outdir,
+                            TFile *outroot,
+                            ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
+                            std::string varName = "mass_ppim",
+                            int    nbins        = 100,
+                            double varMin       = 1.08,
+                            double varMax       = 1.5,
+                            double dtheta_p_max   = 2.0*TMath::Pi()/180.0,
+                            double dtheta_pim_max = 6.0*TMath::Pi()/180.0,
+                            double dtheta_k_max   = 6.0*TMath::Pi()/180.0,
+                            std::string drawopt = "",
+                            std::string title   = "",
+                            std::ostream &out=std::cout
+                            ) {
+
+    //NOTE: BEGIN
+    // This function assumes the following branches in frame:
+    // theta_p, theta_p_mc, theta_pim, theta_pim_mc
+    // first_combo, has_lambda, pid_parent_p_mc, pid_parent_pim_mc,
+    // row_parent_p_mc, row_parent_pim_mc
+    //NOTE: END
+
+    // Make output directory in output file
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
+
+    // MC Matching cuts
+    std::string protonangcuts = Form("abs(theta_p-theta_p_mc)<%.8f",dtheta_p_max); // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180"; // && abs(phi_p_new-phi_p_mc)<6*TMath::Pi()/180";
+    std::string pionangcuts = Form("abs(theta_pim-theta_pim_mc)<%.8f",dtheta_pim_max); // abs(phi_pim_new-phi_pim_mc)<6*TMath::Pi()/180";
+    std::string kaonangcuts = Form("abs(theta_k-theta_k_mc)<%.8f",dtheta_k_max);
+
+    // True/false proton/pion cuts
+    std::string false_proton_true_pion_true_kaon_cuts = Form("!(%s) && (%s) && (%s)",protonangcuts.c_str(),pionangcuts.c_str(),kaonangcuts.c_str());
+    std::string true_proton_false_pion_true_kaon_cuts = Form("(%s) && !(%s) && (%s)",protonangcuts.c_str(),pionangcuts.c_str(),kaonangcuts.c_str());
+    std::string true_proton_true_pion_false_kaon_cuts = Form("(%s) && (%s) && !(%s)",protonangcuts.c_str(),pionangcuts.c_str(),kaonangcuts.c_str());
+    std::string true_proton_false_pion_false_kaon_cuts = Form("(%s) && !(%s) && !(%s)",protonangcuts.c_str(),pionangcuts.c_str(),kaonangcuts.c_str());
+    std::string false_proton_true_pion_false_kaon_cuts = Form("!(%s) && (%s) && !(%s)",protonangcuts.c_str(),pionangcuts.c_str(),kaonangcuts.c_str());
+    std::string false_proton_false_pion_true_kaon_cuts = Form("!(%s) && !(%s) && (%s)",protonangcuts.c_str(),pionangcuts.c_str(),kaonangcuts.c_str());
+    
+    std::string angcuts = Form("(%s) && (%s) && (%s)",protonangcuts.c_str(),pionangcuts.c_str(),kaonangcuts.c_str());
+    std::string angorcuts = Form("(%s) || (%s) || (%s)",protonangcuts.c_str(),pionangcuts.c_str(),kaonangcuts.c_str());
+    std::string nomultiplicitycut = "Q2>1";
+    std::string cuts = "Q2>1";
+    std::string mccuts  = Form("(%s) && (ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && (%s))",cuts.c_str(),angcuts.c_str()); //NOTE YOU NEED ANGLE CHECKING FOR ALL TRUTH SIGNAL ITEMS SINCE YOU CAN HAVE COMBINATIONS FROM MC THAT WOULDN'T SHOW UP IN DATA SPECIFICALLY FOR TRUE PROTON FALSE PION
+    std::string mccuts_true_proton = Form("(%s) && (ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && (%s))",cuts.c_str(),true_proton_false_pion_true_kaon_cuts.c_str());
+    std::string mccuts_true_pion   = Form("(%s) && (ppid_pim_mc==3122 && pidx_p_mc==pidx_pim_mc && (%s))",cuts.c_str(),false_proton_true_pion_true_kaon_cuts.c_str());
+    std::string mccuts_true_lambda = Form("(%s) && (ppid_pim_mc==3122 && pidx_p_mc==pidx_pim_mc && (%s))",cuts.c_str(),true_proton_true_pion_false_kaon_cuts.c_str());
+    std::string mccuts_true_kaon   = Form("(%s) && (!(ppid_pim_mc==3122 && pidx_p_mc==pidx_pim_mc) && (%s))",cuts.c_str(),false_proton_false_pion_true_kaon_cuts.c_str());
+    std::string mccuts_true_bg     = Form("(%s) && (!(ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc) || !(%s))",cuts.c_str(),angcuts.c_str()); //NOTE: USE ANGCUTS FOR FULL BG TRUTH SPECTRUM. 9/14/23. //NOTE: USE ANGULAR OR CUTS HERE //NOTE: OLD KEEP FOR DEBUGGING
+
+    // Turn off automatic stats
+    gStyle->SetOptStat(0);
+
+    // Canvases and Histograms
+    TCanvas *c1 = new TCanvas("c1","c1",698*1.5,476*1.5); //NOTE: JUST SCALED DEFAULT SIZES.
+    c1->SetBottomMargin(0.125);
+
+    // Create histogram
+    auto h1 = (TH1D) *frame.Filter(cuts).Histo1D({"h1",varName.c_str(),nbins,varMin,varMax},varName.c_str());
+    TH1D *h = (TH1D*)h1.Clone("h1");
+    h->SetTitle(title.c_str());
+    h->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
+    h->GetXaxis()->SetTitleSize(0.06);
+    h->GetXaxis()->SetTitleOffset(0.75);
+    h->GetYaxis()->SetTitle("Counts");
+    h->GetYaxis()->SetTitleSize(0.06);
+    h->GetYaxis()->SetTitleOffset(0.87);
+
+    // Set y axes limits
+    h->GetYaxis()->SetRangeUser(0.0,1.05*h->GetMaximum());
+
+    // Create MC Truth histogram
+    auto h1_true = (TH1D) *frame.Filter(mccuts).Histo1D({"h1_true",varName.c_str(),nbins,varMin,varMax},varName.c_str());
+    TH1D *h_true = (TH1D*)h1_true.Clone("h1_true");
+    h_true->SetTitle("p#pi^{-} Invariant Mass");
+    h_true->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
+    h_true->GetXaxis()->SetTitleSize(0.06);
+    h_true->GetXaxis()->SetTitleOffset(0.75);
+    h_true->GetYaxis()->SetTitle("Counts");
+    h_true->GetYaxis()->SetTitleSize(0.06);
+    h_true->GetYaxis()->SetTitleOffset(0.87);
+    h_true->SetLineColor(3);//NOTE: 3 is green.
+
+    // Create MC Background true proton histogram
+    auto h1_true_proton = (TH1D) *frame.Filter(mccuts_true_proton).Histo1D({"h1_true_proton",varName.c_str(),nbins,varMin,varMax},varName.c_str());
+    TH1D *h_true_proton = (TH1D*)h1_true_proton.Clone("h1_true_proton");
+    h_true_proton->SetTitle("p#pi^{-} Invariant Mass");
+    h_true_proton->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
+    h_true_proton->GetXaxis()->SetTitleSize(0.06);
+    h_true_proton->GetXaxis()->SetTitleOffset(0.75);
+    h_true_proton->GetYaxis()->SetTitle("Counts");
+    h_true_proton->GetYaxis()->SetTitleSize(0.06);
+    h_true_proton->GetYaxis()->SetTitleOffset(0.87);
+
+    // Create MC Background true pion histogram
+    auto h1_true_pion = (TH1D) *frame.Filter(mccuts_true_pion).Histo1D({"h1_true_pion",varName.c_str(),nbins,varMin,varMax},varName.c_str());
+    TH1D *h_true_pion = (TH1D*)h1_true_pion.Clone("h1_true_pion");
+    h_true_pion->SetTitle("p#pi^{-} Invariant Mass");
+    h_true_pion->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
+    h_true_pion->GetXaxis()->SetTitleSize(0.06);
+    h_true_pion->GetXaxis()->SetTitleOffset(0.75);
+    h_true_pion->GetYaxis()->SetTitle("Counts");
+    h_true_pion->GetYaxis()->SetTitleSize(0.06);
+    h_true_pion->GetYaxis()->SetTitleOffset(0.87);
+
+    // Create MC Background true Lambda false kaon histogram
+    auto h1_true_lambda = (TH1D) *frame.Filter(mccuts_true_lambda.c_str()).Histo1D({"h1_true_lambda",varName.c_str(),nbins,varMin,varMax},varName.c_str());
+    TH1D *h_true_lambda = (TH1D*)h1_true_lambda.Clone("h1_true_lambda");
+    h_true_lambda->SetTitle("p#pi^{-} Invariant Mass");
+    h_true_lambda->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
+    h_true_lambda->GetXaxis()->SetTitleSize(0.06);
+    h_true_lambda->GetXaxis()->SetTitleOffset(0.75);
+    h_true_lambda->GetYaxis()->SetTitle("Counts");
+    h_true_lambda->GetYaxis()->SetTitleSize(0.06);
+    h_true_lambda->GetYaxis()->SetTitleOffset(0.87);
+
+    // Create MC Background false Lambda true kaon histogram
+    auto h1_true_kaon = (TH1D) *frame.Filter(mccuts_true_kaon.c_str()).Histo1D({"h1_true_kaon",varName.c_str(),nbins,varMin,varMax},varName.c_str());
+    TH1D *h_true_kaon = (TH1D*)h1_true_kaon.Clone("h1_true_kaon");
+    h_true_kaon->SetTitle("p#pi^{-} Invariant Mass");
+    h_true_kaon->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
+    h_true_kaon->GetXaxis()->SetTitleSize(0.06);
+    h_true_kaon->GetXaxis()->SetTitleOffset(0.75);
+    h_true_kaon->GetYaxis()->SetTitle("Counts");
+    h_true_kaon->GetYaxis()->SetTitleSize(0.06);
+    h_true_kaon->GetYaxis()->SetTitleOffset(0.87);
+
+    // Create MC Background completely false histogram
+    auto h1_true_bg = (TH1D) *frame.Filter(mccuts_true_bg).Histo1D({"h1_true_bg",varName.c_str(),nbins,varMin,varMax},varName.c_str());
+    TH1D *h_true_bg = (TH1D*)h1_true_bg.Clone("h1_true_bg");
+    h_true_bg->SetTitle("p#pi^{-} Invariant Mass");
+    h_true_bg->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
+    h_true_bg->GetXaxis()->SetTitleSize(0.06);
+    h_true_bg->GetXaxis()->SetTitleOffset(0.75);
+    h_true_bg->GetYaxis()->SetTitle("Counts");
+    h_true_bg->GetYaxis()->SetTitleSize(0.06);
+    h_true_bg->GetYaxis()->SetTitleOffset(0.87);
+
+    // Set line colors
+    h->SetLineColor(1);
+    h_true->SetLineColor(kOrange-3);
+    h_true_proton->SetLineColor(8);
+    h_true_pion->SetLineColor(kYellow-7);
+    h_true_lambda->SetLineColor(kMagenta+1);
+    h_true_kaon->SetLineColor(kCyan+2);
+    h_true_bg->SetLineColor(kAzure+10);
+
+    // Set line widths
+    int linewidth = 2;
+    h->SetLineWidth(linewidth);
+    h_true->SetLineWidth(linewidth);
+    h_true_proton->SetLineWidth(linewidth);
+    h_true_pion->SetLineWidth(linewidth);
+    h_true_lambda->SetLineWidth(linewidth);
+    h_true_kaon->SetLineWidth(linewidth);
+    h_true_bg->SetLineWidth(linewidth);
+
+    // Draw histogram
+    h->Draw(drawopt.c_str());
+    h_true->Draw("SAME");
+    h_true_proton->Draw("SAME");
+    h_true_pion->Draw("SAME");
+    h_true_lambda->Draw("SAME");
+    h_true_kaon->Draw("SAME");
+    h_true_bg->Draw("SAME");
+
+    // Save histograms
+    h->Write(h->GetName());
+    h_true->Write(h_true->GetName());
+    h_true_proton->Write(h_true_proton->GetName());
+    h_true_pion->Write(h_true_pion->GetName());
+    h_true_lambda->Write(h_true_lambda->GetName());
+    h_true_kaon->Write(h_true_kaon->GetName());
+    h_true_bg->Write(h_true_bg->GetName());
+
+    // Create legend for simple MC Decomposition Plot
+    TLegend *lg = new TLegend(0.15,0.775,0.65,0.89);
+    //lg->SetNColumns(2);
+    lg->SetTextSize(0.032);
+    lg->SetNColumns(2);
+    lg->SetMargin(0.1);
+    lg->AddEntry(h_true,"True #Lambda (#rightarrow p #pi^{-})K^{+}","f");
+    lg->AddEntry(h_true_proton,"True p false #pi^{-} true K^{+}","f");
+    lg->AddEntry(h_true_pion,"False p true #pi^{-} true K^{+}","f");
+    lg->AddEntry(h_true_lambda,"False p true #pi^{-} false K^{+}","f");
+    lg->AddEntry(h_true_kaon,"False p false #pi^{-} true K^{+}","f");
+    lg->AddEntry(h_true_bg,"All background","f");
+    //lg->SetTextAlign(22);
+    lg->Draw();
+
+    // Save canvas
+    c1->Print(Form("h_mass_decomposition_%s.pdf",outdir.c_str()));
+    c1->Write(c1->GetName());
+
+    // Return to above directory
+    outroot->cd("..");
+    
+} // void LambdaKaonMassFitMCDecomposition()
+
 TArrayF* LambdaMassFitGaussMC(
                         std::string  outdir,
                         TFile *outroot,
