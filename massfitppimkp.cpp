@@ -231,6 +231,7 @@ void analysis(const YAML::Node& node) {
     const char * helicity_name       = "heli";
     auto frame = d.Filter(cuts.c_str())
                     .Define(helicity_name, "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
+                    .Define("ptpt","phperp_ppim*phperp_k")
                     .Define(depolarization_name, [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}); // NEEDED FOR CALCULATIONS LATER
 
     // Numerical constants
