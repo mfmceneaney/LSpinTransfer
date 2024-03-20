@@ -219,6 +219,8 @@ void LKMassFitPoly4MC() {
     std::cout<<"DEBUGGING: INITIAL: mass_init    = "<<mass_init<<std::endl;//DEBUGGING
     std::cout<<"DEBUGGING: INITIAL: sig_max_init = "<<sig_max_init<<std::endl;//DEBUGGING
     TF1 *signal_fit = new TF1("signal_fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3])",varMin,varMax);
+    signal_fit->SetParameters(alpha_init,n_init,sigma_init,mass_init,sig_max_init,hmax);
+    bg_fit->SetParNames("alpha","n","sigma","mu","C1");
     h_true->Fit("signal_fit","S","S",fit_min,varMax);
     signal_fit->SetLineColor(kOrange+8);
     signal_fit->Draw("SAME");
@@ -231,6 +233,30 @@ void LKMassFitPoly4MC() {
     std::cout<<"DEBUGGING: reset sigma_init   = "<<sigma_init<<std::endl;//DEBUGGING
     std::cout<<"DEBUGGING: reset mass_init    = "<<mass_init<<std::endl;//DEBUGGING
     std::cout<<"DEBUGGING: reset sig_max_init = "<<sig_max_init<<std::endl;//DEBUGGING
+
+    //DEBUGGING Starat by fitting the MC BG function and ressetting the MC BG params
+    std::cout<<"DEBUGGING: INITIAL: par6_init  = "<<par6<<std::endl;//DEBUGGING
+    std::cout<<"DEBUGGING: INITIAL: par7_init  = "<<par7<<std::endl;//DEBUGGING
+    std::cout<<"DEBUGGING: INITIAL: par8_init  = "<<par8<<std::endl;//DEBUGGING
+    std::cout<<"DEBUGGING: INITIAL: par9_init  = "<<par9<<std::endl;//DEBUGGING
+    std::cout<<"DEBUGGING: INITIAL: par10_init = "<<par10<<std::endl;//DEBUGGING
+    TF1 *bg_fit = new TF1("bg_fit","[0]*([1] + [2]*x + [3]*x*x + [4]*x*x*x + [5]*x*x*x*x)",varMin,varMax);
+    bg_fit->SetParameters(par6,par7,par8,par9,par10);
+    bg_fit->SetParNames("Pol4 a0","Pol4 a1","Pol4 a2","Pol4 a3","Pol4 a4","Pol4 a5");
+    h_true_bg->Fit("bg_fit","S","S",fit_min,varMax);
+    bg_fit->SetLineColor(kTeal);
+    bg_fit->Draw("SAME");
+    l = 0;
+    par6  = signal_fit->GetParameter(l++);
+    par7  = signal_fit->GetParameter(l++);
+    par8  = signal_fit->GetParameter(l++);
+    par9  = signal_fit->GetParameter(l++);
+    par10 = signal_fit->GetParameter(l++);
+    std::cout<<"DEBUGGING: reset: par6_init  = "<<par6<<std::endl;//DEBUGGING
+    std::cout<<"DEBUGGING: reset: par7_init  = "<<par7<<std::endl;//DEBUGGING
+    std::cout<<"DEBUGGING: reset: par8_init  = "<<par8<<std::endl;//DEBUGGING
+    std::cout<<"DEBUGGING: reset: par9_init  = "<<par9<<std::endl;//DEBUGGING
+    std::cout<<"DEBUGGING: reset: par10_init = "<<par10<<std::endl;//DEBUGGING
 
     TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*([6] + [7]*x + [8]*x*x + [9]*x*x*x + [10]*x*x*x*x)",varMin,varMax);
     func->SetParameters(alpha_init,n_init,sigma_init,mass_init,sig_max_init,hmax,par6,par7,par8,par9,par10);
