@@ -1,10 +1,10 @@
 
-void LMassFitPoly4() {
+void LKMassFitPoly4() {
   
     std::string tree = "t";
     std::string path = "/volatile/clas12/users/mfmce/data_jobs_rga_ppim_FLAG_MIN_MATCH_AND_FRACTION_DELTAP_9_13_23/skim_ppim_*.root";
     std::string cuts = "mass_ppim<1.5 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0 && z_ppim>=0.0 && z_ppim<0.6";//Q2>=2.663 && Q2<11.0  z_ppim>=0.0 && z_ppim<0.6 
-    std::string name = "LMassFitPoly4";
+    std::string name = "LKMassFitPoly4";
 
     // Mass fit options
     std::string varName = "mass_ppim";
@@ -90,25 +90,6 @@ void LMassFitPoly4() {
     double mass_init  = 1.117;
     double sig_max_init = h->GetMaximum();
 
-    //DEBUGGING Start by fitting the MC signal function and resetting MC signal params
-    std::cout<<"DEBUGGING: INITIAL: alpha_init   = "<<alpha_init<<std::endl;//DEBUGGING
-    std::cout<<"DEBUGGING: INITIAL: sigma_init   = "<<sigma_init<<std::endl;//DEBUGGING
-    std::cout<<"DEBUGGING: INITIAL: mass_init    = "<<mass_init<<std::endl;//DEBUGGING
-    std::cout<<"DEBUGGING: INITIAL: sig_max_init = "<<sig_max_init<<std::endl;//DEBUGGING
-    TF1 *signal_fit = new TF1("signal_fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3])",varMin,varMax);
-    h_true->Fit("signal_fit","S","S",fit_min,varMax);
-    signal_fit->SetLineColor(kOrange+8);
-    signal_fit->Draw("SAME");
-    int l = 0;
-    alpha_init   = signal_fit->GetParameter(l++);
-    sigma_init   = signal_fit->GetParameter(l++);
-    mass_init    = signal_fit->GetParameter(l++);
-    sig_max_init = signal_fit->GetParameter(l++);
-    std::cout<<"DEBUGGING: reset alpha_init   = "<<alpha_init<<std::endl;//DEBUGGING
-    std::cout<<"DEBUGGING: reset sigma_init   = "<<sigma_init<<std::endl;//DEBUGGING
-    std::cout<<"DEBUGGING: reset mass_init    = "<<mass_init<<std::endl;//DEBUGGING
-    std::cout<<"DEBUGGING: reset sig_max_init = "<<sig_max_init<<std::endl;//DEBUGGING
-
     TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*([6] + [7]*x + [8]*x*x + [9]*x*x*x + [10]*x*x*x*x)",varMin,varMax);
     func->SetParameters(alpha_init,n_init,sigma_init,mass_init,sig_max_init,hmax,par6,par7,par8,par9,par10);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0","Pol4 a8","Pol4 a9","Pol4 a10");
@@ -118,7 +99,7 @@ void LMassFitPoly4() {
     //func->SetParLimits(5,h->GetBinContent(nbins)*1.0,h->GetBinContent(nbins)*2.0);
     //func->SetParLimits(7,0.0,1.26);
     func->SetParLimits(1,2.0,100.0);
-    
+
     //DEBUGGING: BEGIN
     // Plot original function
     TF1 *f_original = (TF1*)func->Clone("f_original");
@@ -329,4 +310,4 @@ void LMassFitPoly4() {
     c1->SaveAs(Form("c1_%s.pdf",name.c_str()));
     h->SaveAs(Form("h_%s.root",name.c_str()));
 
-} // void LMassFitPoly4()
+} // void LKMassFitPoly4()
