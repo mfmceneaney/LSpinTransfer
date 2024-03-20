@@ -251,12 +251,12 @@ void LKMassFitPoly4MC() {
     bg_fit->SetLineColor(kTeal);
     bg_fit->Draw("SAME");
     l = 0;
-    hmax  = signal_fit->GetParameter(l++);
-    par6  = signal_fit->GetParameter(l++);
-    par7  = signal_fit->GetParameter(l++);
-    par8  = signal_fit->GetParameter(l++);
-    par9  = signal_fit->GetParameter(l++);
-    par10 = signal_fit->GetParameter(l++);
+    hmax  = bg_fit->GetParameter(l++);
+    par6  = bg_fit->GetParameter(l++);
+    par7  = bg_fit->GetParameter(l++);
+    par8  = bg_fit->GetParameter(l++);
+    par9  = bg_fit->GetParameter(l++);
+    par10 = bg_fit->GetParameter(l++);
     std::cout<<"DEBUGGING: reset: hmax       = "<<hmax<<std::endl;//DEBUGGING
     std::cout<<"DEBUGGING: reset: par6_init  = "<<par6<<std::endl;//DEBUGGING
     std::cout<<"DEBUGGING: reset: par7_init  = "<<par7<<std::endl;//DEBUGGING
