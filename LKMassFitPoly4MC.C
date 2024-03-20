@@ -195,7 +195,7 @@ void LKMassFitPoly4MC() {
 
     double fit_min = varMin + (varMax-varMin)*0.00;
     double prod_min = 1.078;
-    double m0 = 1.4;
+    double m0 = 1.35;
     double beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
     double hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));
     out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
@@ -215,6 +215,7 @@ void LKMassFitPoly4MC() {
 
     //DEBUGGING Start by fitting the MC signal function and resetting MC signal params
     std::cout<<"DEBUGGING: INITIAL: alpha_init   = "<<alpha_init<<std::endl;//DEBUGGING
+    std::cout<<"DEBUGGING: reset n_init          = "<<n_init<<std::endl;//DEBUGGING
     std::cout<<"DEBUGGING: INITIAL: sigma_init   = "<<sigma_init<<std::endl;//DEBUGGING
     std::cout<<"DEBUGGING: INITIAL: mass_init    = "<<mass_init<<std::endl;//DEBUGGING
     std::cout<<"DEBUGGING: INITIAL: sig_max_init = "<<sig_max_init<<std::endl;//DEBUGGING
@@ -226,15 +227,18 @@ void LKMassFitPoly4MC() {
     signal_fit->Draw("SAME");
     int l = 0;
     alpha_init   = signal_fit->GetParameter(l++);
+    n_init       = signal_fit->GetParameter(l++);
     sigma_init   = signal_fit->GetParameter(l++);
     mass_init    = signal_fit->GetParameter(l++);
     sig_max_init = signal_fit->GetParameter(l++);
     std::cout<<"DEBUGGING: reset alpha_init   = "<<alpha_init<<std::endl;//DEBUGGING
+    std::cout<<"DEBUGGING: reset n_init       = "<<alpha_init<<std::endl;//DEBUGGING
     std::cout<<"DEBUGGING: reset sigma_init   = "<<sigma_init<<std::endl;//DEBUGGING
     std::cout<<"DEBUGGING: reset mass_init    = "<<mass_init<<std::endl;//DEBUGGING
     std::cout<<"DEBUGGING: reset sig_max_init = "<<sig_max_init<<std::endl;//DEBUGGING
 
     //DEBUGGING Starat by fitting the MC BG function and ressetting the MC BG params
+    std::cout<<"DEBUGGING: INITIAL: hmax       = "<<hmax<<std::endl;//DEBUGGING
     std::cout<<"DEBUGGING: INITIAL: par6_init  = "<<par6<<std::endl;//DEBUGGING
     std::cout<<"DEBUGGING: INITIAL: par7_init  = "<<par7<<std::endl;//DEBUGGING
     std::cout<<"DEBUGGING: INITIAL: par8_init  = "<<par8<<std::endl;//DEBUGGING
@@ -247,11 +251,13 @@ void LKMassFitPoly4MC() {
     bg_fit->SetLineColor(kTeal);
     bg_fit->Draw("SAME");
     l = 0;
+    hmax  = signal_fit->GetParameter(l++);
     par6  = signal_fit->GetParameter(l++);
     par7  = signal_fit->GetParameter(l++);
     par8  = signal_fit->GetParameter(l++);
     par9  = signal_fit->GetParameter(l++);
     par10 = signal_fit->GetParameter(l++);
+    std::cout<<"DEBUGGING: reset: hmax       = "<<hmax<<std::endl;//DEBUGGING
     std::cout<<"DEBUGGING: reset: par6_init  = "<<par6<<std::endl;//DEBUGGING
     std::cout<<"DEBUGGING: reset: par7_init  = "<<par7<<std::endl;//DEBUGGING
     std::cout<<"DEBUGGING: reset: par8_init  = "<<par8<<std::endl;//DEBUGGING
