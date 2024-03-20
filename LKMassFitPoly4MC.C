@@ -1,5 +1,5 @@
 
-void LKMassFitMC() {
+void LKMassFitPoly4MC() {
   
     double rad_from_deg = TMath::Pi()/180.0;
     double dtheta_p_max = 6.0*rad_from_deg;
@@ -35,7 +35,7 @@ void LKMassFitMC() {
 
     std::string tree = "t";
     std::string path = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppimkp_3_18_24/skim_*.root";
-    std::string name = "LKMassFitMC";
+    std::string name = "LKMassFitPoly4MC";
 
     // Mass fit options
     std::string varName = "mass_ppim";
@@ -136,6 +136,7 @@ void LKMassFitMC() {
     h_true_kaon->GetYaxis()->SetTitleSize(0.06);
     h_true_kaon->GetYaxis()->SetTitleOffset(0.87);
 
+
     // Create MC Background completely false histogram
     auto h1_true_bg = (TH1D) *frame.Filter(mccuts_true_bg.c_str()).Histo1D({"h1_true_bg",varName.c_str(),nbins,varMin,varMax},varName.c_str());
     TH1D *h_true_bg = (TH1D*)h1_true_bg.Clone("h1_true_bg");
@@ -192,15 +193,53 @@ void LKMassFitMC() {
     // lt->SetNDC();
     // lt->Draw();
 
-    // Set Fitting fn
-    TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*(1 - [6]*(x-[7])*(x-[7]))",varMin,varMax);
-    // func->SetParameters(0.5,2,0.006,1.1157,10000,h->GetBinContent(nbins),37,1.24);
-    func->SetParameters(0.3,5,0.006,1.117,h->GetMaximum(),h->GetBinContent(nbins),10,1.4);
-    func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
-    // // func->FixParameter(6,37);
+    double fit_min = varMin + (varMax-varMin)*0.00;
+    double prod_min = 1.078;
+    double m0 = 1.4;
+    double beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
+    double hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));
+    out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
+
+    //NOTE: a = m0 and everything is multiplied by beta
+    double par6  = 1-beta*m0*m0*m0*m0;
+    double par7  =   beta*4*m0*m0*m0;
+    double par8  =  -beta*6*m0*m0;
+    double par9  =   beta*4*m0;
+    double par10 =  -beta;
+
+    double alpha_init = 0.3;
+    double n_init     = 6.0;
+    double sigma_init = 0.006;
+    double mass_init  = 1.117;
+    double sig_max_init = h->GetMaximum();
+
+    //DEBUGGING Start by fitting the MC signal function and resetting MC signal params
+    std::cout<<"DEBUGGING: INITIAL: alpha_init   = "<<alpha_init<<std::endl;//DEBUGGING
+    std::cout<<"DEBUGGING: INITIAL: sigma_init   = "<<sigma_init<<std::endl;//DEBUGGING
+    std::cout<<"DEBUGGING: INITIAL: mass_init    = "<<mass_init<<std::endl;//DEBUGGING
+    std::cout<<"DEBUGGING: INITIAL: sig_max_init = "<<sig_max_init<<std::endl;//DEBUGGING
+    TF1 *signal_fit = new TF1("signal_fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3])",varMin,varMax);
+    h_true->Fit("signal_fit","S","S",fit_min,varMax);
+    signal_fit->SetLineColor(kOrange+8);
+    signal_fit->Draw("SAME");
+    int l = 0;
+    alpha_init   = signal_fit->GetParameter(l++);
+    sigma_init   = signal_fit->GetParameter(l++);
+    mass_init    = signal_fit->GetParameter(l++);
+    sig_max_init = signal_fit->GetParameter(l++);
+    std::cout<<"DEBUGGING: reset alpha_init   = "<<alpha_init<<std::endl;//DEBUGGING
+    std::cout<<"DEBUGGING: reset sigma_init   = "<<sigma_init<<std::endl;//DEBUGGING
+    std::cout<<"DEBUGGING: reset mass_init    = "<<mass_init<<std::endl;//DEBUGGING
+    std::cout<<"DEBUGGING: reset sig_max_init = "<<sig_max_init<<std::endl;//DEBUGGING
+
+    TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*([6] + [7]*x + [8]*x*x + [9]*x*x*x + [10]*x*x*x*x)",varMin,varMax);
+    func->SetParameters(alpha_init,n_init,sigma_init,mass_init,sig_max_init,hmax,par6,par7,par8,par9,par10);
+    func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0","Pol4 a8","Pol4 a9","Pol4 a10");
+    // func->FixParameter(6,37);
     // func->SetParLimits(0,0.0,1000.0);
-    //func->SetParLimits(5,h->GetBinContent(nbins)*0.98,h->GetBinContent(nbins)*10.0);
-    // func->SetParLimits(7,0.0,1.26);
+    //func->SetParLimits(0,0.4,10.0);
+    //func->SetParLimits(5,h->GetBinContent(nbins)*1.0,h->GetBinContent(nbins)*2.0);
+    //func->SetParLimits(7,0.0,1.26);
     func->SetParLimits(1,2.0,100.0);
 
     //DEBUGGING: BEGIN
@@ -211,11 +250,10 @@ void LKMassFitMC() {
     //DEBUGGING: END
 
     // Fit and get signal and bg covariance matrices
-    double fit_min = varMin + (varMax - varMin) * 0.05;
     TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
-    TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,7,5,7)); // Make sure these match up!
+    TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,10,5,10)); // Make sure these match up!
 
     // Crystal Ball fit parameters
     double alpha = func->GetParameter(0);
@@ -226,6 +264,9 @@ void LKMassFitMC() {
     double a0    = func->GetParameter(5);
     double a1    = func->GetParameter(6);
     double a2    = func->GetParameter(7);
+    double a8    = func->GetParameter(8);
+    double a9    = func->GetParameter(9);
+    double a10   = func->GetParameter(10);
 
     // Crystal Ball fit errors
     double Ealpha = func->GetParError(0);
@@ -236,6 +277,9 @@ void LKMassFitMC() {
     double Ea0    = func->GetParError(5);
     double Ea1    = func->GetParError(6);
     double Ea2    = func->GetParError(7);
+    double Ea8    = func->GetParError(8);
+    double Ea9    = func->GetParError(9);
+    double Ea10   = func->GetParError(10);
     double chi2   = func->GetChisquare();
     double ndf    = func->GetNDF();
 
@@ -248,9 +292,9 @@ void LKMassFitMC() {
     sig->Draw("SAME");
 
     // Set the bg fn:
-    TF1 *bg = new TF1("bg","[0]*(1 - [1]*(x-[2])*(x-[2]))",varMin,varMax);
-    bg->SetParameters(a0,a1,a2);
-    Double_t errsBg[] = {Ea0,Ea1,Ea2};
+    TF1 *bg = new TF1("bg","[0]*([1] + [2]*x + [3]*x*x + [4]*x*x*x + [5]*x*x*x*x)",varMin,varMax);
+    bg->SetParameters(a0,a1,a2,a8,a9,a10);
+    Double_t errsBg[] = {Ea0,Ea1,Ea2,Ea8,Ea9,Ea10};
     bg->SetParErrors(errsBg);
     bg->SetLineColor(4); // Blue
     bg->Draw("SAME");
@@ -274,8 +318,8 @@ void LKMassFitMC() {
 
     Double_t BinWidth = (varMax - varMin) / nbins;
 
-    LBInt = 1.1;//1.1104; //DEBUGGING
-    UBInt = 1.2;//1.12959;
+    LBInt = 1.1; //DEBUGGING
+    UBInt = 1.2;
 
     //NOTE: ADDED 9/7/23                                                                                                                                           
     std::string sig_region_cut = Form("%s>%.8f && %s<%.8f",varName.c_str(),LBInt,varName.c_str(),UBInt);
@@ -302,6 +346,10 @@ void LKMassFitMC() {
     out << "i_bg" << std::endl;
     auto i_bg = bg->Integral(LBInt, UBInt)/BinWidth;
     auto i_bg_err = bg->IntegralError(LBInt,UBInt,bg->GetParameters(),bgMat->GetMatrixArray())/BinWidth;
+
+    out << "DEBUGGING: i_fitf ± i_fitf_err = " << i_fitf << " ± " << i_fitf_err << std::endl;
+    out << "DEBUGGING: i_bg   ± i_bg_err   = " << i_bg   << " ± " << i_bg_err   << std::endl;
+    out << "DEBUGGING: i_sig  ± i_sig_err  = " << i_sig  << " ± " << i_sig_err  << std::endl;
 
     //----------------------------------------------------------------------------------------------------//
     // DEBUGGING: Added 7/25/23
@@ -366,7 +414,7 @@ void LKMassFitMC() {
     sNBg.Form("N_{bg} = %.2e #pm %.0f",i_bg,i_bg_err);
 
     // Add Legend
-    TLegend *legend=new TLegend(0.45,0.10,0.89,0.45); //NOTE: FOR WITH MC DECOMP below
+    TLegend *legend=new TLegend(0.45,0.15,0.89,0.45); //NOTE: FOR WITH MC DECOMP below
     legend->SetTextSize(0.025);
     // legend->SetHeader("Fit Info:","c");
     legend->SetNColumns(2);
@@ -387,14 +435,14 @@ void LKMassFitMC() {
     legend->AddEntry(h_true_pion,"False p true #pi^{-} true K^{+}","f");
     legend->AddEntry(h_true_lambda,"False p true #pi^{-} false K^{+}","f");
     legend->AddEntry(h_true_kaon,"False p false #pi^{-} true K^{+}","f");
-    legend->AddEntry(h_true_bg,"All other background","f");
+    legend->AddEntry(h_true_bg,"All background","f");
     legend->Draw();
 
     // Compute epsilon
     float epsilon = (float) i_bg / i_fitf;
     float epsilon_err = (float) TMath::Sqrt(TMath::Power(i_bg_err / i_fitf,2)+TMath::Power((i_bg * i_fitf_err)/(i_fitf * i_fitf),2));
 
-    //DEBUGGING: Added 3/20/24
+    //DEBUGGING: Added 10/30/23
     std::cout<<"DEBUGGING: epsilon ± delta = "<<epsilon<<" ± "<<epsilon_err<<std::endl;
     std::cout<<"DEBUGGING: epsilon_true    = "<<epsilon_true<<std::endl;
     std::cout<<"DEBUGGING: percent diff    = "<<(epsilon-epsilon_true)/epsilon_true<<std::endl;
@@ -422,4 +470,4 @@ void LKMassFitMC() {
     c1->SaveAs(Form("c1_%s.pdf",name.c_str()));
     h->SaveAs(Form("h_%s.root",name.c_str()));
 
-} // void LKMassFitMC()
+} // void LKMassFitPoly4MC()
