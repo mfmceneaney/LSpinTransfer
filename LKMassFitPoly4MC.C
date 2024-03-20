@@ -220,7 +220,7 @@ void LKMassFitPoly4MC() {
     std::cout<<"DEBUGGING: INITIAL: sig_max_init = "<<sig_max_init<<std::endl;//DEBUGGING
     TF1 *signal_fit = new TF1("signal_fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3])",varMin,varMax);
     signal_fit->SetParameters(alpha_init,n_init,sigma_init,mass_init,sig_max_init,hmax);
-    bg_fit->SetParNames("alpha","n","sigma","mu","C1");
+    signal_fit->SetParNames("alpha","n","sigma","mu","C1");
     h_true->Fit("signal_fit","S","S",fit_min,varMax);
     signal_fit->SetLineColor(kOrange+8);
     signal_fit->Draw("SAME");
