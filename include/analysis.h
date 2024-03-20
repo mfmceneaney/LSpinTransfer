@@ -2802,6 +2802,275 @@ void getKinBinnedMassFits(
 } // getKinBinnedMassFits()
 
 /** 
+* Get TGraph of D_LL binned in given kinematic variable with or without bg 
+* correction using helicity balance (HB) method or linear fit (LF) method.
+*/
+void getKinBinnedLKMassFits(
+                    std::string  outdir,
+                    TFile      * outroot,
+                    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
+                    std::string  sgcuts,  // Signal cuts
+                    std::string  bgcuts,  // Background cuts
+                    TString      method,  // dll calculation method: either helicity balance (HB) or linear fit (LF)
+                    std::string  binvar, // Variable name to bin in
+                    int          nbins,   // Number of bins
+                    double     * bins,    // Bin limits (length=nbins+1)
+                    int        * poly4bins, // mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
+                    double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
+                    bool         use_bgfraction, // whether to use specified epsilon
+                    double       alpha,   // Lambda weak decay asymmetry parameter
+                    double       pol,     // Luminosity averaged beam polarization
+                    std::string  mass_name, // mass variable name for signal fit
+                    int          n_mass_bins, // number of mass bins
+                    double       mass_min,   // mass variable max for signal fit
+                    double       mass_max,   // mass variable min for signal fit
+                    std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
+                    double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
+                    std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
+                    std::string  helicity_name       = "heli",      // Branch name for helicity
+                    std::string  fitvar              = "costheta1", // cos(theta) leaf name to use
+                    //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
+                    //   double       fitvar_min = -1.0,       // fit variable minimum
+                    //   double       fitvar_max = 1.0,        // fit variable maximum
+                    std::string  graph_title          = "Longitudinal Spin Transfer along #vec{p}_{#Lambda}", // Histogram title
+                    int          marker_color         = 4,  // 4 is blue
+                    int          marker_style         = 20, // 20 is circle
+                    std::ostream &out                 = std::cout   // Output for all messages
+                    ) {
+
+    // Fitting presets for LF method //TODO: Maybe just hardcode within getKinBinLF() ?
+    int  n_fitvar_bins = 10;
+    double fitvar_min = -1;
+    double fitvar_max =  1;
+
+    // Check arguments
+    if (method != "LF" && method != "HB" && method != "BSA") {out << " *** ERROR *** Method must be either LF or HB or BSA.  Exiting...\n"; return;}
+    if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
+
+    // Starting message
+    out << "----------------------- getKinBinnedLKMassFits ----------------------\n";
+    out << "Getting " << binvar << " binned hist...\n";
+    out << "bins = { "; for (int i=0; i<nbins; i++) { out << bins[i] << " , ";} out << bins[nbins] << " }\n";
+
+    // Make output directory in ROOT file and cd
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
+
+    // Initialize data arrays
+    double errx[nbins];
+    double means[nbins];
+    int    counts[nbins];
+
+    double bgfractions[nbins];
+    double bgfractions_err[nbins];
+
+    // Initialize chi2 and parameter arrays
+    double chi2s[nbins];
+    const int npars = 5; //NOTE: ONLY LOOK AT CB SIGNAL PARAMS
+    double pars[npars][nbins];
+    double pars_err[npars][nbins];
+
+    // Loop bins and get data
+    for (int i=1; i<=nbins; i++) {
+        double bin_min = bins[i-1];
+        double bin_max = bins[i];
+
+        // Make bin cut on frame
+        std::string bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
+        auto bin_frame = frame.Filter(bin_cut);
+
+        // Get background fraction for bin from mass fit
+        double epsilon = bgfraction;
+        double bgfraction_err = 0.0; //TODO: add option for this.
+        if (!use_bgfraction) {
+            std::string massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+            std::string bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
+            TArrayF* massFitData;
+            if (poly4bins[i-1]==0) {
+                out<<"DEBUGGING: -----> Call to LambdaKaonMassFit"<<std::endl;//DEBUGGING
+                massFitData = LambdaKaonMassFit(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
+            } else {
+                out<<"DEBUGGING: -----> Call to LambdaKaonMassFitPoly4BG()"<<std::endl;//DEBUGGING
+                massFitData = LambdaKaonMassFitPoly4BG(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
+            }
+
+            epsilon = massFitData->GetAt(0);
+            bgfraction_err = massFitData->GetAt(1);
+
+            // Get chi2
+            chi2s[i-1] = massFitData->GetAt(8);
+
+            // Get parameters and parameter errors
+            int par_idx_start = 9;
+            int par_err_idx_start = 10;
+            int par_idx_step  = 2;
+            for (int par_idx=0; par_idx<npars; par_idx++) {
+                pars[par_idx][i-1] = (double)massFitData->GetAt((int)(par_idx_start+par_idx_step*par_idx));
+                pars_err[par_idx][i-1] = (double)massFitData->GetAt((int)(par_err_idx_start+par_idx_step*par_idx));
+            }
+        }
+        
+        auto mean  = (double)*bin_frame.Mean(binvar.c_str());
+        auto count = (int)   *bin_frame.Count();
+
+        // Add data to arrays
+        errx[i-1]   = 0;
+        means[i-1]  = mean;
+        counts[i-1] = count;
+        bgfractions[i-1] = epsilon;
+        bgfractions_err[i-1] = bgfraction_err;
+    }
+
+    // Compute overall event-weighted means and errors and output binned results in Latex Table Format
+    double mean_var = 0;
+    int    count    = 0;
+    out << " mean " << binvar << "\t\tcount\t\tepsilon\t\tepsilon_err\n";
+    out << "------------------------------------------------------------\n";
+    for (int i=0; i<nbins; i++) {
+        out << " " << means[i] << " & " <<  counts[i] << " & " <<  bgfractions[i] << " $\\pm$ " << bgfractions_err[i] << " \\\\\n";
+        mean_var     += means[i]*counts[i];
+        count        += counts[i];
+    }
+    mean_var     = mean_var/count;
+    out << "------------------------------------------------------------\n";
+    out << " Mean   " << binvar << " = "<< mean_var << "\n";
+    out << " count = "<< count << "\n";
+
+    // Create graph of epsilons from mass fits binned in binvar
+    TGraphErrors *gr_epsilon = new TGraphErrors(nbins,means,bgfractions,errx,bgfractions_err);
+    gr_epsilon->Write("gr_epsilon");
+
+    // Create graph of chi2 from mass fits binned in binvar
+    TGraphErrors *gr_chi2 = new TGraphErrors(nbins,means,chi2s,errx,errx);
+    gr_chi2->Write("gr_chi2");
+    
+    TCanvas *c1__ = new TCanvas();
+    c1__->SetBottomMargin(0.125);
+    c1__->cd(0);
+
+    // Stylistic choices that aren't really necessary
+    gStyle->SetEndErrorSize(5); gStyle->SetTitleFontSize(0.05);
+    gr_chi2->SetMarkerSize(1.25);
+    gr_chi2->GetXaxis()->SetTitleSize(0.05);
+    gr_chi2->GetXaxis()->SetTitleOffset(0.9);
+    gr_chi2->GetYaxis()->SetTitleSize(0.05);
+    gr_chi2->GetYaxis()->SetTitleOffset(0.9);
+
+    // More necessary stylistic choices
+    gr_chi2->SetTitle("");
+    gr_chi2->SetMarkerColor(marker_color); // 4  blue
+    gr_chi2->SetMarkerStyle(marker_style); // 20 circle
+    gr_chi2->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
+    gr_chi2->GetXaxis()->SetTitle(binvar.c_str());
+    gr_chi2->GetYaxis()->SetTitle("#chi^{2}/NDF");
+    gr_chi2->Draw("PA");
+
+    // Set outname and save
+    TString fname__;
+    fname__.Form("chi2_%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
+    c1__->Print(fname__+".pdf");
+
+    // Create graphs of parameters from mass fits binned in binvar
+    for (int par_idx=0; par_idx<npars; par_idx++) {
+        TGraphErrors *gr_par = new TGraphErrors(nbins,means,pars[par_idx],errx,pars_err[par_idx]); //NOTE: THIS RELIES ON DIMENSIONS OF pars AND pars_err being oriented correctly: (nPars,nBins).
+        gr_par->Write(Form("gr_par%d",par_idx));
+
+        TCanvas *c1_ = new TCanvas();
+        c1_->SetBottomMargin(0.125);
+        c1_->cd(0);
+
+        // Stylistic choices that aren't really necessary
+        gStyle->SetEndErrorSize(5); gStyle->SetTitleFontSize(0.05);
+        gr_par->SetMarkerSize(1.25);
+        gr_par->GetXaxis()->SetTitleSize(0.05);
+        gr_par->GetXaxis()->SetTitleOffset(0.9);
+        gr_par->GetYaxis()->SetTitleSize(0.05);
+        gr_par->GetYaxis()->SetTitleOffset(0.9);
+
+        // More necessary stylistic choices
+        gr_par->SetTitle("");
+        gr_par->SetMarkerColor(marker_color); // 4  blue
+        gr_par->SetMarkerStyle(marker_style); // 20 circle
+        gr_par->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
+        gr_par->GetXaxis()->SetTitle(binvar.c_str());
+        gr_par->GetYaxis()->SetTitle(Form("par%d",par_idx));
+        gr_par->Draw("PA");
+
+        // Set outname and save
+        TString fname_;
+        fname_.Form("par%d_%s_%s_%s_%.1f_%.1f_sgasym_%.2f_bgasym_%.2f",par_idx,(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
+        c1_->Print(fname_+".pdf");
+    }
+
+    // Plot results graph
+    TCanvas *c1 = new TCanvas();
+    c1->SetBottomMargin(0.125);
+    c1->cd(0);
+
+    // Stylistic choices that aren't really necessary
+    gStyle->SetEndErrorSize(5); gStyle->SetTitleFontSize(0.05);
+    gr_epsilon->SetMarkerSize(1.25);
+    gr_epsilon->GetXaxis()->SetTitleSize(0.05);
+    gr_epsilon->GetXaxis()->SetTitleOffset(0.9);
+    gr_epsilon->GetYaxis()->SetTitleSize(0.05);
+    gr_epsilon->GetYaxis()->SetTitleOffset(0.9);
+
+    // More necessary stylistic choices
+    gr_epsilon->SetTitle("");
+    gr_epsilon->SetMarkerColor(marker_color); // 4  blue
+    gr_epsilon->SetMarkerStyle(marker_style); // 20 circle
+    gr_epsilon->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
+    gr_epsilon->GetXaxis()->SetTitle(binvar.c_str());
+    gr_epsilon->GetYaxis()->SetTitle("Background fraction #varepsilon");
+    gr_epsilon->Draw("PA");
+
+    // Add CLAS12 Preliminary watermark
+    TLatex *lt = new TLatex(0.3,0.2,"CLAS12 Preliminary");
+    lt->SetTextAngle(45);
+    lt->SetTextColor(18);
+    lt->SetTextSize(0.1);
+    lt->SetNDC();
+    lt->Draw();
+
+    // Set outname and save
+    TString fname;
+    fname.Form("%s_%s_%s_%.3f_%.3f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
+    c1->Print(fname+".pdf");
+    gr_epsilon->SaveAs(fname+"_epsilon.root","recreate");
+
+    // Cd out of outdir
+    outroot->cd("..");
+
+    // Ending message
+    out << " Saved graph to " << fname << ".root\n";
+    out << "------------------- END of getKinBinnedLKMassFits -------------------\n";
+
+} // getKinBinnedLKMassFits()
+
+/** 
 * Get plots of invariant mass MC spectra and decompositions.
 */
 void getKinBinnedMassDistributionsMC(
