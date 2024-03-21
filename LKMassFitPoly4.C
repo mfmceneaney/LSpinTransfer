@@ -10,7 +10,7 @@ void LKMassFitPoly4() {
     std::string varName = "mass_ppim";
     int    nbins        = 100;
     double varMin       = 1.08;
-    double varMax       = 1.24;
+    double varMax       = 1.5;
 
     // Miscellaneous
     std::string drawopt = "";
