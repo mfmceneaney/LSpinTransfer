@@ -2,8 +2,8 @@
 void LKMassFitPoly4() {
   
     std::string tree = "t";
-    std::string path = "/volatile/clas12/users/mfmce/data_jobs_rga_ppim_FLAG_MIN_MATCH_AND_FRACTION_DELTAP_9_13_23/skim_ppim_*.root";
-    std::string cuts = "mass_ppim<1.5 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0 && z_ppim>=0.0 && z_ppim<0.6";//Q2>=2.663 && Q2<11.0  z_ppim>=0.0 && z_ppim<0.6 
+    std::string path = "/volatile/clas12/users/mfmce/data_jobs_rga_ppimkp_3_18_24/skim_*.root";
+    std::string cuts = "mass_ppim<1.5 && Q2>1 && W>2 && sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0 && y<0.8 && xF_k>0.0 && xF_ppim<0.0 && xF_ppim>-1.0 && zeta_ppim<1.0 && zeta_ppim>=0.0 && zeta_ppim<0.67";//Q2>=2.663 && Q2<11.0  z_ppim>=0.0 && z_ppim<0.6 
     std::string name = "LKMassFitPoly4";
 
     // Mass fit options

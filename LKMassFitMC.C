@@ -24,7 +24,7 @@ void LKMassFitMC() {
     std::string angcuts = Form("(%s) && (%s) && (%s)",protonangcuts.c_str(),pionangcuts.c_str(),kaonangcuts.c_str());
     std::string angorcuts = Form("(%s) || (%s) || (%s)",protonangcuts.c_str(),pionangcuts.c_str(),kaonangcuts.c_str());
     std::string nomultiplicitycut = "Q2>1";
-    std::string cuts_all = "mass_ppim<1.5 && Q2>1 && W>2 && sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0 && y<0.8 && xF_ppim<0.0 && xF_k>0.0 && xF_ppim>-1.0 && zeta_ppim<1.0";//Q2>=2.663 && Q2<11.0                                                 
+    std::string cuts_all = "mass_ppim<1.5 && Q2>1 && W>2 && sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0 && y<0.8 && xF_k>0.0 && xF_ppim<0.0 && xF_ppim>-1.0 && zeta_ppim<1.0";//Q2>=2.663 && Q2<11.0                                                 
     std::string cuts = Form("%s",cuts_all.c_str()); //NOTE: ONLY LOOK AT MC EVENTS WHICH ARE EITHER BACKGROUND OR LAMBDA NOT PROTON PION COMBOS FROM MC TRUTH
     std::string mccuts  = Form("(%s) && (ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && (%s))",cuts.c_str(),angcuts.c_str()); //NOTE YOU NEED ANGLE CHECKING FOR ALL TRUTH SIGNAL ITEMS SINCE YOU CAN HAVE COMBINATIONS FROM MC THAT WOULDN'T SHOW UP IN DATA SPECIFICALLY FOR TRUE PROTON FALSE PION
     std::string mccuts_true_proton = Form("(%s) && (ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && (%s))",cuts.c_str(),true_proton_false_pion_true_kaon_cuts.c_str());
