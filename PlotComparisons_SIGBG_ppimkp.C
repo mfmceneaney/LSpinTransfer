@@ -116,7 +116,7 @@ void PlotComparisons_SIGBG_ppimkp() {
     // Parameters for the tree
     const char *path    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppimkp_3_18_24/skim_*.root";
     const char *tree    = "t";
-    const char *cuts    = "mass_ppim<1.5 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0 && xF_k>0.0 && xF_ppim<0.0 && zeta_ppim<1.0";
+    const char *cuts    = "mass_ppim<1.5 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0 && xF_k>0.0 && xF_ppim<0.0 && xF_ppim>-1.0 && zeta_ppim<1.0";
     const char *drawopt = "";
     std::string cuts_sg = "ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && abs(theta_p-theta_p_mc)<6.0*TMath::Pi()/180 && abs(theta_pim-theta_pim_mc)<6.0*TMath::Pi()/180 && && abs(theta_k-theta_k_mc)<6.0*TMath::Pi()/180";
     std::string cuts_bg = Form("!(%s)",cuts_sg.c_str());
@@ -154,6 +154,7 @@ void PlotComparisons_SIGBG_ppimkp() {
       .Define("v_pim", [](float vx_pim, float vy_pim, float vz_pim) { return TMath::Sqrt(vx_pim*vx_pim+vy_pim*vy_pim+vz_pim*vz_pim); }, {"vx_pim","vy_pim","vz_pim"})
       .Define("v_k", [](float vx_k, float vy_k, float vz_k) { return TMath::Sqrt(vx_k*vx_k+vy_k*vy_k+vz_k*vz_k); }, {"vx_k","vy_k","vz_k"})
       .Define("ptpt","phperp_k*phperp_ppim")
+      .Define("dy","y_k-y_ppim")
       .Define("dphi",[](float phi_1, float phi_2){ return (float) ((phi_1-phi_2)>=0 ? (phi_1-phi_2) : 2*TMath::Pi() + (phi_1-phi_2));},{"phi_h_k","phi_h_ppim"})
       .Filter(cuts); // NEEDED FOR CALCULATIONS LATER
 
@@ -181,10 +182,15 @@ void PlotComparisons_SIGBG_ppimkp() {
     plot(frame1,frame2,"phperp_k",100,0.0,2.0,"p^{#perp}_{K^{+}} (GeV)",drawopt,f);
     plot(frame1,frame2,"phperp_ppim",100,0.0,2.0,"p^{#perp}_{p#pi^{-}} (GeV)",drawopt,f);
     plot(frame1,frame2,"ptpt",100,0.0,2.0,"p^{#perp}_{K^{+}}p^{#perp}_{p#pi^{-}} (GeV)",drawopt,f);
+    plot(frame1,frame2,"y_k",100,-1.0,1.0,"y_{K^{+}}",drawopt,f);
+    plot(frame1,frame2,"y_ppim",100,-1.0,1.0,"y_{p#pi^{-}}",drawopt,f);
+    plot(frame1,frame2,"dy_p",100,-2.0,2.0,"#Delta y",drawopt,f);
 
+    plot(frame1,frame2,"y_p",100,-1.0,1.0,"y_{p}",drawopt,f);
     plot(frame1,frame2,"z_p",100,0.0,1.0,"z_{p}",drawopt,f);
     plot(frame1,frame2,"xF_p",100,-1.0,1.0,"x_{F p}",drawopt,f);
 
+    plot(frame1,frame2,"y_pim",100,-1.0,1.0,"y_{#pi^{-}}",drawopt,f);
     plot(frame1,frame2,"z_pim",100,0.0,1.0,"z_{#pi^{-}}",drawopt,f);
     plot(frame1,frame2,"xF_pim",100,-1.0,1.0,"x_{F #pi^{-}}",drawopt,f);
 
