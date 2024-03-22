@@ -1219,11 +1219,15 @@ TArrayF* LambdaKaonMassFitPoly4BG(
     out<<"DEBUGGING: slope2 = "<<slope2<<std::endl;
     out<<"DEBUGGING: sloperatio = "<<sloperatio<<std::endl;
 
-    // Treat case when you are decreasing continually past the lambda peak                                                                                                                                  
-    if (slope1>0.0 && slope2<0.0) {
+    // Treat case when you are decreasing continually past the lambda peak     
+    bool limit_alpha = false;                                                                                                                             
+    if (slope1>0.0 && slope2<-1.0) {
+
+      // Limit the alpha parameter to >= 0.5;
+      limit_alpha = true;
 
       // Reset starting fit parameters                                                                                                                                                                      
-      alpha_init = 0.5;
+      alpha_init = 0.6;
       n_init     = 3.0;
 
       fit_min = varMin + (varMax-varMin)*0.00;
@@ -1255,7 +1259,7 @@ TArrayF* LambdaKaonMassFitPoly4BG(
     func->SetParameters(alpha_init,n_init,sigma_init,mass_init,sig_max_init,hmax,par6,par7,par8,par9,par10);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol4 a0","Pol4 a1","Pol4 a2","Pol4 a3","Pol4 a4","Pol4 a5");
     // func->FixParameter(6,37);
-    func->SetParLimits(0,0.5,100.0);
+    if (limit_alpha) func->SetParLimits(0,0.5,100.0);
     // func->SetParLimits(5,h->GetBinContent(nbins)*0.98,h->GetBinContent(nbins)*10.0);
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
@@ -3770,10 +3774,14 @@ TArrayF* LambdaKaonMassFitPoly4BGMC(
     out<<"DEBUGGING: sloperatio = "<<sloperatio<<std::endl;
 
     // Treat case when you are decreasing continually past the lambda peak                                                                                                                                  
-    if (slope1>0.0 && slope2<0.0) {
+    bool limit_alpha = false;                                                                                                                             
+    if (slope1>0.0 && slope2<-1.0) {
+
+      // Limit the alpha parameter to >= 0.5;
+      limit_alpha = true;
 
       // Reset starting fit parameters                                                                                                                                                                      
-      alpha_init = 0.5;
+      alpha_init = 0.6;
       n_init     = 3.0;
 
       fit_min = varMin + (varMax-varMin)*0.00;
@@ -3807,7 +3815,7 @@ TArrayF* LambdaKaonMassFitPoly4BGMC(
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0","Pol4 a8","Pol4 a9","Pol4 a10");
     // func->FixParameter(6,37);
     // func->SetParLimits(0,0.0,1000.0);
-    func->SetParLimits(0,0.5,10.0);
+    if (limit_alpha) func->SetParLimits(0,0.5,10.0);
     //func->SetParLimits(5,h->GetBinContent(nbins)*1.0,h->GetBinContent(nbins)*2.0);
     //func->SetParLimits(7,0.0,1.26);
     func->SetParLimits(1,2.0,100.0);
