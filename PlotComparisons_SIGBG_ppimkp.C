@@ -116,7 +116,7 @@ void PlotComparisons_SIGBG_ppimkp() {
     // Parameters for the tree
     const char *path    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppimkp_3_18_24/skim_*.root";
     const char *tree    = "t";
-    const char *cuts    = "mass_ppim<1.5 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0 && xF_k>0.0 && xF_ppim<0.0 && xF_ppim>-1.0 && zeta_ppim<1.0";
+    const char *cuts    = "mass_ppim<1.5 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0 && xF_k>0.0 && xF_ppim<0.0 && xF_ppim>-1.0 && zeta_ppim<1.0 && phperp_ppim>0.2 && xF_ppim>-0.8";
     const char *drawopt = "";
     std::string cuts_sg = "ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && TMath::Abs(theta_p-theta_p_mc)<6.0*TMath::Pi()/180 && TMath::Abs(theta_pim-theta_pim_mc)<6.0*TMath::Pi()/180 && TMath::Abs(theta_k-theta_k_mc)<6.0*TMath::Pi()/180";
     std::string cuts_bg = Form("!(%s)",cuts_sg.c_str());
