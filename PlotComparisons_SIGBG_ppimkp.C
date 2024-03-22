@@ -118,7 +118,7 @@ void PlotComparisons_SIGBG_ppimkp() {
     const char *tree    = "t";
     const char *cuts    = "mass_ppim<1.5 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0 && xF_k>0.0 && xF_ppim<0.0 && xF_ppim>-1.0 && zeta_ppim<1.0";
     const char *drawopt = "";
-    std::string cuts_sg = "ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && abs(theta_p-theta_p_mc)<6.0*TMath::Pi()/180 && abs(theta_pim-theta_pim_mc)<6.0*TMath::Pi()/180 && && abs(theta_k-theta_k_mc)<6.0*TMath::Pi()/180";
+    std::string cuts_sg = "ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && TMath::Abs(theta_p-theta_p_mc)<6.0*TMath::Pi()/180 && TMath::Abs(theta_pim-theta_pim_mc)<6.0*TMath::Pi()/180 && TMath::Abs(theta_k-theta_k_mc)<6.0*TMath::Pi()/180";
     std::string cuts_bg = Form("!(%s)",cuts_sg.c_str());
 
     gStyle->SetOptStat(0);
@@ -155,11 +155,12 @@ void PlotComparisons_SIGBG_ppimkp() {
       .Define("v_k", [](float vx_k, float vy_k, float vz_k) { return TMath::Sqrt(vx_k*vx_k+vy_k*vy_k+vz_k*vz_k); }, {"vx_k","vy_k","vz_k"})
       .Define("ptpt","phperp_k*phperp_ppim")
       .Define("dy","y_k-y_ppim")
+      .Define("pz_ppim","pz_p+pz_pim")
       .Define("dphi",[](float phi_1, float phi_2){ return (float) ((phi_1-phi_2)>=0 ? (phi_1-phi_2) : 2*TMath::Pi() + (phi_1-phi_2));},{"phi_h_k","phi_h_ppim"})
       .Filter(cuts); // NEEDED FOR CALCULATIONS LATER
 
-    auto frame1 = d1.Filter(cuts_bg.c_str());
-    auto frame2 = d1.Filter(cuts_sg.c_str());
+    auto frame1 = d2.Filter(cuts_bg.c_str());
+    auto frame2 = d2.Filter(cuts_sg.c_str());
     
     // Open output file
     TFile *f = TFile::Open("PlotComparisons_SIGBG_ppimkp.root","RECREATE");
@@ -179,20 +180,22 @@ void PlotComparisons_SIGBG_ppimkp() {
     plot(frame1,frame2,"phi_h_k",100,0.0,2*TMath::Pi(),"#phi_{K^{+}} in the #gamma^{*}N Frame",drawopt,f);
     plot(frame1,frame2,"phi_h_ppim",100,0.0,2*TMath::Pi(),"#phi_{p#pi^{-}} in the #gamma^{*}N Frame",drawopt,f);
     plot(frame1,frame2,"dphi",100,0.0,2*TMath::Pi(),"#Delta#phi_{h} in the #gamma^{*}N Frame",drawopt,f);
-    plot(frame1,frame2,"phperp_k",100,0.0,2.0,"p^{#perp}_{K^{+}} (GeV)",drawopt,f);
-    plot(frame1,frame2,"phperp_ppim",100,0.0,2.0,"p^{#perp}_{p#pi^{-}} (GeV)",drawopt,f);
-    plot(frame1,frame2,"ptpt",100,0.0,2.0,"p^{#perp}_{K^{+}}p^{#perp}_{p#pi^{-}} (GeV)",drawopt,f);
-    plot(frame1,frame2,"y_k",100,-1.0,1.0,"y_{K^{+}}",drawopt,f);
-    plot(frame1,frame2,"y_ppim",100,-1.0,1.0,"y_{p#pi^{-}}",drawopt,f);
-    plot(frame1,frame2,"dy_p",100,-2.0,2.0,"#Delta y",drawopt,f);
+    plot(frame1,frame2,"phperp_k",100,0.0,1.5,"p^{#perp}_{K^{+}} (GeV)",drawopt,f);
+    plot(frame1,frame2,"phperp_p",100,0.0,1.5,"p^{#perp}_{p} (GeV)",drawopt,f);
+    plot(frame1,frame2,"phperp_pim",100,0.0,1.5,"p^{#perp}_{#pi^{-}} (GeV)",drawopt,f);
+    plot(frame1,frame2,"phperp_ppim",100,0.0,1.5,"p^{#perp}_{p#pi^{-}} (GeV)",drawopt,f);
+    plot(frame1,frame2,"ptpt",100,0.0,1.5,"p^{#perp}_{K^{+}}p^{#perp}_{p#pi^{-}} (GeV)",drawopt,f);
+    plot(frame1,frame2,"y_k",100,-0.5,3.0,"Y_{K^{+}}",drawopt,f);
+    plot(frame1,frame2,"y_ppim",100,-0.5,3.0,"Y_{p#pi^{-}}",drawopt,f);
+    plot(frame1,frame2,"dy",100,-0.5,3.0,"#Delta Y",drawopt,f);
 
-    plot(frame1,frame2,"y_p",100,-1.0,1.0,"y_{p}",drawopt,f);
+    plot(frame1,frame2,"y_p",100,-0.5,3.0,"Y_{p}",drawopt,f);
     plot(frame1,frame2,"z_p",100,0.0,1.0,"z_{p}",drawopt,f);
     plot(frame1,frame2,"xF_p",100,-1.0,1.0,"x_{F p}",drawopt,f);
 
-    plot(frame1,frame2,"y_pim",100,-1.0,1.0,"y_{#pi^{-}}",drawopt,f);
+    plot(frame1,frame2,"y_pim",100,-0.5,3.0,"Y_{#pi^{-}}",drawopt,f);
     plot(frame1,frame2,"z_pim",100,0.0,1.0,"z_{#pi^{-}}",drawopt,f);
-    plot(frame1,frame2,"xF_pim",100,-1.0,1.0,"x_{F #pi^{-}}",drawopt,f);
+    plot(frame1,frame2,"xF_pim",100,-0.5,0.5,"x_{F #pi^{-}}",drawopt,f);
 
     plot(frame1,frame2,"pt_e",100,0.0,2.0,"p_{T e^{-}} (GeV)",drawopt,f);
     plot(frame1,frame2,"pt_p",100,0.0,2.0,"p_{T p} (GeV)",drawopt,f);
@@ -204,10 +207,12 @@ void PlotComparisons_SIGBG_ppimkp() {
     plot(frame1,frame2,"p_pim",100,0.0,2.0,"p_{#pi^{-}} (GeV)",drawopt,f);
     plot(frame1,frame2,"p_k",100,0.0,2.0,"p_{K^{+}} (GeV)",drawopt,f);
 
+    plot(frame1,frame2,"pz_ppim",100,0.0,8.0,"p_{z p#pi^{-}} (GeV)",drawopt,f);
+
     plot(frame1,frame2,"pz_e",100,0.0,10.0,"p_{z e^{-}} (GeV)",drawopt,f);
     plot(frame1,frame2,"pz_p",100,0.0,6.0,"p_{z p} (GeV)",drawopt,f);
     plot(frame1,frame2,"pz_pim",100,0.0,2.0,"p_{z #pi^{-}} (GeV)",drawopt,f);
-    plot(frame1,frame2,"pz_k",100,0.0,2.0,"p_{z K^{+}} (GeV)",drawopt,f);
+    plot(frame1,frame2,"pz_k",100,0.0,4.0,"p_{z K^{+}} (GeV)",drawopt,f);
 
     plot(frame1,frame2,"theta_e",100,0.0,TMath::Pi(),"#theta_{e^{-}}",drawopt,f);
     plot(frame1,frame2,"theta_p",100,0.0,TMath::Pi(),"#theta_{p}",drawopt,f);
