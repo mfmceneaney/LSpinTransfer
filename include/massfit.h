@@ -1201,11 +1201,61 @@ TArrayF* LambdaKaonMassFitPoly4BG(
     double mass_init  = 1.117;
     double sig_max_init = h->GetMaximum();
 
+    //DEBUGGING: RESET BG PARAMETERS IF FALLING DISTRIBUTION AFTER PEAK                                                                                                                                     
+    //For xF binning                                                                                                                                                                                        
+    int bin1  = (int)(0.25*nbins);
+    int bin2  = (int)(0.5*nbins);
+    int bin3  = (int)(0.9*nbins);
+    double x1 = h->GetBinCenter(bin1);
+    double x2 = h->GetBinCenter(bin2);
+    double x3 = h->GetBinCenter(bin3);
+    double y1 = h->GetBinContent(bin1);
+    double y2 = h->GetBinContent(bin2);
+    double y3 = h->GetBinContent(bin3);
+    double slope1 = ((y2-y1)/h->GetMaximum()) / ((x2-x1)/(varMax-varMin));
+    double slope2 = ((y3-y2)/h->GetMaximum()) / ((x3-x2)/(varMax-varMin)); //NOTE: GET RATIO OF SLOPE IN REGION (2,3) TO SLOPE IN REGION (1,2)                                                              
+    double sloperatio = slope2/slope1;
+    out<<"DEBUGGING: slope1 = "<<slope1<<std::endl;
+    out<<"DEBUGGING: slope2 = "<<slope2<<std::endl;
+    out<<"DEBUGGING: sloperatio = "<<sloperatio<<std::endl;
+
+    // Treat case when you are decreasing continually past the lambda peak                                                                                                                                  
+    if (slope1>0.0 && slope2<0.0) {
+
+      // Reset starting fit parameters                                                                                                                                                                      
+      alpha_init = 0.5;
+      n_init     = 3.0;
+
+      fit_min = varMin + (varMax-varMin)*0.00;
+      m0 = 1.3;
+      beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
+
+      // Compute new hmax corrected for measurement of histogram at m0                                                                                                                                      
+      std::cout<<"DEBUGGING: h->GetBinWidth(0) = "<<h->GetBinWidth(0)<<std::endl;
+      int m0bin = (int)((m0-h->GetXaxis()->GetXmin())/h->GetBinWidth(0));
+      std::cout<<"DEBUGGING: m0bin = "<<m0bin<<std::endl;
+      if (m0bin>nbins) {m0bin = nbins;}
+      if (m0bin<1) {m0bin = 1;}
+      std::cout<<"DEBUGGING: (reset) m0bin = "<<m0bin<<std::endl;
+      double myvarMax = h->GetBinCenter(m0bin);
+      std::cout<<"DEBUGGING: mvarMax = "<<myvarMax<<std::endl;
+      hmax  = h->GetBinContent((int)(m0bin))/(1-beta*(myvarMax-m0)*(myvarMax-m0)*(myvarMax-m0)*(myvarMax-m0));
+
+      //double hmax = h->GetBinContent((int)(0.1*nbins))/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));                                                                                          
+      out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
+
+      par6  = 1-beta*m0*m0*m0*m0;
+      par7  =   beta*4*m0*m0*m0;
+      par8  =  -beta*6*m0*m0;
+      par9  =   beta*4*m0;
+      par10 =  -beta;
+    }
+
     TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*([6] + [7]*x + [8]*x*x + [9]*x*x*x + [10]*x*x*x*x)",varMin,varMax);
     func->SetParameters(alpha_init,n_init,sigma_init,mass_init,sig_max_init,hmax,par6,par7,par8,par9,par10);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol4 a0","Pol4 a1","Pol4 a2","Pol4 a3","Pol4 a4","Pol4 a5");
     // func->FixParameter(6,37);
-    func->SetParLimits(0,0.0,1000.0);
+    func->SetParLimits(0,0.5,100.0);
     // func->SetParLimits(5,h->GetBinContent(nbins)*0.98,h->GetBinContent(nbins)*10.0);
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
@@ -3701,13 +3751,63 @@ TArrayF* LambdaKaonMassFitPoly4BGMC(
     double mass_init  = 1.117;
     double sig_max_init = h->GetMaximum();
 
+    //DEBUGGING: RESET BG PARAMETERS IF FALLING DISTRIBUTION AFTER PEAK                                                                                                                                     
+    //For xF binning                                                                                                                                                                                        
+    int bin1  = (int)(0.25*nbins);
+    int bin2  = (int)(0.5*nbins);
+    int bin3  = (int)(0.9*nbins);
+    double x1 = h->GetBinCenter(bin1);
+    double x2 = h->GetBinCenter(bin2);
+    double x3 = h->GetBinCenter(bin3);
+    double y1 = h->GetBinContent(bin1);
+    double y2 = h->GetBinContent(bin2);
+    double y3 = h->GetBinContent(bin3);
+    double slope1 = ((y2-y1)/h->GetMaximum()) / ((x2-x1)/(varMax-varMin));
+    double slope2 = ((y3-y2)/h->GetMaximum()) / ((x3-x2)/(varMax-varMin)); //NOTE: GET RATIO OF SLOPE IN REGION (2,3) TO SLOPE IN REGION (1,2)                                                              
+    double sloperatio = slope2/slope1;
+    out<<"DEBUGGING: slope1 = "<<slope1<<std::endl;
+    out<<"DEBUGGING: slope2 = "<<slope2<<std::endl;
+    out<<"DEBUGGING: sloperatio = "<<sloperatio<<std::endl;
+
+    // Treat case when you are decreasing continually past the lambda peak                                                                                                                                  
+    if (slope1>0.0 && slope2<0.0) {
+
+      // Reset starting fit parameters                                                                                                                                                                      
+      alpha_init = 0.5;
+      n_init     = 3.0;
+
+      fit_min = varMin + (varMax-varMin)*0.00;
+      m0 = 1.3;
+      beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
+
+      // Compute new hmax corrected for measurement of histogram at m0                                                                                                                                      
+      std::cout<<"DEBUGGING: h->GetBinWidth(0) = "<<h->GetBinWidth(0)<<std::endl;
+      int m0bin = (int)((m0-h->GetXaxis()->GetXmin())/h->GetBinWidth(0));
+      std::cout<<"DEBUGGING: m0bin = "<<m0bin<<std::endl;
+      if (m0bin>nbins) {m0bin = nbins;}
+      if (m0bin<1) {m0bin = 1;}
+      std::cout<<"DEBUGGING: (reset) m0bin = "<<m0bin<<std::endl;
+      double myvarMax = h->GetBinCenter(m0bin);
+      std::cout<<"DEBUGGING: mvarMax = "<<myvarMax<<std::endl;
+      hmax  = h->GetBinContent((int)(m0bin))/(1-beta*(myvarMax-m0)*(myvarMax-m0)*(myvarMax-m0)*(myvarMax-m0));
+
+      //double hmax = h->GetBinContent((int)(0.1*nbins))/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));                                                                                          
+      out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
+
+      par6  = 1-beta*m0*m0*m0*m0;
+      par7  =   beta*4*m0*m0*m0;
+      par8  =  -beta*6*m0*m0;
+      par9  =   beta*4*m0;
+      par10 =  -beta;
+    }
+
     // Set fitting fn
     TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*([6] + [7]*x + [8]*x*x + [9]*x*x*x + [10]*x*x*x*x)",varMin,varMax);
     func->SetParameters(alpha_init,n_init,sigma_init,mass_init,sig_max_init,hmax,par6,par7,par8,par9,par10);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0","Pol4 a8","Pol4 a9","Pol4 a10");
     // func->FixParameter(6,37);
     // func->SetParLimits(0,0.0,1000.0);
-    //func->SetParLimits(0,0.4,10.0);
+    func->SetParLimits(0,0.5,10.0);
     //func->SetParLimits(5,h->GetBinContent(nbins)*1.0,h->GetBinContent(nbins)*2.0);
     //func->SetParLimits(7,0.0,1.26);
     func->SetParLimits(1,2.0,100.0);
@@ -3715,7 +3815,7 @@ TArrayF* LambdaKaonMassFitPoly4BGMC(
 
 
     // Fit and get signal and bg covariance matrices
-    TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+    TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,10,5,10)); // Make sure these match up!
