@@ -1201,7 +1201,7 @@ void getKinBinnedGraphBSAGeneric(
         }
 
         // Sideband subtraction background correction
-        if (bgfraction==1.00) {
+        if (bgfraction==1.00 && use_bgfraction) {
             out << " *** WARNING *** bgfraction = 1 -> No BG correction made.\n";
             
             // Set BG corrected array to results array
@@ -1497,7 +1497,7 @@ void getKinBinnedGraphBSAGenericMC(
         }
 
         // Sideband subtraction background correction
-        if (bgfraction==1.00) {
+        if (bgfraction==1.00 && use_bgfraction) {
             out << " *** WARNING *** bgfraction = 1 -> No BG correction made.\n";
             
             // Set BG corrected array to results array
@@ -1787,7 +1787,7 @@ void getKinBinnedGraphBSAGenericLambdaKaon(
         }
 
         // Sideband subtraction background correction
-        if (bgfraction==1.00) {
+        if (bgfraction==1.00 && use_bgfraction) {
             out << " *** WARNING *** bgfraction = 1 -> No BG correction made.\n";
             
             // Set BG corrected array to results array
@@ -2086,7 +2086,7 @@ void getKinBinnedGraphBSAGenericLambdaKaonMC(
         }
 
         // Sideband subtraction background correction
-        if (bgfraction==1.00) {
+        if (bgfraction==1.00 && use_bgfraction) {
             out << " *** WARNING *** bgfraction = 1 -> No BG correction made.\n";
             
             // Set BG corrected array to results array
