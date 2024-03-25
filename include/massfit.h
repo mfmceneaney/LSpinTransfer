@@ -3776,7 +3776,7 @@ TArrayF* LambdaKaonMassFitPoly4BGMC(
 
     // Treat case when you are decreasing continually past the lambda peak                                                                                                                                  
     bool limit_alpha = false;                                                                                                                             
-    if ((slope1>0.0 && slope2<-1.0)) { //|| (slope1<-0.4 && slope2<-0.4)
+    if ((slope1>0.0 && slope2<-0.5 || (slope1<-0.4 && slope2<-0.4))) { //NOTE: Conditions for this are different from the ones used for data!
 
       // Limit the alpha parameter to >= 0.5;
       limit_alpha = true;
@@ -3816,8 +3816,7 @@ TArrayF* LambdaKaonMassFitPoly4BGMC(
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0","Pol4 a8","Pol4 a9","Pol4 a10");
     // func->FixParameter(6,37);
     // func->SetParLimits(0,0.0,1000.0);
-    if (!limit_alpha) func->SetParLimits(0,0.0,1000.0);
-    if (limit_alpha) func->SetParLimits(0,0.5,10.0);
+    func->SetParLimits(0,0.5,10.0);
     //func->SetParLimits(5,h->GetBinContent(nbins)*1.0,h->GetBinContent(nbins)*2.0);
     //func->SetParLimits(7,0.0,1.26);
     func->SetParLimits(1,2.0,100.0);
