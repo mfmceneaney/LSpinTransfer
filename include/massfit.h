@@ -1221,7 +1221,7 @@ TArrayF* LambdaKaonMassFitPoly4BG(
 
     // Treat case when you are decreasing continually past the lambda peak     
     bool limit_alpha = false;                                                                                                                             
-    if (slope1>0.0 && slope2<-1.0) {
+    if ((slope1>0.0 && slope2<-1.0) || (slope1<-0.4 && slope2<-0.4)) {
 
       // Limit the alpha parameter to >= 0.5;
       limit_alpha = true;
@@ -3775,7 +3775,7 @@ TArrayF* LambdaKaonMassFitPoly4BGMC(
 
     // Treat case when you are decreasing continually past the lambda peak                                                                                                                                  
     bool limit_alpha = false;                                                                                                                             
-    if (slope1>0.0 && slope2<-1.0) {
+    if ((slope1>0.0 && slope2<-1.0) || (slope1<-0.4 && slope2<-0.4)) {
 
       // Limit the alpha parameter to >= 0.5;
       limit_alpha = true;
