@@ -114,15 +114,15 @@ void PlotCorrelations_ppimkp() {
     timer.Start();
 
     // Parameters for DATA tree
-    const char *path1    = "/volatile/clas12/users/mfmce/data_jobs_rga_ppimkp_1_31_24/skim_ppimk_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
+    const char *path1    = "/volatile/clas12/users/mfmce/data_jobs_rga_ppimkp_3_18_24/skim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
     const char *tree1    = "t";
-    const char *cuts1    = "mass_ppim<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
+    const char *cuts1    = "mass_ppim<1.5 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0 && xF_k>0.0 && xF_ppim<0.0 && xF_ppim>-0.8 && zeta_ppim<1.0 && phperp_ppim>0.2";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
     const char *drawopt  = "";//"PE1";
 
     // Parameters for MC tree
-    const char *path2    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppimkp_2_1_24/skim_ppimk_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
+    const char *path2    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppimkp_3_18_24/skim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
     const char *tree2    = "t";
-    const char *cuts2    = "mass_ppim<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
+    const char *cuts2    = "mass_ppim<1.5 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0 && xF_k>0.0 && xF_ppim<0.0 && xF_ppim>-0.8 && zeta_ppim<1.0 && phperp_ppim>0.2";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
     // const char *drawopt  = "";//"PE1";
 
     gStyle->SetOptStat(0);
@@ -258,15 +258,17 @@ void PlotCorrelations_ppimkp() {
     names.push_back("x"); nbins.push_back(100); binlims.push_back({0.0,1.0}); labels.push_back("x");
 
     names.push_back("mass_ppim"); nbins.push_back(100); binlims.push_back({1.08,1.24}); labels.push_back("M_{p#pi^{-}}");
+    names.push_back("mx_ppim"); nbins.push_back(100); binlims.push_back({0.0,2.0}); labels.push_back("M_{X p#pi^{-}}");
+    names.push_back("mx_k"); nbins.push_back(100); binlims.push_back({0.0,2.0}); labels.push_back("M_{X K^{+}}");
     names.push_back("y_ppim"); nbins.push_back(100); binlims.push_back({0.0,1.0}); labels.push_back("Y_{p#pi^{-}}");
     names.push_back("zeta_ppim"); nbins.push_back(100); binlims.push_back({0.0,1.0}); labels.push_back("#z_{p#pi^{-}}");
-    names.push_back("xF_ppim"); nbins.push_back(100); binlims.push_back({-1.0,1.0}); labels.push_back("x_{F p#pi^{-}}");
-    names.push_back("phperp_ppim"); nbins.push_back(100); binlims.push_back({0.0,2.0}); labels.push_back("P_{p#pi^{-}#perp}");
+    names.push_back("xF_ppim"); nbins.push_back(100); binlims.push_back({-1.0,0.0}); labels.push_back("x_{F p#pi^{-}}");
+    names.push_back("phperp_ppim"); nbins.push_back(100); binlims.push_back({0.0,1.0}); labels.push_back("P_{p#pi^{-}#perp}");
     names.push_back("y_k"); nbins.push_back(100); binlims.push_back({0.0,1.0}); labels.push_back("Y_{K^{+}}");
     names.push_back("z_k"); nbins.push_back(100); binlims.push_back({0.0,1.0}); labels.push_back("z_{K^{+}}");
-    names.push_back("xF_k"); nbins.push_back(100); binlims.push_back({-1.0,1.0}); labels.push_back("x_{F K^{+}}");
-    names.push_back("phperp_k"); nbins.push_back(100); binlims.push_back({0.0,2.0}); labels.push_back("P_{K^{+}#perp}");
-    names.push_back("ptpt"); nbins.push_back(100); binlims.push_back({0.0,2.0}); labels.push_back("P_{K^{+}#perp}P_{p#pi^{-}#perp}");
+    names.push_back("xF_k"); nbins.push_back(100); binlims.push_back({0.0,1.0}); labels.push_back("x_{F K^{+}}");
+    names.push_back("phperp_k"); nbins.push_back(100); binlims.push_back({0.0,1.0}); labels.push_back("P_{K^{+}#perp}");
+    names.push_back("ptpt"); nbins.push_back(100); binlims.push_back({0.0,1.0}); labels.push_back("P_{K^{+}#perp}P_{p#pi^{-}#perp}");
     names.push_back("dphi"); nbins.push_back(100); binlims.push_back({0.0,2.0*TMath::Pi()}); labels.push_back("#Delta#phi");
 
     // names.push_back("pt_e"); nbins.push_back(100); binlims.push_back({0.0,2.0}); labels.push_back("p_{T e^{-}} (GeV)");
@@ -274,8 +276,9 @@ void PlotCorrelations_ppimkp() {
     // names.push_back("pt_pim"); nbins.push_back(100); binlims.push_back({0.0,2.0}); labels.push_back("p_{T #pi^{-}} (GeV)");
 
     names.push_back("p_e"); nbins.push_back(100); binlims.push_back({0.0,10.0}); labels.push_back("p_{e^{-}} (GeV)");
-    names.push_back("p_p"); nbins.push_back(100); binlims.push_back({0.0,10.0}); labels.push_back("p_{p} (GeV)");
-    names.push_back("p_pim"); nbins.push_back(100); binlims.push_back({0.0,10.0}); labels.push_back("p_{#pi^{-}} (GeV)");
+    names.push_back("p_p"); nbins.push_back(100); binlims.push_back({0.0,6.0}); labels.push_back("p_{p} (GeV)");
+    names.push_back("p_pim"); nbins.push_back(100); binlims.push_back({0.0,2.0}); labels.push_back("p_{#pi^{-}} (GeV)");
+    names.push_back("p_k"); nbins.push_back(100); binlims.push_back({0.0,6.0}); labels.push_back("p_{K^{+}} (GeV)");
 
     // names.push_back("pz_e"); nbins.push_back(100); binlims.push_back({0.0,10.0}); labels.push_back("p_{z e^{-}} (GeV)");
     // names.push_back("pz_p"); nbins.push_back(100); binlims.push_back({0.0,10.0}); labels.push_back("p_{z p} (GeV)");
@@ -292,6 +295,7 @@ void PlotCorrelations_ppimkp() {
     names.push_back("beta_e"); nbins.push_back(100); binlims.push_back({0.0,1.2}); labels.push_back("#beta_{e^{-}}");
     names.push_back("beta_p"); nbins.push_back(100); binlims.push_back({0.0,1.2}); labels.push_back("#beta_{p}");
     names.push_back("beta_pim"); nbins.push_back(100); binlims.push_back({0.0,1.2}); labels.push_back("#beta_{#pi^{-}}");
+    names.push_back("beta_k"); nbins.push_back(100); binlims.push_back({0.0,1.2}); labels.push_back("#beta_{K^{+}}");
 
     // names.push_back("chi2pid_e"); nbins.push_back(100); binlims.push_back({-10.0,10.0}); labels.push_back("#chi^{2}_{PID e^{-}}");
     // names.push_back("chi2pid_p"); nbins.push_back(100); binlims.push_back({-10.0,10.0}); labels.push_back("#chi^{2}_{PID p}");
@@ -311,11 +315,11 @@ void PlotCorrelations_ppimkp() {
 
     // Plot correlations data
     const char *extraname1 = "2d_data";
-    int mylim = 14;
+    int mylim = 16;
     for (int i=0; i<names.size(); i++) {
       for (int j=0; j<names.size(); j++) {
         if (i==j) continue;//NOTE: SKIP IDENTITIES
-        if (!(((i>mylim && j>mylim) && j==i+3) || (i<=mylim && j<=mylim))) continue; //NOTE: Creates block combos with just beta vs. p (y vs. x)
+        if (!(((i>mylim && j>mylim) && j==i+4) || (i<=mylim && j<=mylim))) continue; //NOTE: Creates block combos with just beta vs. p (y vs. x)
         plot2d(frame1,extraname1,names[i].c_str(),nbins[i],binlims[i][0],binlims[i][1],labels[i].c_str(),
                             names[j].c_str(),nbins[j],binlims[j][0],binlims[j][1],labels[j].c_str(),
                             drawopt,f);
