@@ -434,6 +434,8 @@ void analysis(const YAML::Node& node) {
     ROOT::RDataFrame d(tree, inpath);
     std::string helicity_name       = "heli";
     std::string fitvar_mc = Form("%s_mc",fitvar.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
+    std::string phi_1_name_mc = Form("%s_mc",phi_1_name.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
+    std::string phi_2_name_mc = Form("%s_mc",phi_2_name.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string mc_cuts = "sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0";//NOTE: NOT SURE THAT THESE ARE STILL NECESSARY, 9/14/23.
     TF1 *fsgasyms = new TF1("fsgasyms",fitformula.c_str(),fitvar_min,fitvar_max);
     for (int idx=0; idx<nparams; idx++) { fsgasyms->SetParameter(idx,sgasyms[idx]); }
@@ -442,10 +444,12 @@ void analysis(const YAML::Node& node) {
     auto frame = (!inject_asym) ? d.Filter(cuts.c_str())
                     .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
                     .Define("ptpt",Form("phperp_%s * phperp_%s",suffix1.c_str(),suffix2.c_str()))
-                    .Define(fitvar.c_str(),[](float phi_1, float phi_2){ return (float) ((phi_1-phi_2)>=0 ? (phi_1-phi_2) : 2*TMath::Pi() + (phi_1-phi_2));},{phi_1_name.c_str(),phi_2_name.c_str()}) :
+                    .Define(fitvar.c_str(),[](float phi_1, float phi_2){ return (float) ((phi_1-phi_2)>=0 ? (phi_1-phi_2) : 2*TMath::Pi() + (phi_1-phi_2));},{phi_1_name.c_str(),phi_2_name.c_str()})
+                    .Define(fitvar_mc.c_str(),[](float phi_1, float phi_2){ return (float) ((phi_1-phi_2)>=0 ? (phi_1-phi_2) : 2*TMath::Pi() + (phi_1-phi_2));},{phi_1_name_mc.c_str(),phi_2_name_mc.c_str()}) :
                     d
                     .Define("ptpt",Form("phperp_%s * phperp_%s",suffix1.c_str(),suffix2.c_str()))
                     .Define(fitvar.c_str(),[](float phi_1, float phi_2){ return (float) ((phi_1-phi_2)>=0 ? (phi_1-phi_2) : 2*TMath::Pi() + (phi_1-phi_2));},{phi_1_name.c_str(),phi_2_name.c_str()})
+                    .Define(fitvar_mc.c_str(),[](float phi_1, float phi_2){ return (float) ((phi_1-phi_2)>=0 ? (phi_1-phi_2) : 2*TMath::Pi() + (phi_1-phi_2));},{phi_1_name_mc.c_str(),phi_2_name_mc.c_str()})
                     .Define("dtheta_p",[](float theta_p, float theta_p_mc){ return TMath::Abs(theta_p-theta_p_mc); },{theta_p_name.c_str(),Form("%s_mc",theta_p_name.c_str())})
                     .Define("dtheta_pim",[](float theta_pim, float theta_pim_mc){ return TMath::Abs(theta_pim-theta_pim_mc); },{theta_pim_name.c_str(),Form("%s_mc",theta_pim_name.c_str())})
                     .Define("dphi_p",[](float phi_p, float phi_p_mc){
