@@ -78,6 +78,18 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "fitvar: " << fitvar << std::endl;
 
+    std::string fitvarformula = "";
+    if (node["fitvarformula"]) {
+        fitvarformula = node["fitvarformula"].as<std::string>();
+    }
+    std::cout << "fitvarformula: " << fitvarformula << std::endl;
+
+    std::string fitvarformulamc = "";
+    if (node["fitvarformulamc"]) {
+        fitvarformulamc = node["fitvarformulamc"].as<std::string>();
+    }
+    std::cout << "fitvarformulamc: " << fitvarformulamc << std::endl;
+
     std::string fitvartitle = "dphi";
     if (node["fitvartitle"]) {
         fitvartitle = node["fitvartitle"].as<std::string>();
@@ -394,8 +406,11 @@ void analysis(const YAML::Node& node) {
     std::string theta_name = Form("theta%s",suffix1.c_str());
     std::string phi_name   = Form("phi%s",suffix1.c_str());
     auto frame = (!inject_asym) ? d.Filter(cuts.c_str()) 
-                    .Define(helicity_name.c_str(), "-helicity") : // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
+                    .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
+                    .Define(fitvar.c_str(),fitvarformula.c_str()) :
                     d
+                    .Define(fitvar.c_str(),fitvarformula.c_str())
+                    .Define(fitvar_mc.c_str(),fitvarformulamc.c_str())
                     .Define(dtheta_name.c_str(),[](float theta_p, float theta_p_mc){ return TMath::Abs(theta_p-theta_p_mc); },{theta_name.c_str(),Form("%s_mc",theta_name.c_str())})
                     .Define(dphi_name.c_str(),[](float phi_p, float phi_p_mc){
                         return (float) (TMath::Abs(phi_p-phi_p_mc)<TMath::Pi()
