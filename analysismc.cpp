@@ -149,29 +149,17 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "use_bgfraction: " << use_bgfraction << std::endl;
 
-    // double dtheta_p_max = 6.0*TMath::Pi()/180; //NOTE: IN RADIANS!
-    // if (node["dtheta_p_max"]) {
-    //     dtheta_p_max = node["dtheta_p_max"].as<double>();
-    // }
-    // std::cout << "dtheta_p_max: " << dtheta_p_max << std::endl;
-
-    // double dtheta_pim_max = 6.0*TMath::Pi()/180; //NOTE: IN RADIANS!
-    // if (node["dtheta_pim_max"]) {
-    //     dtheta_pim_max = node["dtheta_pim_max"].as<double>();
-    // }
-    // std::cout << "dtheta_pim_max: " << dtheta_pim_max << std::endl;
+    int seed = 2;
+    if (node["inject_seed"]) {
+        seed = node["inject_seed"].as<int>();
+    }
+    std::cout << "inject_seed: " << seed << std::endl;
 
     bool inject_asym = false;
     if (node["inject_asym"]) {
         inject_asym = node["inject_asym"].as<bool>();
     }
     std::cout << "inject_asym: " << inject_asym << std::endl;
-
-    int seed = 2;
-    if (node["inject_seed"]) {
-        seed = node["inject_seed"].as<int>();
-    }
-    std::cout << "inject_seed: " << seed << std::endl;
 
     double sgasym;
     if (node["sgasym"]) {
@@ -245,6 +233,75 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "logpath: " << logpath << std::endl;
 
+    //NOTE: ADDED FOR TESTING 10/18/23
+    double u_sb_min = 0.0;
+    if (node["u_sb_min"]) {
+        u_sb_min = node["u_sb_min"].as<double>();
+    }
+    std::cout << "u_sb_min: " << u_sb_min << std::endl;
+
+    double u_sb_max = 0.0;
+    if (node["u_sb_max"]) {
+        u_sb_max = node["u_sb_max"].as<double>();
+    }
+    std::cout << "u_sb_max: " << u_sb_max << std::endl;
+
+    double l_sb_min = 0.0;
+    if (node["l_sb_min"]) {
+        l_sb_min = node["l_sb_min"].as<double>();
+    }
+    std::cout << "l_sb_min: " << l_sb_min << std::endl;
+
+    double l_sb_max = 0.0;
+    if (node["l_sb_max"]) {
+        l_sb_max = node["l_sb_max"].as<double>();
+    }
+    std::cout << "l_sb_max: " << l_sb_max << std::endl;
+
+    double sg_min = 0.0;
+    if (node["sg_min"]) {
+        sg_min = node["sg_min"].as<double>();
+    }
+    std::cout << "sg_min: " << sg_min << std::endl;
+
+    double sg_max = 0.0;
+    if (node["sg_max"]) {
+        sg_max = node["sg_max"].as<double>();
+    }
+    std::cout << "sg_max: " << sg_max << std::endl;
+
+    int n_fitvar_bins = 10;
+    if (node["n_fitvar_bins"]) {
+        n_fitvar_bins = node["n_fitvar_bins"].as<int>();
+    }
+    std::cout << "n_fitvar_bins: " << n_fitvar_bins << std::endl;
+
+    double fitvar_min = -1.0;
+    if (node["fitvar_min"]) {
+        fitvar_min = node["fitvar_min"].as<double>();
+    }
+    std::cout << "fitvar_min: " << fitvar_min << std::endl;
+
+    double fitvar_max = 1.0;
+    if (node["fitvar_max"]) {
+        fitvar_max = node["fitvar_max"].as<double>();
+    }
+    std::cout << "fitvar_max: " << fitvar_max << std::endl;
+
+    // Reset signal cuts if requested
+    if (sg_min>0.0 && sg_max>0.0) {
+        sgcuts = Form("%s>%.8f && %s<%.8f",mass_name.c_str(),sg_min,mass_name.c_str(),sg_max);
+        std::cout << "REASSIGNED: sgcuts: " << sgcuts << std::endl;
+    }
+
+    // Reset background cuts if requested
+    if (u_sb_min>0.0 && u_sb_max>0.0 && l_sb_min>0.0 && l_sb_max>0.0) {
+        bgcuts = Form("(%s>%.8f && %s<%.8f) || (%s>%.8f && %s<%.8f)",mass_name.c_str(),l_sb_min,mass_name.c_str(),l_sb_max,mass_name.c_str(),u_sb_min,mass_name.c_str(),u_sb_max);
+        std::cout << "REASSIGNED: bgcuts: " << bgcuts << std::endl;
+    }
+
+    //NOTE: END ADDED FOR TESTING 10/18/23
+
     //----------------------------------------------------------------------------------------------------//
     // ANALYSIS
     //----------------------------------------------------------------------------------------------------//
@@ -286,7 +343,6 @@ void analysis(const YAML::Node& node) {
     std::string helicity_name       = "heli";
     std::string depol_name_mc       = "Dy_mc";
     std::string fitvar_mc = Form("%s_mc",fitvar.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
-    fitvar = fitvar_mc; //NOTE: THIS IS JUST FOR SANITY CHECKING
     std::string mc_cuts = "!TMath::IsNaN(costheta1_mc) && !TMath::IsNaN(costheta2_mc) && sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0";//NOTE: NOT SURE THAT THESE ARE STILL NECESSARY, 9/14/23.
     std::cout<<"DEBUGGING: in analysis.cpp: mc_cuts = \n\t"<<mc_cuts<<std::endl;//DEBUGGING
     auto frame = (!inject_asym) ? d.Filter(cuts.c_str())
@@ -304,7 +360,7 @@ void analysis(const YAML::Node& node) {
                         ? TMath::Abs(phi_pim-phi_pim_mc) : 2*TMath::Pi() - TMath::Abs(phi_pim-phi_pim_mc));
                         },{"phi_pim","phi_pim_mc"})
                     .Filter(Form("(%s) && (%s)",cuts.c_str(),mc_cuts.c_str()))
-                    .Define(depolarization_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y_mc"}) //NOTE: CHANGED y->y_mc, JUST FOR SANITY CHECKING.  //NOTE: CHANGE y->y_mc FOR SANITY CHECKING MC ASYMMETRY INJECTION
+                    .Define(depolarization_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}) //NOTE: CHANGE y->y_mc FOR SANITY CHECKING MC ASYMMETRY INJECTION
                     .Define(depol_name_mc.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
                     .Define("XS", [&alpha,&bgasym,&sgasym,&beam_polarization,&dtheta_p_max,&dtheta_pim_max]
@@ -328,9 +384,12 @@ void analysis(const YAML::Node& node) {
                         {depol_name_mc.c_str(),fitvar_mc.c_str(),"my_rand_var","pid_parent_p_mc","row_parent_p_mc","row_parent_pim_mc","dtheta_p","dtheta_pim","dphi_p","dphi_pim"}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
                     */
 
-    double my_testvar  = (double)*frame.Mean("my_rand_var");
-    double my_testvar1 = (double)*frame.Mean("XS");
-    double my_testvar2 = (double)*frame.Mean(helicity_name.c_str());
+    if (inject_asym) {
+        double my_testvar  = (double)*frame.Mean("my_rand_var");
+        double my_testvar1 = (double)*frame.Mean("XS");
+        double my_testvar2 = (double)*frame.Mean(helicity_name.c_str());
+    }
+    
 
     // Create output log
     std::ofstream outf; outf.open(logpath.c_str());
@@ -392,9 +451,9 @@ void analysis(const YAML::Node& node) {
                     depol_name_mc,// std::string  depol_name_mc       = "Dy_mc",
                     inject_asym,// bool inject = false, // flag for whether to inject asymmetry
                     gRandom,// TRandom * gRandom = TRandom(), // Random number generator to use
-                    // //   int          nfitbins = 10,          // number of bins for fit variable if using LF method
-                    // //   double       fitvarMin = -1.0,       // fit variable minimum
-                    // //   double       fitvarMax = 1.0,        // fit variable maximum
+                    // n_fitvar_bins,// int          n_fitvar_bins = 10,          // number of bins for fit variable if using LF or BSA method
+                    // fitvar_min,// double       fitvar_min = -1.0,       // fit variable minimum
+                    // fitvar_max,// double       fitvar_max = 1.0,        // fit variable maximum
                     graph_title, // std::string  title    = "Longitudinal Spin Transfer along #vec{p}_{#Lambda}", // Histogram title
                     marker_color, // int          marker_color = 4,  // 4 is blue
                     marker_style, // int          marker_style = 20, // 20 is circle
