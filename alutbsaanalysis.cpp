@@ -429,12 +429,12 @@ void analysis(const YAML::Node& node) {
     for (int idx=0; idx<nparams; idx++) { fbgasyms->SetParameter(idx,bgasyms[idx]); }
     auto frame = (!inject_asym) ? d.Filter(cuts.c_str())
                     .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
-                    .Define(depol_name.c_str(), [](float y) { return (y*TMath::Sqrt(1-y))/(1 - y + 1/2*y*y); }, {"y"})
+                    .Define(depol_name.c_str(), [](float y) { return (float) (y*TMath::Sqrt(1-y))/(1 - y + 1/2*y*y); }, {"y"})
                     .Define(fitvar.c_str(),[](float dy, float ct){ return (float) (dy*ct);},{depol_name.c_str(),costheta_name.c_str()}) :
                     d
-                    .Define(depol_name.c_str(), [](float y) { return (y*TMath::Sqrt(1-y))/(1 - y + 1/2*y*y); }, {"y"}) //NOTE: CHANGED y->y_mc, JUST FOR SANITY CHECKING.  //NOTE: CHANGE y->y_mc FOR SANITY CHECKING MC ASYMMETRY INJECTION
+                    .Define(depol_name.c_str(), [](float y) { return (float) (y*TMath::Sqrt(1-y))/(1 - y + 1/2*y*y); }, {"y"}) //NOTE: CHANGED y->y_mc, JUST FOR SANITY CHECKING.  //NOTE: CHANGE y->y_mc FOR SANITY CHECKING MC ASYMMETRY INJECTION
                     .Define(fitvar.c_str(),[](float dy, float ct){ return (float) (dy*ct);},{depol_name.c_str(),costheta_name.c_str()})
-                    .Define(depol_name_mc.c_str(), [](float y) { return (y*TMath::Sqrt(1-y))/(1 - y + 1/2*y*y); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
+                    .Define(depol_name_mc.c_str(), [](float y) { return (float) (y*TMath::Sqrt(1-y))/(1 - y + 1/2*y*y); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
                     .Define(fitvar_mc.c_str(),[](float dy, float ct) { return (dy*ct);},{depol_name_mc.c_str(),costheta_name_mc.c_str()})
                     .Define("dtheta_p",[](float theta_p, float theta_p_mc){ return TMath::Abs(theta_p-theta_p_mc); },{theta_p_name.c_str(),Form("%s_mc",theta_p_name.c_str())})
                     .Define("dtheta_pim",[](float theta_pim, float theta_pim_mc){ return TMath::Abs(theta_pim-theta_pim_mc); },{theta_pim_name.c_str(),Form("%s_mc",theta_pim_name.c_str())})
