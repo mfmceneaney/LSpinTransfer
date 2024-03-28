@@ -72,23 +72,23 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "method: " << method << std::endl;
 
-    std::string phi_1_name = "phi_h_kp";
-    if (node["phi_1_name"]) {
-        phi_1_name = node["phi_1_name"].as<std::string>();
-    }
-    std::cout << "phi_1_name: " << phi_1_name << std::endl;
-
-    std::string phi_2_name = "phi_h_ppim";
-    if (node["phi_2_name"]) {
-        phi_2_name = node["phi_2_name"].as<std::string>();
-    }
-    std::cout << "phi_2_name: " << phi_2_name << std::endl;
-
     std::string fitvar = "";
     if (node["fitvar"]) {
         fitvar = node["fitvar"].as<std::string>();
     }
     std::cout << "fitvar: " << fitvar << std::endl;
+
+    std::string fitvarformula = "";
+    if (node["fitvarformula"]) {
+        fitvarformula = node["fitvarformula"].as<std::string>();
+    }
+    std::cout << "fitvarformula: " << fitvarformula << std::endl;
+
+    std::string fitvarformulamc = "";
+    if (node["fitvarformulamc"]) {
+        fitvarformulamc = node["fitvarformulamc"].as<std::string>();
+    }
+    std::cout << "fitvarformulamc: " << fitvarformulamc << std::endl;
 
     std::string fitvartitle = "dphi";
     if (node["fitvartitle"]) {
@@ -101,12 +101,6 @@ void analysis(const YAML::Node& node) {
         suffix1 = node["suffix1"].as<std::string>();
     }
     std::cout << "suffix1: " << suffix1 << std::endl;
-
-    std::string suffix2 = "k";
-    if (node["suffix2"]) {
-        suffix2 = node["suffix2"].as<std::string>();
-    }
-    std::cout << "suffix2: " << suffix2 << std::endl;
 
     std::string fitformula = "[0]*sin(x)+[1]*sin(2*x)";
     if (node["fitformula"]) {
@@ -182,7 +176,7 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "bgfraction: " << bgfraction << std::endl;
 
-    bool use_bgfraction = false;
+    bool use_bgfraction = true;
     if (node["use_bgfraction"]) {
         use_bgfraction = node["use_bgfraction"].as<bool>();
     }
@@ -222,53 +216,23 @@ void analysis(const YAML::Node& node) {
     }
     std::cout<<" ]"<<std::endl;
 
-    double beam_polarization   = 0.8922; // Average Polarization for Fall 2018 Outbending data runs >= 5331
+    double beam_polarization   = 1.0; // 0.8922; // Average Polarization for Fall 2018 Outbending data runs >= 5331
     if (node["beam_polarization"]) {
         beam_polarization = node["beam_polarization"].as<double>();
     }
     std::cout << "beam_polarization: " << beam_polarization << std::endl;
 
-    std::string theta_p_name = "theta_p";
-    if (node["theta_p_name"]) {
-        theta_p_name = node["theta_p_name"].as<std::string>();
+    double lund_pid_p_mc = 211; //NOTE: Lund PID to which to match reconstructed particles for choosing whether to inject asymmetry.
+    if (node["lund_pid_p_mc"]) {
+        lund_pid_p_mc = node["lund_pid_p_mc"].as<double>();
     }
-    std::cout << "theta_p_name: " << theta_p_name << std::endl;
+    std::cout << "lund_pid_p_mc: " << lund_pid_p_mc << std::endl;
 
-    std::string theta_pim_name = "theta_pim";
-    if (node["theta_pim_name"]) {
-        theta_pim_name = node["theta_pim_name"].as<std::string>();
+    std::string pid_p_mc_name = "pid_pi_mc"; //NOTE: You must specify the branch name of the MC PID which will be check against the above lund PID.
+    if (node["pid_p_mc_name"]) {
+        pid_p_mc_name = node["pid_p_mc_name"].as<std::string>();
     }
-    std::cout << "theta_pim_name: " << theta_pim_name << std::endl;
-
-    std::string phi_p_name = "phi_p";
-    if (node["phi_p_name"]) {
-        phi_p_name = node["phi_p_name"].as<std::string>();
-    }
-    std::cout << "phi_p_name: " << phi_p_name << std::endl;
-
-    std::string phi_pim_name = "phi_pim";
-    if (node["phi_pim_name"]) {
-        phi_pim_name = node["phi_pim_name"].as<std::string>();
-    }
-    std::cout << "phi_pim_name: " << phi_pim_name << std::endl;
-
-    std::string pid_parent_p_mc_name = "pid_parent_p_mc";
-    if (node["pid_parent_p_mc_name"]) {
-        pid_parent_p_mc_name = node["pid_parent_p_mc_name"].as<std::string>();
-    }
-    std::cout << "pid_parent_p_mc_name: " << pid_parent_p_mc_name << std::endl;
-
-    std::string row_parent_p_mc_name = "row_parent_p_mc";
-    if (node["row_parent_p_mc_name"]) {
-        row_parent_p_mc_name = node["row_parent_p_mc_name"].as<std::string>();
-    }
-    std::cout << "row_parent_p_mc_name: " << row_parent_p_mc_name << std::endl;
-
-    std::string row_parent_pim_mc_name = "row_parent_pim_mc";
-    if (node["row_parent_pim_mc_name"]) {
-        row_parent_pim_mc_name = node["row_parent_pim_mc_name"].as<std::string>();
-    }
-    std::cout << "row_parent_pim_mc_name: " << row_parent_pim_mc_name << std::endl;
+    std::cout << "pid_p_mc_name: " << pid_p_mc_name << std::endl;
 
     std::string mass_name = "mass_ppim";
     if (node["mass_name"]) {
@@ -437,30 +401,28 @@ void analysis(const YAML::Node& node) {
     for (int idx=0; idx<nparams; idx++) { fsgasyms->SetParameter(idx,sgasyms[idx]); }
     TF1 *fbgasyms = new TF1("fbgasyms",fitformula.c_str(),fitvar_min,fitvar_max);
     for (int idx=0; idx<nparams; idx++) { fbgasyms->SetParameter(idx,bgasyms[idx]); }
-    auto frame = (!inject_asym) ? d.Filter(cuts.c_str())
+    std::string dtheta_name = Form("dtheta%s",suffix1.c_str());
+    std::string dphi_name   = Form("dphi%s",suffix1.c_str());
+    std::string theta_name = Form("theta%s",suffix1.c_str());
+    std::string phi_name   = Form("phi%s",suffix1.c_str());
+    auto frame = (!inject_asym) ? d.Filter(cuts.c_str()) 
                     .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
-                    .Define("ptpt",Form("phperp_%s * phperp_%s",suffix1.c_str(),suffix2.c_str()))
-                    .Define(fitvar.c_str(),[](float phi_1, float phi_2){ return (float) ((phi_1-phi_2)>=0 ? (phi_1-phi_2) : 2*TMath::Pi() + (phi_1-phi_2));},{phi_1_name.c_str(),phi_2_name.c_str()}) :
+                    .Define(fitvar.c_str(),fitvarformula.c_str()) :
                     d
-                    .Define("ptpt",Form("phperp_%s * phperp_%s",suffix1.c_str(),suffix2.c_str()))
-                    .Define(fitvar.c_str(),[](float phi_1, float phi_2){ return (float) ((phi_1-phi_2)>=0 ? (phi_1-phi_2) : 2*TMath::Pi() + (phi_1-phi_2));},{phi_1_name.c_str(),phi_2_name.c_str()})
-                    .Define("dtheta_p",[](float theta_p, float theta_p_mc){ return TMath::Abs(theta_p-theta_p_mc); },{theta_p_name.c_str(),Form("%s_mc",theta_p_name.c_str())})
-                    .Define("dtheta_pim",[](float theta_pim, float theta_pim_mc){ return TMath::Abs(theta_pim-theta_pim_mc); },{theta_pim_name.c_str(),Form("%s_mc",theta_pim_name.c_str())})
-                    .Define("dphi_p",[](float phi_p, float phi_p_mc){
+                    .Define(fitvar.c_str(),fitvarformula.c_str())
+                    .Define(fitvar_mc.c_str(),fitvarformulamc.c_str())
+                    .Define(dtheta_name.c_str(),[](float theta_p, float theta_p_mc){ return (float)TMath::Abs(theta_p-theta_p_mc); },{theta_name.c_str(),Form("%s_mc",theta_name.c_str())})
+                    .Define(dphi_name.c_str(),[](float phi_p, float phi_p_mc){
                         return (float) (TMath::Abs(phi_p-phi_p_mc)<TMath::Pi()
                         ? TMath::Abs(phi_p-phi_p_mc) : 2*TMath::Pi() - TMath::Abs(phi_p-phi_p_mc));
-                        },{phi_p_name.c_str(),Form("%s_mc",phi_p_name.c_str())})
-                    .Define("dphi_pim",[](float phi_pim, float phi_pim_mc){
-                        return (float) (TMath::Abs(phi_pim-phi_pim_mc)<TMath::Pi()
-                        ? TMath::Abs(phi_pim-phi_pim_mc) : 2*TMath::Pi() - TMath::Abs(phi_pim-phi_pim_mc));
-                        },{phi_pim_name.c_str(),Form("%s_mc",phi_pim_name.c_str())})
+                        },{phi_name.c_str(),Form("%s_mc",phi_name.c_str())})
                     .Filter(Form("(%s) && (%s)",cuts.c_str(),mc_cuts.c_str()))
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
-                    .Define("XS", [&fsgasyms,&fbgasyms,&beam_polarization,&dtheta_p_max,&dtheta_pim_max]
-                        (float _fitvar_mc_, float pid_parent_p_mc, float row_parent_p_mc, float row_parent_pim_mc, float dtheta_p, float dtheta_pim) {
-                            return (float)((pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max) ? 0.5*(1+beam_polarization*fsgasyms->Eval(_fitvar_mc_)) : 0.5*(1+beam_polarization*fbgasyms->Eval(_fitvar_mc_))); //NOTE: THIS ASSUMES THAT y and _fitvar_mc_ are zero if no mc truth match found so then distribution is uniform.                  
+                    .Define("XS", [&fsgasyms,&fbgasyms,&beam_polarization,&dtheta_p_max,&lund_pid_p_mc]
+                        (float _fitvar_mc_, float pid_p_mc, float dtheta_p) {
+                            return (float)((pid_p_mc==lund_pid_p_mc && dtheta_p<dtheta_p_max) ? 0.5*(1+beam_polarization*fsgasyms->Eval(_fitvar_mc_)) : 0.5*(1+beam_polarization*fbgasyms->Eval(_fitvar_mc_))); //NOTE: THIS ASSUMES THAT y and _fitvar_mc_ are zero if no mc truth match found so then distribution is uniform.                  
                         },
-                        {fitvar_mc.c_str(),pid_parent_p_mc_name.c_str(),row_parent_p_mc_name.c_str(),row_parent_pim_mc_name.c_str(),"dtheta_p","dtheta_pim"})
+                        {fitvar_mc.c_str(),pid_p_mc_name.c_str(),dtheta_name.c_str()})
                     .Define(helicity_name.c_str(), [](float my_rand_var, float XS) {
                         return (float)(my_rand_var<XS ? 1.0 : -1.0);
                     },
@@ -519,6 +481,8 @@ void analysis(const YAML::Node& node) {
                     n_mass_bins, // int          n_mass_bins, // number of mass bins
                     mass_min, // double       mass_min, // mass variable max for signal fit
                     mass_max, // double       mass_max, // mass variable min for signal fit
+                    // dtheta_p_max, // double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
+                    // dtheta_pim_max, // double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     mass_draw_opt, // std::string  mass_draw_opt, // mass variable hist draw option for fit
                     helicity_name, // std::string  helicity_name = "heli", // Branch name for helicity
                     fitformula, // std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
