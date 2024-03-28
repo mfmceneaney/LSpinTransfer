@@ -1234,14 +1234,14 @@ void getKinBinnedGraphBSAGeneric(
 
             // Get background bin data
             int j = 0;
-            xs_bg[binidx]     = binData->GetAt(j++);
-            exs_bg[binidx]    = binData->GetAt(j++);
-            counts_bg[binidx] = binData->GetAt(j++);
+            xs_bg[binidx]     = bgBinData->GetAt(j++);
+            exs_bg[binidx]    = bgBinData->GetAt(j++);
+            counts_bg[binidx] = bgBinData->GetAt(j++);
             for (int idx=0; idx<nparams; idx++) {
 
                 // Add background data to arrays
-                ys_bg[idx][binidx] = binData->GetAt(j++);
-                eys_bg[idx][binidx] = binData->GetAt(j++);
+                ys_bg[idx][binidx] = bgBinData->GetAt(j++);
+                eys_bg[idx][binidx] = bgBinData->GetAt(j++);
 
                 // Compute background corrected data and add to arrays
                 ys_corrected[idx][binidx]  = (ys[idx][binidx] - bgfractions[binidx] * ys_bg[idx][binidx]) / (1 - bgfractions[binidx]);
@@ -1530,14 +1530,14 @@ void getKinBinnedGraphBSAGenericMC(
 
             // Get background bin data
             int j = 0;
-            xs_bg[binidx]     = binData->GetAt(j++);
-            exs_bg[binidx]    = binData->GetAt(j++);
-            counts_bg[binidx] = binData->GetAt(j++);
+            xs_bg[binidx]     = bgBinData->GetAt(j++);
+            exs_bg[binidx]    = bgBinData->GetAt(j++);
+            counts_bg[binidx] = bgBinData->GetAt(j++);
             for (int idx=0; idx<nparams; idx++) {
 
                 // Add background data to arrays
-                ys_bg[idx][binidx] = binData->GetAt(j++);
-                eys_bg[idx][binidx] = binData->GetAt(j++);
+                ys_bg[idx][binidx] = bgBinData->GetAt(j++);
+                eys_bg[idx][binidx] = bgBinData->GetAt(j++);
 
                 // Compute background corrected data and add to arrays
                 ys_corrected[idx][binidx]  = (ys[idx][binidx] - bgfractions[binidx] * ys_bg[idx][binidx]) / (1 - bgfractions[binidx]);
@@ -1820,14 +1820,14 @@ void getKinBinnedGraphBSAGenericLambdaKaon(
 
             // Get background bin data
             int j = 0;
-            xs_bg[binidx]     = binData->GetAt(j++);
-            exs_bg[binidx]    = binData->GetAt(j++);
-            counts_bg[binidx] = binData->GetAt(j++);
+            xs_bg[binidx]     = bgBinData->GetAt(j++);
+            exs_bg[binidx]    = bgBinData->GetAt(j++);
+            counts_bg[binidx] = bgBinData->GetAt(j++);
             for (int idx=0; idx<nparams; idx++) {
 
                 // Add background data to arrays
-                ys_bg[idx][binidx] = binData->GetAt(j++);
-                eys_bg[idx][binidx] = binData->GetAt(j++);
+                ys_bg[idx][binidx] = bgBinData->GetAt(j++);
+                eys_bg[idx][binidx] = bgBinData->GetAt(j++);
 
                 // Compute background corrected data and add to arrays
                 ys_corrected[idx][binidx]  = (ys[idx][binidx] - bgfractions[binidx] * ys_bg[idx][binidx]) / (1 - bgfractions[binidx]);
@@ -2119,14 +2119,14 @@ void getKinBinnedGraphBSAGenericLambdaKaonMC(
 
             // Get background bin data
             int j = 0;
-            xs_bg[binidx]     = binData->GetAt(j++);
-            exs_bg[binidx]    = binData->GetAt(j++);
-            counts_bg[binidx] = binData->GetAt(j++);
+            xs_bg[binidx]     = bgBinData->GetAt(j++);
+            exs_bg[binidx]    = bgBinData->GetAt(j++);
+            counts_bg[binidx] = bgBinData->GetAt(j++);
             for (int idx=0; idx<nparams; idx++) {
 
                 // Add background data to arrays
-                ys_bg[idx][binidx] = binData->GetAt(j++);
-                eys_bg[idx][binidx] = binData->GetAt(j++);
+                ys_bg[idx][binidx] = bgBinData->GetAt(j++);
+                eys_bg[idx][binidx] = bgBinData->GetAt(j++);
 
                 // Compute background corrected data and add to arrays
                 ys_corrected[idx][binidx]  = (ys[idx][binidx] - bgfractions[binidx] * ys_bg[idx][binidx]) / (1 - bgfractions[binidx]);
