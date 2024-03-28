@@ -411,7 +411,7 @@ void analysis(const YAML::Node& node) {
                     d
                     .Define(fitvar.c_str(),fitvarformula.c_str())
                     .Define(fitvar_mc.c_str(),fitvarformulamc.c_str())
-                    .Define(dtheta_name.c_str(),[](float theta_p, float theta_p_mc){ return TMath::Abs(theta_p-theta_p_mc); },{theta_name.c_str(),Form("%s_mc",theta_name.c_str())})
+                    .Define(dtheta_name.c_str(),[](float theta_p, float theta_p_mc){ return (float)TMath::Abs(theta_p-theta_p_mc); },{theta_name.c_str(),Form("%s_mc",theta_name.c_str())})
                     .Define(dphi_name.c_str(),[](float phi_p, float phi_p_mc){
                         return (float) (TMath::Abs(phi_p-phi_p_mc)<TMath::Pi()
                         ? TMath::Abs(phi_p-phi_p_mc) : 2*TMath::Pi() - TMath::Abs(phi_p-phi_p_mc));
