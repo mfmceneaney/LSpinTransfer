@@ -493,7 +493,7 @@ TArrayF* getKinBinBSAGeneric(
     std::ostream &out          = std::cout
     ) {
 
-    std::string title    = Form("BSA vs. %s",fitvartitle.c_str());
+    std::string title    = Form("BSA vs. %s %.3f<%s<%.3f",fitvartitle.c_str(),bin_min,binvar.c_str(),bin_max);
     std::string bintitle = Form("%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
 
     // Set bin cuts
