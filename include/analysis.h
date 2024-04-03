@@ -505,6 +505,19 @@ TArrayF* getKinBinBSAGeneric(
     auto mean     = (double)*f.Mean(binvar.c_str());
     auto stddev   = (double)*f.StdDev(binvar.c_str());
 
+    //DEBUGGING: Set fitting minimum and maximum dynamically based on stddev and mean
+    double fit_min = xmin;
+    double fit_max = xmax;
+    double nstds = 3.0;
+    if (xmin<(mean-nstds*stddev)) {
+        fit_min = mean - nstds*stddev;
+        out<<"DEBUGGING: Reset fit_min = "<<fit_min<<std::endl;
+    }
+    if (xmax>(mean+nstds*stddev)) {
+        fit_max = mean + nstds*stddev;
+        out<<"DEBUGGING: Reset fit_max = "<<fit_max<<std::endl;
+    }
+
     // Make subdirectory
     outroot->mkdir(outdir.c_str());
     outroot->cd(outdir.c_str());
@@ -513,9 +526,9 @@ TArrayF* getKinBinBSAGeneric(
     gStyle->SetOptStat(0);
 
     // Create histograms
-    TH1D hplus_ = (TH1D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo1D({"hplus_",title.c_str(),nbinsx,xmin,xmax},fitvar.c_str());
+    TH1D hplus_ = (TH1D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo1D({"hplus_",title.c_str(),nbinsx,fit_min,fit_max},fitvar.c_str());
     TH1D *hplus = (TH1D*)hplus_.Clone("hplus");
-    TH1D hminus_ = (TH1D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo1D({"hminus_",title.c_str(),nbinsx,xmin,xmax},fitvar.c_str());
+    TH1D hminus_ = (TH1D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo1D({"hminus_",title.c_str(),nbinsx,fit_min,fit_max},fitvar.c_str());
     TH1D *hminus = (TH1D*)hminus_.Clone("hminus");
 
     // Get asymmetry histogram
@@ -535,14 +548,14 @@ TArrayF* getKinBinBSAGeneric(
     hasym->Draw();
 
     // Set fit function
-    TF1 *f1 = new TF1("f1",fitformula.c_str(),xmin,xmax);
+    TF1 *f1 = new TF1("f1",fitformula.c_str(),fit_min,fit_max);
     for (int idx=0; idx<nparams; idx++) {
         f1->SetParameter(idx,1.0);
         f1->SetParName(idx,Form("A%d",idx));
     }
 
     // Fit and get covariance matrix
-    TFitResultPtr fr = hasym->Fit("f1","S","S",xmin,xmax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE FIT VARIABLE.
+    TFitResultPtr fr = hasym->Fit("f1","S","S",fit_min,fit_max); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE FIT VARIABLE.
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
 
     // Get fit parameters
