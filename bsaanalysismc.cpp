@@ -371,10 +371,10 @@ void analysis(const YAML::Node& node) {
     double alpha = 0.748;  // ±0.007 Weak decay asymmetry parameter
 
     // Set MC Track matching angular limits
-    double dtheta_p_max = 6*TMath::Pi()/180; //NOTE: DEBUGGING COULD JUST SET THESE FROM MAIN OR FROM ARGS.
-    double dtheta_pim_max = 6*TMath::Pi()/180;
-    double dphi_p_max = 10*TMath::Pi()/180;
-    double dphi_pim_max = 10*TMath::Pi()/180;
+    double dtheta_p_max = 100*TMath::Pi()/180; //NOTE: DEBUGGING COULD JUST SET THESE FROM MAIN OR FROM ARGS.
+    double dtheta_pim_max = 100*TMath::Pi()/180;
+    double dphi_p_max = 100*TMath::Pi()/180;
+    double dphi_pim_max = 100*TMath::Pi()/180;
 
     // Add all absolute bin limits to overall cuts
     std::string binlims_cuts = "";
