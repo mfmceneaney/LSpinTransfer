@@ -15,6 +15,7 @@
 #include <HFitInterface.h>
 #include <TGraphErrors.h>
 #include <TRandom.h>
+#include <TF2.h>
 
 // Local includes
 #include <massfit.h>
@@ -605,6 +606,144 @@ TArrayF* getKinBinBSAGeneric(
     return arr;
 
 } // TArrayF* getKinBinBSAGeneric()
+
+TArrayF* getKinBinBSA2DGeneric(
+    std::string  outdir,
+    TFile      * outroot,
+    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+    std::string cuts,
+    std::string binvar,
+    double       bin_min,
+    double       bin_max,
+    double       pol,
+    std::string  helicity_name = "heli",
+    std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
+    int          nparams       = 2,
+    std::string  fitvarx        = "phi_h",
+    std::string  fitvarxtitle   = "#phi_{h p#pi^{-}}",
+    std::string  fitvary        = "phi_h",
+    std::string  fitvarytitle   = "#phi_{h p#pi^{-}}",
+    int nbinsx                 = 100,
+    double xmin                = 0.0,
+    double xmax                = 2*TMath::Pi(),
+    int nbinsy                 = 100,
+    double ymin                = 0.0,
+    double ymax                = 2*TMath::Pi(),
+    std::ostream &out          = std::cout
+    ) {
+
+    std::string title    = Form("%s vs. %s %.3f<%s<%.3f",fitvarytitle.c_str(),fitvarxtitle.c_str(),bin_min,binvar.c_str(),bin_max);
+    std::string bintitle = Form("%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+
+    // Set bin cuts
+    std::string bin_cut = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
+    auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
+
+    // Get data
+    auto count    = (int)   *f.Count();
+    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto stddev   = (double)*f.StdDev(binvar.c_str());
+
+    // Make subdirectory
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
+
+    // Switch off histogram stats
+    gStyle->SetOptStat(0);
+
+    // Create histograms
+    TH2D hplus_ = (TH2D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo2D({"hplus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str());
+    TH2D *hplus = (TH2D*)hplus_.Clone("hplus");
+    TH2D hminus_ = (TH2D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo2D({"hminus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str());
+    TH2D *hminus = (TH2D*)hminus_.Clone("hminus");
+
+    // Get asymmetry histogram
+    TH2D *hasym = (TH2D*)hplus->GetAsymmetry(hminus);
+    hasym->Scale(1.0/pol);
+    hasym->SetTitle(title.c_str());
+    hasym->GetXaxis()->SetTitle(fitvarxtitle.c_str());
+    hasym->GetXaxis()->SetTitleSize(0.06);
+    hasym->GetXaxis()->SetTitleOffset(0.75);
+    hasym->GetYaxis()->SetTitle(fitvarytitle.c_str());
+    hasym->GetYaxis()->SetTitleSize(0.06);
+    hasym->GetYaxis()->SetTitleOffset(0.87);
+
+    // Draw asymmetry histogram
+    TCanvas *c1 = new TCanvas(Form("c1_%s",bintitle.c_str()));
+    c1->cd();
+    hasym->Draw("COLZ");
+
+    // Set fit function
+    TF2 *f1 = new TF2("f1",fitformula.c_str(),xmin,xmax,ymin,ymax,nparams);
+    for (int idx=0; idx<nparams; idx++) {
+        f1->SetParameter(idx,1.0);
+        f1->SetParName(idx,Form("A%d",idx));
+    }
+
+    // Fit and get covariance matrix
+    TFitResultPtr fr = hasym->Fit("f1","S"); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE FIT VARIABLE.
+    TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
+
+    // Get fit parameters
+    double * pars   = (double *)f1->GetParameters();
+    double * Epars  = (double *)f1->GetParErrors();
+    double  chi2    = f1->GetChisquare();
+    double  ndf     = f1->GetNDF();
+    double  chi2ndf = (double)chi2/ndf;
+
+    // Print out fit info
+    out << "--------------------------------------------------" << std::endl;
+    out << " getKinBinBSA2DGeneric():" << std::endl;
+    out << " cuts       = " << cuts.c_str() << std::endl;
+    out << " bincut     = " << bin_cut.c_str() << std::endl;
+    out << " binmean    = " << mean << "±" << stddev << std::endl;
+    out << " bincount   = " << count << std::endl;
+    out << " pol        = " << pol << std::endl;
+    out << " fitformula = " << fitformula.c_str() << std::endl;
+    out << " nparams    = " << nparams <<std::endl;
+    out << " params = [" ;
+    for (int idx=0; idx<nparams; idx++) {
+        out << pars[idx] << "±" << Epars[idx];
+        if (idx<nparams-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " chi2/ndf = " << chi2ndf << std::endl;
+    out << "--------------------------------------------------" << std::endl;
+
+    // Add Legend
+    TLegend *legend=new TLegend(0.5,0.2,0.75,0.4);
+    legend->SetTextSize(0.04);
+    legend->SetHeader("Fit Info:","c");
+    legend->SetMargin(0.1);
+    legend->AddEntry((TObject*)0, Form("#chi^{2}/NDF = %.2f",chi2ndf), Form(" %g ",chi2));
+    for (int idx=0; idx<nparams; idx++) {
+        legend->AddEntry((TObject*)0, Form("A%d = %.3f #pm %.3f",idx,pars[idx],Epars[idx]), Form(" %g ",chi2));
+    }
+    legend->Draw();
+
+    // Save to PDF
+    c1->SaveAs(Form("%s.pdf",c1->GetName()));
+
+    // Save to ROOT file
+    hasym->Write();
+
+    // Go back to parent directory
+    outroot->cd("..");
+
+    // Fill return array
+    TArrayF *arr = new TArrayF((int)(3+2*nparams));
+    int k = 0;
+    arr->AddAt(mean,k++);
+    arr->AddAt(stddev,k++);
+    arr->AddAt(count,k++);
+    for (int idx=0; idx<nparams; idx++) {
+        arr->AddAt(pars[idx],k++);
+        arr->AddAt(Epars[idx],k++);
+    }
+
+    return arr;
+
+} // TArrayF* getKinBinBSA2DGeneric()
 
 /** 
 * Get TGraph of D_LL binned in given kinematic variable with or without bg 
