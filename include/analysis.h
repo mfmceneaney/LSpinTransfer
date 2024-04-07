@@ -483,6 +483,7 @@ TArrayF* getKinBinBSAGeneric(
     double       bin_min,
     double       bin_max,
     double       pol,
+    std::string  depolvar      = "depol",
     std::string  helicity_name = "heli",
     std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
     int          nparams       = 2,
@@ -505,6 +506,10 @@ TArrayF* getKinBinBSAGeneric(
     auto count    = (int)   *f.Count();
     auto mean     = (double)*f.Mean(binvar.c_str());
     auto stddev   = (double)*f.StdDev(binvar.c_str());
+
+    // Compute depolarization factor
+    double depol = (double)*f.Mean(depolvar.c_str());
+    //TODO: Need to figure out why Stefan computed bin average of epsilon but not overall depolarization factor...
 
     // Make subdirectory
     outroot->mkdir(outdir.c_str());
@@ -599,8 +604,8 @@ TArrayF* getKinBinBSAGeneric(
     arr->AddAt(stddev,k++);
     arr->AddAt(count,k++);
     for (int idx=0; idx<nparams; idx++) {
-        arr->AddAt(pars[idx],k++);
-        arr->AddAt(Epars[idx],k++);
+        arr->AddAt(pars[idx]/depol,k++);
+        arr->AddAt(Epars[idx]/depol,k++);
     }
 
     return arr;
@@ -1211,6 +1216,9 @@ void getKinBinnedGraphBSAGeneric(
                     std::ostream &out = std::cout  // Output for all messages
                     ) {
 
+    //DEBUGGING: 4/7/24
+    std::string depolvar = "depol";
+
     // Check arguments
     if (method != "BSA") {out << " *** ERROR *** Method must be BSA.  Exiting...\n"; return;}
     if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
@@ -1318,6 +1326,7 @@ void getKinBinnedGraphBSAGeneric(
             bin_min,
             bin_max,
             pol,
+            depolvar,
             helicity_name,
             fitformula,
             nparams,
@@ -1360,6 +1369,7 @@ void getKinBinnedGraphBSAGeneric(
                 bin_min,
                 bin_max,
                 pol,
+                depolvar,
                 helicity_name,
                 fitformula,
                 nparams,
@@ -1482,6 +1492,7 @@ void getKinBinnedGraphBSAGenericMC(
                     double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     bool         use_bgfraction, // whether to use specified bgfraction
                     double       pol, // Luminosity averaged beam polarization
+                    // std::string  depolvar, // depolarization variable name for asymmetry
                     std::string  mass_name, // mass variable name for signal fit
                     int          n_mass_bins, // number of mass bins
                     double       mass_min, // mass variable max for signal fit
@@ -1502,6 +1513,9 @@ void getKinBinnedGraphBSAGenericMC(
                     int          marker_style = 20, // 20 is circle
                     std::ostream &out = std::cout  // Output for all messages
                     ) {
+
+    //DEBUGGING: 4/7/24
+    std::string depolvar = "depol";
 
     // Check arguments
     if (method != "BSA") {out << " *** ERROR *** Method must be BSA.  Exiting...\n"; return;}
@@ -1614,6 +1628,7 @@ void getKinBinnedGraphBSAGenericMC(
             bin_min,
             bin_max,
             pol,
+            depolvar,
             helicity_name,
             fitformula,
             nparams,
@@ -1656,6 +1671,7 @@ void getKinBinnedGraphBSAGenericMC(
                 bin_min,
                 bin_max,
                 pol,
+                depolvar,
                 helicity_name,
                 fitformula,
                 nparams,
@@ -2108,6 +2124,9 @@ void getKinBinnedGraphBSAGenericLambdaKaon(
                     std::ostream &out = std::cout  // Output for all messages
                     ) {
 
+    //DEBUGGING 4/7/24
+    std::string depolvar = "depol";
+
     // Check arguments
     if (method != "BSA") {out << " *** ERROR *** Method must be BSA.  Exiting...\n"; return;}
     if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
@@ -2215,6 +2234,7 @@ void getKinBinnedGraphBSAGenericLambdaKaon(
             bin_min,
             bin_max,
             pol,
+            depolvar,
             helicity_name,
             fitformula,
             nparams,
@@ -2257,6 +2277,7 @@ void getKinBinnedGraphBSAGenericLambdaKaon(
                 bin_min,
                 bin_max,
                 pol,
+                depolvar,
                 helicity_name,
                 fitformula,
                 nparams,
@@ -2401,6 +2422,9 @@ void getKinBinnedGraphBSAGenericLambdaKaonMC(
                     std::ostream &out = std::cout  // Output for all messages
                     ) {
 
+    //DEBUGGING: 4/7/24
+    std::string depolvar = "depol";
+
     // Check arguments
     if (method != "BSA") {out << " *** ERROR *** Method must be BSA.  Exiting...\n"; return;}
     if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
@@ -2514,6 +2538,7 @@ void getKinBinnedGraphBSAGenericLambdaKaonMC(
             bin_min,
             bin_max,
             pol,
+            depolvar,
             helicity_name,
             fitformula,
             nparams,
@@ -2556,6 +2581,7 @@ void getKinBinnedGraphBSAGenericLambdaKaonMC(
                 bin_min,
                 bin_max,
                 pol,
+                depolvar,
                 helicity_name,
                 fitformula,
                 nparams,
