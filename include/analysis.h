@@ -566,6 +566,7 @@ TArrayF* getKinBinBSAGeneric(
     out << " binmean    = " << mean << "±" << stddev << std::endl;
     out << " bincount   = " << count << std::endl;
     out << " pol        = " << pol << std::endl;
+    out << " depol      = " << depol << std::endl;
     out << " fitformula = " << fitformula.c_str() << std::endl;
     out << " nparams    = " << nparams <<std::endl;
     out << " params = [" ;
@@ -578,11 +579,12 @@ TArrayF* getKinBinBSAGeneric(
     out << "--------------------------------------------------" << std::endl;
 
     // Add Legend
-    TLegend *legend=new TLegend(0.5,0.2,0.75,0.4);
+    TLegend *legend=new TLegend(0.5,0.15,0.75,0.4);
     legend->SetTextSize(0.04);
     legend->SetHeader("Fit Info:","c");
     legend->SetMargin(0.1);
     legend->AddEntry((TObject*)0, Form("#chi^{2}/NDF = %.2f",chi2ndf), Form(" %g ",chi2));
+    legend->AddEntry((TObject*)0, Form("Depol = %.2f",depol), Form(" %g ",depol));
     for (int idx=0; idx<nparams; idx++) {
         legend->AddEntry((TObject*)0, Form("A%d = %.3f #pm %.3f",idx,pars[idx],Epars[idx]), Form(" %g ",chi2));
     }
@@ -709,6 +711,7 @@ TArrayF* getKinBinBSA2DGeneric(
     out << " binmean    = " << mean << "±" << stddev << std::endl;
     out << " bincount   = " << count << std::endl;
     out << " pol        = " << pol << std::endl;
+    out << " depol      = " << depol << std::endl;
     out << " fitformula = " << fitformula.c_str() << std::endl;
     out << " nparams    = " << nparams <<std::endl;
     out << " params = [" ;
@@ -721,11 +724,12 @@ TArrayF* getKinBinBSA2DGeneric(
     out << "--------------------------------------------------" << std::endl;
 
     // Add Legend
-    TLegend *legend=new TLegend(0.5,0.2,0.75,0.4);
+    TLegend *legend=new TLegend(0.5,0.15,0.75,0.4);
     legend->SetTextSize(0.04);
     legend->SetHeader("Fit Info:","c");
     legend->SetMargin(0.1);
     legend->AddEntry((TObject*)0, Form("#chi^{2}/NDF = %.2f",chi2ndf), Form(" %g ",chi2));
+    legend->AddEntry((TObject*)0, Form("Depol = %.2f",depol), Form(" %g ",depol));
     for (int idx=0; idx<nparams; idx++) {
         legend->AddEntry((TObject*)0, Form("A%d = %.3f #pm %.3f",idx,pars[idx],Epars[idx]), Form(" %g ",chi2));
     }
