@@ -621,6 +621,7 @@ TArrayF* getKinBinBSA2DGeneric(
     double       bin_min,
     double       bin_max,
     double       pol,
+    std::string  depolvar      = "depol",
     std::string  helicity_name = "heli",
     std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
     int          nparams       = 2,
@@ -648,6 +649,10 @@ TArrayF* getKinBinBSA2DGeneric(
     auto count    = (int)   *f.Count();
     auto mean     = (double)*f.Mean(binvar.c_str());
     auto stddev   = (double)*f.StdDev(binvar.c_str());
+
+    // Compute depolarization factor
+    double depol = (double)*f.Mean(depolvar.c_str());
+    //TODO: Need to figure out why Stefan computed bin average of epsilon but not overall depolarization factor...
 
     // Make subdirectory
     outroot->mkdir(outdir.c_str());
@@ -742,8 +747,8 @@ TArrayF* getKinBinBSA2DGeneric(
     arr->AddAt(stddev,k++);
     arr->AddAt(count,k++);
     for (int idx=0; idx<nparams; idx++) {
-        arr->AddAt(pars[idx],k++);
-        arr->AddAt(Epars[idx],k++);
+        arr->AddAt(pars[idx]/depol,k++);
+        arr->AddAt(Epars[idx]/depol,k++);
     }
 
     return arr;
@@ -1820,6 +1825,9 @@ void getKinBinnedGraphBSA2DGenericMC(
                     std::ostream &out = std::cout  // Output for all messages
                     ) {
 
+    //DEBUGGING: 4/7/24
+    std::string depolvar = "depol";
+
     // Check arguments
     if (method != "BSA2D") {out << " *** ERROR *** Method must be BSA2D.  Exiting...\n"; return;}
     if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
@@ -1931,6 +1939,7 @@ void getKinBinnedGraphBSA2DGenericMC(
             bin_min,
             bin_max,
             pol,
+            depolvar,
             helicity_name,
             fitformula,
             nparams,
@@ -1978,6 +1987,7 @@ void getKinBinnedGraphBSA2DGenericMC(
                 bin_min,
                 bin_max,
                 pol,
+                depolvar,
                 helicity_name,
                 fitformula,
                 nparams,
