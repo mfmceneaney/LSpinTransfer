@@ -8,8 +8,7 @@ void printPurities(
     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame1,
     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame2,
     std::string binvar,
-    std::vector<double> bins,
-    ) {
+    std::vector<double> bins) {
 
     // Print beginning message
     std::cout<<"binvar = "<<binvar.c_str()<<std::endl;
@@ -40,7 +39,7 @@ void PrintPurities() {
     const char *path    = "/volatile/clas12/users/mfmce/mc_jobs_rgh_ppim_2_29_24/skim_pi_*.root";
     const char *tree    = "t";
     const char *cuts    = "Q2>1 && W>2 && y<0.8";
-    const char *sgcuts  = "pid_pi_mc==211"
+    const char *sgcuts  = "pid_pi_mc==211";
     std::string suffix  = "pi";
 
     gStyle->SetOptStat(0);
