@@ -72,29 +72,53 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "method: " << method << std::endl;
 
-    std::string fitvar = "";
-    if (node["fitvar"]) {
-        fitvar = node["fitvar"].as<std::string>();
+    std::string fitvar1 = "";
+    if (node["fitvar1"]) {
+        fitvar1 = node["fitvar1"].as<std::string>();
     }
-    std::cout << "fitvar: " << fitvar << std::endl;
+    std::cout << "fitvar1: " << fitvar1 << std::endl;
 
-    std::string fitvarformula = "";
-    if (node["fitvarformula"]) {
-        fitvarformula = node["fitvarformula"].as<std::string>();
+    std::string fitvar1formula = "";
+    if (node["fitvar1formula"]) {
+        fitvar1formula = node["fitvar1formula"].as<std::string>();
     }
-    std::cout << "fitvarformula: " << fitvarformula << std::endl;
+    std::cout << "fitvar1formula: " << fitvar1formula << std::endl;
 
-    std::string fitvarformulamc = "";
-    if (node["fitvarformulamc"]) {
-        fitvarformulamc = node["fitvarformulamc"].as<std::string>();
+    std::string fitvar1formulamc = "";
+    if (node["fitvar1formulamc"]) {
+        fitvar1formulamc = node["fitvar1formulamc"].as<std::string>();
     }
-    std::cout << "fitvarformulamc: " << fitvarformulamc << std::endl;
+    std::cout << "fitvar1formulamc: " << fitvar1formulamc << std::endl;
 
-    std::string fitvartitle = "dphi";
-    if (node["fitvartitle"]) {
-        fitvartitle = node["fitvartitle"].as<std::string>();
+    std::string fitvar2 = "";
+    if (node["fitvar2"]) {
+        fitvar2 = node["fitvar2"].as<std::string>();
     }
-    std::cout << "fitvartitle: " << fitvartitle << std::endl;
+    std::cout << "fitvar2: " << fitvar2 << std::endl;
+
+    std::string fitvar2formula = "";
+    if (node["fitvar2formula"]) {
+        fitvar2formula = node["fitvar2formula"].as<std::string>();
+    }
+    std::cout << "fitvar2formula: " << fitvar2formula << std::endl;
+
+    std::string fitvar2formulamc = "";
+    if (node["fitvar2formulamc"]) {
+        fitvar2formulamc = node["fitvar2formulamc"].as<std::string>();
+    }
+    std::cout << "fitvar2formulamc: " << fitvar2formulamc << std::endl;
+
+    std::string fitvar1title = "dphi";
+    if (node["fitvar1title"]) {
+        fitvar1title = node["fitvar1title"].as<std::string>();
+    }
+    std::cout << "fitvar1title: " << fitvar1title << std::endl;
+
+    std::string fitvar2title = "dphi";
+    if (node["fitvar2title"]) {
+        fitvar2title = node["fitvar2title"].as<std::string>();
+    }
+    std::cout << "fitvar2title: " << fitvar2title << std::endl;
 
     //----------------------------------------------------------------------------------------------------//
     std::string gammavar = "gamma";
@@ -399,23 +423,41 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "sg_max: " << sg_max << std::endl;
 
-    int n_fitvar_bins = 10;
-    if (node["n_fitvar_bins"]) {
-        n_fitvar_bins = node["n_fitvar_bins"].as<int>();
+    int n_fitvar1_bins = 10;
+    if (node["n_fitvar1_bins"]) {
+        n_fitvar1_bins = node["n_fitvar1_bins"].as<int>();
     }
-    std::cout << "n_fitvar_bins: " << n_fitvar_bins << std::endl;
+    std::cout << "n_fitvar1_bins: " << n_fitvar1_bins << std::endl;
 
-    double fitvar_min = 0.0;
-    if (node["fitvar_min"]) {
-        fitvar_min = node["fitvar_min"].as<double>();
+    double fitvar1_min = 0.0;
+    if (node["fitvar1_min"]) {
+        fitvar1_min = node["fitvar1_min"].as<double>();
     }
-    std::cout << "fitvar_min: " << fitvar_min << std::endl;
+    std::cout << "fitvar1_min: " << fitvar1_min << std::endl;
 
-    double fitvar_max = 2*TMath::Pi();
-    if (node["fitvar_max"]) {
-        fitvar_max = node["fitvar_max"].as<double>();
+    double fitvar1_max = 2*TMath::Pi();
+    if (node["fitvar1_max"]) {
+        fitvar1_max = node["fitvar1_max"].as<double>();
     }
-    std::cout << "fitvar_max: " << fitvar_max << std::endl;
+    std::cout << "fitvar1_max: " << fitvar1_max << std::endl;
+
+    int n_fitvar2_bins = 10;
+    if (node["n_fitvar2_bins"]) {
+        n_fitvar2_bins = node["n_fitvar2_bins"].as<int>();
+    }
+    std::cout << "n_fitvar2_bins: " << n_fitvar2_bins << std::endl;
+
+    double fitvar2_min = 0.0;
+    if (node["fitvar2_min"]) {
+        fitvar2_min = node["fitvar2_min"].as<double>();
+    }
+    std::cout << "fitvar2_min: " << fitvar2_min << std::endl;
+
+    double fitvar2_max = 2*TMath::Pi();
+    if (node["fitvar2_max"]) {
+        fitvar2_max = node["fitvar2_max"].as<double>();
+    }
+    std::cout << "fitvar2_max: " << fitvar2_max << std::endl;
 
     // Reset signal cuts if requested
     if (sg_min>0.0 && sg_max>0.0) {
@@ -469,14 +511,15 @@ void analysis(const YAML::Node& node) {
     // Create RDataFrame for statistics capabilities and reading tree and set branch names to use
     ROOT::RDataFrame d(tree, inpath);
     std::string helicity_name       = "heli";
-    std::string fitvar_mc = Form("%s_mc",fitvar.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
+    std::string fitvar1_mc = Form("%s_mc",fitvar1.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
+    std::string fitvar2_mc = Form("%s_mc",fitvar2.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string gammavar_mc = Form("%s_mc",gammavar.c_str());//NOTE: CHANGE GAMMAVAR->GAMMAVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string epsilonvar_mc = Form("%s_mc",epsilonvar.c_str());//NOTE: CHANGE EPSILONVAR->EPSILONVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string depolvar_mc = Form("%s_mc",depolvar.c_str());//NOTE: CHANGE DEPOLVAR->DEPOLVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string mc_cuts = "sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0";//NOTE: NOT SURE THAT THESE ARE STILL NECESSARY, 9/14/23.
-    TF1 *fsgasyms = new TF1("fsgasyms",fitformula.c_str(),fitvar_min,fitvar_max);
+    TF2 *fsgasyms = new TF2("fsgasyms",fitformula.c_str(),fitvar1_min,fitvar1_max,fitvar2_min,fitvar2_max,nparams);
     for (int idx=0; idx<nparams; idx++) { fsgasyms->SetParameter(idx,sgasyms[idx]); }
-    TF1 *fbgasyms = new TF1("fbgasyms",fitformula.c_str(),fitvar_min,fitvar_max);
+    TF2 *fbgasyms = new TF2("fbgasyms",fitformula.c_str(),fitvar1_min,fitvar1_max,fitvar2_min,fitvar2_max,nparams);
     for (int idx=0; idx<nparams; idx++) { fbgasyms->SetParameter(idx,bgasyms[idx]); }
     std::string dtheta_name1 = Form("dtheta%s",suffix1.c_str());
     std::string dphi_name1   = Form("dphi%s",suffix1.c_str());
@@ -491,10 +534,13 @@ void analysis(const YAML::Node& node) {
                     .Define(gammavar.c_str(),gammavarformula.c_str())
                     .Define(epsilonvar.c_str(),epsilonvarformula.c_str())
                     .Define(depolvar.c_str(),depolvarformula.c_str())
-                    .Define(fitvar.c_str(),fitvarformula.c_str()) :
+                    .Define(fitvar1.c_str(),fitvar1formula.c_str())
+                    .Define(fitvar2.c_str(),fitvar2formula.c_str()) :
                     d
-                    .Define(fitvar.c_str(),fitvarformula.c_str())
-                    .Define(fitvar_mc.c_str(),fitvarformulamc.c_str())
+                    .Define(fitvar1.c_str(),fitvar1formula.c_str())
+                    .Define(fitvar2.c_str(),fitvar2formula.c_str())
+                    .Define(fitvar1_mc.c_str(),fitvar1formulamc.c_str())
+                    .Define(fitvar2_mc.c_str(),fitvar2formulamc.c_str())
                     .Define(gammavar.c_str(),gammavarformula.c_str())
                     // .Define(gammavar_mc.c_str(),gammavarformulamc.c_str())
                     .Define(epsilonvar.c_str(),epsilonvarformula.c_str())
@@ -514,10 +560,10 @@ void analysis(const YAML::Node& node) {
                     .Filter(Form("(%s) && (%s)",cuts.c_str(),mc_cuts.c_str()))
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
                     .Define("XS", [&fsgasyms,&fbgasyms,&beam_polarization,&dtheta_p1_max,&lund_pid_p1_mc,&dtheta_p2_max,&lund_pid_p2_mc]
-                        (float _fitvar_mc_, float pid_p1_mc, float dtheta_p1, float pid_p2_mc, float dtheta_p2) {
-                            return (float)((pid_p1_mc==lund_pid_p1_mc && pid_p2_mc==lund_pid_p2_mc && dtheta_p1<dtheta_p1_max && dtheta_p2<dtheta_p2_max) ? 0.5*(1+beam_polarization*fsgasyms->Eval(_fitvar_mc_)) : 0.5*(1+beam_polarization*fbgasyms->Eval(_fitvar_mc_))); //NOTE: THIS ASSUMES THAT y and _fitvar_mc_ are zero if no mc truth match found so then distribution is uniform.                  
+                        (float _fitvar1_mc_, float _fitvar2_mc_, float pid_p1_mc, float dtheta_p1, float pid_p2_mc, float dtheta_p2) {
+                            return (float)((pid_p1_mc==lund_pid_p1_mc && pid_p2_mc==lund_pid_p2_mc && dtheta_p1<dtheta_p1_max && dtheta_p2<dtheta_p2_max) ? 0.5*(1+beam_polarization*fsgasyms->Eval(_fitvar1_mc_,_fitvar2_mc_)) : 0.5*(1+beam_polarization*fbgasyms->Eval(_fitvar1_mc_,_fitvar2_mc_))); //NOTE: THIS ASSUMES THAT y and _fitvar_mc_ are zero if no mc truth match found so then distribution is uniform.                  
                         },
-                        {fitvar_mc.c_str(),pid_p1_mc_name.c_str(),dtheta_name1.c_str(),pid_p2_mc_name.c_str(),dtheta_name2.c_str()})
+                        {fitvar1_mc.c_str(),fitvar2_mc.c_str(),pid_p1_mc_name.c_str(),dtheta_name1.c_str(),pid_p2_mc_name.c_str(),dtheta_name2.c_str()})
                     .Define(helicity_name.c_str(), [](float my_rand_var, float XS) {
                         return (float)(my_rand_var<XS ? 1.0 : -1.0);
                     },
@@ -558,7 +604,7 @@ void analysis(const YAML::Node& node) {
         std::string binvar_outdir = Form("binvar_%s",binvar.c_str());
 
         // Get 1D graph binned in given kinematic variable.
-        getKinBinnedGraphBSAGenericMC(
+        getKinBinnedGraphBSA2DGenericMC(
                     outdir, // std::string  outdir,
                     outroot, // TFile      * outroot,
                     frame, // ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
@@ -583,11 +629,16 @@ void analysis(const YAML::Node& node) {
                     helicity_name, // std::string  helicity_name = "heli", // Branch name for helicity
                     fitformula, // std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
                     nparams, // int          nparams = 2, // number of parameters in fit formula above
-                    fitvar, // std::string  fitvar = "dphi", // fitvariable branch name to use
-                    fitvartitle, // std::string  fitvartitle = "#Delta#phi", // fit variable axis title
-                    n_fitvar_bins, // int          n_fitvar_bins = 10, // number of bins for fit variable if using LF method
-                    fitvar_min, // double       fitvar_min = 0.0, // fit variable minimum
-                    fitvar_max, // double       fitvar_max = 2*TMath::Pi(), // fit variable maximum
+                    fitvar1, // std::string  fitvar = "dphi", // fitvariable branch name to use
+                    fitvar1title, // std::string  fitvartitle = "#Delta#phi", // fit variable axis title
+                    n_fitvar1_bins, // int          n_fitvar_bins = 10, // number of bins for fit variable if using LF method
+                    fitvar1_min, // double       fitvar_min = 0.0, // fit variable minimum
+                    fitvar1_max, // double       fitvar_max = 2*TMath::Pi(), // fit variable maximum
+                    fitvar2, // std::string  fitvar = "dphi", // fitvariable branch name to use
+                    fitvar2title, // std::string  fitvartitle = "#Delta#phi", // fit variable axis title
+                    n_fitvar2_bins, // int          n_fitvar_bins = 10, // number of bins for fit variable if using LF method
+                    fitvar2_min, // double       fitvar_min = 0.0, // fit variable minimum
+                    fitvar2_max, // double       fitvar_max = 2*TMath::Pi(), // fit variable maximum
                     graph_title, // std::string  graph_title = "BSA A_{LU} vs. #Delta#phi", // Histogram title
                     marker_color, // int          marker_color = 4, // 4 is blue
                     marker_style, // int          marker_style = 20, // 20 is circle
