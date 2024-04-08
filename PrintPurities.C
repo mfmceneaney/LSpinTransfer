@@ -14,7 +14,7 @@ void printPurities(
     std::cout<<"binvar = "<<binvar.c_str()<<std::endl;
 
     // Loop bins
-    for (int i=0; i<=bins.size(); i++) {
+    for (int i=0; i<bins.size()-1; i++) {
 
         // Create bin cut
         std::string bincut = Form("%s>=%.8f && %s<%.8f",binvar.c_str(),bins[i],binvar.c_str(),bins[i+1]);
