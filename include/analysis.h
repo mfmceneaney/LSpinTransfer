@@ -686,7 +686,7 @@ TArrayF* getKinBinBSA2DGeneric(
     hasym->Draw("COLZ");
 
     // Set fit function
-    TF2 *f1 = new TF2("f1",fitformula.c_str(),xmin,xmax,ymin,ymax,nparams);
+    TF2 *f1 = new TF2("f1",fitformula.c_str(),xmin,xmax,ymin,ymax);
     for (int idx=0; idx<nparams; idx++) {
         f1->SetParameter(idx,1.0);
         f1->SetParName(idx,Form("A%d",idx));
