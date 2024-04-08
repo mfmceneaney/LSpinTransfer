@@ -20,9 +20,9 @@ void printPurities(
         std::string bincut = Form("%s>=%.8f && %s<%.8f",binvar.c_str(),bins[i],binvar.c_str(),bins[i+1]);
         
         // Compute purity
-        int bintotal  = (int)*frame1.Filter(bincut.c_str()).Count();
-        int binsignal = (int)*frame2.Filter(bincut.c_str()).Count();
-        double purity = (double)(binsignal/bintotal);
+        double bintotal  = (double)*frame1.Filter(bincut.c_str()).Count();
+        double binsignal = (double)*frame2.Filter(bincut.c_str()).Count();
+        double purity    = binsignal/bintotal;
         
         // Print out results
         std::cout<<" Bin cut   = "<<bincut.c_str()<<std::endl;
