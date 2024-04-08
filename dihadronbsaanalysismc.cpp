@@ -517,9 +517,9 @@ void analysis(const YAML::Node& node) {
     std::string epsilonvar_mc = Form("%s_mc",epsilonvar.c_str());//NOTE: CHANGE EPSILONVAR->EPSILONVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string depolvar_mc = Form("%s_mc",depolvar.c_str());//NOTE: CHANGE DEPOLVAR->DEPOLVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string mc_cuts = "sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0";//NOTE: NOT SURE THAT THESE ARE STILL NECESSARY, 9/14/23.
-    TF2 *fsgasyms = new TF2("fsgasyms",fitformula.c_str(),fitvar1_min,fitvar1_max,fitvar2_min,fitvar2_max,nparams);
+    TF2 *fsgasyms = new TF2("fsgasyms",fitformula.c_str(),fitvar1_min,fitvar1_max,fitvar2_min,fitvar2_max,nparams,2);
     for (int idx=0; idx<nparams; idx++) { fsgasyms->SetParameter(idx,sgasyms[idx]); }
-    TF2 *fbgasyms = new TF2("fbgasyms",fitformula.c_str(),fitvar1_min,fitvar1_max,fitvar2_min,fitvar2_max,nparams);
+    TF2 *fbgasyms = new TF2("fbgasyms",fitformula.c_str(),fitvar1_min,fitvar1_max,fitvar2_min,fitvar2_max,nparams,2);
     for (int idx=0; idx<nparams; idx++) { fbgasyms->SetParameter(idx,bgasyms[idx]); }
     std::string dtheta_name1 = Form("dtheta%s",suffix1.c_str());
     std::string dphi_name1   = Form("dphi%s",suffix1.c_str());
