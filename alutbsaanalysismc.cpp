@@ -72,11 +72,25 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "method: " << method << std::endl;
 
-    std::string depol_name = "Dy";
-    if (node["depol_name"]) {
-        depol_name = node["depol_name"].as<std::string>();
+    //----------------------------------------------------------------------------------------------------//
+    std::string depolvar = "depol";
+    if (node["depolvar"]) {
+        depolvar = node["depolvar"].as<std::string>();
     }
-    std::cout << "depol_name: " << depol_name << std::endl;
+    std::cout << "depolvar: " << depolvar << std::endl;
+
+    std::string depolvarformula = "";
+    if (node["depolvarformula"]) {
+        depolvarformula = node["depolvarformula"].as<std::string>();
+    }
+    std::cout << "depolvarformula: " << depolvarformula << std::endl;
+
+    std::string depolvarformulamc = "";
+    if (node["depolvarformulamc"]) {
+        depolvarformulamc = node["depolvarformulamc"].as<std::string>();
+    }
+    std::cout << "depolvarformulamc: " << depolvarformulamc << std::endl;
+    //----------------------------------------------------------------------------------------------------//
 
     std::string costheta_name = "costhetaT";
     if (node["costheta_name"]) {
@@ -84,13 +98,13 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "costheta_name: " << costheta_name << std::endl;
 
-    std::string fitvar = "Dy_costhetaT";
+    std::string fitvar = "costhetaT";
     if (node["fitvar"]) {
         fitvar = node["fitvar"].as<std::string>();
     }
     std::cout << "fitvar: " << fitvar << std::endl;
 
-    std::string fitvartitle = "D(y)cos(#theta)_{T}";
+    std::string fitvartitle = "cos(#theta)_{T}";
     if (node["fitvartitle"]) {
         fitvartitle = node["fitvartitle"].as<std::string>();
     }
@@ -419,7 +433,7 @@ void analysis(const YAML::Node& node) {
     // Create RDataFrame for statistics capabilities and reading tree and set branch names to use
     ROOT::RDataFrame d(tree, inpath);
     std::string helicity_name       = "heli";
-    std::string depol_name_mc = Form("%s_mc",depol_name.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
+    // std::string depol_name_mc = Form("%s_mc",depol_name.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string costheta_name_mc = Form("%s_mc",costheta_name.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string fitvar_mc = Form("%s_mc",fitvar.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string mc_cuts = "sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0";//NOTE: NOT SURE THAT THESE ARE STILL NECESSARY, 9/14/23.
@@ -429,13 +443,15 @@ void analysis(const YAML::Node& node) {
     for (int idx=0; idx<nparams; idx++) { fbgasyms->SetParameter(idx,bgasyms[idx]); }
     auto frame = (!inject_asym) ? d.Filter(cuts.c_str())
                     .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
-                    .Define(depol_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"})
-                    .Define(fitvar.c_str(),[](float dy, float ct){ return (float) (dy*ct);},{depol_name.c_str(),costheta_name.c_str()}) :
+                    // .Define(depol_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"})
+                    // .Define(fitvar.c_str(),[](float dy, float ct){ return (float) (dy*ct);},{depol_name.c_str(),costheta_name.c_str()})
+                    .Define(depolvar.c_str(),depolvarformula.c_str()) :
                     d
-                    .Define(depol_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}) //NOTE: CHANGED y->y_mc, JUST FOR SANITY CHECKING.  //NOTE: CHANGE y->y_mc FOR SANITY CHECKING MC ASYMMETRY INJECTION
-                    .Define(fitvar.c_str(),[](float dy, float ct){ return (float) (dy*ct);},{depol_name.c_str(),costheta_name.c_str()})
-                    .Define(depol_name_mc.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
-                    .Define(fitvar_mc.c_str(),[](float dy, float ct) { return (dy*ct);},{depol_name_mc.c_str(),costheta_name_mc.c_str()})
+                    .Define(depolvar.c_str(),depolvarformula.c_str())
+                    // .Define(depol_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}) //NOTE: CHANGED y->y_mc, JUST FOR SANITY CHECKING.  //NOTE: CHANGE y->y_mc FOR SANITY CHECKING MC ASYMMETRY INJECTION
+                    // .Define(fitvar.c_str(),[](float dy, float ct){ return (float) (dy*ct);},{depol_name.c_str(),costheta_name.c_str()})
+                    // .Define(depol_name_mc.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
+                    // .Define(fitvar_mc.c_str(),[](float dy, float ct) { return (dy*ct);},{depol_name_mc.c_str(),costheta_name_mc.c_str()})
                     .Define("dtheta_p",[](float theta_p, float theta_p_mc){ return TMath::Abs(theta_p-theta_p_mc); },{theta_p_name.c_str(),Form("%s_mc",theta_p_name.c_str())})
                     .Define("dtheta_pim",[](float theta_pim, float theta_pim_mc){ return TMath::Abs(theta_pim-theta_pim_mc); },{theta_pim_name.c_str(),Form("%s_mc",theta_pim_name.c_str())})
                     .Define("dphi_p",[](float phi_p, float phi_p_mc){
@@ -507,6 +523,7 @@ void analysis(const YAML::Node& node) {
                     bgfraction, // double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     use_bgfraction, // bool         use_bgfraction, // whether to use specified bgfraction
                     beam_polarization, // double       pol, // Luminosity averaged beam polarization
+                    //DEBUGGING 4/7/24: COMMENTED OUT SO THAT DON'T HAVE TO REDO OTHER EXECUTABLES FOR THE MOMENT: depolvar, // std::string  depolvar, // depolarization variable name for asymmetry
                     mass_name, // std::string  mass_name, // mass variable name for signal fit
                     n_mass_bins, // int          n_mass_bins, // number of mass bins
                     mass_min, // double       mass_min, // mass variable max for signal fit
