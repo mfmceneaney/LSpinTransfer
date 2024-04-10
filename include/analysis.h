@@ -1206,6 +1206,7 @@ void getKinBinnedGraphBSAGeneric(
                     double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     bool         use_bgfraction, // whether to use specified bgfraction
                     double       pol, // Luminosity averaged beam polarization
+                    std::string  depolvar, // Depolarization variable name
                     std::string  mass_name, // mass variable name for signal fit
                     int          n_mass_bins, // number of mass bins
                     double       mass_min, // mass variable max for signal fit
@@ -1224,9 +1225,6 @@ void getKinBinnedGraphBSAGeneric(
                     int          marker_style = 20, // 20 is circle
                     std::ostream &out = std::cout  // Output for all messages
                     ) {
-
-    //DEBUGGING: 4/7/24
-    std::string depolvar = "depol";
 
     // Check arguments
     if (method != "BSA") {out << " *** ERROR *** Method must be BSA.  Exiting...\n"; return;}
@@ -1501,7 +1499,7 @@ void getKinBinnedGraphBSAGenericMC(
                     double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     bool         use_bgfraction, // whether to use specified bgfraction
                     double       pol, // Luminosity averaged beam polarization
-                    // std::string  depolvar, // depolarization variable name for asymmetry
+                    std::string  depolvar, // Depolarization variable name
                     std::string  mass_name, // mass variable name for signal fit
                     int          n_mass_bins, // number of mass bins
                     double       mass_min, // mass variable max for signal fit
@@ -1522,9 +1520,6 @@ void getKinBinnedGraphBSAGenericMC(
                     int          marker_style = 20, // 20 is circle
                     std::ostream &out = std::cout  // Output for all messages
                     ) {
-
-    //DEBUGGING: 4/7/24
-    std::string depolvar = "depol";
 
     // Check arguments
     if (method != "BSA") {out << " *** ERROR *** Method must be BSA.  Exiting...\n"; return;}
@@ -1803,6 +1798,7 @@ void getKinBinnedGraphBSA2DGenericMC(
                     double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     bool         use_bgfraction, // whether to use specified bgfraction
                     double       pol, // Luminosity averaged beam polarization
+                    std::string  depolvar, // Depolarization variable name
                     std::string  mass_name, // mass variable name for signal fit
                     int          n_mass_bins, // number of mass bins
                     double       mass_min, // mass variable max for signal fit
@@ -1828,9 +1824,6 @@ void getKinBinnedGraphBSA2DGenericMC(
                     int          marker_style = 20, // 20 is circle
                     std::ostream &out = std::cout  // Output for all messages
                     ) {
-
-    //DEBUGGING: 4/7/24
-    std::string depolvar = "depol";
 
     // Check arguments
     if (method != "BSA2D") {out << " *** ERROR *** Method must be BSA2D.  Exiting...\n"; return;}
@@ -2119,6 +2112,7 @@ void getKinBinnedGraphBSAGenericLambdaKaon(
                     double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     bool         use_bgfraction, // whether to use specified bgfraction
                     double       pol, // Luminosity averaged beam polarization
+                    std::string  depolvar, // Depolarization variable name
                     std::string  mass_name, // mass variable name for signal fit
                     int          n_mass_bins, // number of mass bins
                     double       mass_min, // mass variable max for signal fit
@@ -2137,9 +2131,6 @@ void getKinBinnedGraphBSAGenericLambdaKaon(
                     int          marker_style = 20, // 20 is circle
                     std::ostream &out = std::cout  // Output for all messages
                     ) {
-
-    //DEBUGGING 4/7/24
-    std::string depolvar = "depol";
 
     // Check arguments
     if (method != "BSA") {out << " *** ERROR *** Method must be BSA.  Exiting...\n"; return;}
@@ -2414,6 +2405,7 @@ void getKinBinnedGraphBSAGenericLambdaKaonMC(
                     double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     bool         use_bgfraction, // whether to use specified bgfraction
                     double       pol, // Luminosity averaged beam polarization
+                    std::string  depolvar, // Depolarization variable name
                     std::string  mass_name, // mass variable name for signal fit
                     int          n_mass_bins, // number of mass bins
                     double       mass_min, // mass variable max for signal fit
@@ -2435,9 +2427,6 @@ void getKinBinnedGraphBSAGenericLambdaKaonMC(
                     int          marker_style = 20, // 20 is circle
                     std::ostream &out = std::cout  // Output for all messages
                     ) {
-
-    //DEBUGGING: 4/7/24
-    std::string depolvar = "depol";
 
     // Check arguments
     if (method != "BSA") {out << " *** ERROR *** Method must be BSA.  Exiting...\n"; return;}

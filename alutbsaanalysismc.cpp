@@ -523,7 +523,7 @@ void analysis(const YAML::Node& node) {
                     bgfraction, // double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     use_bgfraction, // bool         use_bgfraction, // whether to use specified bgfraction
                     beam_polarization, // double       pol, // Luminosity averaged beam polarization
-                    //DEBUGGING 4/7/24: COMMENTED OUT SO THAT DON'T HAVE TO REDO OTHER EXECUTABLES FOR THE MOMENT: depolvar, // std::string  depolvar, // depolarization variable name for asymmetry
+                    depolvar, // std::string  depolvar, // Depolarization variable name
                     mass_name, // std::string  mass_name, // mass variable name for signal fit
                     n_mass_bins, // int          n_mass_bins, // number of mass bins
                     mass_min, // double       mass_min, // mass variable max for signal fit
