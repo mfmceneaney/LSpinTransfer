@@ -472,7 +472,7 @@ if __name__=="__main__":
         'y':[0.0,1.0],
         'z_ppim':[0.0,1.1],
     }
-    ylimss = [-0.5,0.5]
+    ylimss = [-0.75,0.75]
     titles = {
         'costheta1':'Spin Transfer along $P_{\Lambda}$',
         'costheta2':'Spin Transfer along $P_{\gamma^{*}}$',
