@@ -279,6 +279,8 @@ def get_arrs(out_file_list):
             }
 
 def get_plots(
+    results = [],
+    resultse = [],
     x_mean = [],
     y_mean = [],
     xerr_mean = [],
@@ -367,8 +369,8 @@ def get_plots(
         y_mean,
         xerr=xerr_mean,
         yerr=yerr_mean,
-        xerr_syst=xerr_syst,
-        yerr_syst=yerr_syst,
+        xerr_syst=results, #xerr_syst, #NOTE: Add results arrays and errors in last column of tables.
+        yerr_syst=reesultse, #yerr_syst,
         delimiter=delimiter,
         header=header,
         fmt=fmt,
@@ -526,6 +528,7 @@ if __name__=="__main__":
             results = pd.read_csv(resultspath)
             rx = results['x'].to_numpy()
             ry = results['y'].to_numpy()
+            ryerr = results['yerr'].to_numpy()
             print("DEBUGGING: results['y'].to_numpy() = ",results['y'].to_numpy())
             print("DEBUGGING: BEFORE: arrs['y_mean'] = ",arrs['y_mean'])
             arrs['y_mean'] = ((arrs['y_mean'])/ry)
@@ -534,6 +537,8 @@ if __name__=="__main__":
             print("DEBUGGING: arrs = ",arrs)
             get_plots(
                 **arrs,
+                results   = ry,
+                resultse  = ryerr,
                 xerr_syst = xerr_syst,
                 yerr_syst = yerr_syst,
                 xlims   = xlimss[binvar],
