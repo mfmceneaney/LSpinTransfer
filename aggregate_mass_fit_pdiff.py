@@ -370,7 +370,7 @@ def get_plots(
         xerr=xerr_mean,
         yerr=yerr_mean,
         xerr_syst=results, #xerr_syst, #NOTE: Add results arrays and errors in last column of tables.
-        yerr_syst=reesultse, #yerr_syst,
+        yerr_syst=resultse, #yerr_syst,
         delimiter=delimiter,
         header=header,
         fmt=fmt,
