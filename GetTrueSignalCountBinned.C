@@ -135,7 +135,7 @@ void GetTrueSignalCountBinned() {
     for (int i=0; i<nsteps+1; i++) { //NOTE: THE PLUS ONE IS SO YOU GET THE BIN LIMITS RIGHT
         dtheta_p_max   += dtheta_p_step;
         dtheta_pim_max += dtheta_pim_step;
-        std::string match_cut = Form("pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && abs(dtheta_p)<%.4f && abs(dtheta_pim)<%.4f",dtheta_p_max,dtheta_pim_max);
+        std::string match_cut = Form("ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && abs(dtheta_p)<%.4f && abs(dtheta_pim)<%.4f",dtheta_p_max,dtheta_pim_max);
         match_lims.push_back(dtheta_p_max-dtheta_p_step);//NOTE: THE -dtheta_p_step IS SO YOU GET THE BIN LIMITS RIGHT //NOTE: CHANGE THIS IF YOU'RE JUST CHANGING LIMITS FOR ONE PARTICLE TYPE.
         match_cuts.push_back(match_cut);
     }

@@ -121,7 +121,7 @@ void GetTrueSignalFraction() {
     const char *xtitle = "Bin_{min}";
     double dtheta_p_max   = 6*TMath::Pi()/180;
     double dtheta_pim_max = 6*TMath::Pi()/180;
-    std::string match_cut = Form("pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && abs(dtheta_p)<%.4f && abs(dtheta_pim)<%.4f",dtheta_p_max,dtheta_pim_max);
+    std::string match_cut = Form("ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && abs(dtheta_p)<%.4f && abs(dtheta_pim)<%.4f",dtheta_p_max,dtheta_pim_max);
     std::string binvar    = "mass_ppim";
     int    nsteps         = 75;
     double bin_min        = 1.14;

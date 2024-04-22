@@ -122,7 +122,7 @@ void PlotMatchedVertexCorrelationsMC() {
     // Parameters for MC tree
     const char *path2    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_FLAG_MIN_MATCH_AND_FRACTION_DELTAP_9_13_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
     const char *tree2    = "t";
-    const char *cuts2    = "mass_ppim<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0 && pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && abs(theta_p-theta_p_mc)<6.0*TMath::Pi()/180 && abs(theta_pim-theta_pim_mc)<6.0*TMath::Pi()/180";
+    const char *cuts2    = "mass_ppim<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0 && ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && abs(theta_p-theta_p_mc)<6.0*TMath::Pi()/180 && abs(theta_pim-theta_pim_mc)<6.0*TMath::Pi()/180";
     // const char *drawopt  = "";//"PE1";
 
     gStyle->SetOptStat(0);
