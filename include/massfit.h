@@ -141,7 +141,7 @@ TArrayF* LambdaMassFit(
     double endVal = h->GetBinContent(nbins);
     double delVal = (endVal-midVal)/endVal;
     out<<"DEBUGGING: delVal = "<<delVal<<std::endl;
-    if (delVal>0.25) m0 = varMax*1.04;
+    if (delVal>0.25) m0 = varMax*1.0;//DEBUGGING: 4/22/24 varMax*1.04;
     if (delVal<0.1) m0 = varMax*0.96;
     // DEBUGGING: END
     double true_prod_min = 1.078;
@@ -174,10 +174,10 @@ TArrayF* LambdaMassFit(
     double lwdelVal = (firstVal)/hfmidVal;
     out<<"DEBUGGING: lwdelVal = "<<lwdelVal<<std::endl;
     double sig_max_init = h->GetMaximum()/4;
-    if (myratio<1.5) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
+    if (myratio<1.8/*DEBUGGING: 4/22/24: myratio<1.5*/) { //lwdelVal<0.10) {//NOTE: MIGHT NEED TO TUNE THIS
       //sigma_init = 0.006;
       sig_max_init = h->GetMaximum()/10; //REDUCE SIGNAL COEFFICIENT
-      if (myratio<1.3) {
+      if (myratio<1.5/*DEBUGGING: 4/22/24: myratio<1.3*/) {
         double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM
         out<<"DEBUGGING: REASSIGNED prod_min = "<<prod_min<<std::endl;
         beta = 1/((prod_min-m0)*(prod_min-m0));
@@ -204,11 +204,11 @@ N MAYBE...
     func->SetParameters(alpha_init,n_init,sigma_init,1.1157,sig_max_init,hmax,beta,m0);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol2 max","Pol2 beta","Pol2 M0");
     // func->FixParameter(6,37);
-    // func->SetParLimits(0,0.0,1000.0);
+    func->SetParLimits(0,0.0,3.0);
     func->SetParLimits(5,h->GetBinContent(nbins)*0.98,h->GetBinContent(nbins)*10.0);
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
-    func->SetParLimits(1,2.0,1000.0);
+    func->SetParLimits(1,2.0,10.0);
 
 
 
@@ -828,7 +828,7 @@ TArrayF* LambdaMassFitPoly4BG(
     out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
     if (delVal<0.20) {
       double prod_min = varMin - (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM                                                                                                                      
-      m0 = varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...                                                                                                          
+      m0 = varMax*1.025;//DEBUGGING 4/22/24 varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...
       out<<"DEBUGGING: Reassigned m0 = "<<m0<<std::endl;
       beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
       hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));
@@ -870,11 +870,11 @@ TArrayF* LambdaMassFitPoly4BG(
     func->SetParameters(alpha_init,n_init,sigma_init,1.1157,sig_max_init,hmax,par6,par7,par8,par9,par10);
     func->SetParNames("alpha","n","sigma","Mu","C1","Pol4 a0","Pol4 a1","Pol4 a2","Pol4 a3","Pol4 a4","Pol4 a5");
     // func->FixParameter(6,37);
-    func->SetParLimits(0,0.0,1000.0);
+    func->SetParLimits(0,0.0,3.0);
     // func->SetParLimits(5,h->GetBinContent(nbins)*0.98,h->GetBinContent(nbins)*10.0);
     // func->SetParLimits(7,0.0,1.26);
     // func->SetParLimits(1,2.0,100.0);
-    func->SetParLimits(1,2.0,1000.0);
+    func->SetParLimits(1,2.0,10.0);
 
 
 
