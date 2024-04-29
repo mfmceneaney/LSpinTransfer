@@ -555,7 +555,7 @@ if __name__=="__main__":
     # -> Plot and output to csv
 
     # Get list of directories across which to aggregate
-    aggregate_keys = ["inject_seed"] #NOTE: COMMENTED OUT FOR TESTING
+    aggregate_keys = [] #["inject_seed"] #NOTE: COMMENTED OUT FOR TESTING
     var_lims = {
         'Q2':[1.3,11.0],
         #'W':[2.0,5.0],
