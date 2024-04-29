@@ -515,11 +515,11 @@ if __name__=="__main__":
     yaml_path   = base_dir+"args.yaml"
     out_path    = base_dir+"jobs.txt"
     divisions = dict(
-        methods,
+        # methods,
         # **fitvars,
-        #sgasyms,
+        sgasyms,
         #**bgasyms,
-        #**seeds,
+        **seeds,
     )
     print("DEBUGGING: divisions = ",divisions)
 
@@ -555,7 +555,7 @@ if __name__=="__main__":
     # -> Plot and output to csv
 
     # Get list of directories across which to aggregate
-    aggregate_keys = [] #["inject_seed"] #NOTE: COMMENTED OUT FOR TESTING
+    aggregate_keys = ["inject_seed"] #NOTE: COMMENTED OUT FOR TESTING
     var_lims = {
         'Q2':[1.3,11.0],
         #'W':[2.0,5.0],
@@ -645,7 +645,7 @@ if __name__=="__main__":
             file_list = el["file_list"]
             print("DEBUGGING: config = ",el["data_list"])#DEBUGGING
             print("DEBUGGING: file_list = ",el["file_list"])#DEBUGGING
-            arrs = get_arrs(file_list,0.0) #config['sgasyms'][sgasym_idx] #NOTE: DEBUGGING: 4/29/24 SET SGASYM = 0.0
+            arrs = get_arrs(file_list,config['sgasyms'][sgasym_idx])
             outpath = get_outpath(base_dir,aggregate_keys,asym_name,**config)
             csvpath = get_outpath(base_dir_csv_input,aggregate_keys,asym_name,**config)+'.csv'
             print("DEBUGGING: outpath = ",outpath)
