@@ -760,53 +760,48 @@ TArrayF* getKinBinBSA2DGeneric(
 } // TArrayF* getKinBinBSA2DGeneric()
 
 /** 
-* Get TGraph of D_LL binned in given kinematic variable with or without bg 
-* correction using helicity balance (HB) method or linear fit (LF) method.
+* Get TGraph of generic BSA binned in given kinematic variable with or without bg correction.
 */
-void getKinBinnedCountsGraph(
+void getKinBinnedGraphCounts(
                     std::string  outdir,
                     TFile      * outroot,
                     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
-                    std::string  sgcuts,  // Signal cuts
-                    std::string  bgcuts,  // Background cuts
-                    TString      method,  // dll calculation method: either helicity balance (HB) or linear fit (LF)
+                    std::string  sgcuts, // Signal cuts
+                    std::string  bgcuts, // Background cuts
+                    TString      method, // ONLY getKinBinBSAGeneric ('BSA') is allowed at the moment
                     std::string  binvar, // Variable name to bin in
-                    int          nbins,   // Number of bins
-                    double     * bins,    // Bin limits (length=nbins+1)
+                    int          nbins, // Number of bins
+                    double     * bins, // Bin limits (length=nbins+1)
                     int        * poly4bins, // mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
                     double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
-                    bool         use_bgfraction, // whether to use specified epsilon
-                    double       alpha,   // Lambda weak decay asymmetry parameter
-                    double       pol,     // Luminosity averaged beam polarization
+                    bool         use_bgfraction, // whether to use specified bgfraction
+                    double       pol, // Luminosity averaged beam polarization
+                    std::string  depolvar, // Depolarization variable name
                     std::string  mass_name, // mass variable name for signal fit
                     int          n_mass_bins, // number of mass bins
-                    double       mass_min,   // mass variable max for signal fit
-                    double       mass_max,   // mass variable min for signal fit
+                    double       mass_min, // mass variable max for signal fit
+                    double       mass_max, // mass variable min for signal fit
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
-                    double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
-                    double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
-                    std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
-                    std::string  helicity_name       = "heli",      // Branch name for helicity
-                    std::string  fitvar              = "costheta1", // cos(theta) leaf name to use
-                    std::string  fitvar_mc           = "costheta1_mc", // fitvar name for mc if injecting
-                    std::string  depol_name_mc       = "Dy_mc",        // depolarization name for mc if injecting
-                    bool         inject              = false,       // flag for whether to inject asymmetry
-                    TRandom     *gRandom             = new TRandom(),   // Random number generator to use
-                    int          n_fitvar_bins = 10,          // number of bins for fit variable if using LF method
-                    double       fitvar_min = -1.0,       // fit variable minimum
-                    double       fitvar_max = 1.0,        // fit variable maximum
-                    std::string  graph_title          = "Longitudinal Spin Transfer along #vec{p}_{#Lambda}", // Histogram title
-                    int          marker_color         = 4,  // 4 is blue
-                    int          marker_style         = 20, // 20 is circle
-                    std::ostream &out                 = std::cout   // Output for all messages
+                    std::string  helicity_name = "heli", // Branch name for helicity
+                    std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
+                    int          nparams = 2, // number of parameters in fit formula above
+                    std::string  fitvar = "dphi", // fitvariable branch name to use
+                    std::string  fitvartitle = "#Delta#phi", // fit variable axis title
+                    int          n_fitvar_bins = 10, // number of bins for fit variable if using LF method
+                    double       fitvar_min = 0.0, // fit variable minimum
+                    double       fitvar_max = 2*TMath::Pi(), // fit variable maximum
+                    std::string  graph_title = "BSA A_{LU} vs. #Delta#phi", // Histogram title
+                    int          marker_color = 4, // 4 is blue
+                    int          marker_style = 20, // 20 is circle
+                    std::ostream &out = std::cout  // Output for all messages
                     ) {
 
     // Check arguments
-    if (method != "LF" && method != "HB" && method != "BSA" && method !="transverse") {out << " *** ERROR *** Method must be either LF, HB, BSA, or transverse.  Exiting...\n"; return;}
+    if (method != "BSA") {out << " *** ERROR *** Method must be BSA.  Exiting...\n"; return;}
     if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
 
     // Starting message
-    out << "----------------------- getKinBinnedGraph ----------------------\n";
+    out << "----------------------- getKinBinnedGraphCounts ----------------------\n";
     out << "Getting " << binvar << " binned hist...\n";
     out << "bins = { "; for (int i=0; i<nbins; i++) { out << bins[i] << " , ";} out << bins[nbins] << " }\n";
 
@@ -814,88 +809,95 @@ void getKinBinnedCountsGraph(
     outroot->mkdir(outdir.c_str());
     outroot->cd(outdir.c_str());
 
+    // NOTE: Fix number of parameters to 1 since you are just counting!
+    nparams = 1;
+
     // Initialize data arrays
-    double means[nbins];
-    double errx[nbins];
-    double counts[nbins];
-    double erry[nbins];
+    double xs[nbins];
+    double exs[nbins];
+
+    double ys[nparams][nbins]; //NOTE: THESE WILL BE COUNTS.
+    double eys[nparams][nbins];
 
     // Loop bins and get data
-    for (int i=1; i<=nbins; i++) {
-        double bin_min = bins[i-1];
-        double bin_max = bins[i];
+    for (int binidx=0; binidx<nbins; binidx++) {
+        double bin_min = bins[binidx];
+        double bin_max = bins[binidx+1];
 
         // Make bin cut on frame
         std::string  bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
         auto bin_frame = frame.Filter(bin_cut.c_str());
 
-        // Get 
-        double count = (double)*bin_frame.Count();
-        double mean = (double)*bin_frame.Mean(binvar.c_str());
-        double stddev = (double)*bin_frame.StdDev(binvar.c_str());
+        // Get bin data
+        int idx = 0;
+        xs[binidx]       = (double)*bin_frame.Mean(binvar.c_str());
+        exs[binidx]      = (double)*bin_frame.StdDev(binvar.c_str());
+        ys[idx][binidx]  = (double)*bin_frame.Count();
+        eys[idx][binidx] = TMath::Sqrt(ys[idx][binidx]);
 
-        // Add data to arrays
-        
-        means[i-1]  = mean;
-        errx[i-1]   = stddev;
-        counts[i-1] = count;
-        erry[i-1]   = TMath::Sqrt(count);
     }
 
-    // Create graph of results binned in binvar
-    TGraphErrors *gr = new TGraphErrors(nbins,means,counts,errx,erry);
-    gr->Write("gr");
+    // Loop results and plot
+    for (int idx=0; idx<nparams; idx++) {
 
-    // Plot results graph
-    TCanvas *c1 = new TCanvas();
-    c1->SetBottomMargin(0.125);
-    c1->cd(0);
+        // Create graph of results binned in binvar
+        TGraphErrors *gr = new TGraphErrors(nbins,xs,ys[idx],exs,eys[idx]);
+        gr->Write("gr");
 
-    // Stylistic choices that aren't really necessary
-    gStyle->SetEndErrorSize(5); gStyle->SetTitleFontSize(0.05);
-    gr->SetMarkerSize(1.25);
-    gr->GetXaxis()->SetTitleSize(0.05);
-    gr->GetXaxis()->SetTitleOffset(0.9);
-    gr->GetYaxis()->SetTitleSize(0.05);
-    gr->GetYaxis()->SetTitleOffset(0.9);
+        // Plot results graph
+        TCanvas *c1 = new TCanvas();
+        c1->SetBottomMargin(0.125);
+        c1->cd(0);
 
-    // More necessary stylistic choices
-    gr->SetTitle(graph_title.c_str());
-    gr->SetMarkerColor(marker_color); // 4  blue
-    gr->SetMarkerStyle(marker_style); // 20 circle
-    gr->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
-    gr->GetXaxis()->SetTitle(binvar.c_str());
-    gr->GetYaxis()->SetTitle("Counts");
-    gr->Draw("PA");
+        // Stylistic choices that aren't really necessary
+        gStyle->SetEndErrorSize(5); gStyle->SetTitleFontSize(0.05);
+        gr->SetMarkerSize(1.25);
+        gr->GetXaxis()->SetTitleSize(0.05);
+        gr->GetXaxis()->SetTitleOffset(0.9);
+        gr->GetYaxis()->SetTitleSize(0.05);
+        gr->GetYaxis()->SetTitleOffset(0.9);
 
-    // Add CLAS12 Preliminary watermark
-    TLatex *lt = new TLatex(0.3,0.2,"CLAS12 Preliminary");
-    lt->SetTextAngle(45);
-    lt->SetTextColor(18);
-    lt->SetTextSize(0.1);
-    lt->SetNDC();
-    lt->Draw();
+        // More necessary stylistic choices
+        gr->SetTitle(graph_title.c_str());
+        gr->SetMarkerColor(marker_color); // 4  blue
+        gr->SetMarkerStyle(marker_style); // 20 circle
+        gr->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
+        gr->GetXaxis()->SetTitle(binvar.c_str());
+        std::string ytitle = Form("BSA A%d",idx);
+        gr->GetYaxis()->SetTitle(ytitle.c_str());
+        gr->Draw("PA");
 
-    // Add zero line
-    TF1 *f2 = new TF1("f2","0",bins[0],bins[nbins]);
-    f2->SetLineColor(1); // 1 black
-    f2->SetLineWidth(1); // 1 thinnest
-    f2->Draw("SAME");
+        // Add CLAS12 Preliminary watermark
+        TLatex *lt = new TLatex(0.3,0.2,"CLAS12 Preliminary");
+        lt->SetTextAngle(45);
+        lt->SetTextColor(18);
+        lt->SetTextSize(0.1);
+        lt->SetNDC();
+        lt->Draw();
 
-    // Set outname and save
-    TString fname;
-    fname.Form("%s_%s_%s_%.3f_%.3f_sgasym_%.2f_bgasym_%.2f",(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],sgasym,bgasym);
-    c1->Print(fname+".pdf");
-    gr->SaveAs(fname+".root","recreate");
+        // Add zero line
+        TF1 *f2 = new TF1("f2","0",bins[0],bins[nbins]);
+        f2->SetLineColor(1); // 1 black
+        f2->SetLineWidth(1); // 1 thinnest
+        f2->Draw("SAME");
+
+        // Set outname and save
+        TString fname;
+        fname.Form("%s_%s_%s_%.3f_%.3f_A%d",(const char*)method,fitvar.c_str(),binvar.c_str(),bins[0],bins[nbins],idx);
+        c1->Print(fname+".pdf");
+        gr->SaveAs(fname+".root","recreate");
+
+        // Output message
+        out << " Saved graph to " << fname << ".root\n";
+    }
 
     // Cd out of outdir
     outroot->cd("..");
 
     // Ending message
-    out << " Saved graph to " << fname << ".root\n";
-    out << "------------------- END of getKinBinnedGraph -------------------\n";
+    out << "------------------- END of getKinBinnedGraphCounts -------------------\n";
 
-} // getKinBinnedCountsGraph()
+} // getKinBinnedGraphCounts()
 
 /** 
 * Get TGraph of D_LL binned in given kinematic variable with or without bg 

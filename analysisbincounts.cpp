@@ -6,9 +6,6 @@
 // YAML Includes
 #include <yaml-cpp/yaml.h>
 
-// // ARGPARSE Includes
-// #include "argparse.h"
-
 // ROOT Includes
 #include <TFile.h>
 #include <ROOT/RDataFrame.hxx>
@@ -75,11 +72,103 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "method: " << method << std::endl;
 
+    //----------------------------------------------------------------------------------------------------//
+    std::string gammavar = "gamma";
+    if (node["gammavar"]) {
+        gammavar = node["gammavar"].as<std::string>();
+    }
+    std::cout << "gammavar: " << gammavar << std::endl;
+
+    std::string gammavarformula = "";
+    if (node["gammavarformula"]) {
+        gammavarformula = node["gammavarformula"].as<std::string>();
+    }
+    std::cout << "gammavarformula: " << gammavarformula << std::endl;
+
+    std::string gammavarformulamc = "";
+    if (node["gammavarformulamc"]) {
+        gammavarformulamc = node["gammavarformulamc"].as<std::string>();
+    }
+    std::cout << "gammavarformulamc: " << gammavarformulamc << std::endl;
+
+    std::string epsilonvar = "epsilon";
+    if (node["epsilonvar"]) {
+        epsilonvar = node["epsilonvar"].as<std::string>();
+    }
+    std::cout << "epsilonvar: " << epsilonvar << std::endl;
+
+    std::string epsilonvarformula = "";
+    if (node["epsilonvarformula"]) {
+        epsilonvarformula = node["epsilonvarformula"].as<std::string>();
+    }
+    std::cout << "epsilonvarformula: " << epsilonvarformula << std::endl;
+
+    std::string epsilonvarformulamc = "";
+    if (node["epsilonvarformulamc"]) {
+        epsilonvarformulamc = node["epsilonvarformulamc"].as<std::string>();
+    }
+    std::cout << "epsilonvarformulamc: " << epsilonvarformulamc << std::endl;
+
+    std::string depolvar = "depol";
+    if (node["depolvar"]) {
+        depolvar = node["depolvar"].as<std::string>();
+    }
+    std::cout << "depolvar: " << depolvar << std::endl;
+
+    std::string depolvarformula = "";
+    if (node["depolvarformula"]) {
+        depolvarformula = node["depolvarformula"].as<std::string>();
+    }
+    std::cout << "depolvarformula: " << depolvarformula << std::endl;
+
+    std::string depolvarformulamc = "";
+    if (node["depolvarformulamc"]) {
+        depolvarformulamc = node["depolvarformulamc"].as<std::string>();
+    }
+    std::cout << "depolvarformulamc: " << depolvarformulamc << std::endl;
+    //----------------------------------------------------------------------------------------------------//
+
     std::string fitvar = "";
     if (node["fitvar"]) {
         fitvar = node["fitvar"].as<std::string>();
     }
     std::cout << "fitvar: " << fitvar << std::endl;
+
+    std::string fitvarformula = "";
+    if (node["fitvarformula"]) {
+        fitvarformula = node["fitvarformula"].as<std::string>();
+    }
+    std::cout << "fitvarformula: " << fitvarformula << std::endl;
+
+    std::string fitvarformulamc = "";
+    if (node["fitvarformulamc"]) {
+        fitvarformulamc = node["fitvarformulamc"].as<std::string>();
+    }
+    std::cout << "fitvarformulamc: " << fitvarformulamc << std::endl;
+
+    std::string fitvartitle = "dphi";
+    if (node["fitvartitle"]) {
+        fitvartitle = node["fitvartitle"].as<std::string>();
+    }
+    std::cout << "fitvartitle: " << fitvartitle << std::endl;
+
+    std::string suffix1 = "ppim";
+    if (node["suffix1"]) {
+        suffix1 = node["suffix1"].as<std::string>();
+    }
+    std::cout << "suffix1: " << suffix1 << std::endl;
+
+    std::string fitformula = "[0]*sin(x)+[1]*sin(2*x)";
+    if (node["fitformula"]) {
+        fitformula = node["fitformula"].as<std::string>();
+    }
+    std::cout << "fitformula: " << fitformula << std::endl;
+
+    int nparams = 2;
+    if (node["nparams"]) {
+        nparams = node["nparams"].as<int>();
+    }
+    std::cout << "nparams: " << nparams << std::endl;
 
     std::map<std::string,std::vector<double>> binvars;
     std::map<std::string,std::vector<int>> poly4map;
@@ -143,7 +232,7 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "bgfraction: " << bgfraction << std::endl;
 
-    bool use_bgfraction = false;
+    bool use_bgfraction = true;
     if (node["use_bgfraction"]) {
         use_bgfraction = node["use_bgfraction"].as<bool>();
     }
@@ -161,27 +250,49 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "inject_asym: " << inject_asym << std::endl;
 
-    double sgasym;
-    if (node["sgasym"]) {
-        sgasym = node["sgasym"].as<double>();
+    std::vector<double> sgasyms;
+    if (node["sgasyms"]) {
+        sgasyms = node["sgasyms"].as<std::vector<double>>();
     }
-    std::cout << "sgasym: " << sgasym << std::endl;
-
-    double bgasym;
-    if (node["bgasym"]) {
-        bgasym = node["bgasym"].as<double>();
+    std::cout << "sgasyms: [ ";
+    for (int idx=0; idx<sgasyms.size(); idx++) {
+        if (idx!=sgasyms.size()-1) { std::cout<<sgasyms[idx]<<", "; }
+        else { std::cout<<sgasyms[idx]; }
     }
-    std::cout << "bgasym: " << bgasym << std::endl;
+    std::cout<<" ]"<<std::endl;
 
-    double beam_polarization   = 0.8922; // Average Polarization for Fall 2018 Outbending data runs >= 5331
+    std::vector<double> bgasyms;
+    if (node["bgasyms"]) {
+        bgasyms = node["bgasyms"].as<std::vector<double>>();
+    }
+    std::cout << "bgasyms: [ ";
+    for (int idx=0; idx<bgasyms.size(); idx++) {
+        if (idx!=bgasyms.size()-1) { std::cout<<bgasyms[idx]<<", "; }
+        else { std::cout<<bgasyms[idx]; }
+    }
+    std::cout<<" ]"<<std::endl;
+
+    double beam_polarization   = 1.0; // 0.8922; // Average Polarization for Fall 2018 Outbending data runs >= 5331
     if (node["beam_polarization"]) {
         beam_polarization = node["beam_polarization"].as<double>();
     }
     std::cout << "beam_polarization: " << beam_polarization << std::endl;
 
+    double lund_pid_p_mc = 211; //NOTE: Lund PID to which to match reconstructed particles for choosing whether to inject asymmetry.
+    if (node["lund_pid_p_mc"]) {
+        lund_pid_p_mc = node["lund_pid_p_mc"].as<double>();
+    }
+    std::cout << "lund_pid_p_mc: " << lund_pid_p_mc << std::endl;
+
+    std::string pid_p_mc_name = "pid_pi_mc"; //NOTE: You must specify the branch name of the MC PID which will be check against the above lund PID.
+    if (node["pid_p_mc_name"]) {
+        pid_p_mc_name = node["pid_p_mc_name"].as<std::string>();
+    }
+    std::cout << "pid_p_mc_name: " << pid_p_mc_name << std::endl;
+
     std::string mass_name = "mass_ppim";
     if (node["mass_name"]) {
-        mass_name = node["mass_name"].as<std::string>();   
+        mass_name = node["mass_name"].as<std::string>();
     }
     std::cout << "mass_name: " << mass_name << std::endl;
 
@@ -276,13 +387,13 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "n_fitvar_bins: " << n_fitvar_bins << std::endl;
 
-    double fitvar_min = -1.0;
+    double fitvar_min = 0.0;
     if (node["fitvar_min"]) {
         fitvar_min = node["fitvar_min"].as<double>();
     }
     std::cout << "fitvar_min: " << fitvar_min << std::endl;
 
-    double fitvar_max = 1.0;
+    double fitvar_max = 2*TMath::Pi();
     if (node["fitvar_max"]) {
         fitvar_max = node["fitvar_max"].as<double>();
     }
@@ -303,7 +414,7 @@ void analysis(const YAML::Node& node) {
     //NOTE: END ADDED FOR TESTING 10/18/23
 
     //----------------------------------------------------------------------------------------------------//
-    // ANALYSIS
+    // BSA ANALYSIS
     //----------------------------------------------------------------------------------------------------//
     
     // Allow multithreading
@@ -339,50 +450,51 @@ void analysis(const YAML::Node& node) {
 
     // Create RDataFrame for statistics capabilities and reading tree and set branch names to use
     ROOT::RDataFrame d(tree, inpath);
-    std::string depolarization_name = "Dy";
     std::string helicity_name       = "heli";
-    std::string depol_name_mc       = "Dy_mc";
     std::string fitvar_mc = Form("%s_mc",fitvar.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
-    std::string mc_cuts = "!TMath::IsNaN(costheta1_mc) && !TMath::IsNaN(costheta2_mc) && sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0";//NOTE: NOT SURE THAT THESE ARE STILL NECESSARY, 9/14/23.
-    std::cout<<"DEBUGGING: in analysis.cpp: mc_cuts = \n\t"<<mc_cuts<<std::endl;//DEBUGGING
-    auto frame = (!inject_asym) ? d.Filter(cuts.c_str())
+    std::string gammavar_mc = Form("%s_mc",gammavar.c_str());//NOTE: CHANGE GAMMAVAR->GAMMAVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
+    std::string epsilonvar_mc = Form("%s_mc",epsilonvar.c_str());//NOTE: CHANGE EPSILONVAR->EPSILONVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
+    std::string depolvar_mc = Form("%s_mc",depolvar.c_str());//NOTE: CHANGE DEPOLVAR->DEPOLVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
+    std::string mc_cuts = "sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0";//NOTE: NOT SURE THAT THESE ARE STILL NECESSARY, 9/14/23.
+    TF1 *fsgasyms = new TF1("fsgasyms",fitformula.c_str(),fitvar_min,fitvar_max);
+    for (int idx=0; idx<nparams; idx++) { fsgasyms->SetParameter(idx,sgasyms[idx]); }
+    TF1 *fbgasyms = new TF1("fbgasyms",fitformula.c_str(),fitvar_min,fitvar_max);
+    for (int idx=0; idx<nparams; idx++) { fbgasyms->SetParameter(idx,bgasyms[idx]); }
+    std::string dtheta_name = Form("dtheta%s",suffix1.c_str());
+    std::string dphi_name   = Form("dphi%s",suffix1.c_str());
+    std::string theta_name = Form("theta%s",suffix1.c_str());
+    std::string phi_name   = Form("phi%s",suffix1.c_str());
+    auto frame = (!inject_asym) ? d.Filter(cuts.c_str()) 
                     .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
-                    .Define(depolarization_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}) :
-                    d // INJECT ASYMMETRY BELOW
-                    .Define("dtheta_p",[](float theta_p, float theta_p_mc){ return TMath::Abs(theta_p-theta_p_mc); },{"theta_p","theta_p_mc"})
-                    .Define("dtheta_pim",[](float theta_pim, float theta_pim_mc){ return TMath::Abs(theta_pim-theta_pim_mc); },{"theta_pim","theta_pim_mc"})
-                    .Define("dphi_p",[](float phi_p, float phi_p_mc){
+                    .Define(gammavar.c_str(),gammavarformula.c_str())
+                    .Define(epsilonvar.c_str(),epsilonvarformula.c_str())
+                    .Define(depolvar.c_str(),depolvarformula.c_str())
+                    .Define(fitvar.c_str(),fitvarformula.c_str()) :
+                    d
+                    .Define(fitvar.c_str(),fitvarformula.c_str())
+                    .Define(fitvar_mc.c_str(),fitvarformulamc.c_str())
+                    .Define(gammavar.c_str(),gammavarformula.c_str())
+                    // .Define(gammavar_mc.c_str(),gammavarformulamc.c_str())
+                    .Define(epsilonvar.c_str(),epsilonvarformula.c_str())
+                    // .Define(epsilonvar_mc.c_str(),epsilonvarformulamc.c_str())
+                    .Define(depolvar.c_str(),depolvarformula.c_str())
+                    // .Define(depolvar_mc.c_str(),depolvarformulamc.c_str())
+                    .Define(dtheta_name.c_str(),[](float theta_p, float theta_p_mc){ return (float)TMath::Abs(theta_p-theta_p_mc); },{theta_name.c_str(),Form("%s_mc",theta_name.c_str())})
+                    .Define(dphi_name.c_str(),[](float phi_p, float phi_p_mc){
                         return (float) (TMath::Abs(phi_p-phi_p_mc)<TMath::Pi()
                         ? TMath::Abs(phi_p-phi_p_mc) : 2*TMath::Pi() - TMath::Abs(phi_p-phi_p_mc));
-                        },{"phi_p","phi_p_mc"})
-                    .Define("dphi_pim",[](float phi_pim, float phi_pim_mc){
-                        return (float) (TMath::Abs(phi_pim-phi_pim_mc)<TMath::Pi()
-                        ? TMath::Abs(phi_pim-phi_pim_mc) : 2*TMath::Pi() - TMath::Abs(phi_pim-phi_pim_mc));
-                        },{"phi_pim","phi_pim_mc"})
+                        },{phi_name.c_str(),Form("%s_mc",phi_name.c_str())})
                     .Filter(Form("(%s) && (%s)",cuts.c_str(),mc_cuts.c_str()))
-                    .Define(depolarization_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}) //NOTE: CHANGE y->y_mc FOR SANITY CHECKING MC ASYMMETRY INJECTION
-                    .Define(depol_name_mc.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
-                    .Define("XS", [&alpha,&bgasym,&sgasym,&beam_polarization,&dtheta_p_max,&dtheta_pim_max]
-                        (float Dy, float costheta, float ppid_p_mc, float pidx_p_mc, float pidx_pim_mc, float dtheta_p, float dtheta_pim) {
-                            return (float)((ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max) ? 0.5*(1.0 + alpha*Dy*beam_polarization*sgasym*costheta) : 0.5*(1.0 + alpha*Dy*beam_polarization*bgasym*costheta)); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.                  
+                    .Define("XS", [&fsgasyms,&fbgasyms,&beam_polarization,&dtheta_p_max,&lund_pid_p_mc]
+                        (float _fitvar_mc_, float pid_p_mc, float dtheta_p) {
+                            return (float)((pid_p_mc==lund_pid_p_mc && dtheta_p<dtheta_p_max) ? 0.5*(1+beam_polarization*fsgasyms->Eval(_fitvar_mc_)) : 0.5*(1+beam_polarization*fbgasyms->Eval(_fitvar_mc_))); //NOTE: THIS ASSUMES THAT y and _fitvar_mc_ are zero if no mc truth match found so then distribution is uniform.                  
                         },
-                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"ppid_p_mc","pidx_p_mc","pidx_pim_mc","dtheta_p","dtheta_pim"})
+                        {fitvar_mc.c_str(),pid_p_mc_name.c_str(),dtheta_name.c_str()})
                     .Define(helicity_name.c_str(), [](float my_rand_var, float XS) {
                         return (float)(my_rand_var<XS ? 1.0 : -1.0);
                     },
                     {"my_rand_var","XS"});
-                    /* NOTE: OLD
-                    .Define(helicity_name.c_str(), [&alpha,&bgasym,&sgasym,&beam_polarization,&dtheta_p_max,&dtheta_pim_max,&dphi_p_max,&dphi_pim_max]
-                        (float Dy, float costheta, float my_rand_var, float ppid_p_mc, float pidx_p_mc, float pidx_pim_mc, float dtheta_p, float dtheta_pim, float dphi_p, float dphi_pim) {
-                        return (float)(my_rand_var<(
-                            (dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max && dphi_p<dphi_p_max && dphi_pim<dphi_pim_max) 
-                            ? ((ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc)
-                            ? 0.5*(1.0 + alpha*Dy*beam_polarization*sgasym*costheta) : 0.5*(1.0 + alpha*Dy*beam_polarization*bgasym*costheta)) : 0.5) //NOTE: COULD INJECT ASYM HERE FOR BG -> THEN NEED BGASYM AND SGASYM AS ARGS FOR THESE FUNCS.
-                            ? 1.0 : -1.0); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
-                        },
-                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"my_rand_var","ppid_p_mc","pidx_p_mc","pidx_pim_mc","dtheta_p","dtheta_pim","dphi_p","dphi_pim"}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
-                    */
 
     if (inject_asym) {
         double my_testvar  = (double)*frame.Mean("my_rand_var");
@@ -390,7 +502,6 @@ void analysis(const YAML::Node& node) {
         double my_testvar2 = (double)*frame.Mean(helicity_name.c_str());
     }
     
-
     // Create output log
     std::ofstream outf; outf.open(logpath.c_str());
     std::ostream &out = outf; //std::cout;
@@ -420,43 +531,41 @@ void analysis(const YAML::Node& node) {
         std::string binvar_outdir = Form("binvar_%s",binvar.c_str());
 
         // Get 1D graph binned in given kinematic variable.
-        getKinBinnedCountsGraph(
-                    binvar_outdir,
-                    outroot, // TFile *outroot,
-                    frame, // ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> __frame__,
-                    sgcuts, // std::string  sgcuts,  // Signal cuts
-                    bgcuts, // std::string  bgcuts,  // Background cuts
-                    method, // TString      method,  // DLL calculation method: either helicity balance (HB) or linear fit (LF)
+        getKinBinnedGraphCounts(
+                    outdir, // std::string  outdir,
+                    outroot, // TFile      * outroot,
+                    frame, // ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
+                    sgcuts, // std::string  sgcuts, // Signal cuts
+                    bgcuts, // std::string  bgcuts, // Background cuts
+                    method, // TString      method, // ONLY getKinBinBSAGeneric ('BSA') is allowed at the moment
                     binvar, // std::string  binvar, // Variable name to bin in
-                    nbins, // int          nbins,   // Number of bins
-                    bins, // double     * bins,    // Bin limits (length=nbins+1)
-                    poly4bins, // int        * poly4bins,// mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
-                    bgfraction, // double       epsilon_, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
-                    use_bgfraction, // bool         use_epsilon, // whether to use specified epsilon
-                    alpha, // double       alpha,   // Lambda weak decay asymmetry parameter
-                    beam_polarization, // double       pol,     // Luminosity averaged beam polarization
-                    mass_name,// std::string  mass_name, // mass variable name for signal fit
-                    n_mass_bins,// int          n_mass_bins, // number of mass bins
-                    mass_min,// double       mass_min,   // mass variable max for signal fit
-                    mass_max,// double       mass_max,   // mass variable min for signal fit
-                    mass_draw_opt,// std::string  mass_draw_opt, // mass variable hist draw option for fit
-                    sgasym,// double       sgasym   = 0.00,        // Asymmetry to inject to signal in MC
-                    bgasym,// double       bgasym   = 0.00,        // Asymmetry to inject to background in MC
-                    depolarization_name,// std::string  depol    = "Dy",        // Branch name for depolarization factor
-                    helicity_name,// std::string  helicity = "heli",      // Branch name for helicity
-                    fitvar,// std::string  fitvar   = "costheta1", // cos(theta) leaf name to use
-                    fitvar_mc,// std::string fitvar_mc           = "costheta1_mc",
-                    depol_name_mc,// std::string  depol_name_mc       = "Dy_mc",
-                    inject_asym,// bool inject = false, // flag for whether to inject asymmetry
-                    gRandom,// TRandom * gRandom = TRandom(), // Random number generator to use
-                    n_fitvar_bins,//   int          n_fitvar_bins = 10,          // number of bins for fit variable if using LF or BSA method
-                    fitvar_min,//   double       fitvar_min = -1.0,       // fit variable minimum
-                    fitvar_max,//   double       fitvar_max = 1.0,        // fit variable maximum
-                    graph_title, // std::string  title    = "Longitudinal Spin Transfer along #vec{p}_{#Lambda}", // Histogram title
-                    marker_color, // int          marker_color = 4,  // 4 is blue
+                    nbins, // int          nbins, // Number of bins
+                    bins, // double     * bins, // Bin limits (length=nbins+1)
+                    poly4bins, // int        * poly4bins, // mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
+                    bgfraction, // double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
+                    use_bgfraction, // bool         use_bgfraction, // whether to use specified bgfraction
+                    beam_polarization, // double       pol, // Luminosity averaged beam polarization
+                    depolvar, // std::string  depolvar, // Depolarization variable name
+                    mass_name, // std::string  mass_name, // mass variable name for signal fit
+                    n_mass_bins, // int          n_mass_bins, // number of mass bins
+                    mass_min, // double       mass_min, // mass variable max for signal fit
+                    mass_max, // double       mass_max, // mass variable min for signal fit
+                    // dtheta_p_max, // double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
+                    // dtheta_pim_max, // double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
+                    mass_draw_opt, // std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    helicity_name, // std::string  helicity_name = "heli", // Branch name for helicity
+                    fitformula, // std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
+                    nparams, // int          nparams = 2, // number of parameters in fit formula above
+                    fitvar, // std::string  fitvar = "dphi", // fitvariable branch name to use
+                    fitvartitle, // std::string  fitvartitle = "#Delta#phi", // fit variable axis title
+                    n_fitvar_bins, // int          n_fitvar_bins = 10, // number of bins for fit variable if using LF method
+                    fitvar_min, // double       fitvar_min = 0.0, // fit variable minimum
+                    fitvar_max, // double       fitvar_max = 2*TMath::Pi(), // fit variable maximum
+                    graph_title, // std::string  graph_title = "BSA A_{LU} vs. #Delta#phi", // Histogram title
+                    marker_color, // int          marker_color = 4, // 4 is blue
                     marker_style, // int          marker_style = 20, // 20 is circle
-                    out // std::ostream &out        = std::cout   // Output for all messages
-        );
+                    out // std::ostream &out = std::cout  // Output for all messages
+                    );
 
     }// loop over bin variables
 
