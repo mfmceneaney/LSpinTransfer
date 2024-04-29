@@ -508,9 +508,9 @@ if __name__=="__main__":
     # Results file paths and config
     base_dir    = "results_pipbsaanalysis_mc_asym_injection_rgh__4_19_24/" #NOTE: DON'T FORGET ABOUT NOSECTOR4 SCENARIO
     base_dir_csv_input = base_dir.replace('rgh','rga').replace('_noSector4','')#NOTE: ADDED 4/29/24
-    output_dir_rga_data = base_dir.replace('mc_asym_injection','counts').replace('rgh','rga').replace('mc','data')+"method_BSA/"
-    output_dir_rga_mc   = base_dir.replace('mc_asym_injection','counts').replace('rgh','rga')+"method_BSA/"
-    output_dir_rgh_mc   = base_dir.replace('mc_asym_injection','counts')+"method_BSA/"
+    output_dir_rga_data = base_dir.replace('mc_asym_injection','counts_mc').replace('rgh','rga').replace('mc','data')+"method_BSA/"
+    output_dir_rga_mc   = base_dir.replace('mc_asym_injection','counts_mc').replace('rgh','rga')+"method_BSA/"
+    output_dir_rgh_mc   = base_dir.replace('mc_asym_injection','counts_mc')+"method_BSA/"
     submit_path = base_dir+"submit.sh"
     yaml_path   = base_dir+"args.yaml"
     out_path    = base_dir+"jobs.txt"
