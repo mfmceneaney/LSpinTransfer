@@ -797,7 +797,7 @@ void getKinBinnedGraphCounts(
                     ) {
 
     // Check arguments
-    if (method != "BSA") {out << " *** ERROR *** Method must be BSA.  Exiting...\n"; return;}
+    // if (method != "BSA") {out << " *** ERROR *** Method must be BSA.  Exiting...\n"; return;}
     if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
 
     // Starting message
