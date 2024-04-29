@@ -506,20 +506,20 @@ if __name__=="__main__":
     # -> e.g., loop keys if key is aggregate run aggregation otherwise you're creating a new file each time...
 
     # Results file paths and config
-    base_dir    = "results_pipbsaanalysis_mc_asym_injection_rgh__4_19_24/" #"systematics/mc_asym_injection/"
+    base_dir    = "results_pipbsaanalysis_mc_asym_injection_rgh__4_19_24/" #NOTE: DON'T FORGET ABOUT NOSECTOR4 SCENARIO
     base_dir_csv_input = base_dir.replace('rgh','rga').replace('_noSector4','')#NOTE: ADDED 4/29/24
-    output_dir_rga_data = "results_pipbsaanalysis_counts_rga_data__4_29_24/method_BSA/"
-    output_dir_rga_mc   = "results_pipbsaanalysis_counts_rga_mc__4_29_24/method_BSA/"
-    output_dir_rgh_mc   = "results_pipbsaanalysis_counts_rgh__4_29_24/method_BSA/" #results_pipbsaanalysis_counts_rgh_mc_noSector4__4_29_24 FOR NO SECTOR 4 SCENARIO
+    output_dir_rga_data = base_dir.replace('mc_asym_injection','counts').replace('rgh','rga').replace('mc','data')+"method_BSA/"
+    output_dir_rga_mc   = base_dir.replace('mc_asym_injection','counts').replace('rgh','rga')+"method_BSA/"
+    output_dir_rgh_mc   = base_dir.replace('mc_asym_injection','counts')+"method_BSA/"
     submit_path = base_dir+"submit.sh"
     yaml_path   = base_dir+"args.yaml"
     out_path    = base_dir+"jobs.txt"
     divisions = dict(
-        # methods,
+        methods,
         # **fitvars,
-        sgasyms,
+        #sgasyms,
         #**bgasyms,
-        **seeds,
+        #**seeds,
     )
     print("DEBUGGING: divisions = ",divisions)
 
