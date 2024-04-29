@@ -364,11 +364,11 @@ def get_plots(
     x_ratio = x_mean #NOTE: KEEP ORIGINAL X
     x_ratio_err = xerr_mean #NOTE: KEEP ORIGINAL X
     y_ratio = np.divide(y_mean,data_csv['y'])
-    y_ratio_err = np.divide(yerr_mean,data_csv['yerr'])
+    y_ratio_err = np.abs(np.divide(y_mean,data_csv['y'])) * np.sqrt(np.square(yerr_mean/data_csv['y'])+np.square(y_mean*data_csv['yerr']/np.square(data_csv['y']))) #NOTE: THESE ARE JUST HERE FOR CONVENIENCE, THEY ARE NOT ACTUALLY THE CORRECT UNCERTAINTIES FOR THESE POINTS.
     figsize = (16,10)
     f1, ax1 = plt.subplots(figsize=figsize)
     plt.xlim(*xlims)
-    # plt.ylim(*ylims)
+    # plt.ylim(*(0.0,2.5))
     plt.title(title,usetex=True)
     plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
@@ -389,7 +389,8 @@ def get_plots(
     # rga_data_counts  #TODO: LOAD THIS FROM ROOT!!! get_data_from_tgrapherror(rga_data_path)
     # n_inject_seeds  = 16
     # rga_mc_counts   *= n_inject_seeds #TODO: LOAD THIS FROM ROOT!!! get_data_from_tgrapherror(rga_mc_path)
-    rgh_data_counts = rga_data_counts * 1/np.square(y_ratio_err) * 100/16 * 5/80 * 3/17  #NOTE: UNCERTAINTIES SCALE LIKE 1/SQRT(N) SO y_ratio_err \propto SQRT(N_ACC_RGA/N_ACC_RGH) = data_counts * acceptance_ratio * 100days/16days * (5x10^33 cm^-2/s) /(0.8x10^35 cm^-2/s) * dilution_factor
+    y_ratio_v2_err = np.divide(yerr_mean,data_csv['yerr'])
+    rgh_data_counts = rga_data_counts * 1/np.square(y_ratio_v2_err) * 100/16 * 5/80 * 3/17  #NOTE: UNCERTAINTIES SCALE LIKE 1/SQRT(N) SO y_ratio_err \propto SQRT(N_ACC_RGA/N_ACC_RGH) = data_counts * acceptance_ratio * 100days/16days * (5x10^33 cm^-2/s) /(0.8x10^35 cm^-2/s) * dilution_factor
     # rgh_mc_counts   *= n_inject_seeds #TODO: LOAD THIS FROM ROOT!!! get_data_from_tgrapherror(rgh_mc_path)
     x_rescaled      = x_mean #NOTE: KEEP ORIGINAL X
     x_rescaled_err  = xerr_mean #NOTE: KEEP ORIGINAL X
@@ -650,15 +651,19 @@ if __name__=="__main__":
             csvpath = get_outpath(base_dir_csv_input,aggregate_keys,asym_name,**config)+'.csv'
             print("DEBUGGING: outpath = ",outpath)
             print("DEBUGGING: csvpath = ",csvpath)
+            n_inject_seeds = 16 #NOTE: SET THIS MANUALLY DEBUGGING 4/29/24
             inpath_rga_data = os.path.join(output_dir_rga_data,os.path.basename(file_list[0]))
             print("DEBUGGING: inpath_rga_data -> ",inpath_rga_data)
             rga_data_counts = get_data_from_tgrapherror(inpath_rga_data)[1] #NOTE: DOUBLE CHECK THIS..........................................................................................................
+            print("DEBUGGING: rga_data_counts = ",rga_data_counts)
             inpath_rga_mc   = os.path.join(output_dir_rga_mc,os.path.basename(file_list[0]))
             print("DEBUGGING: inpath_rga_mc -> ",inpath_rga_mc)
-            rga_mc_counts   = get_data_from_tgrapherror(inpath_rga_mc)[1] #NOTE: DOUBLE CHECK THIS..........................................................................................................
+            rga_mc_counts   = n_inject_seeds*get_data_from_tgrapherror(inpath_rga_mc)[1] #NOTE: DOUBLE CHECK THIS..........................................................................................................
+            print("DEBUGGING: rga_mc_counts = ",rga_mc_counts)
             inpath_rgh_mc   = os.path.join(output_dir_rgh_mc,os.path.basename(file_list[0]))
             print("DEBUGGING: inpath_rgh_mc -> ",inpath_rgh_mc)
-            rgh_mc_counts   = get_data_from_tgrapherror(inpath_rgh_mc)[1] #NOTE: DOUBLE CHECK THIS..........................................................................................................
+            rgh_mc_counts   = n_inject_seeds*get_data_from_tgrapherror(inpath_rgh_mc)[1] #NOTE: DOUBLE CHECK THIS..........................................................................................................
+            print("DEBUGGING: rgh_mc_counts = ",rgh_mc_counts)
             binvar = config['binvar'] #NOTE: VARIABLE IN WHICH THE BINNING IS DONE
             fitvar = 'sin_phi_h_pi' #config['fitvar'] #NOTE: VARIABLE FOR COS THETA
             print("DEBUGGING: binvar = ",binvar)
