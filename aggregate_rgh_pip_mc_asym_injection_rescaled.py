@@ -838,7 +838,7 @@ if __name__=="__main__":
 
         return
 
-    apply_get_plots(out_file_list,get_outpath,get_plots,base_dir=base_dir,base_dir_csv_input=base_dir_csv_input,xlimss=xlimss,ylims=ylims,titles=titles,xtitles=xtitles,ytitle=ytitles[asym_name],verbose=True,aggregate_keys=aggregate_keys,colors=colors,asym_name=asym_name)
+    apply_get_plots(out_file_list,get_outpath,get_plots,base_dir=base_dir,base_dir_csv_input=base_dir_csv_input,output_dir_rga_data=output_dir_rga_data,output_dir_rga_mc=output_dir_rga_mc,output_dir_rgh_mc=output_dir_rgh_mc,xlimss=xlimss,ylims=ylims,titles=titles,xtitles=xtitles,ytitle=ytitles[asym_name],verbose=True,aggregate_keys=aggregate_keys,colors=colors,asym_name=asym_name)
 
     #TODO: POSTPROCESSOR: GET CSV FILES FROM MODIFIED DICTIONARY
 
