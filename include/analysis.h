@@ -693,7 +693,7 @@ TArrayF* getKinBinBSA2DGeneric(
     }
 
     // Fit and get covariance matrix
-    TFitResultPtr fr = hasym->Fit("f1","S"); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE FIT VARIABLE.
+    TFitResultPtr fr = hasym->Fit("f1","S","S"); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE FIT VARIABLE.
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
 
     // Get fit parameters
