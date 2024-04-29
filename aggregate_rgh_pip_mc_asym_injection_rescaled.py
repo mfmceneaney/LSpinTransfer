@@ -645,7 +645,7 @@ if __name__=="__main__":
             file_list = el["file_list"]
             print("DEBUGGING: config = ",el["data_list"])#DEBUGGING
             print("DEBUGGING: file_list = ",el["file_list"])#DEBUGGING
-            arrs = get_arrs(file_list,config['sgasyms'][sgasym_idx])
+            arrs = get_arrs(file_list,0.0) #config['sgasyms'][sgasym_idx] #NOTE: DEBUGGING: 4/29/24 SET SGASYM = 0.0
             outpath = get_outpath(base_dir,aggregate_keys,asym_name,**config)
             csvpath = get_outpath(base_dir_csv_input,aggregate_keys,asym_name,**config)+'.csv'
             print("DEBUGGING: outpath = ",outpath)
