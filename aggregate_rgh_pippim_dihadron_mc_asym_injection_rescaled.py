@@ -623,9 +623,9 @@ if __name__=="__main__":
         'zeta_pim':[0.0,1.0],
         'phperp_pim':[0,1.0],
         'z_pipim':[0,1.0],
-        'mass_pipim':[0,3.0],
+        'mass_pipim':[0,1.0],
     }
-    ylimss = [-0.20,0.20]
+    ylimss = [-0.10,0.30]
     titles = {
         'sin_dphi_pipim_sin_phi_rt_pipim':'$\pi^{+}\pi^{-}$ TSSA',
         'sin_phi_h_pi':'$\pi^{+}$ TSSA',
@@ -661,7 +661,7 @@ if __name__=="__main__":
 
         job_config_name  = 'aggregate_'+'_'.join([str(key) for key in sorted(aggregate_keys)])+'__'
         job_config_name += "__".join(["_".join([key,str(config[key]) if type(config[key]) is not list else "_".join([str(el) for el in config[key]]) ]) for key in sorted(config)])
-        job_config_name += '_'+asym_name+'_'+alternate_rg+'.pdf'
+        job_config_name += asym_name+'.pdf'
         outpath = os.path.abspath(os.path.join(base_dir,job_config_name))
 
         return outpath
