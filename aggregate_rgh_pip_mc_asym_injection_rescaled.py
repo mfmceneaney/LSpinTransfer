@@ -473,6 +473,24 @@ def get_plots(
         comments=comments
         )
 
+    # Save rescaling info to csv
+    acceptance_ratio_rgh_over_rga = 1/np.square(y_ratio_v2_err)
+    scale_factor = 1/np.square(y_ratio_v2_err) * 100/16 * 5/80 * 3/17
+    header2 = delimiter.join(["bin","acceptanceratio","statisticsscalefactor","rghstatistics","rgastatistics","x","xerr"])
+    convert_graph_to_csv(
+        outpath+'_rescaling_info.csv',
+        acceptance_ratio_rgh_over_rga,
+        scale_factor,
+        xerr=rgh_data_counts,
+        yerr=rga_data_counts,
+        mins=x_mean,
+        maxs=xerr_mean,
+        delimiter=delimiter,
+        header=header2,
+        fmt=fmt,
+        comments=comments
+        )
+
     # Save systematics info to csv
     print("DEBUGGING: sanity check: y_mean-sgasym = ",y_mean-sgasym)
     print("DEBUGGING: sanity check: ydiff_mean    = ",ydiff_mean)
