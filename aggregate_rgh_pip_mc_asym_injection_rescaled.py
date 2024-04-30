@@ -476,14 +476,14 @@ def get_plots(
     # Save rescaling info to csv
     acceptance_ratio_rgh_over_rga = 1/np.square(y_ratio_v2_err)
     scale_factor = 1/np.square(y_ratio_v2_err) * 100/16 * 5/80 * 3/17
-    header2 = delimiter.join(["bin","acceptanceratio","statisticsscalefactor","rghstatistics","rgastatistics","x","xerr"])
-    fmt2    = ["%d","%.3g","%.3g","%d","%d","%.3g","%.3g"]
+    header2 = delimiter.join(["bin","acceptanceratio","statisticsscalefactor","rghstatistics","rgcstatistics","x","xerr"])
+    fmt2    = ["%d","%.3g","%.3g","%.3g","%.3g","%.3g","%.3g"]
     convert_graph_to_csv(
         outpath+'_rescaling_info.csv',
         acceptance_ratio_rgh_over_rga,
         scale_factor,
-        xerr=[rgh_data_counts for i in range(len(scale_factor))],
-        yerr=[rga_data_counts for i in range(len(scale_factor))],
+        xerr=rgh_data_counts,
+        yerr=np.array([rga_data_counts for i in range(len(scale_factor))],dtype=float) if type(rga_data_counts)==int else rga_data_counts,
         mins=x_mean,
         maxs=xerr_mean,
         delimiter=delimiter,
@@ -527,8 +527,9 @@ if __name__=="__main__":
 
     # Results file paths and config
     base_dir    = "results_pipbsaanalysis_mc_asym_injection_rgh__4_19_24/" #NOTE: DON'T FORGET ABOUT NOSECTOR4 SCENARIO
+    alternate_rg = 'rga'
     base_dir_csv_input = base_dir.replace('rgh','rga').replace('_noSector4','')#NOTE: ADDED 4/29/24
-    output_dir_rga_data = base_dir.replace('mc_asym_injection','counts_mc').replace('rgh','rga').replace('mc','data')+"method_BSA/"
+    output_dir_rga_data = base_dir.replace('mc_asym_injection','counts_mc').replace('rgh',alternate_rg).replace('mc','data')+"method_BSA/"
     output_dir_rga_mc   = base_dir.replace('mc_asym_injection','counts_mc').replace('rgh','rga')+"method_BSA/"
     output_dir_rgh_mc   = base_dir.replace('mc_asym_injection','counts_mc')+"method_BSA/"
     submit_path = base_dir+"submit.sh"
@@ -652,7 +653,7 @@ if __name__=="__main__":
 
         job_config_name  = 'aggregate_'+'_'.join([str(key) for key in sorted(aggregate_keys)])+'__'
         job_config_name += "__".join(["_".join([key,str(config[key]) if type(config[key]) is not list else "_".join([str(el) for el in config[key]]) ]) for key in sorted(config)])
-        job_config_name += asym_name+'.pdf'
+        job_config_name += '_'+asym_name+'_'+alternate_rg+'.pdf'
         outpath = os.path.abspath(os.path.join(base_dir,job_config_name))
 
         return outpath
