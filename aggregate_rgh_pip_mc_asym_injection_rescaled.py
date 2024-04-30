@@ -622,7 +622,7 @@ if __name__=="__main__":
         'zeta_pim':[0.0,1.0],
         'phperp_pim':[0,1.0],
     }
-    ylimss = [-0.20,0.20]
+    ylimss = [-0.10,0.10]
     titles = {
         'sin_phi_h_pi':'$\pi^{+}$ TSSA',
         'sin_phi_h_pim':'$\pi^{-}$ TSSA',
