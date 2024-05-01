@@ -18,13 +18,28 @@ inscalingfiles = [
     'aggregate_inject_seed__binvar_x__sgasyms_0.0__x_0.09_0.7A0.pdf_rescaling_info.csv',
     'aggregate_inject_seed__binvar_x__sgasyms_0.0__x_0.09_0.7A0.pdf_rescaling_info.csv',
 ]
-inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh__4_19_24__PLOTS_AND_TABLES_4_30_24/csv/'
+#RGA
+# inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh__4_19_24__PLOTS_AND_TABLES_4_30_24/csv/'
+inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh_noSector4__4_19_24__PLOTS_AND_TABLES_4_30_24/csv/'
+
+#RGC
+# inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh__4_19_24__PLOTS_AND_TABLES_4_30_24/csv/'
+inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh_noSector4__4_19_24__PLOTS_AND_TABLES_4_30_24/csv/'
+
+# Check input directories for Sector4 and RGC/RGA designations
+useRGC = 'rgc' in inscalingdir
+noSector4 = 'noSector4' in inscalingdir
+
+print('noSector4 = ',noSector4)
 inscalingfiles = [os.path.join(inscalingdir,f) for f in inscalingfiles]
 print('inscalingfiles = ',inscalingfiles)
 
 # Set parameters
 pol = 0.85
 asym = 0.2
+
+fracs_old = {}
+fracs = {}
 
 # Loop files and scale
 skiprows = 1
@@ -41,6 +56,7 @@ for i, name in enumerate(infiles):
     print('a       = ',a)
     print('a.shape = ',a.shape)
     a1 = a[:,1]
+    a_old = a.copy()
 
     # Load scaling file
     name2 = inscalingfiles[i] #NOTE: THESE MUST MATCH UP EXACTLY
@@ -55,6 +71,7 @@ for i, name in enumerate(infiles):
     b1 = b[:,scale_factor_index]
     b1 = 1/pol * np.sqrt(1-np.square(pol*asym)) / np.sqrt(b1)
     print('b1/a1 = ',b1/a1)
+    fracs[acols[0]] = b1/a1
     a1 = b1
     
     # Scale data
@@ -66,7 +83,7 @@ for i, name in enumerate(infiles):
     print('a_rescaled.shape = ',a.shape)
 
     # Save scaled data
-    outname = name.replace('.csv','_rescaled.csv')
+    outname = name.replace('.csv','_rescaled_noSector4.csv' if noSector4 else '_rescaled.csv')
     header  = "REPLACEMENT_HEADER"+delimiter.join(acols)
     print('header = ',delimiter.join(acols))
     fmt     = ["%.3g" for i in range(len(acols))]
@@ -84,10 +101,21 @@ for i, name in enumerate(infiles):
     with open(outname, 'w') as file:
         file.write(filedata)
 
-    plt.figure()
+    f = plt.figure()
     plt.ylim(*(0.0,0.3))
-    plt.errorbar(a[:,0],[asym for el in a[:,0]],a[:,1], fmt='r^', linewidth=2, capsize=6)
+    if acols[0] == 'z_ppim':
+        a = a[:-1]
+    plt.errorbar(a_old[:,0],[asym for el in a_old[:,0]],a_old[:,1], fmt='rv', linewidth=2, capsize=6, label='Before')
+    plt.errorbar(a[:,0],[asym-0.05 for el in a[:,0]],a[:,1], fmt='bv', linewidth=2, capsize=6,label='After')
     plt.xlabel(acols[0])
+    plt.legend()
+    if i!=3: f.savefig(outname.replace('.csv','.pdf'))
+
+    print("DEBUGGING: a_old - a = ",a_old-a)
+
+for key in fracs:
+    print('key = ',key)
+    print('b1/a1 = ',fracs[key])
 
 plt.show()
 
