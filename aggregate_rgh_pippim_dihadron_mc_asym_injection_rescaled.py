@@ -390,7 +390,7 @@ def get_plots(
     # n_inject_seeds  = 16
     # rga_mc_counts   *= n_inject_seeds #TODO: LOAD THIS FROM ROOT!!! get_data_from_tgrapherror(rga_mc_path)
     y_ratio_v2_err = np.divide(yerr_mean,data_csv['yerr'])
-    rgh_data_counts = rga_data_counts * 1/np.square(y_ratio_v2_err) * 100/16 * 5/80 * 3/17  #NOTE: UNCERTAINTIES SCALE LIKE 1/SQRT(N) SO y_ratio_err \propto SQRT(N_ACC_RGA/N_ACC_RGH) = data_counts * acceptance_ratio * 100days/16days * (5x10^33 cm^-2/s) /(0.8x10^35 cm^-2/s) * dilution_factor
+    rgh_data_counts = rga_data_counts * 1/np.square(y_ratio_v2_err) * 100/16 * 5/80 * 3/17#NOTE: IMPORTANT!!! THIS IS ONLY A VALID CONVERSIONN FACTOR FOR RGA NOT RGC!!!  #NOTE: UNCERTAINTIES SCALE LIKE 1/SQRT(N) SO y_ratio_err \propto SQRT(N_ACC_RGA/N_ACC_RGH) = data_counts * acceptance_ratio * 100days/16days * (5x10^33 cm^-2/s) /(0.8x10^35 cm^-2/s) * dilution_factor
     # rgh_mc_counts   *= n_inject_seeds #TODO: LOAD THIS FROM ROOT!!! get_data_from_tgrapherror(rgh_mc_path)
     x_rescaled      = x_mean #NOTE: KEEP ORIGINAL X
     x_rescaled_err  = xerr_mean #NOTE: KEEP ORIGINAL X
