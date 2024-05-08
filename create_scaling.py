@@ -10,24 +10,28 @@ infiles = [
     'harut_projections_pipim_mass_pipim.csv',
     'harut_projections_pipim_z_pipim.csv',
     'harut_projections_pipim_x.csv',
-    'harut_projections_h1u_x.csv',
+    # 'harut_projections_h1u_x.csv',
 ]
 print('infiles = ',infiles)
 
 # Set input scaling info files
+asymname = 'A1' #'A1'
 inscalingfiles = [
-    'aggregate_inject_seed__binvar_mass_pipim__mass_pipim_0.0_3.0__sgasyms_0.0A0.pdf_rescaling_info.csv',
-    'aggregate_inject_seed__binvar_z_pipim__sgasyms_0.0__z_pipim_0.15_0.7A0.pdf_rescaling_info.csv',
-    'aggregate_inject_seed__binvar_x__sgasyms_0.0__x_0.09_0.7A0.pdf_rescaling_info.csv',
-    'aggregate_inject_seed__binvar_x__sgasyms_0.0__x_0.09_0.7A0.pdf_rescaling_info.csv',
+    'aggregate_inject_seed__binvar_mass_pipim__mass_pipim_0.0_3.0__sgasyms_0.0'+asymname+'.pdf_rescaling_info.csv',
+    #'aggregate_inject_seed__binvar_z_pipim__sgasyms_0.0__z_pipim_0.15_0.7'+asymname+'.pdf_rescaling_info.csv',
+    'aggregate_inject_seed__binvar_z_pipim__sgasyms_0.0__z_pipim_0.0_1.0'+asymname+'.pdf_rescaling_info.csv',
+    'aggregate_inject_seed__binvar_x__sgasyms_0.0__x_0.0_1.0'+asymname+'.pdf_rescaling_info.csv',
+    # 'aggregate_inject_seed__binvar_x__sgasyms_0.0__x_0.09_0.7'+asymname+'.pdf_rescaling_info.csv',
+    # 'aggregate_inject_seed__binvar_x__sgasyms_0.0__x_0.09_0.7'+asymname+'.pdf_rescaling_info.csv',
 ]
 #RGA
-# inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh__4_19_24__PLOTS_AND_TABLES_4_30_24/csv/'
-inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh_noSector4__4_19_24__PLOTS_AND_TABLES_4_30_24/csv/'
+version = '5_3_24'#'5_2_24' #'4_30_24'
+# inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh__4_19_24__PLOTS_AND_TABLES_'+version+'/csv/'
+inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh_noSector4__4_19_24__PLOTS_AND_TABLES_'+version+'/csv/'
 
 # #RGC
-# # inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh__4_19_24__PLOTS_AND_TABLES_RGC_4_30_24/csv/'
-# inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh_noSector4__4_19_24__PLOTS_AND_TABLES_RGC_4_30_24/csv/'
+# # inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh__4_19_24__PLOTS_AND_TABLES_RGC_'+version+'/csv/'
+# inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh_noSector4__4_19_24__PLOTS_AND_TABLES_RGC_'+version+'/csv/'
 
 # Check input directories for Sector4 and RGC/RGA designations
 useRGC = 'rgc' in inscalingdir
@@ -38,7 +42,7 @@ inscalingfiles = [os.path.join(inscalingdir,f) for f in inscalingfiles]
 print('inscalingfiles = ',inscalingfiles)
 
 # Load yaml file with bins
-input_yaml = '/Users/mfm45/drop/args_scaling.yaml'
+input_yaml = '/Users/mfm45/drop/args_scaling_5_2_24.yaml'
 yaml_path = os.path.abspath(input_yaml) #NOTE: THIS ASSUMES BINNING SAME FOR BOTH CT1/CT2
 yaml_args = {}
 with open(yaml_path) as yf:
@@ -58,6 +62,11 @@ xvar_labels = {
     'mass_pipim': '$M_{\pi^{+}\pi^{-}}$ (GeV)',
     'z_pipim': '$z_{\pi^{+}\pi^{-}}$',
     'x': '$x$',
+}
+
+ylabels = {
+    'A0':'$\mathcal{A}_{UT}^{\sin{\phi_{h}-\phi_{R_{T}}}}$',
+	'A1':'$\mathcal{A}_{UT}^{\sin{\phi_{R_{T}}}}$',
 }
 
 # Loop files and scale
@@ -145,9 +154,9 @@ for i, name in enumerate(infiles):
         f, ax1 = plt.subplots()
         f.set_size_inches((16,10))
         ax1.set_ylim(*(0.0,0.3))
-        ax1.set_ylabel('$\mathcal{A}^{\sin{\phi_{R}}}_{UT}$',usetex=True)
-        if acols[0] == 'z_ppim':
-            a = a[:-1]
+        ax1.set_ylabel(ylabels[asymname],usetex=True) #'$\mathcal{A}^{\sin{\phi_{R_{T}}}}_{UT}$'
+        # if acols[0] == 'z_ppim': #NOTE: NOT SURE WHY THIS IS HERE????
+        #     a = a[:-1]
         g1 = ax1.errorbar(a_old[:,0],[asym for el in a_old[:,0]],a_old[:,1], fmt='rv', linewidth=2, capsize=6, label='Old RGH Projections')
         g2 = ax1.errorbar(a[:,0],[asym-0.05 for el in a[:,0]],a[:,1], fmt='bv', linewidth=2, capsize=6,label='Updated RGH Projections')
         ax1.set_xlabel(xvar_labels[acols[0]],usetex=True)
