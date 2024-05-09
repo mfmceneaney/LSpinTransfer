@@ -28,7 +28,7 @@
 
 void test() { std::cout<<"TEST"<<std::endl; } //DEBUGGING
 
-TArrayF* getMultiDBinBSAGeneric(
+TArrayF* getMultiDBinAsymmetryGeneric(
     std::string  outdir,
     TFile       *outroot,
     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
@@ -119,7 +119,7 @@ TArrayF* getMultiDBinBSAGeneric(
 
     // Print out fit info
     out << "--------------------------------------------------" << std::endl;
-    out << " getMultiDBinBSAGeneric():" << std::endl;
+    out << " getMultiDBinAsymmetryGeneric():" << std::endl;
     out << " cuts       = " << cuts.c_str() << std::endl;
     out << " bincut     = " << bin_cut.c_str() << std::endl;
     out << " binmeans   = [" << std::endl;
@@ -179,12 +179,12 @@ TArrayF* getMultiDBinBSAGeneric(
 
     return arr;
 
-} // TArrayF* getMultiDBinBSAGeneric()
+} // TArrayF* getMultiDBinAsymmetryGeneric()
 
 /** 
 * Get TGraph of generic BSA binned in given kinematic variable with or without bg correction.
 */
-void getMultiDBinnedBSAGenericMC(
+void getMultiDBinnedAsymmetryGenericMC(
                     std::string  outdir,
                     TFile      * outroot,
                     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
