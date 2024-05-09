@@ -232,6 +232,36 @@ void analysis(const YAML::Node& node) {
             }
         }
     }
+
+    std::vector<std::string> binvars2;
+    std::vector<std::vector<double>> binlims;
+    if (node["binningscheme"]) {
+        if (node["binningscheme"].IsMap()) {
+            std::cout<<"binningscheme:"<<std::endl;//DEBUGGING
+            if (node["binningscheme"]["binvars2"]) {
+                binvars2 = node["binningscheme"]["binvars2"].as<std::vector<std::string>>();
+            }
+            else { std::cerr<<"*** ERROR *** Could not read yaml binvars2"<<std::endl; }
+            if (node["binningscheme"]["binlims"]) {
+                binlims = node["binningscheme"]["binlims"].as<std::vector<std::vector<double>>>();
+            }
+            else { std::cerr<<"*** ERROR *** Could not read yaml binlims"<<std::endl; }
+
+            // Add to bin variables map
+            for (int i=0; i<binvars2.size(); i++) {
+                std::string name = binvars2[i];
+                std::vector<double> vec = binlims[i];
+                std::cout<<"\t"<<name<<": [ ";//DEBUGGING
+                for (int bin=0; bin<vec.size(); bin++) {
+                    if (bin!=vec.size()-1) { std::cout<<vec[bin]<<", "; }
+                    else { std::cout<<vec[bin]; }
+                }
+                std::cout<<" ]"<<std::endl;
+            }
+
+        } // if (node["binningscheme"].IsMap()) {
+    } // if (node["binningscheme"]) {
+
     double bgfraction = 1.0;
     if (node["bgfraction"]) {
         bgfraction = node["bgfraction"].as<double>();
