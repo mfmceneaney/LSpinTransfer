@@ -181,6 +181,49 @@ TArrayF* getMultiDBinAsymmetryGeneric(
 
 } // TArrayF* getMultiDBinAsymmetryGeneric()
 
+/**
+* Get list of bin cuts given a list of bin variables and corresponding list of bin limits.
+* Set bincuts = {} and binvar_idx = 0 to start.
+*/
+std::vector<std::string> getBinCuts(std::vector<std::string> binvars, std::vector<std::vector<double>> binlims, std::vector<std::string> bincuts = {}, int binvar_idx = 0) {
+
+    std::vector<std::string> newbincuts; //NOTE: MUST BE EMPTY LIST
+
+    // Initialize bin cuts array OR propagate new bin variable cuts combined with existing bincuts entries into newbincuts
+    // if (binvar_idx<binvars.size()) {
+        std::cout<<"DEBUGGING: inside main loop: binvar_idx = "<<binvar_idx<<std::endl;//DEBUGGING
+        if (bincuts.size()==0 && binvar_idx==0) {
+            std::cout<<"DEBUGGING: in first loop"<<std::endl;
+            for (int bin_idx=0; bin_idx<binlims[binvar_idx].size()-1; bin_idx++) { //NOTE: Loop next bin variable
+                std::string newbincut = Form("%.8f<=%s && %s<%.8f",binlims[binvar_idx][bin_idx],binvars[binvar_idx].c_str(),binvars[binvar_idx].c_str(),binlims[binvar_idx][bin_idx+1]); //NOTE: Add next binvar cut to existing cut
+                newbincuts.push_back(newbincut);
+            }
+
+            // Increment and recurse
+            newbincuts = getBinCuts(binvars,binlims,newbincuts,binvar_idx+1);
+        } else {
+            std::cout<<"DEBUGGING: in 2nd loop: bincuts.size(), binvar_idx = "<<bincuts.size()<<" , "<<binvar_idx<<std::endl;
+            for (int bincuts_idx=0; bincuts_idx<bincuts.size(); bincuts_idx++) { //NOTE: Loop existing cuts
+                for (int bin_idx=0; bin_idx<binlims[binvar_idx].size()-1; bin_idx++) { //NOTE: Loop next bin variable
+                    std::string newbincut = Form("%s && %.8f<=%s && %s<%.8f",bincuts[bincuts_idx].c_str(),binlims[binvar_idx][bin_idx],binvars[binvar_idx].c_str(),binvars[binvar_idx].c_str(),binlims[binvar_idx][bin_idx+1]); //NOTE: Add next binvar cut to existing cut
+                    newbincuts.push_back(newbincut);
+                }
+            }
+
+            // Check recursion depth
+            if (binvar_idx>=binvars.size()-1) { return newbincuts; }//NOTE: IMPORTANT! NECESSARY TO AVOID INFINITE RECURSION
+
+            // Increment and recurse
+            newbincuts = getBinCuts(binvars,binlims,newbincuts,binvar_idx+1);
+        }
+
+    // Just return completed bin cuts once all binvars have been looped
+    // } else {
+        std::cout<<"DEBUGGING: got to return, binvar_idx = "<<binvar_idx<<std::endl;//DEBUGGING
+        return newbincuts;
+    // }
+}
+
 /** 
 * Get TGraph of generic BSA binned in given kinematic variable with or without bg correction.
 */
