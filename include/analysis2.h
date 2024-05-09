@@ -289,15 +289,15 @@ void getMultiDBinnedSAGenericMC(
     int count = 0;
     double depol = 1.0;
     std::vector<double> binvarmeans, binvarstddevs, params, paramerrs; //NOTE: THESE ARE DEFINED ABOVE SO YOU CAN FILL TREE FROM REFERENCE.
-        for (int idx=0; idx<binvars.size(); idx++) {
-            binvarmeans[idx]   = binData->GetAt(k++);
-            binvarstddevs[idx] = binData->GetAt(k++);
-        }
-        for (int idx=0; idx<nparams; idx++) {
-            params[idx]    = binData->GetAt(k++);
-            paramerrs[idx] = binData->GetAt(k++);
-        }
-    
+    for (int idx=0; idx<binvars.size(); idx++) {
+        binvarmeans[idx]   = 0.0;
+        binvarstddevs[idx] = 0.0;
+    }
+    for (int idx=0; idx<nparams; idx++) {
+        params[idx]    = 0.0;
+        paramerrs[idx] = 0.0;
+    }
+
     auto binidBranch = tree->Branch("binid", &binid, "binid/I"); //NOTE: //TODO: Figure out if just need to get branches for existing file...?
     auto countBranch = tree->Branch("count", &count, "count/I");
     auto depolBranch = tree->Branch("depol", &depol, "depol/D");
