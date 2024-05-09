@@ -513,8 +513,8 @@ def get_plots(
 if __name__=="__main__":
 
     # Create job submission structure
-    methods = {"method":["BSA2D"]}
-    fitvars = {"fitvar":["sin_dphi_pipim_sin_phi_rt_pipim"]}
+    methods = {"method":["BSA"]} #"BSA2D"
+    fitvars = {"fitvar":["sin_phi_rt_pipim_sin_theta_p1_pipim"]}  #"sin_dphi_pipim_sin_phi_rt_pipim"
     asyms   = [0.00, 0.01]  #[-0.1, -0.01, 0.00, 0.01, 0.1] #NOTE: ONLY USE ZERO ASYMMETRY TO START AND SO YOU DON'T HAVE TO WORRY ABOUT SELECTING CORRECT SGASYM/BGASYM COMBO [-0.1, -0.01, 0.00, 0.01, 0.1]
     sgasyms = {"sgasyms":[[a] for a in asyms]}
     bgasyms = {"bgasyms":[[a] for a in asyms]}
@@ -526,11 +526,11 @@ if __name__=="__main__":
     # -> e.g., loop keys if key is aggregate run aggregation otherwise you're creating a new file each time...
 
     # Results file paths and config
-    base_dir    = "results_pippimdihadronbsaanalysis_mc_asym_injection_rgh__4_19_24/" #NOTE: DON'T FORGET ABOUT NOSECTOR4 SCENARIO
+    base_dir    = "results_pippimdihadronbsaanalysis_mc_asym_injection_rgh_noSector4__4_19_24/" #NOTE: DON'T FORGET ABOUT NOSECTOR4 SCENARIO
     alternate_rg = 'rga'
     base_dir_csv_input = base_dir.replace('rgh','rga').replace('_noSector4','')#NOTE: ADDED 4/29/24
-    output_dir_rga_data = base_dir.replace('mc_asym_injection','counts_mc').replace('rgh',alternate_rg).replace('mc','data')+"method_BSA/"
-    output_dir_rga_mc   = base_dir.replace('mc_asym_injection','counts_mc').replace('rgh','rga')+"method_BSA/"
+    output_dir_rga_data = base_dir.replace('_noSector4','').replace('mc_asym_injection','counts_mc').replace('rgh',alternate_rg).replace('mc','data')+"method_BSA/"
+    output_dir_rga_mc   = base_dir.replace('_noSector4','').replace('mc_asym_injection','counts_mc').replace('rgh','rga')+"method_BSA/"
     output_dir_rgh_mc   = base_dir.replace('mc_asym_injection','counts_mc')+"method_BSA/"
     submit_path = base_dir+"submit.sh"
     yaml_path   = base_dir+"args.yaml"
@@ -564,8 +564,8 @@ if __name__=="__main__":
                         use_mc=False,
                         **kwargs
                         ):
-        method = 'BSA2D'
-        fitvar='sin_dphi_pipim_sin_phi_rt_pipim' 
+        method = 'BSA' #'BSA2D'
+        fitvar='sin_phi_rt_pipim_sin_theta_p1_pipim' #'sin_dphi_pipim_sin_phi_rt_pipim' 
         return method+'_'+fitvar+('_mc' if use_mc else '')+'_'+xvar+f'_{xvar_min:.3f}_{xvar_max:.3f}_'+asym_name+'.root'
 
     # NOW AGGREGATE RESULTS FOR DIFFERENT SEEDS...
@@ -578,11 +578,13 @@ if __name__=="__main__":
     # Get list of directories across which to aggregate
     aggregate_keys = ["inject_seed"] #NOTE: COMMENTED OUT FOR TESTING
     var_lims = {
-        'Q2':[1.3,11.0],
+        'Q2':[1.0,11.0], #[1.3,11.0],
         #'W':[2.0,5.0],
         #'y':[0.0,0.8],
-        'x':[0.090,0.7],
-        'z_pipim':[0.150,0.7],
+        'x':[0.0,1.0], #[0.090,0.7],
+        'z_pipim':[0.0,1.0],#[0.150,0.7],
+        'xF_pipim':[0.0,1.0],
+        'phperp_pipim':[0.0,1.0],
         #'xF_pi':[-1.0,1.0],
         #'zeta_pi':[0.0,1.0],
         # 'phperp_pi':[0.0,1.0],
@@ -623,15 +625,19 @@ if __name__=="__main__":
         'zeta_pim':[0.0,1.0],
         'phperp_pim':[0,1.0],
         'z_pipim':[0,1.0],
+        'xF_pipim':[0,1.0],
+        'phperp_pipim':[0,1.0],
         'mass_pipim':[0,1.0],
     }
     ylimss = [-0.10,0.30]
     titles = {
+        'sin_phi_rt_pipim_sin_theta_p1_pipim':'$\pi^{+}\pi^{-}$ TSSA',
         'sin_dphi_pipim_sin_phi_rt_pipim':'$\pi^{+}\pi^{-}$ TSSA',
         'sin_phi_h_pi':'$\pi^{+}$ TSSA',
         'sin_phi_h_pim':'$\pi^{-}$ TSSA',
     }
     colors = {
+        'sin_phi_rt_pipim_sin_theta_p1_pipim':'blue',
         'sin_dphi_pipim_sin_phi_rt_pipim':'blue',
         'sin_phi_h_pi':'blue', #TODO
         'sin_phi_h_pim':'red', #TODO
@@ -650,11 +656,13 @@ if __name__=="__main__":
         'zeta_pim':'$\zeta_{\pi^{-}}$',
         'phperp_pim':'$P^{\perp}_{\pi^{-}}$',
         'z_pipim':'$z_{\pi^{+}\pi^{-}}$',
+        'xF_pipim':'$x_{F \pi^{+}\pi^{-}}$',
         'mass_pipim':'$M_{\pi^{+}\pi^{-}}$',
         'phperp_pipim':'$P^{\perp}_{\pi^{+}\pi^{-}}$',
     }
     ytitles = {
-        'A0':'$A_{UT}$',
+        'A0':'$\mathcal{A}_{UT}^{\sin{\phi_{R_{T}}}\sin{\theta}}$',
+        'A1':'$\mathcal{A}_{UT}^{\sin{\phi_{R_{T}}}}$',
     }
 
     def get_outpath(base_dir,aggregate_keys,asym_name,**config):
@@ -680,15 +688,15 @@ if __name__=="__main__":
             print("DEBUGGING: outpath = ",outpath)
             print("DEBUGGING: csvpath = ",csvpath)
             n_inject_seeds = 16 #NOTE: SET THIS MANUALLY DEBUGGING 4/29/24
-            inpath_rga_data = os.path.join(output_dir_rga_data,os.path.basename(file_list[0]))
+            inpath_rga_data = os.path.join(output_dir_rga_data,os.path.basename(file_list[0])).replace('_A1','_A0')
             print("DEBUGGING: inpath_rga_data -> ",inpath_rga_data)
             rga_data_counts = get_data_from_tgrapherror(inpath_rga_data)[1] #NOTE: DOUBLE CHECK THIS..........................................................................................................
             print("DEBUGGING: rga_data_counts = ",rga_data_counts)
-            inpath_rga_mc   = os.path.join(output_dir_rga_mc,os.path.basename(file_list[0]))
+            inpath_rga_mc   = os.path.join(output_dir_rga_mc,os.path.basename(file_list[0])).replace('_A1','_A0')
             print("DEBUGGING: inpath_rga_mc -> ",inpath_rga_mc)
             rga_mc_counts   = n_inject_seeds*get_data_from_tgrapherror(inpath_rga_mc)[1] #NOTE: DOUBLE CHECK THIS..........................................................................................................
             print("DEBUGGING: rga_mc_counts = ",rga_mc_counts)
-            inpath_rgh_mc   = os.path.join(output_dir_rgh_mc,os.path.basename(file_list[0]))
+            inpath_rgh_mc   = os.path.join(output_dir_rgh_mc,os.path.basename(file_list[0])).replace('_A1','_A0')
             print("DEBUGGING: inpath_rgh_mc -> ",inpath_rgh_mc)
             rgh_mc_counts   = n_inject_seeds*get_data_from_tgrapherror(inpath_rgh_mc)[1] #NOTE: DOUBLE CHECK THIS..........................................................................................................
             print("DEBUGGING: rgh_mc_counts = ",rgh_mc_counts)
