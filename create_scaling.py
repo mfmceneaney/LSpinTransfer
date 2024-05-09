@@ -15,7 +15,7 @@ infiles = [
 print('infiles = ',infiles)
 
 # Set input scaling info files
-asymname = 'A1' #'A1'
+asymname = 'A0' #'A1'
 inscalingfiles = [
     'aggregate_inject_seed__binvar_mass_pipim__mass_pipim_0.0_3.0__sgasyms_0.0'+asymname+'.pdf_rescaling_info.csv',
     #'aggregate_inject_seed__binvar_z_pipim__sgasyms_0.0__z_pipim_0.15_0.7'+asymname+'.pdf_rescaling_info.csv',
@@ -25,7 +25,7 @@ inscalingfiles = [
     # 'aggregate_inject_seed__binvar_x__sgasyms_0.0__x_0.09_0.7'+asymname+'.pdf_rescaling_info.csv',
 ]
 #RGA
-version = '5_3_24'#'5_2_24' #'4_30_24'
+version = '5_9_24'#'5_3_24'#'5_2_24' #'4_30_24'
 # inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh__4_19_24__PLOTS_AND_TABLES_'+version+'/csv/'
 inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh_noSector4__4_19_24__PLOTS_AND_TABLES_'+version+'/csv/'
 
@@ -65,7 +65,7 @@ xvar_labels = {
 }
 
 ylabels = {
-    'A0':'$\mathcal{A}_{UT}^{\sin{\phi_{h}-\phi_{R_{T}}}}$',
+    'A0':'$\mathcal{A}_{UT}^{\sin{\phi_{R_{T}}}\sin{\\theta}}$',
 	'A1':'$\mathcal{A}_{UT}^{\sin{\phi_{R_{T}}}}$',
 }
 

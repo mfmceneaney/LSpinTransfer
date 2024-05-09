@@ -88,3 +88,5 @@ add_executable(dihadronbsaanalysismcbincounts dihadronbsaanalysismcbincounts.cpp
 target_link_libraries(dihadronbsaanalysismcbincounts PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
 add_executable(dihadronbsaanalysismc1 dihadronbsaanalysismc1.cpp)
 target_link_libraries(dihadronbsaanalysismc1 PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+add_executable(dihadronbsaanalysismc1bincounts dihadronbsaanalysismc1bincounts.cpp)
+target_link_libraries(dihadronbsaanalysismc1bincounts PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
