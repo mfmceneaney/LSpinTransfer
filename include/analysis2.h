@@ -228,6 +228,10 @@ std::vector<std::string> getBinCuts(std::vector<std::string> binvars, std::vecto
 * Get TGraph of generic BSA binned in given kinematic variable with or without bg correction.
 */
 void getMultiDBinnedSAGenericMC(
+                    std::string filename,
+                    std::string filemode,
+                    std::string treename,
+                    std::string treetitle,
                     std::string  outdir,
                     TFile      * outroot,
                     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
@@ -269,6 +273,43 @@ void getMultiDBinnedSAGenericMC(
     // Starting message
     out << "----------------------- getMultiDBinnedSAGenericMC ----------------------\n";
 
+    // Get binning scheme bin cuts
+    std::vector<std::string> bincuts = getBinCuts(binvars,binlims); // NOTE: SHOULD ALSO RETURN BIN IDS IN EACH BINVAR AND MAP OF BINVAR:BINID:BIN LIMITS
+
+    // NOTE: ARGUMENTS ADDED: std::string: filename, filemode, treename, treeetitle
+
+    // Open output file and create tree and branches for binid, counts, depol, binvarmeans, binvarstddevs, asym
+    TFile outroot = TFile::Open(filename.c_str(), filemode.c_str());
+    TTree *tree;
+    if (outroot->GetListOfKeys()->Contains(treename.c_str())) { tree = outroot->Get<TTree*>(treename.c_str()); } 
+    else  { tree = TTree(treename.c_str(),treetitle.c_str()); }
+
+    // Create branches
+    int binid = -1;
+    int count = 0;
+    double depol = 1.0;
+    std::vector<double> binvarmeans, binvarstddevs, params, paramerrs; //NOTE: THESE ARE DEFINED ABOVE SO YOU CAN FILL TREE FROM REFERENCE.
+        for (int idx=0; idx<binvars.size(); idx++) {
+            binvarmeans[idx]   = binData->GetAt(k++);
+            binvarstddevs[idx] = binData->GetAt(k++);
+        }
+        for (int idx=0; idx<nparams; idx++) {
+            params[idx]    = binData->GetAt(k++);
+            paramerrs[idx] = binData->GetAt(k++);
+        }
+    
+    auto binidBranch = tree->Branch("binid", &binid, "binid/I"); //NOTE: //TODO: Figure out if just need to get branches for existing file...?
+    auto countBranch = tree->Branch("count", &count, "count/I");
+    auto depolBranch = tree->Branch("depol", &depol, "depol/D");
+    for (int i=0; i<binvars.c_str(); i++) {
+        auto meanBranch   = tree->Branch(Form("%s_mean",binvars[i].c_str()), &binvarmeans[i], Form("%s_mean/D",binvars[i].c_str())); //NOTE: Need to use reference to double* not std::vector because when you reset everything gets overwritten...
+        auto stddevBranch = tree->Branch(Form("%s_err",binvars[i].c_str()), &binvarstddevs[i], Form("%s_err/D",binvars[i].c_str()));
+    }
+    for (int i=0; i<nparams; i++) {
+        auto asymBranch    = tree->Branch(Form("A%d",i), &params[i], Form("A%d/D",i));
+        auto asymerrBranch = tree->Branch(Form("A%d_err",i), &paramerrs[i], Form("A%d_err/D",i));
+    }
+
     // Make output directory in ROOT file and cd
     outroot->mkdir(outdir.c_str());
     outroot->cd(outdir.c_str());
@@ -305,29 +346,30 @@ void getMultiDBinnedSAGenericMC(
         );
 
         // Organize results from bin data
-        std::vector<double> binvarmeans, binvarstddevs, params, paramerrs;
+        // std::vector<double> binvarmeans, binvarstddevs, params, paramerrs; //NOTE: THESE ARE DEFINED ABOVE SO YOU CAN FILL TREE FROM REFERENCE.
         int k = 0;
-        int count = (int)binData->GetAt(k++);
-        double depol = binData->GetAt(k++);
+        count = (int)binData->GetAt(k++);
+        depol = (int)binData->GetAt(k++);
         for (int idx=0; idx<binvars.size(); idx++) {
-            double binvarmean   = binData->GetAt(k++);
-            double binvarstddev = binData->GetAt(k++);
-            binvarmeans.push_back(binvarmean);
-            binvarstddevs.push_back(binvarstddev);
+            binvarmeans[idx]   = (double)binData->GetAt(k++);
+            binvarstddevs[idx] = (double)binData->GetAt(k++);
         }
         for (int idx=0; idx<nparams; idx++) {
-            double param    = binData->GetAt(k++);
-            double paramerr = binData->GetAt(k++);
-            params.push_back(param);
-            paramerrs.push_back(paramerr);
+            params[idx]    = (double)binData->GetAt(k++);
+            paramerrs[idx] = (double)binData->GetAt(k++);
         }
 
-        //TODO: SAVE RESULTS TO DATABASE?  OR TO TREE in outputfile...
-        
+        // Save results to TTree
+        tree->Fill();
+
     } // for (int binidx=0; binidx<binids.size(); binidx++) {
 
     // Cd to top directory
     outroot->cd();
+
+    // Write tree and close file
+    tree->Write("", TObject::kOverwrite); // save only the new version of the tree
+    outroot->Close();
 
     // Ending message
     out << "------------------- END of getMultiDBinnedSAGenericMC -------------------\n";
