@@ -25,7 +25,7 @@ inscalingfiles = [
     # 'aggregate_inject_seed__binvar_x__sgasyms_0.0__x_0.09_0.7'+asymname+'.pdf_rescaling_info.csv',
 ]
 #RGA
-version = '5_9_24'#'5_3_24'#'5_2_24' #'4_30_24'
+version = '5_13_24'#'5_10_24'#'5_3_24'#'5_2_24' #'4_30_24'
 # inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh__4_19_24__PLOTS_AND_TABLES_'+version+'/csv/'
 inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh_noSector4__4_19_24__PLOTS_AND_TABLES_'+version+'/csv/'
 
@@ -73,6 +73,10 @@ ylabels = {
 skiprows = 1
 delimiter = ','
 scale_factor_index = 3 #NOTE: SHOULD BE BIN,ACCEPTANCERATIO,STATISTICSSCALEFACTOR,RGHSTATISTICS,RGASTATISTICS,X,XERR
+theorydir = '/Users/mfm45/aurore_theory_predictions/'
+theoryfiles = ['rat_mh_h1d1_0112.res', 'rat_z_h1d1_0112.res', 'rat_x_h1d1_0112.res']
+theorynames = [os.path.abspath(os.path.join(theorydir,theoryf)) for theoryf in theoryfiles]
+print("DEBUGGING: theorynames = ",theorynames)
 for i, name in enumerate(infiles):
     
     # Load input file
@@ -85,6 +89,13 @@ for i, name in enumerate(infiles):
     print('a.shape = ',a.shape)
     a1 = a[:,1]
     a_old = a.copy()
+
+    # Load theory file
+    a_theory     = np.loadtxt(theorynames[i],skiprows=0,delimiter=delimiter)
+    print('name    = ',theorynames[i])
+    print('i       = ',i)
+    print('a_theory  = ',a_theory)
+    print('a_theory.shape = ',a_theory.shape)
 
     # Load scaling file
     name2 = inscalingfiles[i] #NOTE: THESE MUST MATCH UP EXACTLY
@@ -157,85 +168,96 @@ for i, name in enumerate(infiles):
         ax1.set_ylabel(ylabels[asymname],usetex=True) #'$\mathcal{A}^{\sin{\phi_{R_{T}}}}_{UT}$'
         # if acols[0] == 'z_ppim': #NOTE: NOT SURE WHY THIS IS HERE????
         #     a = a[:-1]
+        print("DEBUGGING: a_old = ",a_old)
+        print("DEBUGGING: a     = ",a)
+        #fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
         g1 = ax1.errorbar(a_old[:,0],[asym for el in a_old[:,0]],a_old[:,1], fmt='rv', linewidth=2, capsize=6, label='Old RGH Projections')
-        g2 = ax1.errorbar(a[:,0],[asym-0.05 for el in a[:,0]],a[:,1], fmt='bv', linewidth=2, capsize=6,label='Updated RGH Projections')
+        k = 1 if 'z' in theorynames[i] else 2 if 'x' in theorynames[i] else 0
+        if 'x' in theorynames[i]:
+            print("DEBUGGING: a_old[:,0].shape = ",a_old[:,0].shape)
+            print("DEBUGGING: a_theory[:,-2] = ",a_theory[1:,-2].shape)
+            gtheory = ax1.errorbar(a_old[:,0],a_theory[1:,-2],a_theory[1:,-1], fmt='g^', linewidth=2, capsize=6,label='Theory Projections')
+        else:
+            gtheory = ax1.errorbar(a_theory[:,k],a_theory[:,-2],a_theory[:,-1], fmt='g^', linewidth=2, capsize=6,label='Theory Projections')
+        yoffset = 0.05
+        g2 = ax1.errorbar(a[:,0],[asym-yoffset for el in a[:,0]],a[:,1], fmt='bo', linewidth=2, capsize=6,label='Updated RGH Projections')
         ax1.set_xlabel(xvar_labels[acols[0]],usetex=True)
         plt.legend(loc='upper left') #NOTE: CALL BEFORE TWINNING AXIS
 
-        ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+        # ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
-        ax2.set_ylabel('Density')  # we already handled the x-label with ax1
-        # ax2.plot(t, data2, color=color)
-        # ax2.tick_params(axis='y', labelcolor=color)
-
-
-        # Load ROOT histogram of RGH MC distribution
-        h_path = '/Users/mfm45/drop/root_files_5_1_24/h1_rgh_mc_'+acols[0]+'.root'
-        h_file = ur.open(h_path)
-        h_key = h_file.keys()[0].replace(';1','')
-        print('DEBUGGING: h_key = ',h_key)
-        h_y, h_bins    = h_file[h_key].to_numpy() #NOTE: THIS SHOULD GIVE TUPLE (Y,X)
-        h_x = [(h_bins[i]+h_bins[i+1])/2 for i in range(len(h_bins)-1)]
-        ax2.set_ylim(*(0.0,0.05)) #NOTE: MAY NEED TO ADJUST...DYNAMIC WAY TO SET???
-        h_rgh_mc = ax2.hist(h_x,bins=h_bins,weights=h_y/np.sum(h_y),histtype='step',color='tab:orange',alpha=0.5,linewidth=2,label='RGH MC',density=False)
-
-        # Load ROOT histogram of RGH MC distribution
-        h_path = '/Users/mfm45/drop/root_files_5_1_24/h1_rga_mc_'+acols[0]+'.root'
-        h_file = ur.open(h_path)
-        h_key = h_file.keys()[0].replace(';1','')
-        h_y, h_bins    = h_file[h_key].to_numpy() #NOTE: THIS SHOULD GIVE TUPLE (Y,X)
-        h_x = [(h_bins[i]+h_bins[i+1])/2 for i in range(len(h_bins)-1)]
-        ax2.set_ylim(*(0.0,0.05)) #NOTE: MAY NEED TO ADJUST...DYNAMIC WAY TO SET???
-        h_rga_mc = ax2.hist(h_x,bins=h_bins,weights=h_y/np.sum(h_y),histtype='step',color='tab:pink',alpha=0.5,linewidth=2,label='RGA MC',density=False)
-
-        # Load ROOT histogram of RGA Data distribution
-        h_path = '/Users/mfm45/drop/root_files_5_1_24/h1_rga_dt_'+acols[0]+'.root'
-        h_file = ur.open(h_path)
-        h_key = h_file.keys()[0].replace(';1','')
-        h_y, h_bins    = h_file[h_key].to_numpy() #NOTE: THIS SHOULD GIVE TUPLE (Y,X)
-        h_x = [(h_bins[i]+h_bins[i+1])/2 for i in range(len(h_bins)-1)]
-        ax2.set_ylim(*(0.0,0.05)) #NOTE: MAY NEED TO ADJUST...DYNAMIC WAY TO SET???
-        h_rga_data = ax2.hist(h_x,bins=h_bins,weights=h_y/np.sum(h_y),histtype='step',color='tab:blue',alpha=0.5,linewidth=2,label='RGA Data',density=False)
-
-        plt.legend(loc='upper right')
-
-        # Load and draw projected RGH statistics
-        bins = yaml_args['binvars'][acols[0]]['bins']
-        print("DEBUGGING: h_rgh_mc[1] = ",h_rgh_mc[1])
-        for xval in bins[1:-1]:
-            ymin = 0.0
-            ymax = 0.05
-            # plt.vlines(xval, ymin, ymax, linestyle='dotted')
-            for idx in range(len(h_rgh_mc[1])-1):
-                binx_low, binx_high = h_rgh_mc[1][idx], h_rgh_mc[1][idx+1]
-                # print("DEBUGGING: xval, binx_low, binx_high = ",xval,binx_low,binx_high)
-                if xval>= binx_low and xval<binx_high:
-                    ymax = h_rgh_mc[0][idx]
-                    print("DEBUGGING: ymin, ymax = ",ymin,ymax)
-                    plt.vlines(xval, ymin, ymax, linestyle='dotted')
-
-        # # print('DEBUGGING len(bins) = ',len(bins))
-        # # print('DEBUGGING: len(a[:,0]) = ',len(a[:,0]))
-        # # bins = bins[:len(a[:,0])+1]
-        # # if len(bins)<=len(a[:,0]):
-        # #     bins.insert(1,0.075)
-        # #     b1_ = b1_.tolist()
-        # #     b1_.insert(0,b1_[0])
-        # print('DEBUGGING: bins = ',bins)
-        # print('DEBUGGING: b1_ = ',b1_)
-        # print('DEBUGGING: np.max(b1_) = ',np.max(b1_))
-        # print('DEBUGGING: np.min(b1_) = ',np.min(b1_))
-        # ax2.set_ylim(*(0.0,np.max(b1_)*1.05))
-        # # binmids = [(bins[i+1]+bins[i])/2 for i in range(len(bins)-1)]
-        # binmids = b[:,-2]
-        # print('DEBUGGING: binmids = ',binmids)
-        # h = ax2.hist(binmids,bins=bins,weights=b1_,histtype='stepfilled',color='tab:orange',alpha=0.25,label='RGH Statistics')
-        # print('hist = ',h)
-        # for i in range(len(h)):
-        #     print(type(h[i]))
+        # ax2.set_ylabel('Density')  # we already handled the x-label with ax1
+        # # ax2.plot(t, data2, color=color)
+        # # ax2.tick_params(axis='y', labelcolor=color)
 
 
-        f.tight_layout()  # otherwise the right y-label is slightly clipped
+        # # Load ROOT histogram of RGH MC distribution
+        # h_path = '/Users/mfm45/drop/root_files_5_1_24/h1_rgh_mc_'+acols[0]+'.root'
+        # h_file = ur.open(h_path)
+        # h_key = h_file.keys()[0].replace(';1','')
+        # print('DEBUGGING: h_key = ',h_key)
+        # h_y, h_bins    = h_file[h_key].to_numpy() #NOTE: THIS SHOULD GIVE TUPLE (Y,X)
+        # h_x = [(h_bins[i]+h_bins[i+1])/2 for i in range(len(h_bins)-1)]
+        # ax2.set_ylim(*(0.0,0.05)) #NOTE: MAY NEED TO ADJUST...DYNAMIC WAY TO SET???
+        # h_rgh_mc = ax2.hist(h_x,bins=h_bins,weights=h_y/np.sum(h_y),histtype='step',color='tab:orange',alpha=0.5,linewidth=2,label='RGH MC',density=False)
+
+        # # Load ROOT histogram of RGH MC distribution
+        # h_path = '/Users/mfm45/drop/root_files_5_1_24/h1_rga_mc_'+acols[0]+'.root'
+        # h_file = ur.open(h_path)
+        # h_key = h_file.keys()[0].replace(';1','')
+        # h_y, h_bins    = h_file[h_key].to_numpy() #NOTE: THIS SHOULD GIVE TUPLE (Y,X)
+        # h_x = [(h_bins[i]+h_bins[i+1])/2 for i in range(len(h_bins)-1)]
+        # ax2.set_ylim(*(0.0,0.05)) #NOTE: MAY NEED TO ADJUST...DYNAMIC WAY TO SET???
+        # h_rga_mc = ax2.hist(h_x,bins=h_bins,weights=h_y/np.sum(h_y),histtype='step',color='tab:pink',alpha=0.5,linewidth=2,label='RGA MC',density=False)
+
+        # # Load ROOT histogram of RGA Data distribution
+        # h_path = '/Users/mfm45/drop/root_files_5_1_24/h1_rga_dt_'+acols[0]+'.root'
+        # h_file = ur.open(h_path)
+        # h_key = h_file.keys()[0].replace(';1','')
+        # h_y, h_bins    = h_file[h_key].to_numpy() #NOTE: THIS SHOULD GIVE TUPLE (Y,X)
+        # h_x = [(h_bins[i]+h_bins[i+1])/2 for i in range(len(h_bins)-1)]
+        # ax2.set_ylim(*(0.0,0.05)) #NOTE: MAY NEED TO ADJUST...DYNAMIC WAY TO SET???
+        # h_rga_data = ax2.hist(h_x,bins=h_bins,weights=h_y/np.sum(h_y),histtype='step',color='tab:blue',alpha=0.5,linewidth=2,label='RGA Data',density=False)
+
+        # plt.legend(loc='upper right')
+
+        # # Load and draw projected RGH statistics
+        # bins = yaml_args['binvars'][acols[0]]['bins']
+        # print("DEBUGGING: h_rgh_mc[1] = ",h_rgh_mc[1])
+        # for xval in bins[1:-1]:
+        #     ymin = 0.0
+        #     ymax = 0.05
+        #     # plt.vlines(xval, ymin, ymax, linestyle='dotted')
+        #     for idx in range(len(h_rgh_mc[1])-1):
+        #         binx_low, binx_high = h_rgh_mc[1][idx], h_rgh_mc[1][idx+1]
+        #         # print("DEBUGGING: xval, binx_low, binx_high = ",xval,binx_low,binx_high)
+        #         if xval>= binx_low and xval<binx_high:
+        #             ymax = h_rgh_mc[0][idx]
+        #             print("DEBUGGING: ymin, ymax = ",ymin,ymax)
+        #             plt.vlines(xval, ymin, ymax, linestyle='dotted')
+
+        # # # print('DEBUGGING len(bins) = ',len(bins))
+        # # # print('DEBUGGING: len(a[:,0]) = ',len(a[:,0]))
+        # # # bins = bins[:len(a[:,0])+1]
+        # # # if len(bins)<=len(a[:,0]):
+        # # #     bins.insert(1,0.075)
+        # # #     b1_ = b1_.tolist()
+        # # #     b1_.insert(0,b1_[0])
+        # # print('DEBUGGING: bins = ',bins)
+        # # print('DEBUGGING: b1_ = ',b1_)
+        # # print('DEBUGGING: np.max(b1_) = ',np.max(b1_))
+        # # print('DEBUGGING: np.min(b1_) = ',np.min(b1_))
+        # # ax2.set_ylim(*(0.0,np.max(b1_)*1.05))
+        # # # binmids = [(bins[i+1]+bins[i])/2 for i in range(len(bins)-1)]
+        # # binmids = b[:,-2]
+        # # print('DEBUGGING: binmids = ',binmids)
+        # # h = ax2.hist(binmids,bins=bins,weights=b1_,histtype='stepfilled',color='tab:orange',alpha=0.25,label='RGH Statistics')
+        # # print('hist = ',h)
+        # # for i in range(len(h)):
+        # #     print(type(h[i]))
+
+
+        # f.tight_layout()  # otherwise the right y-label is slightly clipped
 
         # # added these three lines
         # lns = g1+g2+h
