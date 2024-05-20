@@ -32,6 +32,7 @@ TArrayF* getMultiDBinSAGeneric(
     std::string  outdir,
     TFile       *outroot,
     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+    std::string  cuts,
     std::string  bincut,
     std::vector<std::string> binvars,
     int          binid,
@@ -58,7 +59,7 @@ TArrayF* getMultiDBinSAGeneric(
     auto count = (int)*f.Count();
     std::vector<double> binvarmeans;
     std::vector<double> binvarstddevs;
-    for (int i=0; i<binvars.size()) {
+    for (int i=0; i<binvars.size(); i++) {
         std::string binvar = binvars[i];
         auto mean     = (double)*f.Mean(binvar.c_str());
         auto stddev   = (double)*f.StdDev(binvar.c_str());
@@ -121,7 +122,7 @@ TArrayF* getMultiDBinSAGeneric(
     out << "--------------------------------------------------" << std::endl;
     out << " getMultiDBinSAGeneric():" << std::endl;
     out << " cuts       = " << cuts.c_str() << std::endl;
-    out << " bincut     = " << bin_cut.c_str() << std::endl;
+    out << " bincut     = " << bincut.c_str() << std::endl;
     out << " binmeans   = [" << std::endl;
     for (int idx=0; idx<binvarmeans.size(); idx++) {
         out << "              " << binvars[idx] << " : " << binvarmeans[idx] << "±" << binvarstddevs[idx];
@@ -233,7 +234,7 @@ void getMultiDBinnedSAGenericMC(
                     std::string treename,
                     std::string treetitle,
                     std::string  outdir,
-                    TFile      * outroot,
+                    // TFile      * outroot,
                     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
                     std::string  sgcuts, // Signal cuts
                     // std::string  bgcuts, // Background cuts
@@ -279,10 +280,10 @@ void getMultiDBinnedSAGenericMC(
     // NOTE: ARGUMENTS ADDED: std::string: filename, filemode, treename, treeetitle
 
     // Open output file and create tree and branches for binid, counts, depol, binvarmeans, binvarstddevs, asym
-    TFile outroot = TFile::Open(filename.c_str(), filemode.c_str());
+    TFile *outroot = TFile::Open(filename.c_str(), filemode.c_str());
     TTree *tree;
-    if (outroot->GetListOfKeys()->Contains(treename.c_str())) { tree = outroot->Get<TTree*>(treename.c_str()); } 
-    else  { tree = TTree(treename.c_str(),treetitle.c_str()); }
+    if (outroot->GetListOfKeys()->Contains(treename.c_str())) { tree = outroot->Get<TTree>(treename.c_str()); } 
+    else  { tree = new TTree(treename.c_str(),treetitle.c_str()); }
 
     // Create branches
     int binid = -1;
@@ -301,7 +302,7 @@ void getMultiDBinnedSAGenericMC(
     auto binidBranch = tree->Branch("binid", &binid, "binid/I"); //NOTE: //TODO: Figure out if just need to get branches for existing file...?
     auto countBranch = tree->Branch("count", &count, "count/I");
     auto depolBranch = tree->Branch("depol", &depol, "depol/D");
-    for (int i=0; i<binvars.c_str(); i++) {
+    for (int i=0; i<binvars.size(); i++) {
         auto meanBranch   = tree->Branch(Form("%s_mean",binvars[i].c_str()), &binvarmeans[i], Form("%s_mean/D",binvars[i].c_str())); //NOTE: Need to use reference to double* not std::vector because when you reset everything gets overwritten...
         auto stddevBranch = tree->Branch(Form("%s_err",binvars[i].c_str()), &binvarstddevs[i], Form("%s_err/D",binvars[i].c_str()));
     }
@@ -321,17 +322,19 @@ void getMultiDBinnedSAGenericMC(
         std::string bincut = bincuts[binidx];
 
         // Make bin cut on frame
-        auto bin_frame = frame.Filter(bin_cut.c_str());
+        auto bin_frame = frame.Filter(bincut.c_str());
 
         // Compute Spin Asymmetry in bin
         TArrayF *binData;
-        std::string  binoutdir = Form("%s/method_%s_bin_%d",outdir.c_str(),(const char*)method,binvar.c_str(),binids[bin_idx]);
-        binData = (TArrayF*) getKinBinSAGeneric( //NOTE: dim= dim(counts+depol+binvarmeans+binvarstddevs+pars+Epars)
+        std::string  binoutdir = Form("%s/method_%s_fitvar_%s_bin_%d",outdir.c_str(),(const char*)method,fitvar.c_str(),(int)binids[binidx]);
+        binData = (TArrayF*) getMultiDBinSAGeneric( //NOTE: dim= dim(counts+depol+binvarmeans+binvarstddevs+pars+Epars)
             binoutdir,
             outroot,
             frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+            sgcuts,
             bincut,
-            binids[bin_idx],
+            binvars,
+            binids[binidx],
             pol,
             depolvar,
             helicity_name,
