@@ -100,7 +100,7 @@ def get_plots(
 if __name__=="__main__":
 
     verbose = True
-    ylims = (0.0,0.30)
+    ylims = (0.0,0.35)
 
     packages = [
         {
@@ -124,5 +124,5 @@ if __name__=="__main__":
     for pack in packages:
         get_plots(**pack)
 
-if verbose: plt.show()
+    if verbose: plt.show()
 
