@@ -13,7 +13,7 @@
 #include <TMath.h>
 
 // Project Includes
-#include <analysis.h>
+#include <analysis2.h>
 
 void analysis(const YAML::Node& node) {
 
@@ -41,6 +41,30 @@ void analysis(const YAML::Node& node) {
         tree = node["tree"].as<std::string>();
     }
     std::cout << "tree: " << tree << std::endl;
+
+    std::string outfilename = "";
+    if (node["outfilename"]) {
+        outfilename = node["outfilename"].as<std::string>();
+    }
+    std::cout << "outfilename: " << outfilename << std::endl;
+
+    std::string outfilemode = "";
+    if (node["outfilemode"]) {
+        outfilemode = node["outfilemode"].as<std::string>();
+    }
+    std::cout << "outfilemode: " << outfilemode << std::endl;
+
+    std::string outtreename = "";
+    if (node["outtreename"]) {
+        outtreename = node["outtreename"].as<std::string>();
+    }
+    std::cout << "outtreename: " << outtreename << std::endl;
+
+    std::string outtreetitle = "";
+    if (node["outtreetitle"]) {
+        outtreetitle = node["outtreetitle"].as<std::string>();
+    }
+    std::cout << "outtreetitle: " << outtreetitle << std::endl;
 
     int nthreads = 1;
     if (node["nthreads"]) {
@@ -176,80 +200,23 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "nparams: " << nparams << std::endl;
 
-    std::map<std::string,std::vector<double>> binvars;
-    std::map<std::string,std::vector<int>> poly4map;
-    if (node["binvars"]) {
-        if (node["binvars"].IsMap()) {
-            std::cout<<"binvars:"<<std::endl;//DEBUGGING
-            for (auto it = node["binvars"].begin(); it != node["binvars"].end(); ++it) { //TODO: How to check if too many binning variables...
-
-                // Get bin variable name
-                std::string name = it->first.as<std::string>();
-
-                // Get nbins and bins from yaml
-                int nbins = 0;
-                if (node["binvars"][name]["nbins"]) {
-                    nbins = node["binvars"][name]["nbins"].as<int>();
-                }
-                std::vector<double> bins;
-                if (node["binvars"][name]["bins"]) {
-                    bins = node["binvars"][name]["bins"].as<std::vector<double>>();
-                }
-                std::vector<int> poly4bins;
-                if (node["binvars"][name]["poly4bins"]) {
-                    poly4bins = node["binvars"][name]["poly4bins"].as<std::vector<int>>();
-                }
-                
-                // Set bin limits if just given nbins and outer limits
-                std::vector<double> vec = bins;
-                if (nbins>0 && bins.size()==2) {
-                    vec = {}; //NOTE: IMPORTANT!  RESET VEC IF INFERRING BINWIDTH.
-                    double binwidth = (bins[1] - bins[0])/nbins;
-                    for (int bin=0; bin<nbins+1; bin++) {
-                        double binval = bins[0] + binwidth * bin;
-                        vec.push_back(binval);
-                    }
-                } else if (nbins==0) { vec = bins; }
-                else { std::cout<<"*** ERROR *** COULD NOT READ BINS"<<std::endl; } //DEBUGGING
-
-                // Add to bin variables map
-                binvars.insert(std::pair<std::string, std::vector<double>>(name, vec));
-                std::cout<<"\t"<<name<<": [ ";//DEBUGGING
-                for (int bin=0; bin<vec.size(); bin++) {
-                    if (bin!=vec.size()-1) { std::cout<<vec[bin]<<", "; }
-                    else { std::cout<<vec[bin]; }
-                }
-                std::cout<<" ]"<<std::endl;
-
-                // Add to poly4 bin variables map
-                poly4map.insert(std::pair<std::string, std::vector<int>>(name, poly4bins));
-                std::cout<<"\t"<<name<<": [ ";//DEBUGGING
-                for (int bin=0; bin<poly4bins.size(); bin++) {
-                    if (bin!=poly4bins.size()-1) { std::cout<<poly4bins[bin]<<", "; }
-                    else { std::cout<<poly4bins[bin]; }
-                }
-                std::cout<<" ]"<<std::endl;
-            }
-        }
-    }
-
-    std::vector<std::string> binvars2;
+    std::vector<std::string> binvars;
     std::vector<std::vector<double>> binlims;
     if (node["binningscheme"]) {
         if (node["binningscheme"].IsMap()) {
             std::cout<<"binningscheme:"<<std::endl;//DEBUGGING
-            if (node["binningscheme"]["binvars2"]) {
-                binvars2 = node["binningscheme"]["binvars2"].as<std::vector<std::string>>();
+            if (node["binningscheme"]["binvars"]) {
+                binvars = node["binningscheme"]["binvars"].as<std::vector<std::string>>();
             }
-            else { std::cerr<<"*** ERROR *** Could not read yaml binvars2"<<std::endl; }
+            else { std::cerr<<"*** ERROR *** Could not read yaml binvars"<<std::endl; }
             if (node["binningscheme"]["binlims"]) {
                 binlims = node["binningscheme"]["binlims"].as<std::vector<std::vector<double>>>();
             }
             else { std::cerr<<"*** ERROR *** Could not read yaml binlims"<<std::endl; }
 
             // Add to bin variables map
-            for (int i=0; i<binvars2.size(); i++) {
-                std::string name = binvars2[i];
+            for (int i=0; i<binvars.size(); i++) {
+                std::string name = binvars[i];
                 std::vector<double> vec = binlims[i];
                 std::cout<<"\t"<<name<<": [ ";//DEBUGGING
                 for (int bin=0; bin<vec.size(); bin++) {
@@ -482,11 +449,11 @@ void analysis(const YAML::Node& node) {
 
     // Add all absolute bin limits to overall cuts
     std::string binlims_cuts = "";
-    for (auto it = binvars.begin(); it != binvars.end(); ++it) { //TODO: How to check if too many binning variables...
+    for (int i=0; i<binvars.size(); i++) { //TODO: How to check if too many binning variables...
 
         // Get bin variable name and bin limits
-        std::string binvar = it->first;
-        std::vector<double> bins_ = it->second;
+        std::string binvar = binvars[i];
+        std::vector<double> bins_ = binlims[i];
         double binmin = bins_.at(0);
         double binmax = bins_.at(bins_.size()-1);
 
@@ -563,68 +530,59 @@ void analysis(const YAML::Node& node) {
     std::ofstream outf; outf.open(logpath.c_str());
     std::ostream &out = outf; //std::cout;
 
-    // Create output ROOT file
-    TFile * outroot = TFile::Open(outpath.c_str(),"RECREATE");
+    // // Create output ROOT file
+    // TFile * outroot = TFile::Open(outpath.c_str(),"RECREATE");
 
-    // Loop variables to bin in
-    for (auto it = binvars.begin(); it != binvars.end(); ++it) { //TODO: How to check if too many binning variables...
+    // Set unique bin integer ids
+    int binid_min = 0; //NOTE: TODO: set this from the yaml args
+    std::vector<int> binids;
+    int nbinids = 1;
+    for (int i=0; i<binlims.size(); i++) {
+        nbinids *= binlims[i].size()-1;
+    }
+    for (int i=0; i<nbinids; i++) {
+        binids.push_back(binid_min+i);
+    }
 
-        // Get bin variable name and bin limits
-        std::string binvar = it->first;
-        std::vector<double> bins_ = it->second;
-        const int nbins = bins_.size()-1; //NOTE: IMPORTANT: -1 is because you give bin limits!
-        double bins[nbins];
-
-        // Set poly4 mask
-        int poly4bins[nbins];
-        for (int entry=0; entry<nbins; entry++) { poly4bins[entry] = 0; }
-        for (int entry=0; entry<poly4map[binvar.c_str()].size(); entry++) {
-            int bin = poly4map[binvar.c_str()][entry]-1;
-            if (bin<nbins) poly4bins[bin] = 1;
-        }
-        for (int bin=0; bin<bins_.size(); bin++) { bins[bin] = bins_[bin]; }
-
-        // Set binvar outdir name
-        std::string binvar_outdir = Form("binvar_%s",binvar.c_str());
-
-        // Get 1D graph binned in given kinematic variable.
-        getKinBinnedGraphBSAGenericMC(
-                    outdir, // std::string  outdir,
-                    outroot, // TFile      * outroot,
-                    frame, // ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
-                    sgcuts, // std::string  sgcuts, // Signal cuts
-                    bgcuts, // std::string  bgcuts, // Background cuts
-                    method, // TString      method, // ONLY getKinBinBSAGeneric ('BSA') is allowed at the moment
-                    binvar, // std::string  binvar, // Variable name to bin in
-                    nbins, // int          nbins, // Number of bins
-                    bins, // double     * bins, // Bin limits (length=nbins+1)
-                    poly4bins, // int        * poly4bins, // mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
-                    bgfraction, // double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
-                    use_bgfraction, // bool         use_bgfraction, // whether to use specified bgfraction
-                    beam_polarization, // double       pol, // Luminosity averaged beam polarization
-                    depolvar, //std::string  depolvar      = "depol", // Depolarization variable name
-                    mass_name, // std::string  mass_name, // mass variable name for signal fit
-                    n_mass_bins, // int          n_mass_bins, // number of mass bins
-                    mass_min, // double       mass_min, // mass variable max for signal fit
-                    mass_max, // double       mass_max, // mass variable min for signal fit
-                    dtheta_p1_max, // double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
-                    dtheta_p2_max, // double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
-                    mass_draw_opt, // std::string  mass_draw_opt, // mass variable hist draw option for fit
-                    helicity_name, // std::string  helicity_name = "heli", // Branch name for helicity
-                    fitformula, // std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
-                    nparams, // int          nparams = 2, // number of parameters in fit formula above
-                    fitvar, // std::string  fitvar = "dphi", // fitvariable branch name to use
-                    fitvartitle, // std::string  fitvartitle = "#Delta#phi", // fit variable axis title
-                    n_fitvar_bins, // int          n_fitvar_bins = 10, // number of bins for fit variable if using LF method
-                    fitvar_min, // double       fitvar_min = 0.0, // fit variable minimum
-                    fitvar_max, // double       fitvar_max = 2*TMath::Pi(), // fit variable maximum
-                    graph_title, // std::string  graph_title = "BSA A_{LU} vs. #Delta#phi", // Histogram title
-                    marker_color, // int          marker_color = 4, // 4 is blue
-                    marker_style, // int          marker_style = 20, // 20 is circle
-                    out // std::ostream &out = std::cout  // Output for all messages
-                    );
-
-    }// loop over bin variables
+    // Get 1D graph binned in given kinematic variable.
+    getMultiDBinnedSAGenericMC(
+        outfilename, // std::string filename,
+        outfilemode, // std::string filemode,
+        outtreename, // std::string treename,
+        outtreetitle, // std::string treetitle,
+        outdir, // std::string  outdir,
+        // outroot, // TFile      * outroot,
+        frame, // ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
+        sgcuts, // std::string  sgcuts, // Signal cuts
+        // bgcuts, // std::string  bgcuts, // Background cuts
+        method, // TString      method, // ONLY getKinBinBSAGeneric ('BSA') is allowed at the moment
+        binvars, // std::vector<std::string>  binvars, // Variable name to bin in
+        binlims, // std::vector<std::vector<double>> binlims, // Bin limits (dim=nbinvars,nbins)
+        binids, // std::vector<int> binids, // Bin unique ids //NOTE: DO NOT NECESSARILY CORRESPOND TO INDEX IN BINLIMS, I.E., CAN START AT NON-ZERO NUMBER.
+        // double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
+        // use_bgfraction, // bool         use_bgfraction, // whether to use specified bgfraction
+        beam_polarization, // double       pol, // Luminosity averaged beam polarization
+        depolvar, //std::string  depolvar      = "depol", // Depolarization variable name
+        // mass_name, // std::string  mass_name, // mass variable name for signal fit
+        // n_mass_bins, // int          n_mass_bins, // number of mass bins
+        // mass_min, // double       mass_min, // mass variable max for signal fit
+        // mass_max, // double       mass_max, // mass variable min for signal fit
+        // dtheta_p1_max, // double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
+        // dtheta_p2_max, // double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
+        // mass_draw_opt, // std::string  mass_draw_opt, // mass variable hist draw option for fit
+        helicity_name, // std::string  helicity_name = "heli", // Branch name for helicity
+        fitformula, // std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
+        nparams, // int          nparams = 2, // number of parameters in fit formula above
+        fitvar, // std::string  fitvar = "dphi", // fitvariable branch name to use
+        fitvartitle, // std::string  fitvartitle = "#Delta#phi", // fit variable axis title
+        n_fitvar_bins, // int          n_fitvar_bins = 10, // number of bins for fit variable if using LF method
+        fitvar_min, // double       fitvar_min = 0.0, // fit variable minimum
+        fitvar_max, // double       fitvar_max = 2*TMath::Pi(), // fit variable maximum
+        // graph_title, // std::string  graph_title = "BSA A_{LU} vs. #Delta#phi", // Histogram title
+        // marker_color, // int          marker_color = 4, // 4 is blue
+        // marker_style, // int          marker_style = 20, // 20 is circle
+        out // std::ostream &out = std::cout  // Output for all messages
+    );
 
 } // void analysis()
 
