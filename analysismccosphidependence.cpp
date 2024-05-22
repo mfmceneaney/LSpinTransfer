@@ -357,8 +357,8 @@ void analysis(const YAML::Node& node) {
     std::string fitvar_mc = Form("%s_mc",fitvar.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string mc_cuts = "!TMath::IsNaN(costheta1_mc) && !TMath::IsNaN(costheta2_mc) && sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0";//NOTE: NOT SURE THAT THESE ARE STILL NECESSARY, 9/14/23.
     std::cout<<"DEBUGGING: in analysis.cpp: mc_cuts = \n\t"<<mc_cuts<<std::endl;//DEBUGGING
-    TF1 *sgfunc = new TF1("sgfunc","(y*(1-1/2*y)*[0] + y*TMath::Sqrt(1-y)*x*[1]) / (1-y+1/2*y*y)");
-    TF1 *bgfunc = new TF1("sgfunc","(y*(1-1/2*y)*[0] + y*TMath::Sqrt(1-y)*x*[1]) / (1-y+1/2*y*y)");
+    TF2 *sgfunc = new TF2("sgfunc","(y*(1-1/2*y)*[0] + y*TMath::Sqrt(1-y)*x*[1]) / (1-y+1/2*y*y)");
+    TF2 *bgfunc = new TF2("bgfunc","(y*(1-1/2*y)*[0] + y*TMath::Sqrt(1-y)*x*[1]) / (1-y+1/2*y*y)");
     sgfunc->SetParameter(0,sgasym);
     sgfunc->SetParameter(1,sgasym2);
     bgfunc->SetParameter(0,bgasym);
