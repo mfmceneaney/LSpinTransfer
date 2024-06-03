@@ -536,7 +536,7 @@ TArrayF* getKinBinBSAGeneric(
     hasym->GetYaxis()->SetTitleOffset(0.87);
 
     // Draw asymmetry histogram
-    TCanvas *c1 = new TCanvas(Form("c1_%s",bintitle.c_str()));
+    TCanvas *c1 = new TCanvas(Form("c1_%s",outdir.c_str()));
     c1->cd();
     hasym->Draw();
 
@@ -681,7 +681,7 @@ TArrayF* getKinBinBSA2DGeneric(
     hasym->GetYaxis()->SetTitleOffset(0.87);
 
     // Draw asymmetry histogram
-    TCanvas *c1 = new TCanvas(Form("c1_%s",bintitle.c_str()));
+    TCanvas *c1 = new TCanvas(Form("c1_%s",outdir.c_str()));
     c1->cd();
     hasym->Draw("COLZ");
 
