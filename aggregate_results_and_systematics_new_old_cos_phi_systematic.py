@@ -863,10 +863,10 @@ if __name__=="__main__":
             y_corrections_mc_asym_injection__cos_phi_h_ppim = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim/',outpath=mc_asym_injection_cos_phi_h_ppim_outpath)['y'].to_numpy()
 
             # Load DATA cos_phi_h_ppim and compute difference
-            yerr_syst_results__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim__min/',outpath=results_outpath_cos_phi_h_ppim)['yerr'].to_numpy()
-            y_corrections_results__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim__min/',outpath=results_outpath_cos_phi_h_ppim)['y'].to_numpy()
+            yerr_syst_results__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim_min/',outpath=results_outpath_cos_phi_h_ppim)['yerr'].to_numpy()
+            y_corrections_results__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim_min/',outpath=results_outpath_cos_phi_h_ppim)['y'].to_numpy()
             yerr_syst_results__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim__max/',outpath=results_outpath_cos_phi_h_ppim)['yerr'].to_numpy()
-            y_corrections_results__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim__max/',outpath=results_outpath_cos_phi_h_ppim)['y'].to_numpy()
+            y_corrections_results__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim_max/',outpath=results_outpath_cos_phi_h_ppim)['y'].to_numpy()
             delta_y_corrections_results__cos_phi_h_ppim = np.abs(y_corrections_results__cos_phi_h_ppim__max-y_corrections_results__cos_phi_h_ppim__min)
 
             # Compute cos_phi_h_ppim systematic # ey_syst = D_LL * (Delta D_LL Data / Extracted D_LL Data) / (Delta D_LL MC / Extracted D_LL MC)
