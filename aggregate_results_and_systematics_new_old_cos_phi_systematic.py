@@ -984,7 +984,7 @@ if __name__=="__main__":
             # Get old arrs
             old_dir = "results/"
             new_dir = "results_ORIGINAL__from_local__5_31_24/"
-            inpath_csv = outpath.replace(new_dir,old_dir)+'.csv'
+            inpath_csv = outpath.replace(old_dir,new_dir)+'.csv'
             arrs_old = pd.read_csv(inpath_csv)
             print("DEBUGGING: inpath_csv = ",inpath_csv)
             print("\n\n\n\n\nDEBUGGING: arrs_old = ",arrs_old,"\n\n\n\n\n")
