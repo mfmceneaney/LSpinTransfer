@@ -882,6 +882,7 @@ if __name__=="__main__":
             # Compute cos_phi_h_ppim systematic # D_LL_syst/D_LL = (Delta D_LL MC / Injected D_LL MC) * (Delta D_LL Data / Delta D_LL MC)
             r_conversion_mc_to_dt = delta_y_corrections_results__cos_phi_h_ppim / delta_y_corrections_mc_asym_injection__cos_phi_h_ppim
             cos_phi_h_ppim_systematic = yerr_syst_mc_asym_injection__cos_phi_h_ppim / sgasym * r_conversion_mc_to_dt
+            print("\n\nDEBUGGINIG: yerr_syst_mc_asym_injection__cos_phi_h_ppim     = ",yerr_syst_mc_asym_injection__cos_phi_h_ppim,"\n\n")
             print("\n\nDEBUGGING: y_corrections_mc_asym_injection__cos_phi_h_ppim  = ",y_corrections_mc_asym_injection__cos_phi_h_ppim,"\n\n")
             print("\n\nDEBUGGING: r_conversion_mc_to_dt     = ",r_conversion_mc_to_dt,"\n\n")
             print("\n\nDEBUGGING: cos_phi_h_ppim_systematic = ",cos_phi_h_ppim_systematic,"\n\n") #TODO: ADD THIS TO THE SYSTEMATIC ERROR ADDITIVE MAT BELOW AND THE SUMMARY PLOTS.
