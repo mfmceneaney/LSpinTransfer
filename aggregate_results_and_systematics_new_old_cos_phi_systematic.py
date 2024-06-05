@@ -841,7 +841,6 @@ if __name__=="__main__":
             config_mass_ppim = config.copy() #NOTE: IMPORTANT TO COPY
             if binvar in config_mass_ppim: config_mass_ppim.pop(binvar)
             if 'bgasym' in config_mass_ppim: config_mass_ppim.pop('bgasym')
-            config_mass_ppim['sgasym2'] = sgasym
             config_mass_ppim['binvar'] = 'mass_ppim'
             config_mass_ppim[config_mass_ppim['binvar']] = [1.08, 1.24]
 
