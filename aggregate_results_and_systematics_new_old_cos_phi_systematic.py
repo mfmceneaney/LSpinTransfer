@@ -850,7 +850,7 @@ if __name__=="__main__":
 
             # Get cos_phi_h_ppim data systematics input file names
             results_aggregate_keys = []
-            outpath_dt_cos_phi_h_ppim = get_outpath(base_dir,results_aggregate_keys,sgasym2=sgasym2,sgasym=sgasym,**config_mass_ppim) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
+            outpath_dt_cos_phi_h_ppim = get_outpath(base_dir,results_aggregate_keys,**config_mass_ppim) #NOTE: IMPORTANT: OMIT INJECTED ASYMMETRIES HERE FOR CORRECT FILE NAMES. #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
             results_outpath_cos_phi_h_ppim = outpath_dt_cos_phi_h_ppim+'.csv'
 
             # Load MC cos_phi_h_ppim info and compute difference
