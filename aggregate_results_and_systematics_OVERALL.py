@@ -848,13 +848,13 @@ if __name__=="__main__":
             )
             all_systematics = np.moveaxis(
                 np.array(
-                    [el for el in (alpha_lambda_systematics,beam_polarization_systematics,mc_asym_injection_systematics,bin_migration_systematics,mass_fit_systematics,cos_phi_h_ppim_systematics)]
+                    [el for el in (alpha_lambda_systematics,beam_polarization_systematics,mc_asym_injection_systematics,mass_fit_systematics,cos_phi_h_ppim_systematics)]
                 ),
                 (0,1),
                 (1,0)
             )
             print("DEBUGGING: all_systematics.shape = ",all_systematics.shape)
-            labels = ['$\\alpha_{\Lambda}$','$P_{B}$','MC','Bin Migration', 'Mass Fit','$\cos{\phi_{\Lambda}}$']
+            labels = ['$\\alpha_{\Lambda}$','$P_{B}$','MC', 'Mass Fit','$\cos{\phi_{\Lambda}}$']
 
             # Get systematics all plotted stacked without results...
             plot_systematics(
