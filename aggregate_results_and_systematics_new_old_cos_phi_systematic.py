@@ -615,7 +615,7 @@ def get_plots(
     figsize = (16,10)
     f1, ax1 = plt.subplots(figsize=figsize)
     plt.xlim(*xlims)
-    plt.ylim(*(-0.01,0.01))
+    plt.ylim(*(-0.1,0.1))
     plt.title(title,usetex=True)
     plt.xlabel(xtitle,usetex=True)
     plt.ylabel("$\Delta_{New-Old} D_{LL\'}^{\Lambda} / \sigma$",usetex=True)
