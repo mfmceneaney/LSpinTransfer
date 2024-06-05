@@ -865,7 +865,7 @@ if __name__=="__main__":
             # Load DATA cos_phi_h_ppim and compute difference
             yerr_syst_results__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim_min/',outpath=results_outpath_cos_phi_h_ppim)['yerr'].to_numpy()
             y_corrections_results__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim_min/',outpath=results_outpath_cos_phi_h_ppim)['y'].to_numpy()
-            yerr_syst_results__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim__max/',outpath=results_outpath_cos_phi_h_ppim)['yerr'].to_numpy()
+            yerr_syst_results__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim_max/',outpath=results_outpath_cos_phi_h_ppim)['yerr'].to_numpy()
             y_corrections_results__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim_max/',outpath=results_outpath_cos_phi_h_ppim)['y'].to_numpy()
             delta_y_corrections_results__cos_phi_h_ppim = np.abs(y_corrections_results__cos_phi_h_ppim__max-y_corrections_results__cos_phi_h_ppim__min)
 
