@@ -846,12 +846,12 @@ if __name__=="__main__":
             config_mass_ppim[config_mass_ppim['binvar']] = [1.08, 1.24]
 
             # Get cos_phi_h_ppim MC injection systematics input file names 
-            outpath_mc_cos_phi_h_ppim = get_outpath(base_dir,mc_asym_injection_aggregate_keys,bgasym=sgasym2,sgasym=sgasym,**config_mass_ppim) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
+            outpath_mc_cos_phi_h_ppim = get_outpath(base_dir,mc_asym_injection_aggregate_keys,sgasym2=sgasym2,sgasym=sgasym,**config_mass_ppim) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
             mc_asym_injection_cos_phi_h_ppim_outpath = outpath_mc_cos_phi_h_ppim+'.csv'
 
             # Get cos_phi_h_ppim data systematics input file names
             results_aggregate_keys = []
-            outpath_dt_cos_phi_h_ppim = get_outpath(base_dir,results_aggregate_keys,bgasym=sgasym2,sgasym=sgasym,**config_mass_ppim) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
+            outpath_dt_cos_phi_h_ppim = get_outpath(base_dir,results_aggregate_keys,sgasym2=sgasym2,sgasym=sgasym,**config_mass_ppim) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
             results_outpath_cos_phi_h_ppim = outpath_dt_cos_phi_h_ppim+'.csv'
 
             # Load MC cos_phi_h_ppim info and compute difference
