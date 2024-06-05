@@ -835,18 +835,25 @@ if __name__=="__main__":
 
             # Choose sgasym and bgasym (sgasym2) to use
             sgasym  = 0.1
-            sgasym2 = 0.0
+            sgasym2 = 0.1 #NOTE: HOW TO CHOSE COMBO???
 
             # Create new semi-static config
-            config_mass_ppim = config.copy() #NOTE: IMPORTANT TO COPY
+            config_mass_ppim  = config.copy() #NOTE: IMPORTANT TO COPY
+            config_mass_ppim2 = config.copy() #NOTE: IMPORTANT TO COPY
             if binvar in config_mass_ppim: config_mass_ppim.pop(binvar)
             if 'bgasym' in config_mass_ppim: config_mass_ppim.pop('bgasym')
+            if 'bgasym' in config_mass_ppim2: config_mass_ppim2.pop('bgasym')
             config_mass_ppim['binvar'] = 'mass_ppim'
             config_mass_ppim[config_mass_ppim['binvar']] = [1.08, 1.24]
 
-            # Get cos_phi_h_ppim MC injection systematics input file names 
+            # Get cos_phi_h_ppim min max MC injection systematics input file names 
             outpath_mc_cos_phi_h_ppim = get_outpath(base_dir,mc_asym_injection_aggregate_keys,sgasym2=sgasym2,sgasym=sgasym,**config_mass_ppim) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
-            mc_asym_injection_cos_phi_h_ppim_outpath = outpath_mc_cos_phi_h_ppim+'.csv'
+            mc_asym_injection_cos_phi_h_ppim_minmax_outpath = outpath_mc_cos_phi_h_ppim+'.csv'
+            print("DEBBUGGING: mc_asym_injection_cos_phi_h_ppim_minmax_outpath = ",mc_asym_injection_cos_phi_h_ppim_minmax_outpath)
+
+            # Get cos_phi_h_ppim MC injection systematics input file names
+            outpath_mc_cos_phi_h_ppim = get_outpath(base_dir,mc_asym_injection_aggregate_keys,sgasym2=sgasym2,sgasym=sgasym,**config_mass_ppim2)
+            mc_asym_injection_cos_phi_h_ppim_outpath = outpath_mc_cos_phi_h_ppim+'_systematics.csv'
             print("DEBUGGING: mc_asym_injection_cos_phi_h_ppim_outpath = ",mc_asym_injection_cos_phi_h_ppim_outpath)
 
             # Get cos_phi_h_ppim data systematics input file names
@@ -857,10 +864,10 @@ if __name__=="__main__":
             print("DEBUGGING: base_dir = ",base_dir)
 
             # Load MC cos_phi_h_ppim info and compute difference
-            yerr_syst_mc_asym_injection__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim__min/',outpath=mc_asym_injection_cos_phi_h_ppim_outpath)['yerr'].to_numpy()
-            y_corrections_mc_asym_injection__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim__min/',outpath=mc_asym_injection_cos_phi_h_ppim_outpath)['y'].to_numpy()
-            yerr_syst_mc_asym_injection__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim__max/',outpath=mc_asym_injection_cos_phi_h_ppim_outpath)['yerr'].to_numpy()
-            y_corrections_mc_asym_injection__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim__max/',outpath=mc_asym_injection_cos_phi_h_ppim_outpath)['y'].to_numpy()
+            yerr_syst_mc_asym_injection__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim__min/',outpath=mc_asym_injection_cos_phi_h_ppim_minmax_outpath)['yerr'].to_numpy()
+            y_corrections_mc_asym_injection__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim__min/',outpath=mc_asym_injection_cos_phi_h_ppim_minmax_outpath)['y'].to_numpy()
+            yerr_syst_mc_asym_injection__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim__max/',outpath=mc_asym_injection_cos_phi_h_ppim_minmax_outpath)['yerr'].to_numpy()
+            y_corrections_mc_asym_injection__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim__max/',outpath=mc_asym_injection_cos_phi_h_ppim_minmax_outpath)['y'].to_numpy()
             delta_y_corrections_mc_asym_injection__cos_phi_h_ppim = np.abs(y_corrections_mc_asym_injection__cos_phi_h_ppim__max-y_corrections_mc_asym_injection__cos_phi_h_ppim__min)
             yerr_syst_mc_asym_injection__cos_phi_h_ppim = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim/',outpath=mc_asym_injection_cos_phi_h_ppim_outpath)['yerr'].to_numpy()
             y_corrections_mc_asym_injection__cos_phi_h_ppim = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim/',outpath=mc_asym_injection_cos_phi_h_ppim_outpath)['y'].to_numpy()
@@ -874,10 +881,10 @@ if __name__=="__main__":
 
             # Compute cos_phi_h_ppim systematic # D_LL_syst/D_LL = (Delta D_LL MC / Injected D_LL MC) * (Delta D_LL Data / Delta D_LL MC)
             r_conversion_mc_to_dt = delta_y_corrections_results__cos_phi_h_ppim / delta_y_corrections_mc_asym_injection__cos_phi_h_ppim
-            cos_phi_h_ppim_systematic = (y_corrections_mc_asym_injection__cos_phi_h_ppim - sgasym) / sgasym * r_conversion_mc_to_dt
-            print("\n\n\n\n\nDEBUGGING: y_corrections_mc_asym_injection__cos_phi_h_ppim  = ",y_corrections_mc_asym_injection__cos_phi_h_ppim,"\n\n\n\n\n")
-            print("\n\n\n\n\nDEBUGGING: r_conversion_mc_to_dt     = ",r_conversion_mc_to_dt,"\n\n\n\n\n")
-            print("\n\n\n\n\nDEBUGGING: cos_phi_h_ppim_systematic = ",cos_phi_h_ppim_systematic,"\n\n\n\n\n") #TODO: ADD THIS TO THE SYSTEMATIC ERROR ADDITIVE MAT BELOW AND THE SUMMARY PLOTS.
+            cos_phi_h_ppim_systematic = yerr_syst_mc_asym_injection__cos_phi_h_ppim / sgasym * r_conversion_mc_to_dt
+            print("\n\nDEBUGGING: y_corrections_mc_asym_injection__cos_phi_h_ppim  = ",y_corrections_mc_asym_injection__cos_phi_h_ppim,"\n\n")
+            print("\n\nDEBUGGING: r_conversion_mc_to_dt     = ",r_conversion_mc_to_dt,"\n\n")
+            print("\n\nDEBUGGING: cos_phi_h_ppim_systematic = ",cos_phi_h_ppim_systematic,"\n\n") #TODO: ADD THIS TO THE SYSTEMATIC ERROR ADDITIVE MAT BELOW AND THE SUMMARY PLOTS.
             #----------------------------------------------------------------------------------------------------#
 
             # Apply MC corrections
