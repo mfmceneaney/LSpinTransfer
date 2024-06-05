@@ -736,6 +736,64 @@ if __name__=="__main__":
             #TODO: GET CB/GAUS DIFF SYSTEMATICS
             yerr_syst_cb_gauss_diff = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mass_fit/',outpath=outpath+'.csv')['y'].to_numpy()
 
+            #----------------------------------------------------------------------------------------------------#
+            #NOTE: BEGIN ADDED 6/4/24
+
+            # Choose sgasym and bgasym (sgasym2) to use
+            sgasym  = 0.1
+            sgasym2 = 0.1 #NOTE: HOW TO CHOSE COMBO???
+
+            # Create new semi-static config
+            config_mass_ppim  = config.copy() #NOTE: IMPORTANT TO COPY
+            config_mass_ppim2 = config.copy() #NOTE: IMPORTANT TO COPY
+            if binvar in config_mass_ppim: config_mass_ppim.pop(binvar)
+            if 'bgasym' in config_mass_ppim: config_mass_ppim.pop('bgasym')
+            if 'bgasym' in config_mass_ppim2: config_mass_ppim2.pop('bgasym')
+            config_mass_ppim['binvar'] = 'mass_ppim'
+            config_mass_ppim[config_mass_ppim['binvar']] = [1.08, 1.24]
+
+            # Get cos_phi_h_ppim min max MC injection systematics input file names 
+            outpath_mc_cos_phi_h_ppim = get_outpath(base_dir,mc_asym_injection_aggregate_keys,sgasym2=sgasym2,sgasym=sgasym,**config_mass_ppim) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
+            mc_asym_injection_cos_phi_h_ppim_minmax_outpath = outpath_mc_cos_phi_h_ppim+'.csv'
+            print("DEBBUGGING: mc_asym_injection_cos_phi_h_ppim_minmax_outpath = ",mc_asym_injection_cos_phi_h_ppim_minmax_outpath)
+
+            # Get cos_phi_h_ppim MC injection systematics input file names
+            outpath_mc_cos_phi_h_ppim = get_outpath(base_dir,mc_asym_injection_aggregate_keys,sgasym2=sgasym2,sgasym=sgasym,**config_mass_ppim2)
+            mc_asym_injection_cos_phi_h_ppim_outpath = outpath_mc_cos_phi_h_ppim+'_systematics.csv'
+            print("DEBUGGING: mc_asym_injection_cos_phi_h_ppim_outpath = ",mc_asym_injection_cos_phi_h_ppim_outpath)
+
+            # Get cos_phi_h_ppim data systematics input file names
+            results_aggregate_keys = []
+            outpath_dt_cos_phi_h_ppim = get_outpath(base_dir,results_aggregate_keys,**config_mass_ppim) #NOTE: IMPORTANT: OMIT INJECTED ASYMMETRIES HERE FOR CORRECT FILE NAMES. #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
+            results_outpath_cos_phi_h_ppim = outpath_dt_cos_phi_h_ppim+'.csv'
+            print("DEBUGGING: results_outpath_cos_phi_h_ppim = ",results_outpath_cos_phi_h_ppim)
+            print("DEBUGGING: base_dir = ",base_dir)
+
+            # Load MC cos_phi_h_ppim info and compute difference
+            yerr_syst_mc_asym_injection__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim__min/',outpath=mc_asym_injection_cos_phi_h_ppim_minmax_outpath)['yerr'].to_numpy()
+            y_corrections_mc_asym_injection__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim__min/',outpath=mc_asym_injection_cos_phi_h_ppim_minmax_outpath)['y'].to_numpy()
+            yerr_syst_mc_asym_injection__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim__max/',outpath=mc_asym_injection_cos_phi_h_ppim_minmax_outpath)['yerr'].to_numpy()
+            y_corrections_mc_asym_injection__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim__max/',outpath=mc_asym_injection_cos_phi_h_ppim_minmax_outpath)['y'].to_numpy()
+            delta_y_corrections_mc_asym_injection__cos_phi_h_ppim = np.abs(y_corrections_mc_asym_injection__cos_phi_h_ppim__max-y_corrections_mc_asym_injection__cos_phi_h_ppim__min)
+            yerr_syst_mc_asym_injection__cos_phi_h_ppim = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim/',outpath=mc_asym_injection_cos_phi_h_ppim_outpath)['yerr'].to_numpy()
+            y_corrections_mc_asym_injection__cos_phi_h_ppim = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim/',outpath=mc_asym_injection_cos_phi_h_ppim_outpath)['y'].to_numpy()
+
+            # Load DATA cos_phi_h_ppim and compute difference
+            yerr_syst_results__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim_min/',outpath=results_outpath_cos_phi_h_ppim)['yerr'].to_numpy()
+            y_corrections_results__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim_min/',outpath=results_outpath_cos_phi_h_ppim)['y'].to_numpy()
+            yerr_syst_results__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim_max/',outpath=results_outpath_cos_phi_h_ppim)['yerr'].to_numpy()
+            y_corrections_results__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim_max/',outpath=results_outpath_cos_phi_h_ppim)['y'].to_numpy()
+            delta_y_corrections_results__cos_phi_h_ppim = np.abs(y_corrections_results__cos_phi_h_ppim__max-y_corrections_results__cos_phi_h_ppim__min)
+
+            # Compute cos_phi_h_ppim systematic # D_LL_syst/D_LL = (Delta D_LL MC / Injected D_LL MC) * (Delta D_LL Data / Delta D_LL MC)
+            r_conversion_mc_to_dt = delta_y_corrections_results__cos_phi_h_ppim / delta_y_corrections_mc_asym_injection__cos_phi_h_ppim
+            cos_phi_h_ppim_systematic = yerr_syst_mc_asym_injection__cos_phi_h_ppim / sgasym * r_conversion_mc_to_dt
+            print("\n\nDEBUGGINIG: yerr_syst_mc_asym_injection__cos_phi_h_ppim     = ",yerr_syst_mc_asym_injection__cos_phi_h_ppim,"\n\n")
+            print("\n\nDEBUGGING: y_corrections_mc_asym_injection__cos_phi_h_ppim  = ",y_corrections_mc_asym_injection__cos_phi_h_ppim,"\n\n")
+            print("\n\nDEBUGGING: r_conversion_mc_to_dt     = ",r_conversion_mc_to_dt,"\n\n")
+            print("\n\nDEBUGGING: cos_phi_h_ppim_systematic = ",cos_phi_h_ppim_systematic,"\n\n") #TODO: ADD THIS TO THE SYSTEMATIC ERROR ADDITIVE MAT BELOW AND THE SUMMARY PLOTS.
+            #----------------------------------------------------------------------------------------------------#
+
             # # Apply MC corrections
             # arrs['y_mean'] += y_corrections_mc_asym_injection
 
@@ -744,7 +802,7 @@ if __name__=="__main__":
             beam_polarization_systematic = 0.0360
             sgasym = 0.1
             systematic_scales_mat = yerr_syst_mc_asym_injection / sgasym
-            systematic_scales_mat = np.sqrt(np.square(systematic_scales_mat) + np.square(alpha_lambda_systematic) + np.square(beam_polarization_systematic) + np.square(yerr_syst_cb_gauss_diff))
+            systematic_scales_mat = np.sqrt(np.square(systematic_scales_mat) + np.square(alpha_lambda_systematic) + np.square(beam_polarization_systematic) + np.square(yerr_syst_cb_gauss_diff) + np.square(cos_phi_h_ppim_systematic))
             print("DEBUGGING: BEFORE: systematic_scales_mat = ",systematic_scales_mat)
             yerr_syst = compute_systematics(
                 arrs['y_mean'],
@@ -781,15 +839,22 @@ if __name__=="__main__":
                 systematic_scales_mat=yerr_syst_cb_gauss_diff, #NOTE: USE THIS FOR PDIFF RESULTS.
                 systematics_additive_mat=None,
             )
+            cos_phi_h_ppim_systematics = compute_systematics(
+                arrs['y_mean'],
+                bin_migration_mat=None,
+                bin_migration_order=1,
+                systematic_scales_mat=cos_phi_h_ppim_systematic,
+                systematics_additive_mat=None,
+            )
             all_systematics = np.moveaxis(
                 np.array(
-                    [el for el in (alpha_lambda_systematics,beam_polarization_systematics,mc_asym_injection_systematics,mass_fit_systematics)] #NOTE: REMOVED bin_migration_systemaatics for overall results
+                    [el for el in (alpha_lambda_systematics,beam_polarization_systematics,mc_asym_injection_systematics,bin_migration_systematics,mass_fit_systematics,cos_phi_h_ppim_systematics)]
                 ),
                 (0,1),
                 (1,0)
             )
             print("DEBUGGING: all_systematics.shape = ",all_systematics.shape)
-            labels = ['$\\alpha_{\Lambda}$','$P_{B}$','MC','Bin Migration', 'Mass Fit']
+            labels = ['$\\alpha_{\Lambda}$','$P_{B}$','MC','Bin Migration', 'Mass Fit','$\cos{\phi_{\Lambda}}$']
 
             # Get systematics all plotted stacked without results...
             plot_systematics(
