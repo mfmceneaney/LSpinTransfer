@@ -347,7 +347,7 @@ void analysis(const YAML::Node& node) {
     std::cout<<"DEBUGGING: in analysis.cpp: mc_cuts = \n\t"<<mc_cuts<<std::endl;//DEBUGGING
     auto frame = (!inject_asym) ? d.Filter(cuts.c_str())
                     .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
-                    .Define(depolarization_name.c_str(), [](float y) { return (float)(y*TMath::Sqrt(1-y))/(1-y+0.5*y*y); }, {"y"}) :
+                    .Define(depolarization_name.c_str(), [](float y) { return (float)(y*TMath::Sqrt(1.0-y)/(1.0-y+0.5*y*y)); }, {"y"}) :
                     d // INJECT ASYMMETRY BELOW
                     .Define("dtheta_p",[](float theta_p, float theta_p_mc){ return TMath::Abs(theta_p-theta_p_mc); },{"theta_p","theta_p_mc"})
                     .Define("dtheta_pim",[](float theta_pim, float theta_pim_mc){ return TMath::Abs(theta_pim-theta_pim_mc); },{"theta_pim","theta_pim_mc"})
@@ -360,8 +360,8 @@ void analysis(const YAML::Node& node) {
                         ? TMath::Abs(phi_pim-phi_pim_mc) : 2*TMath::Pi() - TMath::Abs(phi_pim-phi_pim_mc));
                         },{"phi_pim","phi_pim_mc"})
                     .Filter(Form("(%s) && (%s)",cuts.c_str(),mc_cuts.c_str()))
-                    .Define(depolarization_name.c_str(), [](float y) { return (float)(y*TMath::Sqrt(1-y))/(1-y+0.5*y*y); }, {"y"}) //NOTE: CHANGE y->y_mc FOR SANITY CHECKING MC ASYMMETRY INJECTION
-                    .Define(depol_name_mc.c_str(), [](float y) { return (float)(y*TMath::Sqrt(1-y))/(1-y+0.5*y*y); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
+                    .Define(depolarization_name.c_str(), [](float y) { return (float)(y*TMath::Sqrt(1.0-y)/(1.0-y+0.5*y*y)); }, {"y"}) //NOTE: CHANGE y->y_mc FOR SANITY CHECKING MC ASYMMETRY INJECTION
+                    .Define(depol_name_mc.c_str(), [](float y) { return (float)(y*TMath::Sqrt(1.0-y)/(1.0-y+0.5*y*y)); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
                     .Define("XS", [&alpha,&bgasym,&sgasym,&beam_polarization,&dtheta_p_max,&dtheta_pim_max]
                         (float Dy, float costheta, float ppid_p_mc, float pidx_p_mc, float pidx_pim_mc, float dtheta_p, float dtheta_pim) {
