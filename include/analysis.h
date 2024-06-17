@@ -156,12 +156,12 @@ TArrayF* getKinBinLF(
     sig1->Draw("SAME");
 
     // Set outname and save
-    TString fname; fname.Form("LF_%s_%s_%.3f_%.3f",fitvar.c_str(),binvar.c_str(),bin_min,bin_max);
-    c1->Print(fname+".pdf");
+    // TString fname; fname.Form("LF_%s_%s_%.3f_%.3f",fitvar.c_str(),binvar.c_str(),bin_min,bin_max);
+    c1->Print(Form("%s.pdf",outdir.c_str()));
     c1->Write(c1->GetName());
     histP->Write(histP->GetName());
-    histP->SaveAs(fname+".root","recreate");
-    out << " Saved graph to " << fname << ".root\n";
+    histP->SaveAs(Form("%s.root",outdir.c_str()),"recreate");
+    out << " Saved graph to " << outdir.c_str() << ".root\n";
 
     // Cd out of outdir
     outroot->cd("..");
