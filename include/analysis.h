@@ -175,6 +175,14 @@ TArrayF* getKinBinLF(
     // Cd out of outdir
     outroot->cd("..");
 
+    // Divide out depolarization if non-zero
+    if (depol>0.0) {
+        dll /= depol;
+        dll_err /= depol;
+    } else {
+        out<<" *** WARNING *** : depol <=0.0"<<std::endl;
+    }
+
     // Set return array
     TArrayF *arr = new TArrayF(6);
     arr->AddAt(dll,0);
