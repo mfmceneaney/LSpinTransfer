@@ -68,6 +68,11 @@ TArrayF* getKinBinLF(
     //             .Define(fitvar.c_str(),fitvar_formula.c_str());
     auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
 
+    // Compute depolarization factor
+    double depol     = (double)*f.Mean(depol_name.c_str());
+    double depol_err = (double)*f.StdDev(depol_name.c_str());
+    //TODO: Need to figure out why Stefan computed bin average of epsilon but not overall depolarization factor...
+
     // Set fit function
     TF1 *fitf = new TF1("fitf","[0]+[1]*x",fitvar_min,fitvar_max);
 
@@ -122,22 +127,24 @@ TArrayF* getKinBinLF(
 
     // Output message
     out << "--- getKinBinLF ---\n";
-    out << " cuts     = " << cuts   << "\n";
-    out << " alpha    = " << alpha  << "\n";
-    out << " pol      = " << pol    << "\n";
-    out << " costheta = " << fitvar     << "\n";
+    out << " cuts     = " << cuts    << "\n";
+    out << " alpha    = " << alpha   << "\n";
+    out << " pol      = " << pol     << "\n";
+    out << " depol    = " << depol   << "±" << depol_err << "\n";
+    out << " costheta = " << fitvar  << "\n";
     out << " bin_cut  = " << bin_cut << "\n";
-    out << " chi2     = " << chi2   << "\n";//TODO: REMOVE?
-    out << " ndf      = " << ndf    << "\n";//TODO: REMOVE?
-    out << " DLL      = " << dll    << "±" << dll_err << "\n";
+    out << " chi2     = " << chi2    << "\n";//TODO: REMOVE?
+    out << " ndf      = " << ndf     << "\n";//TODO: REMOVE?
+    out << " DLL      = " << dll     << "±" << dll_err << "\n";
     out << "-------------------\n";
 
     // Set legend entries
-    TString s1, s2, s3, s4;
+    TString s1, s2, s3, s4, s5;
     s1.Form("#chi^{2}/NDF = %.4f",chi2/ndf);
     s2.Form("C = %.4f #pm %.4f",offset,offset_err);
     s3.Form("slope = %.4f #pm %.4f",slope,slope_err);
     s4.Form("D_{LL'} = %.4f #pm %.4f",dll,dll_err);
+    s5.Form("Depol = %.4f #pm %.4f",depol,depol_err);
 
     // Add a legend
     TLegend *legend=new TLegend(0.75,0.75,0.99,0.99);
@@ -148,6 +155,7 @@ TArrayF* getKinBinLF(
     legend->AddEntry((TObject*)0, s2, Form(" %g ",offset));
     legend->AddEntry((TObject*)0, s3, Form(" %g ",slope));
     legend->AddEntry((TObject*)0, s4, Form(" %g ",dll));
+    legend->AddEntry((TObject*)0, s5, Form(" %g ",depol));
     legend->Draw();
 
     // Plot fit function
@@ -168,12 +176,14 @@ TArrayF* getKinBinLF(
     outroot->cd("..");
 
     // Set return array
-    TArrayF *arr = new TArrayF(5);
+    TArrayF *arr = new TArrayF(6);
     arr->AddAt(dll,0);
     arr->AddAt(dll_err,1);
     arr->AddAt(mean,2);
     arr->AddAt(stddev,3);
     arr->AddAt(count,4);
+    arr->AddAt(depol,5);
+    arr->AddAt(depol_err,6);
 
     return arr;
 }
