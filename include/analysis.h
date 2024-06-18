@@ -184,7 +184,7 @@ TArrayF* getKinBinLF(
     }
 
     // Set return array
-    TArrayF *arr = new TArrayF(6);
+    TArrayF *arr = new TArrayF(7);
     arr->AddAt(dll,0);
     arr->AddAt(dll_err,1);
     arr->AddAt(mean,2);
