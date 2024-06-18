@@ -6,9 +6,12 @@ void getStatistics() {
     std::string path_rgh_mc = "/volatile/clas12/users/mfmce/mc_jobs_rgh_pipm_4_12_24/skim_pipim_*.root";
     std::string path_rga_mc = "/volatile/clas12/users/mfmce/mc_jobs_rga_pipm_4_12_24/skim_pipim_*.root";
     std::string path_rga_dt = "/volatile/clas12/users/mfmce/data_jobs_rga_pi_4_8_24/skim_pipim_*.root";
+    std::string path_rgc_mc = "/volatile/clas12/users/mfmce/data_jobs_rgc_pi_4_8_24__BACKUP__/skim_pipim_*.root";
+    std::string path_rgc_dt = "/volatile/clas12/users/mfmce/data_jobs_rgc_pi_4_8_24/skim_pipim_*.root";
     std::string tree        = "t";
     std::string cuts_rga    = "Q2>1 && W>2 && y<0.8 && sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0 && mx_pipim>1.5 && xF_pi>0.0 && xF_pim>0.0";
     std::string cuts_rgh    = "Q2>1 && W>2 && y<0.8 && sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0 && mx_pipim>1.5 && xF_pi>0.0 && xF_pim>0.0 && sector_pi!=4 && sector_pim!=4 && sector_e!=4";
+    std::string cuts_rgc    = "Q2>1 && W>2 && y<0.8 && sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0 && mx_pipim>1.5 && xF_pi>0.0 && xF_pim>0.0 && sector_pi!=4 && sector_pim!=4 && sector_e!=4";
 
     // Open trees
     TChain *ch_rgh_mc = new TChain(tree.c_str());
@@ -17,6 +20,10 @@ void getStatistics() {
     ch_rga_mc->Add(path_rga_mc.c_str());
     TChain *ch_rga_dt = new TChain(tree.c_str());
     ch_rga_dt->Add(path_rga_dt.c_str());
+    TChain *ch_rgc_mc = new TChain(tree.c_str());
+    ch_rgc_mc->Add(path_rgc_mc.c_str());
+    TChain *ch_rgc_dt = new TChain(tree.c_str());
+    ch_rgc_dt->Add(path_rgc_dt.c_str());
 
     // Set plotting parameters
     int nbins = 100;
@@ -29,6 +36,36 @@ void getStatistics() {
     std::string name_m = "mass_pipim";
     std::string name_z = "z_pipim";
     std::string name_x = "x";
+
+    // Get RGC MC histograms
+    std::string rgc_mc_name = "h1_rgc_mc";
+    std::string rgc_mc_hname_m = Form("%s_%s",rgc_mc_name.c_str(),name_m.c_str());
+    TH1D *h1_rgc_mc_m = new TH1D(rgc_mc_hname_m.c_str(),rgc_mc_hname_m.c_str(),nbins,m_min,m_max);
+    ch_rgc_mc->Draw(Form("%s>>%s",name_m.c_str(),rgc_mc_hname_m.c_str()),cuts_rgc.c_str());
+    h1_rgc_mc_m->SaveAs(Form("%s.root",rgc_mc_hname_m.c_str()));
+    std::string rgc_mc_hname_z = Form("%s_%s",rgc_mc_name.c_str(),name_z.c_str());
+    TH1D *h1_rgc_mc_z = new TH1D(rgc_mc_hname_z.c_str(),rgc_mc_hname_z.c_str(),nbins,z_min,z_max);
+    ch_rgc_mc->Draw(Form("%s>>%s",name_z.c_str(),rgc_mc_hname_z.c_str()),cuts_rgc.c_str());
+    h1_rgc_mc_z->SaveAs(Form("%s.root",rgc_mc_hname_z.c_str()));
+    std::string rgc_mc_hname_x = Form("%s_%s",rgc_mc_name.c_str(),name_x.c_str());
+    TH1D *h1_rgc_mc_x = new TH1D(rgc_mc_hname_x.c_str(),rgc_mc_hname_x.c_str(),nbins,x_min,x_max);
+    ch_rgc_mc->Draw(Form("%s>>%s",name_x.c_str(),rgc_mc_hname_x.c_str()),cuts_rgc.c_str());
+    h1_rgc_mc_x->SaveAs(Form("%s.root",rgc_mc_hname_x.c_str()));
+
+    // Get RGC dt histograms
+    std::string rgc_dt_name = "h1_rgc_dt";
+    std::string rgc_dt_hname_m = Form("%s_%s",rgc_dt_name.c_str(),name_m.c_str());
+    TH1D *h1_rgc_dt_m = new TH1D(rgc_dt_hname_m.c_str(),rgc_dt_hname_m.c_str(),nbins,m_min,m_max);
+    ch_rgc_dt->Draw(Form("%s>>%s",name_m.c_str(),rgc_dt_hname_m.c_str()),cuts_rgc.c_str());
+    h1_rgc_dt_m->SaveAs(Form("%s.root",rgc_dt_hname_m.c_str()));
+    std::string rgc_dt_hname_z = Form("%s_%s",rgc_dt_name.c_str(),name_z.c_str());
+    TH1D *h1_rgc_dt_z = new TH1D(rgc_dt_hname_z.c_str(),rgc_dt_hname_z.c_str(),nbins,z_min,z_max);
+    ch_rgc_dt->Draw(Form("%s>>%s",name_z.c_str(),rgc_dt_hname_z.c_str()),cuts_rgc.c_str());
+    h1_rgc_dt_z->SaveAs(Form("%s.root",rgc_dt_hname_z.c_str()));
+    std::string rgc_dt_hname_x = Form("%s_%s",rgc_dt_name.c_str(),name_x.c_str());
+    TH1D *h1_rgc_dt_x = new TH1D(rgc_dt_hname_x.c_str(),rgc_dt_hname_x.c_str(),nbins,x_min,x_max);
+    ch_rgc_dt->Draw(Form("%s>>%s",name_x.c_str(),rgc_dt_hname_x.c_str()),cuts_rgc.c_str());
+    h1_rgc_dt_x->SaveAs(Form("%s.root",rgc_dt_hname_x.c_str()));
 
     // Get RGH MC histograms
     std::string rgh_mc_name = "h1_rgh_mc";
