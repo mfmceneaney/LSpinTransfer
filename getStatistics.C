@@ -6,8 +6,8 @@ void getStatistics() {
     std::string path_rgh_mc = "/volatile/clas12/users/mfmce/mc_jobs_rgh_pipm_4_12_24/skim_pipim_*.root";
     std::string path_rga_mc = "/volatile/clas12/users/mfmce/mc_jobs_rga_pipm_4_12_24/skim_pipim_*.root";
     std::string path_rga_dt = "/volatile/clas12/users/mfmce/data_jobs_rga_pi_4_8_24/skim_pipim_*.root";
-    std::string path_rgc_mc = "/volatile/clas12/users/mfmce/data_jobs_rgc_pi_4_8_24__BACKUP__/skim_pipim_*.root";
-    std::string path_rgc_dt = "/volatile/clas12/users/mfmce/data_jobs_rgc_pi_4_8_24/skim_pipim_*.root";
+    std::string path_rgc_mc = "/volatile/clas12/users/mfmce/mc_jobs_rgc_pipim_6_17_24/skim_pipim_*.root";
+    std::string path_rgc_dt = "/volatile/clas12/users/mfmce/data_jobs_rgc_pi_4_8_24__BACKUP__/skim_pipim_*.root";
     std::string tree        = "t";
     std::string cuts_rga    = "Q2>1 && W>2 && y<0.8 && sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0 && mx_pipim>1.5 && xF_pi>0.0 && xF_pim>0.0";
     std::string cuts_rgh    = "Q2>1 && W>2 && y<0.8 && sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0 && mx_pipim>1.5 && xF_pi>0.0 && xF_pim>0.0 && sector_pi!=4 && sector_pim!=4 && sector_e!=4";
