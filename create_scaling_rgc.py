@@ -173,7 +173,7 @@ for i, name in enumerate(infiles):
 
 
         # Load ROOT histogram of RGH MC distribution
-        h_root_path = '/Users/mfm45/drop/root_files_6_18_24/'
+        h_root_path = '/Users/mfm45/drop/getStatistics__6_18_24/' #root_files_5_1_24/'
         h_path = h_root_path+'h1_rgh_mc_'+acols[0]+'.root'
         h_file = ur.open(h_path)
         h_key = h_file.keys()[0].replace(';1','')
