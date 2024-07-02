@@ -381,12 +381,12 @@ void analysis(const YAML::Node& node) {
                     .Define(depolarization_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}) //NOTE: CHANGE y->y_mc FOR SANITY CHECKING MC ASYMMETRY INJECTION
                     .Define(depol_name_mc.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
-                    .Define("cos_phi_h_ppim","cos(phi_h_ppim)") //NOTE: DEBUGGING 4/23/24 //TODO: Make option for name and formula...
+                    .Define("cos_phi_h_ppim_mc","cos(phi_h_ppim_mc)") //NOTE: DEBUGGING 4/23/24 //TODO: Make option for name and formula...
                     .Define("XS", [&sgfunc,&bgfunc,&alpha,&bgasym,&sgasym,&beam_polarization,&dtheta_p_max,&dtheta_pim_max]
                         (float Dy, float costheta, float cosphi, float y, float ppid_p_mc, float pidx_p_mc, float pidx_pim_mc, float dtheta_p, float dtheta_pim) {
                             return (float)((ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max) ? 0.5*(1.0 + alpha*beam_polarization*sgfunc->Eval(cosphi,y)*costheta) : 0.5*(1.0 + alpha*beam_polarization*bgfunc->Eval(cosphi,y)*costheta)); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.                  
                         },
-                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"cos_phi_h_ppim","y","ppid_p_mc","pidx_p_mc","pidx_pim_mc","dtheta_p","dtheta_pim"})
+                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"cos_phi_h_ppim_mc","y","ppid_p_mc","pidx_p_mc","pidx_pim_mc","dtheta_p","dtheta_pim"})
                     .Define(helicity_name.c_str(), [](float my_rand_var, float XS) {
                         return (float)(my_rand_var<XS ? 1.0 : -1.0);
                     },
