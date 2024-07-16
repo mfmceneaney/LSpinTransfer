@@ -399,7 +399,7 @@ void analysis(const YAML::Node& node) {
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
                     .Define("my_rand_var2",[&gRandom2](){ return (float)gRandom2->Rndm(); },{})
                     .Define("phi_s_h_ppim_mc", [](float my_rand_var2){
-                        return (float)(my_rand_var2>0.5 ? TMath::Pi() : 0.0);  //NOTE: THIS JUST INJECTS A 100% transverse lambda polarization!!! //NOTE: ADDED 7/2/24
+                        return (float)(0.0); //my_rand_var2>0.5 ? TMath::Pi() : 0.0);  //NOTE: THIS JUST INJECTS A 100% transverse lambda polarization!!! //NOTE: ADDED 7/2/24
                     }, {"my_rand_var2"})
                     // .Define("cos_phi_h_ppim_mc","cos(phi_h_ppim_mc)") //NOTE: DEBUGGING 4/23/24 //TODO: Make option for name and formula...
                     .Define("XS", [&sgfunc,&bgfunc,&alpha,&bgasym,&sgasym,&beam_polarization,&dtheta_p_max,&dtheta_pim_max]
