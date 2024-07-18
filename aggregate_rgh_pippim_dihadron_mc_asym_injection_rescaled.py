@@ -312,6 +312,7 @@ def get_plots(
     verbose = True,
     keeper = [],
     config = {},
+    alternate_rg = 'rga',
     ):
 
     # Set font sizes
@@ -390,7 +391,13 @@ def get_plots(
     # n_inject_seeds  = 16
     # rga_mc_counts   *= n_inject_seeds #TODO: LOAD THIS FROM ROOT!!! get_data_from_tgrapherror(rga_mc_path)
     y_ratio_v2_err = np.divide(yerr_mean,data_csv['yerr'])
-    rgh_data_counts = rga_data_counts * 1/np.square(y_ratio_v2_err) * 100/16 * 5/80 * 3/17#NOTE: IMPORTANT!!! THIS IS ONLY A VALID CONVERSIONN FACTOR FOR RGA NOT RGC!!!  #NOTE: UNCERTAINTIES SCALE LIKE 1/SQRT(N) SO y_ratio_err \propto SQRT(N_ACC_RGA/N_ACC_RGH) = data_counts * acceptance_ratio * 100days/16days * (5x10^33 cm^-2/s) /(0.8x10^35 cm^-2/s) * dilution_factor
+    #TODO: ADD IN RGC CONVERSION FACTOR FROM RGC PROPOSAL
+    rgh_data_counts = rga_data_counts * 1/np.square(y_ratio_v2_err) * 100/16* 5/80 * 3/17#NOTE: IMPORTANT!!! THIS IS ONLY A VALID CONVERSIONN FACTOR FOR RGA NOT RGC!!!  #NOTE: UNCERTAINTIES SCALE LIKE 1/SQRT(N) SO y_ratio_err \propto SQRT(N_ACC_RGA/N_ACC_RGH) = data_counts * acceptance_ratio * 100days/16days * (5x10^33 cm^-2/s) /(0.8x10^35 cm^-2/s) * dilution_factor
+    #alternate_rg = 'rga' #NOTE: NOW DEFINED ABOVE AS FUNCTION PARAMETER
+    print("-------------------------------------------------------------------> ALTERNATE RG = ",alternate_rg,"<-------------------------------------------------------")#DEBUGGING
+    if alternate_rg == 'rgc':
+        rgh_data_counts = rga_data_counts * 1/np.square(y_ratio_v2_err) * 100/17.7 * 5/20 * 3/17 / (0.59) #NOTE: IMPORTANT!!! THIS IS ONLY  A VALID CONVERSION FACTOR FOR RGC!
+        rgh_data_counts /= (1.48/1.09) # /= (integrated_xs_rgh_mc/integrated_xs_rgc_mc) #NOTE: THE /= is important because the acceptance is N_events per unit XS 
     # rgh_mc_counts   *= n_inject_seeds #TODO: LOAD THIS FROM ROOT!!! get_data_from_tgrapherror(rgh_mc_path)
     x_rescaled      = x_mean #NOTE: KEEP ORIGINAL X
     x_rescaled_err  = xerr_mean #NOTE: KEEP ORIGINAL X
@@ -475,9 +482,17 @@ def get_plots(
 
     # Save rescaling info to csv
     acceptance_ratio_rgh_over_rga = 1/np.square(y_ratio_v2_err)
-    scale_factor = 1/np.square(y_ratio_v2_err) * 100/16 * 5/80 * 3/17
+    scale_factor = 1/np.square(y_ratio_v2_err) * 100/16 * 5/80 * 3/17 #NOTE: FOR RGA
+    if alternate_rg == 'rgc':
+        acceptance_ratio_rgh_over_rga /= (1.48/1.09) #NOTE: SCALE BY CROSS SECTION RATIO FOR RGC
+        scale_factor = 1/np.square(y_ratio_v2_err) * 100/17.7 * 5/20 * 3/17 / (0.59) #NOTE: FOR RGC
+        print("DEBUGGING: scale_factor BEFORE = ",scale_factor)
+        scale_factor /= (1.48/1.09) # /= (integrated_xs_rgh_mc/integrated_xs_rgc_mc)
+    print("DEBUGGING: acceptance_ratio_rgh_over_rga = ",acceptance_ratio_rgh_over_rga)
+    print("DEBUGGING: scale_factor = ",scale_factor)
     header2 = delimiter.join(["bin","acceptanceratio","statisticsscalefactor","rghstatistics","rgcstatistics","x","xerr"])
     fmt2    = ["%d","%.3g","%.3g","%.3g","%.3g","%.3g","%.3g"]
+    print("DEBUGGING: saving file to: ",outpath+'_rescaling_info.csv')#DEBUGGING
     convert_graph_to_csv(
         outpath+'_rescaling_info.csv',
         acceptance_ratio_rgh_over_rga,
@@ -526,11 +541,11 @@ if __name__=="__main__":
     # -> e.g., loop keys if key is aggregate run aggregation otherwise you're creating a new file each time...
 
     # Results file paths and config
-    base_dir    = "results_pippimdihadronbsaanalysis_mc_asym_injection_rgh_noSector4__4_19_24/" #NOTE: DON'T FORGET ABOUT NOSECTOR4 SCENARIO
+    base_dir    = "results_pippimdihadronbsaanalysis_mc_asym_injection_rgh__4_19_24/" #NOTE: DON'T FORGET ABOUT NOSECTOR4 SCENARIO
     alternate_rg = 'rga'
-    base_dir_csv_input = base_dir.replace('rgh','rga').replace('_noSector4','')#NOTE: ADDED 4/29/24
+    base_dir_csv_input = base_dir.replace('rgh',alternate_rg).replace('_noSector4','')#NOTE: ADDED 4/29/24
     output_dir_rga_data = base_dir.replace('_noSector4','').replace('mc_asym_injection','counts_mc').replace('rgh',alternate_rg).replace('mc','data')+"method_BSA/"
-    output_dir_rga_mc   = base_dir.replace('_noSector4','').replace('mc_asym_injection','counts_mc').replace('rgh','rga')+"method_BSA/"
+    output_dir_rga_mc   = base_dir.replace('_noSector4','').replace('mc_asym_injection','counts_mc').replace('rgh',alternate_rg)+"method_BSA/"
     output_dir_rgh_mc   = base_dir.replace('mc_asym_injection','counts_mc')+"method_BSA/"
     submit_path = base_dir+"submit.sh"
     yaml_path   = base_dir+"args.yaml"
@@ -674,7 +689,7 @@ if __name__=="__main__":
 
         return outpath
     sgasym_idx = 0
-    def apply_get_plots(out_file_list,get_outpath,get_plots,base_dir='',base_dir_csv_input='',output_dir_rga_data='',output_dir_rga_mc='',output_dir_rgh_mc='',xlimss={},ylims=[0.0,1.0],titles={},xtitles={},ytitle='',verbose=True,aggregate_keys={},colors={},sgasyms=sgasyms,asym_name=asym_name): 
+    def apply_get_plots(out_file_list,get_outpath,get_plots,base_dir='',base_dir_csv_input='',output_dir_rga_data='',output_dir_rga_mc='',output_dir_rgh_mc='',xlimss={},ylims=[0.0,1.0],titles={},xtitles={},ytitle='',verbose=True,aggregate_keys={},colors={},sgasyms=sgasyms,asym_name=asym_name,alternate_rg=alternate_rg): 
         #TODO: PREPROCESSOR: GET STRUCTURE OF DICTIONARY TO MODIFY
         keeper = [] #NOTE: JUST PUT IN {'config':config, 'chi2':chi2, 'data':[x,y,xerr,yerr,xerr_syst,yerr_syst]}
         for el in out_file_list:
@@ -722,6 +737,7 @@ if __name__=="__main__":
                 rgh_mc_counts = rgh_mc_counts,
                 keeper  = keeper,
                 config  = config, #NOTE: FOR ADDING ENTRIES TO KEEPER
+                alternate_rg = alternate_rg,
             )
         return #DEBUGGING FOR NOW
         def get_tables(_keeper,_config_keys,_row_key,_col_key,_row_map,_col_map,_table_shape,row_header_key=''):
@@ -879,7 +895,7 @@ if __name__=="__main__":
 
         return
 
-    apply_get_plots(out_file_list,get_outpath,get_plots,base_dir=base_dir,base_dir_csv_input=base_dir_csv_input,output_dir_rga_data=output_dir_rga_data,output_dir_rga_mc=output_dir_rga_mc,output_dir_rgh_mc=output_dir_rgh_mc,xlimss=xlimss,ylims=ylims,titles=titles,xtitles=xtitles,ytitle=ytitles[asym_name],verbose=True,aggregate_keys=aggregate_keys,colors=colors,asym_name=asym_name)
+    apply_get_plots(out_file_list,get_outpath,get_plots,base_dir=base_dir,base_dir_csv_input=base_dir_csv_input,output_dir_rga_data=output_dir_rga_data,output_dir_rga_mc=output_dir_rga_mc,output_dir_rgh_mc=output_dir_rgh_mc,xlimss=xlimss,ylims=ylims,titles=titles,xtitles=xtitles,ytitle=ytitles[asym_name],verbose=True,aggregate_keys=aggregate_keys,colors=colors,asym_name=asym_name,alternate_rg=alternate_rg)
 
     #TODO: POSTPROCESSOR: GET CSV FILES FROM MODIFIED DICTIONARY
 
