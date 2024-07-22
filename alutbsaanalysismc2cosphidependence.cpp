@@ -371,13 +371,13 @@ void analysis(const YAML::Node& node) {
     std::string fitvar_mc = Form("%s_mc",fitvar.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string mc_cuts = "sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0";//NOTE: NOT SURE THAT THESE ARE STILL NECESSARY, 9/14/23.
     std::cout<<"DEBUGGING: in analysis.cpp: mc_cuts = \n\t"<<mc_cuts<<std::endl;//DEBUGGING
-    TF3 *sgfunc = new TF3("sgfunc","(y*(1-0.5*y)*TMath::Cos(x-z)*[0] + y*TMath::Sqrt(1.0-y)*TMath::Cos(z)*[1] + y*TMath::Sqrt(1.0-y)*TMath::Cos(2.0*x-z)*[2]) / (1.0-y+0.5*y*y)"); //NOTE: ARGUMENTS ARE: phi_h, y, phi_S_h
-    TF3 *bgfunc = new TF3("bgfunc","(y*(1-0.5*y)*TMath::Cos(x-z)*[0] + y*TMath::Sqrt(1.0-y)*TMath::Cos(z)*[1] + y*TMath::Sqrt(1.0-y)*TMath::Cos(2.0*x-z)*[2]) / (1.0-y+0.5*y*y)"); //NOTE: ARGUMENTS ARE: phi_h, y, phi_S_h
+    TF2 *sgfunc = new TF2("sgfunc","(y*(1-0.5*y)*TMath::Cos(x)*[0] + y*TMath::Sqrt(1.0-y)*[1] + y*TMath::Sqrt(1.0-y)*TMath::Cos(2.0*x)*[2]) / (1.0-y+0.5*y*y)"); //NOTE: ARGUMENTS ARE: phi_h, y
+    TF2 *bgfunc = new TF2("bgfunc","(y*(1-0.5*y)*TMath::Cos(x)*[0] + y*TMath::Sqrt(1.0-y)*[1] + y*TMath::Sqrt(1.0-y)*TMath::Cos(2.0*x)*[2]) / (1.0-y+0.5*y*y)"); //NOTE: ARGUMENTS ARE: phi_h, y
     sgfunc->SetParameter(0,sgasym);
     sgfunc->SetParameter(1,sgasym2);
     sgfunc->SetParameter(2,sgasym3);
     bgfunc->SetParameter(0,bgasym);
-    bgfunc->SetParameter(1,bgasym2);
+    bgfunc->SetParameter(1,bgasym2); //NOTE: DO NOT FORGET THAT THE BACKGROUND DOESN'T NECESSARILY FOLLOW THE SAME FUNCTIONAL FORM AS THE SIGNAL.  Try injecting all 0.0 background or order of magnitude smaller than signal.
     bgfunc->SetParameter(2,bgasym3);
     auto frame = (!inject_asym) ? d.Filter(cuts.c_str())
                     .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
@@ -398,15 +398,12 @@ void analysis(const YAML::Node& node) {
                     .Define(depol_name_mc.c_str(), [](float y) { return (float)(y*TMath::Sqrt(1.0-y)/(1.0-y+0.5*y*y)); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
                     .Define("my_rand_var2",[&gRandom2](){ return (float)gRandom2->Rndm(); },{})
-                    .Define("phi_s_h_ppim_mc", [](float my_rand_var2){
-                        return (float)(0.0); //my_rand_var2>0.5 ? TMath::Pi() : 0.0);  //NOTE: THIS JUST INJECTS A 100% transverse lambda polarization!!! //NOTE: ADDED 7/2/24
-                    }, {"my_rand_var2"})
                     // .Define("cos_phi_h_ppim_mc","cos(phi_h_ppim_mc)") //NOTE: DEBUGGING 4/23/24 //TODO: Make option for name and formula...
                     .Define("XS", [&sgfunc,&bgfunc,&alpha,&bgasym,&sgasym,&beam_polarization,&dtheta_p_max,&dtheta_pim_max]
-                        (float Dy, float costheta, float phi_h, float phi_s_h, float y, float ppid_p_mc, float pidx_p_mc, float pidx_pim_mc, float dtheta_p, float dtheta_pim) {
-                            return (float)((ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max) ? 0.5*(1.0 + alpha*beam_polarization*sgfunc->Eval(phi_h,y,phi_s_h)*costheta) : 0.5*(1.0 + alpha*beam_polarization*bgfunc->Eval(phi_h,y,phi_s_h)*costheta)); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.                  
+                        (float Dy, float costheta, float phi_h, float y, float ppid_p_mc, float pidx_p_mc, float pidx_pim_mc, float dtheta_p, float dtheta_pim) {
+                            return (float)((ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max) ? 0.5*(1.0 + alpha*beam_polarization*sgfunc->Eval(phi_h,y)*costheta) : 0.5*(1.0 + alpha*beam_polarization*bgfunc->Eval(phi_h,y)*costheta)); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.                  
                         },
-                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"phi_h_ppim_mc","phi_s_h_ppim_mc","y","ppid_p_mc","pidx_p_mc","pidx_pim_mc","dtheta_p","dtheta_pim"})
+                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"phi_h_ppim_mc","y","ppid_p_mc","pidx_p_mc","pidx_pim_mc","dtheta_p","dtheta_pim"})
                     .Define(helicity_name.c_str(), [](float my_rand_var, float XS) {
                         return (float)(my_rand_var<XS ? 1.0 : -1.0);
                     },
