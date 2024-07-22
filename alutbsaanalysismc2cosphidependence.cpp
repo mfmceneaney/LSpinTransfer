@@ -336,7 +336,6 @@ void analysis(const YAML::Node& node) {
 
     // Create random number generator for MC asymmetry injection
     TRandom *gRandom = new TRandom(seed); //NOTE: IMPORTANT: Need `new` here to get a pointer.
-    TRandom *gRandom2 = new TRandom(seed+1); //NOTE: IMPORTANT: Need `new` here to get a pointer.
 
     // Numerical constants
     double alpha = 0.748;  // ±0.007 Weak decay asymmetry parameter
@@ -397,7 +396,6 @@ void analysis(const YAML::Node& node) {
                     .Define(depolarization_name.c_str(), [](float y) { return (float)(y*TMath::Sqrt(1.0-y)/(1.0-y+0.5*y*y)); }, {"y"}) //NOTE: CHANGE y->y_mc FOR SANITY CHECKING MC ASYMMETRY INJECTION
                     .Define(depol_name_mc.c_str(), [](float y) { return (float)(y*TMath::Sqrt(1.0-y)/(1.0-y+0.5*y*y)); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
-                    .Define("my_rand_var2",[&gRandom2](){ return (float)gRandom2->Rndm(); },{})
                     // .Define("cos_phi_h_ppim_mc","cos(phi_h_ppim_mc)") //NOTE: DEBUGGING 4/23/24 //TODO: Make option for name and formula...
                     .Define("XS", [&sgfunc,&bgfunc,&alpha,&bgasym,&sgasym,&beam_polarization,&dtheta_p_max,&dtheta_pim_max]
                         (float Dy, float costheta, float phi_h, float y, float ppid_p_mc, float pidx_p_mc, float pidx_pim_mc, float dtheta_p, float dtheta_pim) {

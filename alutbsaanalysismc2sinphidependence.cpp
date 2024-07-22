@@ -348,7 +348,6 @@ void analysis(const YAML::Node& node) {
 
     // Create random number generator for MC asymmetry injection
     TRandom *gRandom = new TRandom(seed); //NOTE: IMPORTANT: Need `new` here to get a pointer.
-    TRandom *gRandom2 = new TRandom(seed+1); //NOTE: IMPORTANT: Need `new` here to get a pointer.
 
     // Numerical constants
     double alpha = 0.748;  // ±0.007 Weak decay asymmetry parameter
@@ -383,14 +382,14 @@ void analysis(const YAML::Node& node) {
     std::string fitvar_mc = Form("%s_mc",fitvar.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string mc_cuts = "sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0";//NOTE: NOT SURE THAT THESE ARE STILL NECESSARY, 9/14/23.
     std::cout<<"DEBUGGING: in analysis.cpp: mc_cuts = \n\t"<<mc_cuts<<std::endl;//DEBUGGING
-    TF2 *sgfunc = new TF2("sgfunc","(y*(1-0.5*y)*TMath::Cos(x)*[0] + y*TMath::Sqrt(1.0-y)*TMath::Cos(2.0*x)*[2]) / (1.0-y+0.5*y*y)"); //NOTE: ARGUMENTS ARE: phi_h, y
-    TF2 *bgfunc = new TF2("bgfunc","(y*(1-0.5*y)*TMath::Cos(x)*[0] + y*TMath::Sqrt(1.0-y)*TMath::Cos(2.0*x)*[2]) / (1.0-y+0.5*y*y)"); //NOTE: ARGUMENTS ARE: phi_h, y
+    TF2 *sgfunc = new TF2("sgfunc","(y*(1-0.5*y)*TMath::Cos(x)*[0] + y*TMath::Sqrt(1.0-y)*TMath::Cos(2.0*x)*[1]) / (1.0-y+0.5*y*y)"); //NOTE: ARGUMENTS ARE: phi_h, y
+    TF2 *bgfunc = new TF2("bgfunc","(y*(1-0.5*y)*TMath::Cos(x)*[0] + y*TMath::Sqrt(1.0-y)*TMath::Cos(2.0*x)*[1]) / (1.0-y+0.5*y*y)"); //NOTE: ARGUMENTS ARE: phi_h, y
     sgfunc->SetParameter(0,sgasym);
-    sgfunc->SetParameter(1,sgasym2);
-    sgfunc->SetParameter(2,sgasym3);
+    // sgfunc->SetParameter(1,sgasym2);
+    sgfunc->SetParameter(1,sgasym3);
     bgfunc->SetParameter(0,bgasym);
-    bgfunc->SetParameter(1,bgasym2); //NOTE: DO NOT FORGET THAT THE BACKGROUND DOESN'T NECESSARILY FOLLOW THE SAME FUNCTIONAL FORM AS THE SIGNAL.  Try injecting all 0.0 background or order of magnitude smaller than signal.
-    bgfunc->SetParameter(2,bgasym3);
+    // bgfunc->SetParameter(1,bgasym2); //NOTE: DO NOT FORGET THAT THE BACKGROUND DOESN'T NECESSARILY FOLLOW THE SAME FUNCTIONAL FORM AS THE SIGNAL.  Try injecting all 0.0 background or order of magnitude smaller than signal.
+    bgfunc->SetParameter(1,bgasym3);
     auto frame = (!inject_asym) ? d.Filter(cuts.c_str())
                     .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
                     .Define(depolarization_name.c_str(), [](float y) { return (float)(y*TMath::Sqrt(1.0-y)/(1.0-y+0.5*y*y)); }, {"y"}) :
@@ -411,7 +410,6 @@ void analysis(const YAML::Node& node) {
                     .Define(depolarization_name.c_str(), [](float y) { return (float)(y*TMath::Sqrt(1.0-y)/(1.0-y+0.5*y*y)); }, {"y"}) //NOTE: CHANGE y->y_mc FOR SANITY CHECKING MC ASYMMETRY INJECTION
                     .Define(depol_name_mc.c_str(), [](float y) { return (float)(y*TMath::Sqrt(1.0-y)/(1.0-y+0.5*y*y)); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
-                    .Define("my_rand_var2",[&gRandom2](){ return (float)gRandom2->Rndm(); },{})
                     // .Define("cos_phi_h_ppim_mc","cos(phi_h_ppim_mc)") //NOTE: DEBUGGING 4/23/24 //TODO: Make option for name and formula...
                     .Define("XS", [&sgfunc,&bgfunc,&alpha,&bgasym,&sgasym,&beam_polarization,&dtheta_p_max,&dtheta_pim_max]
                         (float Dy, float costheta, float phi_h, float y, float ppid_p_mc, float pidx_p_mc, float pidx_pim_mc, float dtheta_p, float dtheta_pim) {
