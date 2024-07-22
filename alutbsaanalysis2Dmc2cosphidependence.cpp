@@ -131,6 +131,12 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "fitformula: " << fitformula << std::endl;
 
+    int nparams = 2; //NOTE: THIS IS ONLY NECESSARILY FOR  fitformula.  fsgasyms and fbgasyms should have nparameters equal in number to the number of provided asymmetries to inject in sgasyms and bgasyms.
+    if (node["nparams"]) {
+        nparams = node["nparams"].as<int>();
+    }
+    std::cout << "nparams: " << nparams << std::endl;
+
     std::string fsgasymsformula = "";
     if (node["fsgasymsformula"]) {
         fsgasymsformula = node["fsgasymsformula"].as<std::string>();
@@ -142,12 +148,6 @@ void analysis(const YAML::Node& node) {
         fbgasymsformula = node["fbgasymsformula"].as<std::string>();
     }
     std::cout << "fbgasymsformula: " << fbgasymsformula << std::endl;
-
-    int nparams = 2;
-    if (node["nparams"]) {
-        nparams = node["nparams"].as<int>();
-    }
-    std::cout << "nparams: " << nparams << std::endl;
 
     //----------------------------------------------------------------------------------------------------//
     std::string gammavar = "gamma";
@@ -522,9 +522,9 @@ void analysis(const YAML::Node& node) {
     double y_min = 0.0;
     double y_max = 1.0;
     TF2 *fsgasyms = new TF2("fsgasyms",fsgasymsformula.c_str(),fitvar2_min,fitvar2_max,y_min,y_max); //NOTE: args: phi_h, y
-    for (int idx=0; idx<nparams; idx++) { fsgasyms->SetParameter(idx,sgasyms[idx]); }
+    for (int idx=0; idx<sgasyms.size(); idx++) { fsgasyms->SetParameter(idx,sgasyms[idx]); }
     TF2 *fbgasyms = new TF2("fbgasyms",fbgasymsformula.c_str(),fitvar2_min,fitvar2_max,y_min,y_max); //NOTE: args: phi_h, y
-    for (int idx=0; idx<nparams; idx++) { fbgasyms->SetParameter(idx,bgasyms[idx]); }
+    for (int idx=0; idx<bgasyms.size(); idx++) { fbgasyms->SetParameter(idx,bgasyms[idx]); }
 
     // Pre-define depolarization variables.
     auto d2 = (!inject_asym) ? d
@@ -546,16 +546,23 @@ void analysis(const YAML::Node& node) {
                                 .Define(depolvars_mc[idx].c_str(),depolvarformulasmc[idx].c_str());
     }
 
+    // Define fit variables if fit formulas are not empty
+    bool define_fitvars = (fitvar1formula.size()!=0 && fitvar2formula.size()!=0 && fitvar1formulamc.size()!=0 && fitvar2formulamc.size()!=0);
+    if (define_fitvars) {
+        d2 = (!inject_asym) ? d2
+                                .Define(fitvar1.c_str(),fitvar1formula.c_str())
+                                .Define(fitvar2.c_str(),fitvar2formula.c_str()) :
+                                d2
+                                .Define(fitvar1.c_str(),fitvar1formula.c_str())
+                                .Define(fitvar2.c_str(),fitvar2formula.c_str())
+                                .Define(fitvar1_mc.c_str(),fitvar1formulamc.c_str())
+                                .Define(fitvar2_mc.c_str(),fitvar2formulamc.c_str());
+    } // if (define_fitvars) {
+
     // Define full RDataFrame
     auto frame = (!inject_asym) ? d2.Filter(cuts.c_str())
-                    .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
-                    .Define(fitvar1.c_str(),fitvar1formula.c_str())
-                    .Define(fitvar2.c_str(),fitvar2formula.c_str()) :
+                    .Define(helicity_name.c_str(), "-helicity") : // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
                     d2 // INJECT ASYMMETRY BELOW
-                    .Define(fitvar1.c_str(),fitvar1formula.c_str())
-                    .Define(fitvar2.c_str(),fitvar2formula.c_str())
-                    .Define(fitvar1_mc.c_str(),fitvar1formulamc.c_str())
-                    .Define(fitvar2_mc.c_str(),fitvar2formulamc.c_str())
                     .Define("dtheta_p",[](float theta_p, float theta_p_mc){ return TMath::Abs(theta_p-theta_p_mc); },{"theta_p","theta_p_mc"})
                     .Define("dtheta_pim",[](float theta_pim, float theta_pim_mc){ return TMath::Abs(theta_pim-theta_pim_mc); },{"theta_pim","theta_pim_mc"})
                     .Define("dphi_p",[](float phi_p, float phi_p_mc){
