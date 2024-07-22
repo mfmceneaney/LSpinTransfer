@@ -101,3 +101,6 @@ target_link_libraries(alutbsaanalysismc2cosphidependence PUBLIC ROOT::RIO ROOT::
 
 add_executable(alutbsaanalysismc2sinphidependence alutbsaanalysismc2sinphidependence.cpp)
 target_link_libraries(alutbsaanalysismc2sinphidependence PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+
+add_executable(alutbsaanalysis2Dmc2cosphidependence alutbsaanalysis2Dmc2cosphidependence.cpp)
+target_link_libraries(alutbsaanalysis2Dmc2cosphidependence PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
