@@ -394,8 +394,6 @@ void analysis(const YAML::Node& node) {
                     .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
                     .Define(depolarization_name.c_str(), [](float y) { return (float)(y*TMath::Sqrt(1.0-y)/(1.0-y+0.5*y*y)); }, {"y"}) :
                     d // INJECT ASYMMETRY BELOW
-                    .Define(fitvar.c_str(),fitvarformula.c_str())
-                    .Define(fitvar_mc.c_str(),fitvarformula.c_str())
                     .Define("dtheta_p",[](float theta_p, float theta_p_mc){ return TMath::Abs(theta_p-theta_p_mc); },{"theta_p","theta_p_mc"})
                     .Define("dtheta_pim",[](float theta_pim, float theta_pim_mc){ return TMath::Abs(theta_pim-theta_pim_mc); },{"theta_pim","theta_pim_mc"})
                     .Define("dphi_p",[](float phi_p, float phi_p_mc){
