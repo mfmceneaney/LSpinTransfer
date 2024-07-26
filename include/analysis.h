@@ -1355,8 +1355,8 @@ void getKinBinnedGraphBSA2DGenericV2(
                         n_mass_bins,
                         mass_min,
                         mass_max,
-                        dtheta_p_max,
-                        dtheta_pim_max,
+                        // dtheta_p_max,
+                        // dtheta_pim_max,
                         mass_draw_opt,
                         bin_title,
                         out
@@ -1371,8 +1371,8 @@ void getKinBinnedGraphBSA2DGenericV2(
                         n_mass_bins,
                         mass_min,
                         mass_max,
-                        dtheta_p_max,
-                        dtheta_pim_max,
+                        // dtheta_p_max,
+                        // dtheta_pim_max,
                         mass_draw_opt,
                         bin_title,
                         out
