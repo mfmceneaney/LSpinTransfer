@@ -82,18 +82,6 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "fitvar: " << fitvar << std::endl;
 
-    std::string fitvarformula = "";
-    if (node["fitvarformula"]) {
-        fitvarformula = node["fitvarformula"].as<std::string>();
-    }
-    std::cout << "fitvarformula: " << fitvarformula << std::endl;
-
-    std::string fitvarformula_mc = "";
-    if (node["fitvarformula_mc"]) {
-        fitvarformula_mc = node["fitvarformula_mc"].as<std::string>();
-    }
-    std::cout << "fitvarformula_mc: " << fitvarformula_mc << std::endl;
-
     std::map<std::string,std::vector<double>> binvars;
     std::map<std::string,std::vector<int>> poly4map;
     if (node["binvars"]) {
