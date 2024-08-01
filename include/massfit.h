@@ -213,7 +213,7 @@ N MAYBE...
 
 
     // Fit and get signal and bg covariance matrices
-    TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+    TFitResultPtr fr = h->Fit("fit","LS","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,7,5,7)); // Make sure these match up!
@@ -521,7 +521,7 @@ TArrayF* LambdaKaonMassFit(
 
 
     // Fit and get signal and bg covariance matrices
-    TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+    TFitResultPtr fr = h->Fit("fit","LS","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,7,5,7)); // Make sure these match up!
@@ -879,7 +879,7 @@ TArrayF* LambdaMassFitPoly4BG(
 
 
     // Fit and get signal and bg covariance matrices
-    TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+    TFitResultPtr fr = h->Fit("fit","LS","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,10,5,10)); // Make sure these match up!
@@ -1269,7 +1269,7 @@ TArrayF* LambdaKaonMassFitPoly4BG(
 
 
     // Fit and get signal and bg covariance matrices
-    TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+    TFitResultPtr fr = h->Fit("fit","LS","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,10,5,10)); // Make sure these match up!
@@ -1656,7 +1656,7 @@ TArrayF* LambdaMassFitGauss(
     // func->SetParLimits(1,2.0,100.0);
 
     // Fit and get signal and bg covariance matrices
-    TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+    TFitResultPtr fr = h->Fit("fit","LS","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,2,0,2));
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(3,5,3,5)); // Make sure these match up!
@@ -2005,7 +2005,7 @@ TArrayF* LambdaMassFitGaussPoly4BG(
     // func->SetParLimits(1,2.0,100.0);
 
     // Fit and get signal and bg covariance matrices
-    TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+    TFitResultPtr fr = h->Fit("fit","LS","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,2,0,2));
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(3,8,3,8)); // Make sure these match up!
@@ -2405,7 +2405,7 @@ TArrayF* LambdaMassFitMC(
 
 
     // Fit and get signal and bg covariance matrices
-    TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+    TFitResultPtr fr = h->Fit("fit","LS","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,7,5,7)); // Make sure these match up!
@@ -2848,7 +2848,7 @@ TArrayF* LambdaKaonMassFitMC(
 
 
     // Fit and get signal and bg covariance matrices
-    TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+    TFitResultPtr fr = h->Fit("fit","LS","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,7,5,7)); // Make sure these match up!
@@ -3295,7 +3295,7 @@ TArrayF* LambdaMassFitPoly4BGMC(
 
 
     // Fit and get signal and bg covariance matrices
-    TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+    TFitResultPtr fr = h->Fit("fit","LS","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,10,5,10)); // Make sure these match up!
@@ -3824,7 +3824,7 @@ TArrayF* LambdaKaonMassFitPoly4BGMC(
 
 
     // Fit and get signal and bg covariance matrices
-    TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+    TFitResultPtr fr = h->Fit("fit","LS","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4));
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,10,5,10)); // Make sure these match up!
@@ -4237,7 +4237,7 @@ TArrayF* LambdaMassFitMCFIXPARAMS(
     func_sig->SetParNames("alpha","n","sigma","Mu","C1");
 
     // Fit to signal truth spectrum
-    TFitResultPtr fr_sig = h_true->Fit("fit_sig","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+    TFitResultPtr fr_sig = h_true->Fit("fit_sig","LS","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *sigMat = new TMatrixDSym(fr_sig->GetCovarianceMatrix()); //NOTE: RENAME THE ONE BELOW.
 
     //----------------------------------------------------------------------// END
@@ -4266,7 +4266,7 @@ TArrayF* LambdaMassFitMCFIXPARAMS(
     //----------------------------------------------------------------------// END
 
     // Fit and get signal and bg covariance matrices
-    TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+    TFitResultPtr fr = h->Fit("fit","LS","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     // TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,4,0,4)); //NOTE: COMMENTED OUT BECAUSE FIXING THESE PARAMETERS FOR FIT TO DATA
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(5,7,5,7)); // Make sure these match up!
@@ -5095,7 +5095,7 @@ TArrayF* LambdaMassFitGaussMC(
     // func->SetParLimits(1,2.0,100.0);
 
     // Fit and get signal and bg covariance matrices
-    TFitResultPtr fr = h->Fit("fit","S","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+    TFitResultPtr fr = h->Fit("fit","LS","S",fit_min,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,2,0,2));
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(3,5,3,5)); // Make sure these match up!
@@ -5533,7 +5533,7 @@ TArrayF* LambdaMassFitGaussPoly4BGMC(
     // func->SetParLimits(1,2.0,100.0);
 
     // Fit and get signal and bg covariance matrices
-    TFitResultPtr fr = h->Fit("fit","S","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
+    TFitResultPtr fr = h->Fit("fit","LS","S",varMin,varMax); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE MASS
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
     TMatrixDSym *sigMat = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(0,2,0,2));
     TMatrixDSym *bgMat  = new TMatrixDSym(fr->GetCovarianceMatrix().GetSub(3,8,3,8)); // Make sure these match up!
