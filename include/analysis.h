@@ -886,6 +886,12 @@ TArrayF* getKinBinBSA2DGenericV2(
         if (idx<depolvars.size()-1) { out << " , "; }
     }
     out << "]" << std::endl;
+    out << " depols  = [" ;
+    for (int idx=0; idx<depols.size(); idx++) {
+        out << depols[idx];
+        if (idx<depols.size()-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
     out << " fitformula = " << fitformula.c_str() << std::endl;
     out << " nparams    = " << nparams <<std::endl;
     out << " params = [" ;
