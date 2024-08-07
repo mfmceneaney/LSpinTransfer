@@ -791,6 +791,8 @@ TArrayF* getKinBinBSA2DGenericV2(
     std::string  helicity_name = "heli",
     std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
     int          nparams       = 2,
+    std::vector<double> params = std::vector<double>(2),
+    std::string  fitopt        = "LS",
     std::string  fitvarx       = "phi_h",
     std::string  fitvarxtitle  = "#phi_{h p#pi^{-}}",
     int nbinsx                 = 100,
@@ -857,12 +859,12 @@ TArrayF* getKinBinBSA2DGenericV2(
     // Set fit function
     TF2 *f1 = new TF2("f1",fitformula.c_str(),xmin,xmax,ymin,ymax);
     for (int idx=0; idx<nparams; idx++) {
-        f1->SetParameter(idx,1.0);
+        f1->SetParameter(idx,params[idx]);
         f1->SetParName(idx,Form("A%d",idx));
     }
 
     // Fit and get covariance matrix
-    TFitResultPtr fr = hasym->Fit("f1","S","S"); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE FIT VARIABLE.
+    TFitResultPtr fr = hasym->Fit("f1",fitopt.c_str(),"S"); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE FIT VARIABLE.
     TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
 
     // Get fit parameters
@@ -894,6 +896,12 @@ TArrayF* getKinBinBSA2DGenericV2(
     out << "]" << std::endl;
     out << " fitformula = " << fitformula.c_str() << std::endl;
     out << " nparams    = " << nparams <<std::endl;
+    out << " initial params = [" ;
+    for (int idx=0; idx<nparams; idx++) {
+        out << params[idx];
+        if (idx<nparams-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
     out << " params = [" ;
     for (int idx=0; idx<nparams; idx++) {
         out << pars[idx] << "±" << Epars[idx];
@@ -968,6 +976,8 @@ void getKinBinnedGraphBSA2DGenericMCV2(
                     std::string  helicity_name = "heli", // Branch name for helicity
                     std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
                     int          nparams = 2, // number of parameters in fit formula above
+                    std::vector<double> params = std::vector<double>(2), // initial fit parameters
+                    std::string  fitopt = "LS", // option for ROOT <TH1> -> Fit() call
                     std::string  fitvarx = "dphi", // fitvariable branch name to use
                     std::string  fitvarxtitle = "#Delta#phi", // fit variable axis title
                     int          n_fitvarx_bins = 10, // number of bins for fit variable if using LF method
@@ -1099,6 +1109,8 @@ void getKinBinnedGraphBSA2DGenericMCV2(
             helicity_name,
             fitformula,
             nparams,
+            params,
+            fitopt,
             fitvarx,
             fitvarxtitle,
             n_fitvarx_bins,
@@ -1147,6 +1159,8 @@ void getKinBinnedGraphBSA2DGenericMCV2(
                 helicity_name,
                 fitformula,
                 nparams,
+                params,
+                fitopt,
                 fitvarx,
                 fitvarxtitle,
                 n_fitvarx_bins,
@@ -1282,6 +1296,8 @@ void getKinBinnedGraphBSA2DGenericV2(
                     std::string  helicity_name = "heli", // Branch name for helicity
                     std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
                     int          nparams = 2, // number of parameters in fit formula above
+                    std::vector<double> params = std::vector<double>(2), // initial fit parameters
+                    std::string  fitopt = "LS", // option for ROOT <TH1> -> Fit() call
                     std::string  fitvarx = "dphi", // fitvariable branch name to use
                     std::string  fitvarxtitle = "#Delta#phi", // fit variable axis title
                     int          n_fitvarx_bins = 10, // number of bins for fit variable if using LF method
@@ -1413,6 +1429,8 @@ void getKinBinnedGraphBSA2DGenericV2(
             helicity_name,
             fitformula,
             nparams,
+            params,
+            fitopt,
             fitvarx,
             fitvarxtitle,
             n_fitvarx_bins,
@@ -1461,6 +1479,8 @@ void getKinBinnedGraphBSA2DGenericV2(
                 helicity_name,
                 fitformula,
                 nparams,
+                params,
+                fitopt,
                 fitvarx,
                 fitvarxtitle,
                 n_fitvarx_bins,

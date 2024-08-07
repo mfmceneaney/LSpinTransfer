@@ -137,6 +137,23 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "nparams: " << nparams << std::endl;
 
+    std::vector<double> params = std::vector<double>(nparams);
+    if (node["params"]) {
+        params = node["params"].as<std::vector<double>>();
+    }
+    std::cout << "params: [ ";
+    for (int idx=0; idx<params.size(); idx++) {
+        if (idx!=params.size()-1) { std::cout<<params[idx]<<", "; }
+        else { std::cout<<params[idx]; }
+    }
+    std::cout<<" ]"<<std::endl;
+
+    std::string fitopt = "S";
+    if (node["fitopt"]) {
+        fitopt = node["fitopt"].as<std::string>();
+    }
+    std::cout << "fitopt: " << fitopt << std::endl;
+
     std::string fsgasymsformula = "";
     if (node["fsgasymsformula"]) {
         fsgasymsformula = node["fsgasymsformula"].as<std::string>();
@@ -657,6 +674,8 @@ void analysis(const YAML::Node& node) {
                     helicity_name, // std::string  helicity_name = "heli", // Branch name for helicity
                     fitformula, // std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
                     nparams, // int          nparams = 2, // number of parameters in fit formula above
+                    params, // std::vector<double> params = std::vector<double>(2), // initial fit parameters
+                    fitopt, // std::string  fitopt = "LS", // option for ROOT <TH1> -> Fit() call
                     fitvar1, // std::string  fitvarx = "dphi", // fitvariable branch name to use
                     fitvar1title, // std::string  fitvarxtitle = "#Delta#phi", // fit variable axis title
                     n_fitvar1_bins, // int          n_fitvarx_bins = 10, // number of bins for fit variable if using LF method
