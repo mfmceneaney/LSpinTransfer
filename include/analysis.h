@@ -6,6 +6,7 @@
 #include <TFile.h>
 #include <TStyle.h>
 #include <TCanvas.h>
+#include <TAxis.h>
 #include <TH1.h>
 #include <ROOT/RDataFrame.hxx>
 #include <Fit/Fitter.h>
@@ -16,6 +17,17 @@
 #include <TGraphErrors.h>
 #include <TRandom.h>
 #include <TF2.h>
+
+// RooFit Includes
+#include <RooRealVar.h>
+#include <RooDataSet.h>
+#include <RooGaussian.h>
+#include <RooPlot.h>
+#include <RooAbsDataHelper.h>
+#include <RooDataHist.h>
+#include <RooArgList.h>
+#include <RooGenericPdf.h>
+#include <RooFitResult.h>
 
 // Local includes
 #include <massfit.h>
@@ -850,6 +862,58 @@ TArrayF* getKinBinBSA2DGenericV2(
     hasym->GetYaxis()->SetTitle(fitvarytitle.c_str());
     hasym->GetYaxis()->SetTitleSize(0.06);
     hasym->GetYaxis()->SetTitleOffset(0.87);
+
+
+    //-----> RooFit added BEGIN
+
+    // Create helicity and fit variables
+    RooRealVar h(helicity_name.c_str(), helicity_name.c_str(), -1.0, 1.0);
+    RooRealVar x(fitvarx.c_str(), fitvarx.c_str(), xmin, xmax);
+    RooRealVar y(fitvary.c_str(), fitvary.c_str(), ymin, ymax);
+
+    // // Create RDataFrame to RooDataSet pointer
+    // ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = frame.Book<float, float, float>(
+    //   RooDataSetHelper("dataset", // Name
+    //       "Title of dataset",     // Title
+    //       RooArgSet(h, x, y)      // Variables in this dataset
+    //       ),
+    //   {helicity_name.c_str(), fitvarx.c_str(), fitvary.c_str()} // Column names in RDataFrame.
+    // );
+
+    // // Run RDataFrame evaluation to fill RooDataSet
+    // RooDataSet const& rooDataSet = rooDataSetResult.GetValue();
+
+    // Create RooFit histogram
+    RooDataHist rdh("rdh","2d RooFit Histogram",RooArgSet(x,y),hasym);
+
+    // Create fit parameters
+    RooArgList arglist(x,y); // = RooArgList(RooArgList(x,y),"arglist");
+    for (int idx=0; idx<nparams; idx++) {
+        std::string argname = Form("a%d",idx);
+        RooRealVar a(argname.c_str(),argname.c_str(),params[idx],0.0,1.0); //NOTE: Assume coefficients are all in (0,1)
+        arglist.add(a);
+    }
+
+    // Create 2D PDF
+    RooGenericPdf gen("gen", fitformula.c_str(), arglist);
+
+    // Fit pdf to data
+    // std::unique_ptr<RooFitResult> r{gen.fitTo((RooAbsData&)rooDataSet, RooFit::Save(), RooFit::PrintLevel(-1))}; //RooFit::Minos(kTRUE),
+    std::unique_ptr<RooFitResult> r{gen.fitTo(rdh, RooFit::Save(), RooFit::PrintLevel(-1))}; //RooFit::Minos(kTRUE),
+
+    // Print fit result
+    r->Print("v");
+
+    // Extract covariance and correlation matrix as TMatrixDSym
+    const TMatrixDSym &cor = r->correlationMatrix();
+    const TMatrixDSym &cov = r->covarianceMatrix();
+
+    // Print correlation, covariance matrix
+    std::cout << "correlation matrix" << std::endl;
+    cor.Print();
+    std::cout << "covariance matrix" << std::endl;
+    cov.Print();
+    //-----> RooFit added END
 
     // Draw asymmetry histogram
     TCanvas *c1 = new TCanvas(Form("c1_%s",outdir.c_str()));
