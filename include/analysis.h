@@ -863,6 +863,176 @@ TArrayF* getKinBinBSA2DGenericV2(
     hasym->GetYaxis()->SetTitleSize(0.06);
     hasym->GetYaxis()->SetTitleOffset(0.87);
 
+    // Draw asymmetry histogram
+    TCanvas *c1 = new TCanvas(Form("c1_%s",outdir.c_str()));
+    c1->cd();
+    hasym->Draw("COLZ");
+
+    // Set fit function
+    TF2 *f1 = new TF2("f1",fitformula.c_str(),xmin,xmax,ymin,ymax);
+    for (int idx=0; idx<nparams; idx++) {
+        f1->SetParameter(idx,params[idx]);
+        f1->SetParName(idx,Form("A%d",idx));
+    }
+
+    // Fit and get covariance matrix
+    TFitResultPtr fr = hasym->Fit("f1",fitopt.c_str(),"S"); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE FIT VARIABLE.
+    TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
+
+    // Get fit parameters
+    double * pars   = (double *)f1->GetParameters();
+    double * Epars  = (double *)f1->GetParErrors();
+    double  chi2    = f1->GetChisquare();
+    double  ndf     = f1->GetNDF();
+    double  chi2ndf = (double)chi2/ndf;
+
+    // Print out fit info
+    out << "--------------------------------------------------" << std::endl;
+    out << " getKinBinBSA2DGenericV2():" << std::endl;
+    out << " cuts       = " << cuts.c_str() << std::endl;
+    out << " bincut     = " << bin_cut.c_str() << std::endl;
+    out << " binmean    = " << mean << "±" << stddev << std::endl;
+    out << " bincount   = " << count << std::endl;
+    out << " pol        = " << pol << std::endl;
+    out << " depolvars  = [" ;
+    for (int idx=0; idx<depolvars.size(); idx++) {
+        out << depolvars[idx];
+        if (idx<depolvars.size()-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " depols  = [" ;
+    for (int idx=0; idx<depols.size(); idx++) {
+        out << depols[idx];
+        if (idx<depols.size()-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " fitformula = " << fitformula.c_str() << std::endl;
+    out << " nparams    = " << nparams <<std::endl;
+    out << " initial params = [" ;
+    for (int idx=0; idx<nparams; idx++) {
+        out << params[idx];
+        if (idx<nparams-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " params = [" ;
+    for (int idx=0; idx<nparams; idx++) {
+        out << pars[idx] << "±" << Epars[idx];
+        if (idx<nparams-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " chi2/ndf = " << chi2ndf << std::endl;
+    out << "--------------------------------------------------" << std::endl;
+
+    // Add Legend
+    TLegend *legend=new TLegend(0.5,0.15,0.75,0.4);
+    legend->SetTextSize(0.04);
+    legend->SetHeader("Fit Info:","c");
+    legend->SetMargin(0.1);
+    legend->AddEntry((TObject*)0, Form("#chi^{2}/NDF = %.2f",chi2ndf), Form(" %g ",chi2));
+    
+    for (int idx=0; idx<nparams; idx++) {
+        legend->AddEntry((TObject*)0, Form("A%d = %.3f #pm %.3f",idx,pars[idx],Epars[idx]), Form(" %g ",chi2));
+        legend->AddEntry((TObject*)0, Form("D%d = %.2f",idx,depols[idx]), Form(" %g ",chi2));
+    }
+    legend->Draw();
+
+    // Save to PDF
+    c1->SaveAs(Form("%s.pdf",c1->GetName()));
+
+    // Save to ROOT file
+    hasym->Write();
+
+    // Go back to parent directory
+    outroot->cd("..");
+
+    // Fill return array
+    TArrayF *arr = new TArrayF((int)(3+2*nparams));
+    int k = 0;
+    arr->AddAt(mean,k++);
+    arr->AddAt(stddev,k++);
+    arr->AddAt(count,k++);
+    for (int idx=0; idx<nparams; idx++) {
+        arr->AddAt(pars[idx]/depols[idx],k++);
+        arr->AddAt(Epars[idx]/depols[idx],k++);
+    }
+
+    return arr;
+
+} // TArrayF* getKinBinBSA2DGenericV2()
+
+TArrayF* getKinBinBSA2DGenericRooFit(
+    std::string  outdir,
+    TFile      * outroot,
+    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+    std::string cuts,
+    std::string binvar,
+    double       bin_min,
+    double       bin_max,
+    double       pol,
+    std::vector<std::string>   depolvars,
+    std::string  helicity_name = "heli",
+    std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
+    int          nparams       = 2,
+    std::vector<double> params = std::vector<double>(2),
+    std::string  fitopt        = "LS",
+    std::string  fitvarx       = "phi_h",
+    std::string  fitvarxtitle  = "#phi_{h p#pi^{-}}",
+    int nbinsx                 = 100,
+    double xmin                = 0.0,
+    double xmax                = 2*TMath::Pi(),
+    std::string  fitvary       = "phi_h",
+    std::string  fitvarytitle  = "#phi_{h p#pi^{-}}",
+    int nbinsy                 = 100,
+    double ymin                = 0.0,
+    double ymax                = 2*TMath::Pi(),
+    std::ostream &out          = std::cout
+    ) {
+
+    std::string title    = Form("%s vs. %s %.3f<%s<%.3f",fitvarytitle.c_str(),fitvarxtitle.c_str(),bin_min,binvar.c_str(),bin_max);
+    std::string bintitle = Form("%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+
+    // Set bin cuts
+    std::string bin_cut = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
+    auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
+
+    // Get data
+    auto count    = (int)   *f.Count();
+    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto stddev   = (double)*f.StdDev(binvar.c_str());
+
+    // Compute depolarization factor
+    std::vector<double> depols;
+    for (int i=0; i<depolvars.size(); i++) {
+        double depol = (double)*f.Mean(depolvars[i].c_str());
+        depols.push_back(depol);
+    }
+    
+    //TODO: Need to figure out why Stefan computed bin average of epsilon but not overall depolarization factor...
+
+    // Make subdirectory
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
+
+    // Switch off histogram stats
+    gStyle->SetOptStat(0);
+
+    // Create histograms
+    TH2D hplus_ = (TH2D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo2D({"hplus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str());
+    TH2D *hplus = (TH2D*)hplus_.Clone("hplus");
+    TH2D hminus_ = (TH2D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo2D({"hminus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str());
+    TH2D *hminus = (TH2D*)hminus_.Clone("hminus");
+
+    // Get asymmetry histogram
+    TH2D *hasym = (TH2D*)hplus->GetAsymmetry(hminus);
+    hasym->Scale(1.0/pol);
+    hasym->SetTitle(title.c_str());
+    hasym->GetXaxis()->SetTitle(fitvarxtitle.c_str());
+    hasym->GetXaxis()->SetTitleSize(0.06);
+    hasym->GetXaxis()->SetTitleOffset(0.75);
+    hasym->GetYaxis()->SetTitle(fitvarytitle.c_str());
+    hasym->GetYaxis()->SetTitleSize(0.06);
+    hasym->GetYaxis()->SetTitleOffset(0.87);
+
 
     //-----> RooFit added BEGIN
     TH2 *hasym_plusone = (TH2*)hasym->Clone("hasym_plusone");
@@ -967,7 +1137,7 @@ TArrayF* getKinBinBSA2DGenericV2(
 
     // Print out fit info
     out << "--------------------------------------------------" << std::endl;
-    out << " getKinBinBSA2DGenericV2():" << std::endl;
+    out << " getKinBinBSA2DGenericRooFit():" << std::endl;
     out << " cuts       = " << cuts.c_str() << std::endl;
     out << " bincut     = " << bin_cut.c_str() << std::endl;
     out << " binmean    = " << mean << "±" << stddev << std::endl;
@@ -1037,7 +1207,7 @@ TArrayF* getKinBinBSA2DGenericV2(
 
     return arr;
 
-} // TArrayF* getKinBinBSA2DGenericV2()
+} // TArrayF* getKinBinBSA2DGenericRooFit()
 
 /** 
 * Get TGraph of generic BSA binned in given kinematic variable with or without bg correction.
