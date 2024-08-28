@@ -865,9 +865,16 @@ TArrayF* getKinBinBSA2DGenericV2(
 
 
     //-----> RooFit added BEGIN
+    TH2 *hasym_plusone = (TH2*)hasym->Clone("hasym_plusone");
+    for (int idx_x=0; idx_x<hasym_plusone->GetNbinsX(); idx_x++) {
+      for (int idx_y=0; idx_y<hasym_plusone->GetNbinsY(); idx_y++) {
+        hasym_plusone->SetBinContent(idx_x,idx_y,1.0);
+      }
+    }
+    hasym_plusone->Add(hasym); //NOTE: DEBUGGING TO CREATE POSITIVE FIT DATA
 
     // Create helicity and fit variables
-    RooRealVar h(helicity_name.c_str(), helicity_name.c_str(), -1.0, 1.0);
+    //RooRealVar h(helicity_name.c_str(), helicity_name.c_str(), -1.0, 1.0);
     RooRealVar x(fitvarx.c_str(), fitvarx.c_str(), xmin, xmax);
     RooRealVar y(fitvary.c_str(), fitvary.c_str(), ymin, ymax);
 
@@ -884,35 +891,38 @@ TArrayF* getKinBinBSA2DGenericV2(
     // RooDataSet const& rooDataSet = rooDataSetResult.GetValue();
 
     // Create RooFit histogram
-    RooDataHist rdh("rdh","2d RooFit Histogram",RooArgSet(x,y),hasym);
+    RooDataHist rdh("rdh","2d RooFit Histogram",RooArgSet(x,y),RooFit::Import(*hasym_plusone));
 
     // Create fit parameters
-    RooArgList arglist(x,y); // = RooArgList(RooArgList(x,y),"arglist");
-    for (int idx=0; idx<nparams; idx++) {
-        std::string argname = Form("a%d",idx);
-        RooRealVar a(argname.c_str(),argname.c_str(),params[idx],0.0,1.0); //NOTE: Assume coefficients are all in (0,1)
-        arglist.add(a);
-    }
+    if (nparams>5) {std::cerr<<"ERROR: only up to 5 fit parameters are allowed."<<std::endl;}
+    RooRealVar a0("a0","a0",(nparams>0 ? params[0] : 0.0),0.0,1.0); //NOTE: IMPORTANT!  These have to be declared individually here.  Creating in a loop and adding to a list will not work.
+    RooRealVar a1("a1","a1",(nparams>1 ? params[1] : 0.0),0.0,1.0);
+    RooRealVar a2("a2","a2",(nparams>2 ? params[2] : 0.0),0.0,1.0);
+    RooRealVar a3("a3","a3",(nparams>3 ? params[3] : 0.0),0.0,1.0);
+    RooRealVar a4("a4","a4",(nparams>4 ? params[4] : 0.0),0.0,1.0);
+    RooArgList arglist(x,y,a0,a1,a2,a3,a4); //NOTE: ONLY ALLOW UP TO 5 PARAMS FOR NOW.
 
     // Create 2D PDF
-    RooGenericPdf gen("gen", fitformula.c_str(), arglist);
+    std::string fitformula_plusone = Form("1.0+%s",fitformula.c_str());
+    RooGenericPdf gen("gen", fitformula_plusone.c_str(), arglist);
 
     // Fit pdf to data
     // std::unique_ptr<RooFitResult> r{gen.fitTo((RooAbsData&)rooDataSet, RooFit::Save(), RooFit::PrintLevel(-1))}; //RooFit::Minos(kTRUE),
-    std::unique_ptr<RooFitResult> r{gen.fitTo(rdh, RooFit::Save(), RooFit::PrintLevel(-1))}; //RooFit::Minos(kTRUE),
+    std::unique_ptr<RooFitResult> r{gen.fitTo(rdh, RooFit::Save(), RooFit::SumW2Error(false), RooFit::PrintLevel(-1))}; //RooFit::Minos(kTRUE),
 
     // Print fit result
     r->Print("v");
 
     // Extract covariance and correlation matrix as TMatrixDSym
-    const TMatrixDSym &cor = r->correlationMatrix();
-    const TMatrixDSym &cov = r->covarianceMatrix();
+    const TMatrixDSym &corMat = r->correlationMatrix();
+    const TMatrixDSym &covMat = r->covarianceMatrix();
 
     // Print correlation, covariance matrix
     std::cout << "correlation matrix" << std::endl;
-    cor.Print();
+    corMat.Print();
     std::cout << "covariance matrix" << std::endl;
-    cov.Print();
+    covMat.Print();
+
     //-----> RooFit added END
 
     // Draw asymmetry histogram
@@ -920,23 +930,40 @@ TArrayF* getKinBinBSA2DGenericV2(
     c1->cd();
     hasym->Draw("COLZ");
 
-    // Set fit function
-    TF2 *f1 = new TF2("f1",fitformula.c_str(),xmin,xmax,ymin,ymax);
-    for (int idx=0; idx<nparams; idx++) {
-        f1->SetParameter(idx,params[idx]);
-        f1->SetParName(idx,Form("A%d",idx));
-    }
-
-    // Fit and get covariance matrix
-    TFitResultPtr fr = hasym->Fit("f1",fitopt.c_str(),"S"); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE FIT VARIABLE.
-    TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
+    //NOTE: COMMENT OUT DEFAULT ROOT FITTING
+    // // Fit and get covariance matrix
+    // TFitResultPtr fr = hasym->Fit("f1",fitopt.c_str(),"S"); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE FIT VARIABLE.
+    // TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
 
     // Get fit parameters
-    double * pars   = (double *)f1->GetParameters();
-    double * Epars  = (double *)f1->GetParErrors();
-    double  chi2    = f1->GetChisquare();
-    double  ndf     = f1->GetNDF();
+    std::vector<double> pars;
+    if (nparams>0) pars.push_back((double)a0.getVal());
+    if (nparams>1) pars.push_back((double)a1.getVal());
+    if (nparams>2) pars.push_back((double)a2.getVal());
+    if (nparams>3) pars.push_back((double)a3.getVal());
+    if (nparams>4) pars.push_back((double)a4.getVal());
+    std::vector<double> Epars;
+    if (nparams>0) Epars.push_back((double)a0.getError());
+    if (nparams>1) Epars.push_back((double)a1.getError());
+    if (nparams>2) Epars.push_back((double)a2.getError());
+    if (nparams>3) Epars.push_back((double)a3.getError());
+    if (nparams>4) Epars.push_back((double)a4.getError());
+    RooAbsReal* newchi2 = gen.createChi2(rdh, RooFit::Range("fullRange"),
+                 RooFit::Extended(true), RooFit::DataError(RooAbsData::Poisson));
+    double chi2 = newchi2->getVal();
+    double ndf = hasym->GetNbinsX() * hasym->GetNbinsY() - nparams;
     double  chi2ndf = (double)chi2/ndf;
+
+    // Set fit function
+    std::string myOLDfitformula = "x*(TMath::Cos(y)*[0]+[1]+TMath::Cos(2.0*y)*[2])"; //TODO: Set this from function arguments.
+    TF2 *f1 = new TF2("f1",myOLDfitformula.c_str(),xmin,xmax,ymin,ymax);
+    for (int idx=0; idx<nparams; idx++) {
+        f1->SetParameter(idx,pars[idx]);
+        f1->SetParError(idx,Epars[idx]);
+        f1->SetParName(idx,Form("a%d",idx));
+    }
+    f1->SetLineColor(2);
+    f1->Draw("SAME");
 
     // Print out fit info
     out << "--------------------------------------------------" << std::endl;
