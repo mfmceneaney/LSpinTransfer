@@ -892,7 +892,7 @@ if __name__=="__main__":
             arrs['y_mean'] += y_corrections_mc_asym_injection
 
             # Compute systematics
-            alpha_lambda_systematic = 0.0094
+            alpha_lambda_systematic = 0.0120
             beam_polarization_systematic = 0.0360
             sgasym = 0.1
             systematic_scales_mat = yerr_syst_mc_asym_injection / sgasym
