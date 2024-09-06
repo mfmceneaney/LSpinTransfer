@@ -256,7 +256,7 @@ void analysis(const YAML::Node& node) {
     TRandom *gRandom = new TRandom(seed); //NOTE: IMPORTANT: Need `new` here to get a pointer.
 
     // Numerical constants
-    double alpha = 0.748;  // ±0.007 Weak decay asymmetry parameter
+    double alpha = 0.747;  // ±0.007 Weak decay asymmetry parameter
 
     // Set MC Track matching angular limits
     double dtheta_p_max = 6*TMath::Pi()/180; //NOTE: DEBUGGING COULD JUST SET THESE FROM MAIN OR FROM ARGS.

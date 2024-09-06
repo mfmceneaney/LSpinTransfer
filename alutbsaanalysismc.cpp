@@ -406,7 +406,7 @@ void analysis(const YAML::Node& node) {
     TRandom *gRandom = new TRandom(seed); //NOTE: IMPORTANT: Need `new` here to get a pointer.
 
     // Numerical constants
-    double alpha = 0.748;  // ±0.007 Weak decay asymmetry parameter
+    double alpha = 0.747;  // ±0.007 Weak decay asymmetry parameter
 
     // Set MC Track matching angular limits
     double dtheta_p_max = 6*TMath::Pi()/180; //NOTE: DEBUGGING COULD JUST SET THESE FROM MAIN OR FROM ARGS.
@@ -432,8 +432,7 @@ void analysis(const YAML::Node& node) {
 
     // Create RDataFrame for statistics capabilities and reading tree and set branch names to use
     ROOT::RDataFrame d(tree, inpath);
-    std::string helicity_name       = "heli";
-    // std::string depol_name_mc = Form("%s_mc",depol_name.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
+    std::string helicity_name = "heli";
     std::string costheta_name_mc = Form("%s_mc",costheta_name.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string fitvar_mc = Form("%s_mc",fitvar.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string mc_cuts = "sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0";//NOTE: NOT SURE THAT THESE ARE STILL NECESSARY, 9/14/23.
@@ -443,15 +442,9 @@ void analysis(const YAML::Node& node) {
     for (int idx=0; idx<nparams; idx++) { fbgasyms->SetParameter(idx,bgasyms[idx]); }
     auto frame = (!inject_asym) ? d.Filter(cuts.c_str())
                     .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
-                    // .Define(depol_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"})
-                    // .Define(fitvar.c_str(),[](float dy, float ct){ return (float) (dy*ct);},{depol_name.c_str(),costheta_name.c_str()})
                     .Define(depolvar.c_str(),depolvarformula.c_str()) :
                     d
                     .Define(depolvar.c_str(),depolvarformula.c_str())
-                    // .Define(depol_name.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}) //NOTE: CHANGED y->y_mc, JUST FOR SANITY CHECKING.  //NOTE: CHANGE y->y_mc FOR SANITY CHECKING MC ASYMMETRY INJECTION
-                    // .Define(fitvar.c_str(),[](float dy, float ct){ return (float) (dy*ct);},{depol_name.c_str(),costheta_name.c_str()})
-                    // .Define(depol_name_mc.c_str(), [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y_mc"}) // NEEDED FOR CALCULATIONS LATER
-                    // .Define(fitvar_mc.c_str(),[](float dy, float ct) { return (dy*ct);},{depol_name_mc.c_str(),costheta_name_mc.c_str()})
                     .Define("dtheta_p",[](float theta_p, float theta_p_mc){ return TMath::Abs(theta_p-theta_p_mc); },{theta_p_name.c_str(),Form("%s_mc",theta_p_name.c_str())})
                     .Define("dtheta_pim",[](float theta_pim, float theta_pim_mc){ return TMath::Abs(theta_pim-theta_pim_mc); },{theta_pim_name.c_str(),Form("%s_mc",theta_pim_name.c_str())})
                     .Define("dphi_p",[](float phi_p, float phi_p_mc){
