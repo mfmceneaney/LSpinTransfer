@@ -110,7 +110,7 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "fitvartitle: " << fitvartitle << std::endl;
 
-    std::string fitformula = "0.748*[0]*x"; // 1 + alpha * D_LL * (D(y)*cos(#theta))
+    std::string fitformula = "0.747*[0]*x"; // 1 + alpha * D_LL * (D(y)*cos(#theta))
     if (node["fitformula"]) {
         fitformula = node["fitformula"].as<std::string>();
     }
