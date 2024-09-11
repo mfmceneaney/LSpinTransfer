@@ -6,7 +6,7 @@ import yaml
 import sys
 
 # Set Lambda decay asymmetry parameter values so you can scale old results and errors computed with a different value
-alpha_lambda = 0.748
+alpha_lambda = 0.747
 alpha_lambda_old = 0.642
 
 #----- HERMES Results: http://arxiv.org/abs/hep-ex/0607004 -----#
