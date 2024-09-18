@@ -1042,6 +1042,12 @@ TArrayF* getKinBinBSA2DGenericRooFit(
       }
     }
     hasym_plusone->Add(hasym); //NOTE: DEBUGGING TO CREATE POSITIVE FIT DATA
+    for (int idx_x=0; idx_x<hasym_plusone->GetNbinsX(); idx_x++) {
+      for (int idx_y=0; idx_y<hasym_plusone->GetNbinsY(); idx_y++) {
+        hasym_plusone->SetBinError(idx_x,idx_y,(double)hasym->GetBinError(idx_x,idx_y));
+        std::cout<<"i, j, bincontent, binerror = "<<idx_x<<" , "<<idx_y<<" , "<<hasym_plusone->GetBinContent(idx_x,idx_y)<<" , "<<hasym_plusone->GetBinError(idx_x,idx_y)<<std::endl;//DEBUGGING 
+      }
+    }
 
     // Create helicity and fit variables
     //RooRealVar h(helicity_name.c_str(), helicity_name.c_str(), -1.0, 1.0);
