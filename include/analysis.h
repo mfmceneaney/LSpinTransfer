@@ -125,7 +125,7 @@ TArrayF* getKinBinLF(
     histP->SetMarkerSize(2);
     histP->SetLineWidth(2);
     histP->GetXaxis()->SetTitle("cos(#theta)");
-    histP->GetYaxis()->SetTitle("Asymmetry");
+    histP->GetYaxis()->SetTitle("N_{+}/N_{-}");
     histP->Draw("PE");
     histP->Fit("fitf","","",fitvar_min,fitvar_max);
 
