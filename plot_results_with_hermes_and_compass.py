@@ -116,6 +116,10 @@ def get_plots(
 
     #TODO: DEBUGGING MESSAGE FOR BINS SEE IF SOMETHING GETS MESSED UP THERE AND MAKE SURE YOU ARE SETTING CORRECTLY...
     # s1 = plt.hist(x_mean['clas12'], weights=yerr_syst, bins=xbins, color='gray', alpha=0.25, label='Systematic Error') #NOTE: THAT HISTOGRAM X DATA SHOULD JUST USE BIN X MEANS SO THAT EACH BIN GETS ONE ENTRY AND THEN YOU CAN SCALE APPROPRIATELY WITH THE WEIGHTS ARGUMENT.
+    g1 = plt.errorbar(x_mean['clas12'],y_mean['clas12'],xerr=None,yerr=yerr_syst,
+                ecolor='gray', elinewidth=elinewidth*20, capsize=0,
+                color='gray', marker='o', linestyle=linestyle, alpha=0.5,
+                linewidth=0, markersize=0,label='CLAS12 Systematics')
     g_clas12 = plt.errorbar(x_mean['clas12'],y_mean['clas12'],xerr=xerr_mean['clas12'],yerr=yerr_mean['clas12'], alpha=0.5,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=colors['clas12'], marker='o', linestyle=linestyle,
@@ -147,7 +151,7 @@ clas12_files = {
 }
 
 # Set CLAS12 input directory
-clas12_dir = '/Users/mfm45/drop/results_TODO/csv/'
+clas12_dir = '/Users/mfm45/drop/results_and_systematics__9_30_24/results/csv/'
 
 # Create list of full paths for CLAS12
 clas12_files = {key:os.path.join(clas12_dir,clas12_files[key]) for key in clas12_files}

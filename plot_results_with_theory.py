@@ -111,15 +111,15 @@ if __name__=="__main__":
     
     xvar = "z_ppim"
     xtitle = "$z_{p\pi^{-}}$"
-    # xvar = "xF_ppim"
-    # xtitle = '$x_{F p\pi^{-}}$'
+    xvar = "xF_ppim"
+    xtitle = '$x_{F p\pi^{-}}$'
 
     fitvar = 'costheta1'
     color = 'blue' if fitvar=='costheta1' else 'red'
     title = 'Longitudinal Spin Transfer along $P_{\Lambda}$' if fitvar=='costheta1' else 'Longitudinal Spin Transfer along $P_{\gamma^{*}}$'
 
     # Set data paths and load
-    inpath = "~/Downloads/results_8_12_24/aggregate___binvar_"+xvar+"__fitvar_"+fitvar+"__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
+    inpath = "/Users/mfm45/drop/results_and_systematics__9_30_24/results/csv/aggregate___binvar_"+xvar+"__fitvar_"+fitvar+"__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
     arr = np.loadtxt(inpath,delimiter=",",skiprows=1)
     x_mean = arr[:,1]
     y_mean = arr[:,2]
@@ -128,7 +128,7 @@ if __name__=="__main__":
     xerr_syst = arr[:,5]
     yerr_syst = arr[:,6]
 
-    inpath = "~/Downloads/xiaoyan_theory_results/aggregate___binvar_"+xvar+"__fitvar_costheta1__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
+    inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results/aggregate___binvar_"+xvar+"__fitvar_costheta1__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
     arr_binned = np.loadtxt(inpath,delimiter=",",skiprows=1)
     # x_mean = arr_binned[:,1]
     # y_mean = arr_binned[:,2]
@@ -148,18 +148,18 @@ if __name__=="__main__":
     print("DEBUGGING: xerr_syst = ",xerr_syst)
     print("DEBUGGING: yerr_syst = ",yerr_syst)
 
-    theory_cfr_inpath = "~/Downloads/xiaoyan_theory_results/CLAS_"+xvar.replace("_ppim","")+"_CFR.dat"
+    theory_cfr_inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results/CLAS_"+xvar.replace("_ppim","")+"_CFR.dat"
     arr_theory_cfr = np.loadtxt(theory_cfr_inpath, delimiter="\t", skiprows=0)
     x_theory_cfr = arr_theory_cfr[:,0]
     y_theory_cfr = arr_theory_cfr[:,1]
 
-    theory_tfrcfr_inpath = "~/Downloads/xiaoyan_theory_results/CLAS_"+xvar.replace("_ppim","")+"_TFRandCFR.dat"
+    theory_tfrcfr_inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results/CLAS_"+xvar.replace("_ppim","")+"_TFRandCFR.dat"
     arr_theory_tfrcfr = np.loadtxt(theory_tfrcfr_inpath, delimiter="\t", skiprows=0)
     x_theory_tfrcfr = arr_theory_tfrcfr[:,0]
     y_theory_tfrcfr = arr_theory_tfrcfr[:,1]
 
     # Set yaml path and load
-    yaml_path = "~/drop/results__4_17_24/args.yaml"
+    yaml_path = "/Users/mfm45/drop/results__4_17_24/args.yaml"
     yaml_args = {}
     with open(yaml_path) as f:
         yaml_args = yaml.safe_load(f)
