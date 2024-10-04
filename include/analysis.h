@@ -107,7 +107,7 @@ TArrayF* getKinBinLF(
     histP->Divide(histN);
 
     // Set bin errors (binomial)
-    for (int i = 0; i<n_fitvar_bins; i++) {
+    for (int i = 1; i<=n_fitvar_bins; i++) {
         double K1 = histPaux->GetBinContent(i);
         double K2 = histN->GetBinContent(i);
         histP->SetBinError(i,TMath::Abs(K1/K2)*TMath::Sqrt(1/K1+1/K2));
@@ -1038,14 +1038,14 @@ TArrayF* getKinBinBSA2DGenericRooFit(
 
     //-----> RooFit added BEGIN
     TH2 *hasym_plusone = (TH2*)hasym->Clone("hasym_plusone");
-    for (int idx_x=0; idx_x<hasym_plusone->GetNbinsX(); idx_x++) {
-      for (int idx_y=0; idx_y<hasym_plusone->GetNbinsY(); idx_y++) {
+    for (int idx_x=1; idx_x<=hasym_plusone->GetNbinsX(); idx_x++) {
+      for (int idx_y=1; idx_y<=hasym_plusone->GetNbinsY(); idx_y++) {
         hasym_plusone->SetBinContent(idx_x,idx_y,1.0);
       }
     }
     hasym_plusone->Add(hasym); //NOTE: DEBUGGING TO CREATE POSITIVE FIT DATA
-    for (int idx_x=0; idx_x<hasym_plusone->GetNbinsX(); idx_x++) {
-      for (int idx_y=0; idx_y<hasym_plusone->GetNbinsY(); idx_y++) {
+    for (int idx_x=1; idx_x<=hasym_plusone->GetNbinsX(); idx_x++) {
+      for (int idx_y=1; idx_y<=hasym_plusone->GetNbinsY(); idx_y++) {
         hasym_plusone->SetBinError(idx_x,idx_y,(double)hasym->GetBinError(idx_x,idx_y));
         std::cout<<"i, j, bincontent, binerror = "<<idx_x<<" , "<<idx_y<<" , "<<hasym_plusone->GetBinContent(idx_x,idx_y)<<" , "<<hasym_plusone->GetBinError(idx_x,idx_y)<<std::endl;//DEBUGGING 
       }
