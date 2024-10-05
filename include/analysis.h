@@ -1045,7 +1045,7 @@ TArrayF* getKinBinBSA2DGenericRooFitML(
 
     // Create 2D PDF
     std::string fitformula_plusone = Form("1.0+%.3f*%s",pol,fitformula.c_str());
-    RooGenericPdf gen("gen", fitformula_plus_one.c_str(), arglist);
+    RooGenericPdf gen("gen", fitformula_plusone.c_str(), arglist);
 
     // Fit pdf to data
     std::unique_ptr<RooFitResult> r{gen.fitTo(*rooDataSetResult, RooFit::Save(), RooFit::PrintLevel(-1))}; //RooFit::Minos(kTRUE),
