@@ -962,6 +962,175 @@ TArrayF* getKinBinBSA2DGenericV2(
 
 } // TArrayF* getKinBinBSA2DGenericV2()
 
+//TODO: Use ML Fit to 1+h*P*A(x,y) -> Must define fit function this way... RooGenericPdf gen("gen","1.0+x[0]*x[1]*(x[])*x[3]+x[4]+x[5]) 
+
+TArrayF* getKinBinBSA2DGenericRooFitML(
+    std::string  outdir,
+    TFile      * outroot,
+    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+    std::string cuts,
+    std::string binvar,
+    double       bin_min,
+    double       bin_max,
+    double       pol,
+    std::vector<std::string>   depolvars,
+    std::string  helicity_name = "heli",
+    std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
+    int          nparams       = 2,
+    std::vector<double> params = std::vector<double>(2),
+    std::string  fitopt        = "LS",
+    std::string  fitvarx       = "phi_h",
+    std::string  fitvarxtitle  = "#phi_{h p#pi^{-}}",
+    int nbinsx                 = 100,
+    double xmin                = 0.0,
+    double xmax                = 2*TMath::Pi(),
+    std::string  fitvary       = "phi_h",
+    std::string  fitvarytitle  = "#phi_{h p#pi^{-}}",
+    int nbinsy                 = 100,
+    double ymin                = 0.0,
+    double ymax                = 2*TMath::Pi(),
+    std::ostream &out          = std::cout
+    ) {
+
+    std::string title    = Form("%s vs. %s %.3f<%s<%.3f",fitvarytitle.c_str(),fitvarxtitle.c_str(),bin_min,binvar.c_str(),bin_max);
+    std::string bintitle = Form("%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+
+    // Set bin cuts
+    std::string bin_cut = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
+    auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
+
+    // Get data
+    auto count    = (int)   *f.Count();
+    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto stddev   = (double)*f.StdDev(binvar.c_str());
+
+    // Compute depolarization factor
+    std::vector<double> depols;
+    for (int i=0; i<depolvars.size(); i++) {
+        double depol = (double)*f.Mean(depolvars[i].c_str());
+        depols.push_back(depol);
+    }
+    
+    //TODO: Need to figure out why Stefan computed bin average of epsilon but not overall depolarization factor...
+
+    // Make subdirectory
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
+
+    // Switch off histogram stats
+    gStyle->SetOptStat(0);
+
+    // Create helicity and fit variables
+    RooRealVar h(helicity_name.c_str(), helicity_name.c_str(), -1.0, 1.0);
+    RooRealVar x(fitvarx.c_str(), fitvarx.c_str(), xmin, xmax);
+    RooRealVar y(fitvary.c_str(), fitvary.c_str(), ymin, ymax);
+
+    // Create RDataFrame to RooDataSet pointer
+    ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = frame.Book<float, float, float>(
+      RooDataSetHelper("dataset", // Name
+          "Title of dataset",     // Title
+          RooArgSet(h, x, y)      // Variables in this dataset
+          ),
+      {helicity_name.c_str(), fitvarx.c_str(), fitvary.c_str()} // Column names in RDataFrame.
+    );
+
+    // Create fit parameters
+    if (nparams>5) {std::cerr<<"ERROR: only up to 5 fit parameters are allowed."<<std::endl;}
+    RooRealVar a0("a0","a0",(nparams>0 ? params[0] : 0.0),0.0,1.0); //NOTE: IMPORTANT!  These have to be declared individually here.  Creating in a loop and adding to a list will not work.
+    RooRealVar a1("a1","a1",(nparams>1 ? params[1] : 0.0),0.0,1.0);
+    RooRealVar a2("a2","a2",(nparams>2 ? params[2] : 0.0),0.0,1.0);
+    RooRealVar a3("a3","a3",(nparams>3 ? params[3] : 0.0),0.0,1.0);
+    RooRealVar a4("a4","a4",(nparams>4 ? params[4] : 0.0),0.0,1.0);
+    RooArgList arglist(h,x,y,a0,a1,a2,a3,a4); //NOTE: ONLY ALLOW UP TO 5 PARAMS FOR NOW.
+
+    // Create 2D PDF
+    std::string fitformula_plusone = Form("1.0+%.3f*%s",pol,fitformula.c_str());
+    RooGenericPdf gen("gen", fitformula_plus_one.c_str(), arglist);
+
+    // Fit pdf to data
+    std::unique_ptr<RooFitResult> r{gen.fitTo(*rooDataSetResult, RooFit::Save(), RooFit::PrintLevel(-1))}; //RooFit::Minos(kTRUE),
+
+    // Print fit result
+    r->Print("v");
+
+    // Extract covariance and correlation matrix as TMatrixDSym
+    const TMatrixDSym &corMat = r->correlationMatrix();
+    const TMatrixDSym &covMat = r->covarianceMatrix();
+
+    // Print correlation, covariance matrix
+    std::cout << "correlation matrix" << std::endl;
+    corMat.Print();
+    std::cout << "covariance matrix" << std::endl;
+    covMat.Print();
+
+    // Get fit parameters
+    std::vector<double> pars;
+    if (nparams>0) pars.push_back((double)a0.getVal());
+    if (nparams>1) pars.push_back((double)a1.getVal());
+    if (nparams>2) pars.push_back((double)a2.getVal());
+    if (nparams>3) pars.push_back((double)a3.getVal());
+    if (nparams>4) pars.push_back((double)a4.getVal());
+    std::vector<double> Epars;
+    if (nparams>0) Epars.push_back((double)a0.getError());
+    if (nparams>1) Epars.push_back((double)a1.getError());
+    if (nparams>2) Epars.push_back((double)a2.getError());
+    if (nparams>3) Epars.push_back((double)a3.getError());
+    if (nparams>4) Epars.push_back((double)a4.getError());
+
+    // Print out fit info
+    out << "--------------------------------------------------" << std::endl;
+    out << " getKinBinBSA2DGenericRooFitML():" << std::endl;
+    out << " cuts       = " << cuts.c_str() << std::endl;
+    out << " bincut     = " << bin_cut.c_str() << std::endl;
+    out << " binmean    = " << mean << "±" << stddev << std::endl;
+    out << " bincount   = " << count << std::endl;
+    out << " pol        = " << pol << std::endl;
+    out << " depolvars  = [" ;
+    for (int idx=0; idx<depolvars.size(); idx++) {
+        out << depolvars[idx];
+        if (idx<depolvars.size()-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " depols  = [" ;
+    for (int idx=0; idx<depols.size(); idx++) {
+        out << depols[idx];
+        if (idx<depols.size()-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " fitformula = " << fitformula.c_str() << std::endl;
+    out << " nparams    = " << nparams <<std::endl;
+    out << " initial params = [" ;
+    for (int idx=0; idx<nparams; idx++) {
+        out << params[idx];
+        if (idx<nparams-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " params = [" ;
+    for (int idx=0; idx<nparams; idx++) {
+        out << pars[idx] << "±" << Epars[idx];
+        if (idx<nparams-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << "--------------------------------------------------" << std::endl;
+
+    // Go back to parent directory
+    outroot->cd("..");
+
+    // Fill return array
+    TArrayF *arr = new TArrayF((int)(3+2*nparams));
+    int k = 0;
+    arr->AddAt(mean,k++);
+    arr->AddAt(stddev,k++);
+    arr->AddAt(count,k++);
+    for (int idx=0; idx<nparams; idx++) {
+        arr->AddAt(pars[idx]/depols[idx],k++);
+        arr->AddAt(Epars[idx]/depols[idx],k++);
+    }
+
+    return arr;
+
+} // TArrayF* getKinBinBSA2DGenericRooFitML()
+
 TArrayF* getKinBinBSA2DGenericRooFit(
     std::string  outdir,
     TFile      * outroot,
@@ -1685,7 +1854,7 @@ void getKinBinnedGraphBSA2DGenericMCRooFit(
         // Compute bin results
         TArrayF *binData;
         std::string  binoutdir = Form("method_%s_bin_%s_%.3f_%.3f",(const char*)method,binvar.c_str(),bin_min,bin_max);
-        binData = (TArrayF*) getKinBinBSA2DGenericRooFit(
+        binData = (TArrayF*) getKinBinBSA2DGenericRooFitML(
             binoutdir,
             outroot,
             frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
@@ -1735,7 +1904,7 @@ void getKinBinnedGraphBSA2DGenericMCRooFit(
         } else {
             TArrayF *bgBinData;
             std::string  sbbinoutdir = Form("method_%s_sideband_bin_%s_%.3f_%.3f",(const char*)method,binvar.c_str(),bin_min,bin_max);
-            bgBinData = (TArrayF*) getKinBinBSA2DGenericRooFit(
+            bgBinData = (TArrayF*) getKinBinBSA2DGenericRooFitML(
                 sbbinoutdir,
                 outroot,
                 frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
