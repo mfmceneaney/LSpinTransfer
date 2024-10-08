@@ -596,7 +596,7 @@ void analysis(const YAML::Node& node) {
                         (float costheta, float phi_h, float y, float ppid_p_mc, float pidx_p_mc, float pidx_pim_mc, float dtheta_p, float dtheta_pim) {
                             return (float)((ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max) ? 0.5*(1.0 + alpha*beam_polarization*fsgasyms->Eval(phi_h,y)*costheta) : 0.5*(1.0 + alpha*beam_polarization*fbgasyms->Eval(phi_h,y)*costheta)); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.                  
                         },
-                        {fitvar1_mc.c_str(),fitvar2_mc.c_str(),"y","ppid_p_mc","pidx_p_mc","pidx_pim_mc","dtheta_p","dtheta_pim"})
+                        {fitvar1_mc.c_str(),fitvar2_mc.c_str(),"y_mc","ppid_p_mc","pidx_p_mc","pidx_pim_mc","dtheta_p","dtheta_pim"})
                     .Define(helicity_name.c_str(), [](float my_rand_var, float XS) {
                         return (float)(my_rand_var<XS ? 1.0 : -1.0);
                     },
