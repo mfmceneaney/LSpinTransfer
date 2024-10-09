@@ -1036,11 +1036,11 @@ TArrayF* getKinBinBSA2DGenericRooFitML(
 
     // Create fit parameters
     if (nparams>5) {std::cerr<<"ERROR: only up to 5 fit parameters are allowed."<<std::endl;}
-    RooRealVar a0("a0","a0",(nparams>0 ? params[0] : 0.0),0.0,1.0); //NOTE: IMPORTANT!  These have to be declared individually here.  Creating in a loop and adding to a list will not work.
-    RooRealVar a1("a1","a1",(nparams>1 ? params[1] : 0.0),0.0,1.0);
-    RooRealVar a2("a2","a2",(nparams>2 ? params[2] : 0.0),0.0,1.0);
-    RooRealVar a3("a3","a3",(nparams>3 ? params[3] : 0.0),0.0,1.0);
-    RooRealVar a4("a4","a4",(nparams>4 ? params[4] : 0.0),0.0,1.0);
+    RooRealVar a0("a0","a0",(nparams>0 ? params[0] : 0.0),-1.0,1.0); //NOTE: IMPORTANT!  These have to be declared individually here.  Creating in a loop and adding to a list will not work.
+    RooRealVar a1("a1","a1",(nparams>1 ? params[1] : 0.0),-1.0,1.0);
+    RooRealVar a2("a2","a2",(nparams>2 ? params[2] : 0.0),-1.0,1.0);
+    RooRealVar a3("a3","a3",(nparams>3 ? params[3] : 0.0),-1.0,1.0);
+    RooRealVar a4("a4","a4",(nparams>4 ? params[4] : 0.0),-1.0,1.0);
     RooArgList arglist(h,x,y,a0,a1,a2,a3,a4); //NOTE: ONLY ALLOW UP TO 5 PARAMS FOR NOW.
 
     // Create 2D PDF
