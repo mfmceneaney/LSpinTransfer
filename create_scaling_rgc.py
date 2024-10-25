@@ -159,8 +159,8 @@ for i, name in enumerate(infiles):
         #     a = a[:-1]
         print("DEBUGGING: a_old = ",a_old)
         print("DEBUGGING: a     = ",a)
-        # g1 = ax1.errorbar(a_old[:,0],[asym for el in a_old[:,0]],a_old[:,1], fmt='rv', linewidth=2, capsize=6, label='Old RGH Projections')
-        yoffset = 0.00 #0.05
+        g1 = ax1.errorbar(a_old[:,0],[asym for el in a_old[:,0]],a_old[:,1], fmt='rv', linewidth=2, capsize=6, label='Old RGH Projections')
+        yoffset = 0.05
         g2 = ax1.errorbar(a[:,0],[asym-yoffset for el in a[:,0]],a[:,1], fmt='bv', linewidth=2, capsize=6,label='Updated RGH Projections')
         ax1.set_xlabel(xvar_labels[acols[0]],usetex=True)
         plt.legend(loc='upper left') #NOTE: CALL BEFORE TWINNING AXIS
