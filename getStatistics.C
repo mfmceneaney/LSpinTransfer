@@ -6,7 +6,7 @@ void getStatistics() {
     std::string path_rgh_mc = "/volatile/clas12/users/mfmce/mc_jobs_rgh_pipm_4_12_24/skim_pipim_*.root";
     std::string path_rga_mc = "/volatile/clas12/users/mfmce/mc_jobs_rga_pipm_4_12_24/skim_pipim_*.root";
     std::string path_rga_dt = "/volatile/clas12/users/mfmce/data_jobs_rga_pi_4_8_24/skim_pipim_*.root";
-    std::string path_rgc_mc = "/volatile/clas12/users/mfmce/mc_jobs_rgc_pipim_6_17_24/skim_pipim_*.root";
+    std::string path_rgc_mc = "/volatile/clas12/users/mfmce/mc_jobs_rgc_pipm_4_12_24/skim_pipim_*.root";
     std::string path_rgc_dt = "/volatile/clas12/users/mfmce/data_jobs_rgc_pi_4_8_24__BACKUP__/skim_pipim_*.root";
     std::string tree        = "t";
     std::string cuts_rga    = "Q2>1 && W>2 && y<0.8 && sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0 && mx_pipim>1.5 && xF_pi>0.0 && xF_pim>0.0";
@@ -82,6 +82,7 @@ void getStatistics() {
     ch_rgh_mc->Draw(Form("%s>>%s",name_x.c_str(),rgh_mc_hname_x.c_str()),cuts_rgh.c_str());
     h1_rgh_mc_x->SaveAs(Form("%s.root",rgh_mc_hname_x.c_str()));
 
+    /*
     // Get RGA MC histograms
     std::string rga_mc_name = "h1_rga_mc";
     std::string rga_mc_hname_m = Form("%s_%s",rga_mc_name.c_str(),name_m.c_str());
@@ -111,5 +112,6 @@ void getStatistics() {
     TH1D *h1_rga_dt_x = new TH1D(rga_dt_hname_x.c_str(),rga_dt_hname_x.c_str(),nbins,x_min,x_max);
     ch_rga_dt->Draw(Form("%s>>%s",name_x.c_str(),rga_dt_hname_x.c_str()),cuts_rga.c_str());
     h1_rga_dt_x->SaveAs(Form("%s.root",rga_dt_hname_x.c_str()));
+    */
 
 } // void getStatistics()
