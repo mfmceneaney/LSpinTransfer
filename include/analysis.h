@@ -1026,7 +1026,7 @@ TArrayF* getKinBinBSA2DGenericRooFitML(
     RooRealVar y(fitvary.c_str(), fitvary.c_str(), ymin, ymax);
 
     // Create RDataFrame to RooDataSet pointer
-    ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = frame.Book<float, float, float>(
+    ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = f.Book<float, float, float>(
       RooDataSetHelper("dataset", // Name
           "Title of dataset",     // Title
           RooArgSet(h, x, y)      // Variables in this dataset
@@ -1187,7 +1187,7 @@ TArrayF* getKinBinBSA1DGenericRooFitML(
     RooRealVar x(fitvarx.c_str(), fitvarx.c_str(), xmin, xmax);
 
     // Create RDataFrame to RooDataSet pointer
-    ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = frame.Book<float, float>(
+    ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = f.Book<float, float>(
       RooDataSetHelper("dataset", // Name
           "Title of dataset",     // Title
           RooArgSet(h, x)      // Variables in this dataset
