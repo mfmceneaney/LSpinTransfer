@@ -61,11 +61,11 @@ void getTrueSignalFractionsPlot(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJitted
 void GetTrueSignalFraction() {
 
     // Parameters for MC tree
-    const char *path    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_FLAG_MIN_MATCH_AND_FRACTION_DELTAP_9_13_23/skim_ppim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
+    const char *path    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppim_2_23_24/skim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
     const char *tree    = "t";
-    const char *cuts    = "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
-    const char *cutsxF  = "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0"; //NOTE: REMOVE XF cut to get lower y contamination?
-    const char *mccuts  = "!TMath::IsNaN(costheta1_mc) && !TMath::IsNaN(costheta2_mc)";
+    const char *cuts    = "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0 && detector_p==6 && detector_pim==6";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
+    const char *cutsxF  = "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && p_e>2.0 && vz_e>-25.0 && vz_e<20.0 && detector_p==6 && detector_pim==6"; //NOTE: REMOVE XF cut to get lower y contamination?
+    const char *mccuts  = "Q2>1";
     const char *sigcut  = "mass_ppim>1.11 && mass_ppim<1.13";
     const char *drawopt = "APE";
 
@@ -121,7 +121,7 @@ void GetTrueSignalFraction() {
     const char *xtitle = "Bin_{min}";
     double dtheta_p_max   = 6*TMath::Pi()/180;
     double dtheta_pim_max = 6*TMath::Pi()/180;
-    std::string match_cut = Form("pid_parent_p_mc==3122 && row_parent_p_mc==row_parent_pim_mc && abs(dtheta_p)<%.4f && abs(dtheta_pim)<%.4f",dtheta_p_max,dtheta_pim_max);
+    std::string match_cut = Form("ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && abs(dtheta_p)<%.4f && abs(dtheta_pim)<%.4f",dtheta_p_max,dtheta_pim_max);
     std::string binvar    = "mass_ppim";
     int    nsteps         = 75;
     double bin_min        = 1.14;

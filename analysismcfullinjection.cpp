@@ -256,7 +256,7 @@ void analysis(const YAML::Node& node) {
     TRandom *gRandom = new TRandom(seed); //NOTE: IMPORTANT: Need `new` here to get a pointer.
 
     // Numerical constants
-    double alpha = 0.748;  // ±0.007 Weak decay asymmetry parameter
+    double alpha = 0.747;  // ±0.007 Weak decay asymmetry parameter
 
     // Set MC Track matching angular limits
     double dtheta_p_max = 6*TMath::Pi()/180; //NOTE: DEBUGGING COULD JUST SET THESE FROM MAIN OR FROM ARGS.
@@ -318,11 +318,11 @@ void analysis(const YAML::Node& node) {
                     {"my_rand_var","XS"});
                     /* NOTE: OLD
                     .Define(helicity_name.c_str(), [&alpha,&bgasym,&sgasym,&beam_polarization,&dtheta_p_max,&dtheta_pim_max,&dphi_p_max,&dphi_pim_max]
-                        (float Dy, float costheta, float my_rand_var, float pid_parent_p_mc, float row_parent_p_mc, float row_parent_pim_mc, float dtheta_p, float dtheta_pim, float dphi_p, float dphi_pim) {
+                        (float Dy, float costheta, float my_rand_var, float ppid_p_mc, float pidx_p_mc, float pidx_pim_mc, float dtheta_p, float dtheta_pim, float dphi_p, float dphi_pim) {
                         return (float)(my_rand_var<(0.5*(1.0 + alpha*Dy*beam_polarization*sgasym*costheta)
                             ? 1.0 : -1.0)); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.
                         },
-                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"my_rand_var","pid_parent_p_mc","row_parent_p_mc","row_parent_pim_mc","dtheta_p","dtheta_pim","dphi_p","dphi_pim"}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
+                        {depol_name_mc.c_str(),fitvar_mc.c_str(),"my_rand_var","ppid_p_mc","pidx_p_mc","pidx_pim_mc","dtheta_p","dtheta_pim","dphi_p","dphi_pim"}); //NOTE: Generate a random helicity since all MC is just helicity=1.0.
                     */
 
     double my_testvar  = (double)*frame.Mean("my_rand_var");

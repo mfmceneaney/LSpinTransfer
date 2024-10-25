@@ -231,7 +231,7 @@ void analysis(const YAML::Node& node) {
                     .Define(depolarization_name, [](float y) { return (1-(1-y)*(1-y))/(1+(1-y)*(1-y)); }, {"y"}); // NEEDED FOR CALCULATIONS LATER
 
     // Numerical constants
-    double alpha = 0.748;  // ±0.007 Weak decay asymmetry parameter
+    double alpha = 0.747;  // ±0.007 Weak decay asymmetry parameter
 
     // Create output log
     std::ofstream outf; outf.open(logpath.c_str());

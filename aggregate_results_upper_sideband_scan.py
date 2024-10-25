@@ -267,7 +267,7 @@ def get_arrs(out_file_list,x_means):
     print("DEBUGGING: np.shape(x_mean) = ",np.shape(x_mean))
     print("DEBUGGING: np.shape(y_mean) = ",np.shape(y_mean))
     xerr_mean = np.zeros(np.shape(x_mean))
-    yerr_mean = np.zeros(np.shape(y_mean))
+    yerr_mean = np.mean(glist[3],axis=1)
     y_min     = np.zeros(np.shape(x_mean))
     y_max     = np.zeros(np.shape(y_mean))
 
