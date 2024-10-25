@@ -17,23 +17,25 @@ print('infiles = ',infiles)
 # Set input scaling info files
 asymname = 'A0' #'A1'
 inscalingfiles = [
-    'aggregate_inject_seed__binvar_mass_pipim__mass_pipim_0.0_3.0__sgasyms_0.0'+asymname+'.pdf_rescaling_info.csv',
+    'aggregate_inject_seed__binvar_mass_pipim__mass_pipim_0.0_3.0__sgasyms_0.1'+asymname+'.pdf_rescaling_info.csv', #NOTE: DON'T FORGET TO UPDATE SGASYM VALUE HERE
     #'aggregate_inject_seed__binvar_z_pipim__sgasyms_0.0__z_pipim_0.15_0.7'+asymname+'.pdf_rescaling_info.csv',
-    'aggregate_inject_seed__binvar_z_pipim__sgasyms_0.0__z_pipim_0.0_1.0'+asymname+'.pdf_rescaling_info.csv',
-    'aggregate_inject_seed__binvar_x__sgasyms_0.0__x_0.0_1.0'+asymname+'.pdf_rescaling_info.csv',
+    'aggregate_inject_seed__binvar_z_pipim__sgasyms_0.1__z_pipim_0.0_1.0'+asymname+'.pdf_rescaling_info.csv',
+    'aggregate_inject_seed__binvar_x__sgasyms_0.1__x_0.0_1.0'+asymname+'.pdf_rescaling_info.csv',
     # 'aggregate_inject_seed__binvar_x__sgasyms_0.0__x_0.09_0.7'+asymname+'.pdf_rescaling_info.csv',
     # 'aggregate_inject_seed__binvar_x__sgasyms_0.0__x_0.09_0.7'+asymname+'.pdf_rescaling_info.csv',
 ]
 #RGA
-version = '7_16_24' #'7_15_24' #'7_3_24' #'6_18_24' #'5_13_24'#'5_10_24'#'5_3_24'#'5_2_24' #'4_30_24'
+version = '10_22_24' #'7_16_24' #'7_15_24' #'7_3_24' #'6_18_24' #'5_13_24'#'5_10_24'#'5_3_24'#'5_2_24' #'4_30_24'
 # # inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh__4_19_24__PLOTS_AND_TABLES_'+version+'/csv/'
 # inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh_noSector4__4_19_24__PLOTS_AND_TABLES_'+version+'/csv/'
 
 #RGC
-run_group = 'RGC'
+run_group = 'rgc'
+neutron_target_name = ''#'_neutron_target'
+noSector4_name = '_noSector4'
 # inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh__4_19_24__PLOTS_AND_TABLES_RGC_'+version+'/csv/'
 # inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh_noSector4__4_19_24__PLOTS_AND_TABLES_'+run_group+'_'+version+'/csv/'
-inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh__4_19_24__PLOTS_AND_TABLES_'+run_group+'_'+version+'/csv/'
+inscalingdir = '/Users/mfm45/drop/rgh_projections_10_22_24/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh'+neutron_target_name+noSector4_name+'__4_19_24__PLOTS_AND_TABLES__'+version+'/csv/'
 
 # Check input directories for Sector4 and RGC/RGA designations
 useRGC = 'rgc' in inscalingdir
@@ -44,7 +46,7 @@ inscalingfiles = [os.path.join(inscalingdir,f) for f in inscalingfiles]
 print('inscalingfiles = ',inscalingfiles)
 
 # Load yaml file with bins
-input_yaml = '/Users/mfm45/drop/args_scaling_5_2_24.yaml'
+input_yaml = '/Users/mfm45/drop/args_scaling_10_22_24.yaml'
 yaml_path = os.path.abspath(input_yaml) #NOTE: THIS ASSUMES BINNING SAME FOR BOTH CT1/CT2
 yaml_args = {}
 with open(yaml_path) as yf:
@@ -130,7 +132,7 @@ for i, name in enumerate(infiles):
     print("DEBUGGING: a_old = ",a_old)
 
     # Save scaled data
-    outname = name.replace('.csv','_rescaled_noSector4_'+run_group+'.csv' if noSector4 else '_rescaled_'+run_group+'.csv')
+    outname = name.replace('.csv','_rescaled_'+run_group+neutron_target_name+noSector4_name+'.csv')
     header  = "REPLACEMENT_HEADER"+delimiter.join(acols)
     print('header = ',delimiter.join(acols))
     fmt     = ["%.3g" for i in range(len(acols))]
@@ -172,7 +174,7 @@ for i, name in enumerate(infiles):
         print("DEBUGGING: a     = ",a)
         g1 = ax1.errorbar(a_old[:,0],[asym for el in a_old[:,0]],a_old[:,1], fmt='rv', linewidth=2, capsize=6, label='Old RGH Projections')
         yoffset = 0.05
-        g2 = ax1.errorbar(a[:,0],[asym-yoffset for el in a[:,0]],a[:,1], fmt='bv', linewidth=2, capsize=6,label='Updated RGH Projections')
+        g2 = ax1.errorbar(a[:,0],[asym-yoffset for el in a[:,0]],a[:,1], fmt='bv', linewidth=2, capsize=6,label='Updated RGH $NH_{3}$ projections' if len(neutron_target_name)<=0 else 'Updated RGH $ND_{3}$ projections')
         ax1.set_xlabel(xvar_labels[acols[0]],usetex=True)
         plt.legend(loc='upper left') #NOTE: CALL BEFORE TWINNING AXIS
 
@@ -184,8 +186,9 @@ for i, name in enumerate(infiles):
 
 
         # Load ROOT histogram of RGH MC distribution
-        h_root_path = '/Users/mfm45/drop/getStatistics__6_18_24/' #root_files_5_1_24/'
-        h_path = h_root_path+'h1_rgh_mc_'+acols[0]+'.root'
+        h_root_path = '/Users/mfm45/drop/getStatistics__10_22_24/getStatistics'+neutron_target_name+'/' #root_files_5_1_24/'
+        h_path = h_root_path+'h1_rgh_mc'+neutron_target_name+'_'+acols[0]+'.root'
+        print("DEBUGGING: RGH MC: h_path = ",h_path)
         h_file = ur.open(h_path)
         h_key = h_file.keys()[0].replace(';1','')
         print('DEBUGGING: h_key = ',h_key)
@@ -195,7 +198,8 @@ for i, name in enumerate(infiles):
         h_rgh_mc = ax2.hist(h_x,bins=h_bins,weights=h_y/np.sum(h_y),histtype='step',color='tab:orange',alpha=0.5,linewidth=2,label='RGH MC',density=False)
 
         # Load ROOT histogram of RGH MC distribution
-        h_path = h_root_path+'h1_rgc_mc_'+acols[0]+'.root'
+        h_path = h_root_path+'h1_rgc_mc'+neutron_target_name+'_'+acols[0]+'.root'
+        print("DEBUGGING: RGC MC: h_path = ",h_path)
         h_file = ur.open(h_path)
         h_key = h_file.keys()[0].replace(';1','')
         h_y, h_bins    = h_file[h_key].to_numpy() #NOTE: THIS SHOULD GIVE TUPLE (Y,X)
@@ -204,7 +208,8 @@ for i, name in enumerate(infiles):
         h_rgc_mc = ax2.hist(h_x,bins=h_bins,weights=h_y/np.sum(h_y),histtype='step',color='tab:pink',alpha=0.5,linewidth=2,label='RGC MC',density=False)
 
         # Load ROOT histogram of RGA Data distribution
-        h_path = h_root_path+'h1_rgc_dt_'+acols[0]+'.root'
+        h_path = h_root_path+'h1_rgc_dt'+neutron_target_name+'_'+acols[0]+'.root'
+        print("DEBUGGING: RGC DT: h_path = ",h_path)
         h_file = ur.open(h_path)
         h_key = h_file.keys()[0].replace(';1','')
         h_y, h_bins    = h_file[h_key].to_numpy() #NOTE: THIS SHOULD GIVE TUPLE (Y,X)
@@ -260,47 +265,48 @@ for i, name in enumerate(infiles):
 
     if i!=3 or True: f.savefig(outname.replace('.csv','.pdf').replace('harut','dihadron'))
 
-    #---------- TODO ----------#
-    if run_group == 'RGC':
-        # Load scaling file
-        name3 = inscalingfiles[i] #NOTE: THESE MUST MATCH UP EXACTLY
-        name3 = name3.replace('RGC','RGA')
-        c = np.loadtxt(name3,skiprows=skiprows,delimiter=delimiter)
-        # NOTE: JUST USE FIRST DATA POINT FOR RESCALING H1U PLOT EXTRA BIN
-        # if 'h1u' in name:
-        #     b = np.concatenate(([b[0]],b),axis=0)
-        print('name3    = ',name3)
-        print('i       = ',i)
-        print('c       = ',c)
-        print('c.shape = ',c.shape)
-        c1 = c[:,scale_factor_index]
-        c1_ = c[:,scale_factor_index].copy()
-        c1 = 1/pol * np.sqrt(1-np.square(pol*asym)) / np.sqrt(c1)
 
-        a_rga = c[:,:2]
+    # #---------- TODO ----------#
+    # if run_group == 'rgc':
+    #     # Load scaling file
+    #     name3 = inscalingfiles[i] #NOTE: THESE MUST MATCH UP EXACTLY
+    #     name3 = name3.replace('RGC','RGA')
+    #     c = np.loadtxt(name3,skiprows=skiprows,delimiter=delimiter)
+    #     # NOTE: JUST USE FIRST DATA POINT FOR RESCALING H1U PLOT EXTRA BIN
+    #     # if 'h1u' in name:
+    #     #     b = np.concatenate(([b[0]],b),axis=0)
+    #     print('name3    = ',name3)
+    #     print('i       = ',i)
+    #     print('c       = ',c)
+    #     print('c.shape = ',c.shape)
+    #     c1 = c[:,scale_factor_index]
+    #     c1_ = c[:,scale_factor_index].copy()
+    #     c1 = 1/pol * np.sqrt(1-np.square(pol*asym)) / np.sqrt(c1)
+
+    #     a_rga = c[:,:2]
     
-        # Scale data
-        a_rga[:,1] = c1
+    #     # Scale data
+    #     a_rga[:,1] = c1
 
-        # rescale b instead
-        binmeans = c[:,-2]
-        a_rga[:,1] = c1
-        a_rga[:,0] = binmeans
+    #     # rescale b instead
+    #     binmeans = c[:,-2]
+    #     a_rga[:,1] = c1
+    #     a_rga[:,0] = binmeans
 
-        print("DEBUGGING: a_rga = ",a_rga)
-        print("DEBUGGING: a[:,1]     = ",a[:,1])
-        print("DEBUGGING: a_rga[:,1] = ",a_rga[:,1])
-        ratios = np.divide(a[:,1],a_rga[:,1])
-        print("DEBBUGGING: ratios = ",ratios)
+    #     print("DEBUGGING: a_rga = ",a_rga)
+    #     print("DEBUGGING: a[:,1]     = ",a[:,1])
+    #     print("DEBUGGING: a_rga[:,1] = ",a_rga[:,1])
+    #     ratios = np.divide(a[:,1],a_rga[:,1])
+    #     print("DEBBUGGING: ratios = ",ratios)
 
-        f1 = plt.figure(figsize=(16,10))
-        plt.plot(a_rga[:,0],ratios,'bo',markersize=10)
-        plt.ylabel('$\delta_{RGC}/\delta_{RGA}$',usetex=True)
-        plt.xlabel(xvar_labels[acols[0]],usetex=True)
-        # plt.legend(loc='upper left') #NOTE: CALL BEFORE TWINNING AXIS
-        f1.savefig(outname.replace('.csv','_ratio_rga.pdf').replace('harut','dihadron'))
+    #     f1 = plt.figure(figsize=(16,10))
+    #     plt.plot(a_rga[:,0],ratios,'bo',markersize=10)
+    #     plt.ylabel('$\delta_{RGC}/\delta_{RGA}$',usetex=True)
+    #     plt.xlabel(xvar_labels[acols[0]],usetex=True)
+    #     # plt.legend(loc='upper left') #NOTE: CALL BEFORE TWINNING AXIS
+    #     f1.savefig(outname.replace('.csv','_ratio_'+run_group+'.pdf').replace('harut','dihadron'))
 
-    #--------------------------#
+    # #--------------------------#
 
 
 
