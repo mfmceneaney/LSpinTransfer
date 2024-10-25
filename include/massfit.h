@@ -1957,7 +1957,7 @@ TArrayF* LambdaMassFitGaussPoly4BG(
     out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
     if (delVal<0.20) {
       double prod_min = varMin - (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM                                                                                                                      
-      m0 = varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...                                                                                                          
+      m0 = varMax*1.025;//DEBUGGING 4/22/24 varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...
       out<<"DEBUGGING: Reassigned m0 = "<<m0<<std::endl;
       beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
       hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));
@@ -1969,7 +1969,7 @@ TArrayF* LambdaMassFitGaussPoly4BG(
     double fit_min = varMin;
     double fit_max = varMax;
     double sigma_init = 0.006;
-    double sig_max_init = h->Integral()/100*TMath::Sqrt(2*TMath::Pi())*sigma_init;
+    double sig_max_init = h->GetMaximum()/4;
     double alpha_init = 0.5;
     double n_init     = 3.0;
 

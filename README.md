@@ -13,7 +13,7 @@ cd build
 cmake ..
 make
 ```
-You should now have an executable called `analysis` in your `build` directory.
+You should now have several executables in your `build` directory.
 
 # Compute binned results
 
@@ -27,7 +27,7 @@ Hence, there is a mass signal fit done for each kinematic bin.  Details are all 
 # Make nice plots
 
 Finally, ROOT is a bit finicky about plots so I use matplotlib instead for the final $D^{\Lambda}_{LL'}$ results.
-This plotting is run with the [convert_to_python_plot.py](convert_to_python_plot.py) script, although input file paths may need to be changed.
+This plotting is run with the [aggregate_results.py](aggregate_results.py) script, although input file paths may need to be changed.
 
 # Plot Kinematics
 The ROOT macros [PlotComparisons.C](PlotComparisons.C) and [PlotBeforeAndAfterCuts.C](PlotBeforeAndAfterCuts.C) are used to plot the 1D and 2D kinematics distributions comparing data and MC and the effects of different cuts.

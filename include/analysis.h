@@ -6,6 +6,7 @@
 #include <TFile.h>
 #include <TStyle.h>
 #include <TCanvas.h>
+#include <TAxis.h>
 #include <TH1.h>
 #include <ROOT/RDataFrame.hxx>
 #include <Fit/Fitter.h>
@@ -16,6 +17,17 @@
 #include <TGraphErrors.h>
 #include <TRandom.h>
 #include <TF2.h>
+
+// RooFit Includes
+#include <RooRealVar.h>
+#include <RooDataSet.h>
+#include <RooGaussian.h>
+#include <RooPlot.h>
+#include <RooAbsDataHelper.h>
+#include <RooDataHist.h>
+#include <RooArgList.h>
+#include <RooGenericPdf.h>
+#include <RooFitResult.h>
 
 // Local includes
 #include <massfit.h>
@@ -45,7 +57,7 @@ TArrayF* getKinBinLF(
                     double       alpha,
                     double       pol,
                     std::string  helicity_name       = "heli",
-                    std::string  _fitvar_            = "costheta1",
+                    std::string  fitvar              = "costheta1",
                     std::string  depol_name          = "",
                     int          n_fitvar_bins       = 10,
                     double       fitvar_min          = -1,
@@ -59,13 +71,19 @@ TArrayF* getKinBinLF(
 
     // Set bin cuts
     std::string bin_cut = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
-    std::string fitvar = depol_name == "" ? _fitvar_ : Form("LF_%s",_fitvar_.c_str());
-    std::string fitvar_formula = depol_name == "" ? _fitvar_ : Form("%.8f*%s*%s",pol,depol_name.c_str(),_fitvar_.c_str());
+    // std::string fitvar = depol_name == "" ? _fitvar_ : Form("LF_%s",_fitvar_.c_str());
+    // std::string fitvar_formula = depol_name == "" ? _fitvar_ : Form("%.8f*%s*%s",pol,depol_name.c_str(),_fitvar_.c_str());
     out << "DEBUGGING: getKinBinLF(): fitvar         = " << fitvar.c_str() << std::endl;
-    out << "DEBUGGING: getKinBinLF(): fitvar_formula = " << fitvar_formula.c_str() << std::endl;
-    auto f = depol_name == "" ? frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())) :
-                frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()))
-                .Define(fitvar.c_str(),fitvar_formula.c_str());
+    // out << "DEBUGGING: getKinBinLF(): fitvar_formula = " << fitvar_formula.c_str() << std::endl;
+    // auto f = depol_name == "" ? frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())) :
+    //             frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()))
+    //             .Define(fitvar.c_str(),fitvar_formula.c_str());
+    auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
+
+    // Compute depolarization factor
+    double depol     = (double)*f.Mean(depol_name.c_str());
+    double depol_err = (double)*f.StdDev(depol_name.c_str());
+    //TODO: Need to figure out why Stefan computed bin average of epsilon but not overall depolarization factor...
 
     // Set fit function
     TF1 *fitf = new TF1("fitf","[0]+[1]*x",fitvar_min,fitvar_max);
@@ -89,7 +107,7 @@ TArrayF* getKinBinLF(
     histP->Divide(histN);
 
     // Set bin errors (binomial)
-    for (int i = 0; i<n_fitvar_bins; i++) {
+    for (int i = 1; i<=n_fitvar_bins; i++) {
         double K1 = histPaux->GetBinContent(i);
         double K2 = histN->GetBinContent(i);
         histP->SetBinError(i,TMath::Abs(K1/K2)*TMath::Sqrt(1/K1+1/K2));
@@ -106,6 +124,8 @@ TArrayF* getKinBinLF(
     histP->SetMarkerColor(kBlue);
     histP->SetMarkerSize(2);
     histP->SetLineWidth(2);
+    histP->GetXaxis()->SetTitle("cos(#theta)");
+    histP->GetYaxis()->SetTitle("N_{+}/N_{-}");
     histP->Draw("PE");
     histP->Fit("fitf","","",fitvar_min,fitvar_max);
 
@@ -121,22 +141,24 @@ TArrayF* getKinBinLF(
 
     // Output message
     out << "--- getKinBinLF ---\n";
-    out << " cuts     = " << cuts   << "\n";
-    out << " alpha    = " << alpha  << "\n";
-    out << " pol      = " << pol    << "\n";
-    out << " costheta = " << fitvar     << "\n";
+    out << " cuts     = " << cuts    << "\n";
+    out << " alpha    = " << alpha   << "\n";
+    out << " pol      = " << pol     << "\n";
+    out << " depol    = " << depol   << "±" << depol_err << "\n";
+    out << " costheta = " << fitvar  << "\n";
     out << " bin_cut  = " << bin_cut << "\n";
-    out << " chi2     = " << chi2   << "\n";//TODO: REMOVE?
-    out << " ndf      = " << ndf    << "\n";//TODO: REMOVE?
-    out << " DLL      = " << dll    << "±" << dll_err << "\n";
+    out << " chi2     = " << chi2    << "\n";//TODO: REMOVE?
+    out << " ndf      = " << ndf     << "\n";//TODO: REMOVE?
+    out << " DLL      = " << dll     << "±" << dll_err << "\n";
     out << "-------------------\n";
 
     // Set legend entries
-    TString s1, s2, s3, s4;
+    TString s1, s2, s3, s4, s5;
     s1.Form("#chi^{2}/NDF = %.4f",chi2/ndf);
     s2.Form("C = %.4f #pm %.4f",offset,offset_err);
     s3.Form("slope = %.4f #pm %.4f",slope,slope_err);
     s4.Form("D_{LL'} = %.4f #pm %.4f",dll,dll_err);
+    s5.Form("Depol = %.4f #pm %.4f",depol,depol_err);
 
     // Add a legend
     TLegend *legend=new TLegend(0.75,0.75,0.99,0.99);
@@ -147,6 +169,7 @@ TArrayF* getKinBinLF(
     legend->AddEntry((TObject*)0, s2, Form(" %g ",offset));
     legend->AddEntry((TObject*)0, s3, Form(" %g ",slope));
     legend->AddEntry((TObject*)0, s4, Form(" %g ",dll));
+    legend->AddEntry((TObject*)0, s5, Form(" %g ",depol));
     legend->Draw();
 
     // Plot fit function
@@ -156,23 +179,33 @@ TArrayF* getKinBinLF(
     sig1->Draw("SAME");
 
     // Set outname and save
-    TString fname; fname.Form("LF_%s_%s_%.3f_%.3f",fitvar.c_str(),binvar.c_str(),bin_min,bin_max);
-    c1->Print(fname+".pdf");
+    // TString fname; fname.Form("LF_%s_%s_%.3f_%.3f",fitvar.c_str(),binvar.c_str(),bin_min,bin_max);
+    c1->Print(Form("%s.pdf",outdir.c_str()));
     c1->Write(c1->GetName());
     histP->Write(histP->GetName());
-    histP->SaveAs(fname+".root","recreate");
-    out << " Saved graph to " << fname << ".root\n";
+    histP->SaveAs(Form("%s.root",outdir.c_str()),"recreate");
+    out << " Saved graph to " << outdir.c_str() << ".root\n";
 
     // Cd out of outdir
     outroot->cd("..");
 
+    // Divide out depolarization if non-zero
+    if (depol>0.0) {
+        dll /= depol;
+        dll_err /= depol;
+    } else {
+        out<<" *** WARNING *** : depol <=0.0"<<std::endl;
+    }
+
     // Set return array
-    TArrayF *arr = new TArrayF(5);
+    TArrayF *arr = new TArrayF(7);
     arr->AddAt(dll,0);
     arr->AddAt(dll_err,1);
     arr->AddAt(mean,2);
     arr->AddAt(stddev,3);
     arr->AddAt(count,4);
+    arr->AddAt(depol,5);
+    arr->AddAt(depol_err,6);
 
     return arr;
 }
@@ -536,7 +569,7 @@ TArrayF* getKinBinBSAGeneric(
     hasym->GetYaxis()->SetTitleOffset(0.87);
 
     // Draw asymmetry histogram
-    TCanvas *c1 = new TCanvas(Form("c1_%s",bintitle.c_str()));
+    TCanvas *c1 = new TCanvas(Form("c1_%s",outdir.c_str()));
     c1->cd();
     hasym->Draw();
 
@@ -681,7 +714,7 @@ TArrayF* getKinBinBSA2DGeneric(
     hasym->GetYaxis()->SetTitleOffset(0.87);
 
     // Draw asymmetry histogram
-    TCanvas *c1 = new TCanvas(Form("c1_%s",bintitle.c_str()));
+    TCanvas *c1 = new TCanvas(Form("c1_%s",outdir.c_str()));
     c1->cd();
     hasym->Draw("COLZ");
 
@@ -758,6 +791,2027 @@ TArrayF* getKinBinBSA2DGeneric(
     return arr;
 
 } // TArrayF* getKinBinBSA2DGeneric()
+
+TArrayF* getKinBinBSA2DGenericV2(
+    std::string  outdir,
+    TFile      * outroot,
+    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+    std::string cuts,
+    std::string binvar,
+    double       bin_min,
+    double       bin_max,
+    double       pol,
+    std::vector<std::string>   depolvars,
+    std::string  helicity_name = "heli",
+    std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
+    int          nparams       = 2,
+    std::vector<double> params = std::vector<double>(2),
+    std::string  fitopt        = "LS",
+    std::string  fitvarx       = "phi_h",
+    std::string  fitvarxtitle  = "#phi_{h p#pi^{-}}",
+    int nbinsx                 = 100,
+    double xmin                = 0.0,
+    double xmax                = 2*TMath::Pi(),
+    std::string  fitvary       = "phi_h",
+    std::string  fitvarytitle  = "#phi_{h p#pi^{-}}",
+    int nbinsy                 = 100,
+    double ymin                = 0.0,
+    double ymax                = 2*TMath::Pi(),
+    std::ostream &out          = std::cout
+    ) {
+
+    std::string title    = Form("%s vs. %s %.3f<%s<%.3f",fitvarytitle.c_str(),fitvarxtitle.c_str(),bin_min,binvar.c_str(),bin_max);
+    std::string bintitle = Form("%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+
+    // Set bin cuts
+    std::string bin_cut = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
+    auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
+
+    // Get data
+    auto count    = (int)   *f.Count();
+    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto stddev   = (double)*f.StdDev(binvar.c_str());
+
+    // Compute depolarization factor
+    std::vector<double> depols;
+    for (int i=0; i<depolvars.size(); i++) {
+        double depol = (double)*f.Mean(depolvars[i].c_str());
+        depols.push_back(depol);
+    }
+    
+    //TODO: Need to figure out why Stefan computed bin average of epsilon but not overall depolarization factor...
+
+    // Make subdirectory
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
+
+    // Switch off histogram stats
+    gStyle->SetOptStat(0);
+
+    // Create histograms
+    TH2D hplus_ = (TH2D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo2D({"hplus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str());
+    TH2D *hplus = (TH2D*)hplus_.Clone("hplus");
+    TH2D hminus_ = (TH2D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo2D({"hminus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str());
+    TH2D *hminus = (TH2D*)hminus_.Clone("hminus");
+
+    // Get asymmetry histogram
+    TH2D *hasym = (TH2D*)hplus->GetAsymmetry(hminus);
+    hasym->Scale(1.0/pol);
+    hasym->SetTitle(title.c_str());
+    hasym->GetXaxis()->SetTitle(fitvarxtitle.c_str());
+    hasym->GetXaxis()->SetTitleSize(0.06);
+    hasym->GetXaxis()->SetTitleOffset(0.75);
+    hasym->GetYaxis()->SetTitle(fitvarytitle.c_str());
+    hasym->GetYaxis()->SetTitleSize(0.06);
+    hasym->GetYaxis()->SetTitleOffset(0.87);
+
+    // Draw asymmetry histogram
+    TCanvas *c1 = new TCanvas(Form("c1_%s",outdir.c_str()));
+    c1->cd();
+    hasym->Draw("COLZ");
+
+    // Set fit function
+    TF2 *f1 = new TF2("f1",fitformula.c_str(),xmin,xmax,ymin,ymax);
+    for (int idx=0; idx<nparams; idx++) {
+        f1->SetParameter(idx,params[idx]);
+        f1->SetParName(idx,Form("A%d",idx));
+    }
+
+    // Fit and get covariance matrix
+    TFitResultPtr fr = hasym->Fit("f1",fitopt.c_str(),"S"); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE FIT VARIABLE.
+    TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
+
+    // Get fit parameters
+    double * pars   = (double *)f1->GetParameters();
+    double * Epars  = (double *)f1->GetParErrors();
+    double  chi2    = f1->GetChisquare();
+    double  ndf     = f1->GetNDF();
+    double  chi2ndf = (double)chi2/ndf;
+
+    // Print out fit info
+    out << "--------------------------------------------------" << std::endl;
+    out << " getKinBinBSA2DGenericV2():" << std::endl;
+    out << " cuts       = " << cuts.c_str() << std::endl;
+    out << " bincut     = " << bin_cut.c_str() << std::endl;
+    out << " binmean    = " << mean << "±" << stddev << std::endl;
+    out << " bincount   = " << count << std::endl;
+    out << " pol        = " << pol << std::endl;
+    out << " depolvars  = [" ;
+    for (int idx=0; idx<depolvars.size(); idx++) {
+        out << depolvars[idx];
+        if (idx<depolvars.size()-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " depols  = [" ;
+    for (int idx=0; idx<depols.size(); idx++) {
+        out << depols[idx];
+        if (idx<depols.size()-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " fitformula = " << fitformula.c_str() << std::endl;
+    out << " nparams    = " << nparams <<std::endl;
+    out << " initial params = [" ;
+    for (int idx=0; idx<nparams; idx++) {
+        out << params[idx];
+        if (idx<nparams-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " params = [" ;
+    for (int idx=0; idx<nparams; idx++) {
+        out << pars[idx] << "±" << Epars[idx];
+        if (idx<nparams-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " chi2/ndf = " << chi2ndf << std::endl;
+    out << "--------------------------------------------------" << std::endl;
+
+    // Add Legend
+    TLegend *legend=new TLegend(0.5,0.15,0.75,0.4);
+    legend->SetTextSize(0.04);
+    legend->SetHeader("Fit Info:","c");
+    legend->SetMargin(0.1);
+    legend->AddEntry((TObject*)0, Form("#chi^{2}/NDF = %.2f",chi2ndf), Form(" %g ",chi2));
+    
+    for (int idx=0; idx<nparams; idx++) {
+        legend->AddEntry((TObject*)0, Form("A%d = %.3f #pm %.3f",idx,pars[idx],Epars[idx]), Form(" %g ",chi2));
+        legend->AddEntry((TObject*)0, Form("D%d = %.2f",idx,depols[idx]), Form(" %g ",chi2));
+    }
+    legend->Draw();
+
+    // Save to PDF
+    c1->SaveAs(Form("%s.pdf",c1->GetName()));
+
+    // Save to ROOT file
+    hasym->Write();
+
+    // Go back to parent directory
+    outroot->cd("..");
+
+    // Fill return array
+    TArrayF *arr = new TArrayF((int)(3+2*nparams));
+    int k = 0;
+    arr->AddAt(mean,k++);
+    arr->AddAt(stddev,k++);
+    arr->AddAt(count,k++);
+    for (int idx=0; idx<nparams; idx++) {
+        arr->AddAt(pars[idx]/depols[idx],k++);
+        arr->AddAt(Epars[idx]/depols[idx],k++);
+    }
+
+    return arr;
+
+} // TArrayF* getKinBinBSA2DGenericV2()
+
+//TODO: Use ML Fit to 1+h*P*A(x,y) -> Must define fit function this way... RooGenericPdf gen("gen","1.0+x[0]*x[1]*(cos(x[2])*x[3]+x[4]+cos(2.0*x[2])*x[5]) 
+
+TArrayF* getKinBinBSA2DGenericRooFitML(
+    std::string  outdir,
+    TFile      * outroot,
+    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+    std::string cuts,
+    std::string binvar,
+    double       bin_min,
+    double       bin_max,
+    double       pol,
+    std::vector<std::string>   depolvars,
+    std::string  helicity_name = "heli",
+    std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
+    int          nparams       = 2,
+    std::vector<double> params = std::vector<double>(5),
+    std::string  fitopt        = "S",
+    std::string  fitvarx       = "phi_h",
+    std::string  fitvarxtitle  = "#phi_{h p#pi^{-}}",
+    int nbinsx                 = 100,
+    double xmin                = 0.0,
+    double xmax                = 2*TMath::Pi(),
+    std::string  fitvary       = "phi_h",
+    std::string  fitvarytitle  = "#phi_{h p#pi^{-}}",
+    int nbinsy                 = 100,
+    double ymin                = 0.0,
+    double ymax                = 2*TMath::Pi(),
+    std::ostream &out          = std::cout
+    ) {
+
+    std::string title    = Form("%s vs. %s %.3f<%s<%.3f",fitvarytitle.c_str(),fitvarxtitle.c_str(),bin_min,binvar.c_str(),bin_max);
+    std::string bintitle = Form("%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+
+    // Set bin cuts
+    std::string bin_cut = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
+    auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
+
+    // Get data
+    auto count    = (int)   *f.Count();
+    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto stddev   = (double)*f.StdDev(binvar.c_str());
+
+    // Compute depolarization factor
+    std::vector<double> depols;
+    for (int i=0; i<depolvars.size(); i++) {
+        double depol = (double)*f.Mean(depolvars[i].c_str());
+        depols.push_back(depol);
+    }
+    
+    //TODO: Need to figure out why Stefan computed bin average of epsilon but not overall depolarization factor...
+
+    // Make subdirectory
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
+
+    // Switch off histogram stats
+    gStyle->SetOptStat(0);
+
+    // Create helicity and fit variables
+    RooRealVar h(helicity_name.c_str(), helicity_name.c_str(), -1.0, 1.0);
+    RooRealVar x(fitvarx.c_str(), fitvarx.c_str(), xmin, xmax);
+    RooRealVar y(fitvary.c_str(), fitvary.c_str(), ymin, ymax);
+
+    // Create RDataFrame to RooDataSet pointer
+    ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = f.Book<float, float, float>(
+      RooDataSetHelper("dataset", // Name
+          "Title of dataset",     // Title
+          RooArgSet(h, x, y)      // Variables in this dataset
+          ),
+      {helicity_name.c_str(), fitvarx.c_str(), fitvary.c_str()} // Column names in RDataFrame.
+    );
+
+    // Create fit parameters
+    if (nparams>5) {std::cerr<<"ERROR: only up to 5 fit parameters are allowed."<<std::endl;}
+    RooRealVar a0("a0","a0",(nparams>0 ? params[0] : 0.0),-1.0,1.0); //NOTE: IMPORTANT!  These have to be declared individually here.  Creating in a loop and adding to a list will not work.
+    RooRealVar a1("a1","a1",(nparams>1 ? params[1] : 0.0),-1.0,1.0);
+    RooRealVar a2("a2","a2",(nparams>2 ? params[2] : 0.0),-1.0,1.0);
+    RooRealVar a3("a3","a3",(nparams>3 ? params[3] : 0.0),-1.0,1.0);
+    RooRealVar a4("a4","a4",(nparams>4 ? params[4] : 0.0),-1.0,1.0);
+    RooArgList arglist(h,x,y,a0,a1,a2,a3,a4); //NOTE: ONLY ALLOW UP TO 5 PARAMS FOR NOW.
+
+    // Create 2D PDF
+    std::string fitformula_plusone = Form("1.0+%.3f*%s",pol,fitformula.c_str());
+    RooGenericPdf gen("gen", fitformula_plusone.c_str(), arglist);
+
+    // Fit pdf to data
+    std::unique_ptr<RooFitResult> r{gen.fitTo(*rooDataSetResult, RooFit::Save(), RooFit::PrintLevel(-1))}; //RooFit::Minos(kTRUE),
+
+    // Print fit result
+    r->Print("v");
+
+    // Extract covariance and correlation matrix as TMatrixDSym
+    const TMatrixDSym &corMat = r->correlationMatrix();
+    const TMatrixDSym &covMat = r->covarianceMatrix();
+
+    // Print correlation, covariance matrix
+    std::cout << "correlation matrix" << std::endl;
+    corMat.Print();
+    std::cout << "covariance matrix" << std::endl;
+    covMat.Print();
+
+    // Get fit parameters
+    std::vector<double> pars;
+    if (nparams>0) pars.push_back((double)a0.getVal());
+    if (nparams>1) pars.push_back((double)a1.getVal());
+    if (nparams>2) pars.push_back((double)a2.getVal());
+    if (nparams>3) pars.push_back((double)a3.getVal());
+    if (nparams>4) pars.push_back((double)a4.getVal());
+    std::vector<double> Epars;
+    if (nparams>0) Epars.push_back((double)a0.getError());
+    if (nparams>1) Epars.push_back((double)a1.getError());
+    if (nparams>2) Epars.push_back((double)a2.getError());
+    if (nparams>3) Epars.push_back((double)a3.getError());
+    if (nparams>4) Epars.push_back((double)a4.getError());
+
+    // Print out fit info
+    out << "--------------------------------------------------" << std::endl;
+    out << " getKinBinBSA2DGenericRooFitML():" << std::endl;
+    out << " cuts       = " << cuts.c_str() << std::endl;
+    out << " bincut     = " << bin_cut.c_str() << std::endl;
+    out << " binmean    = " << mean << "±" << stddev << std::endl;
+    out << " bincount   = " << count << std::endl;
+    out << " pol        = " << pol << std::endl;
+    out << " depolvars  = [" ;
+    for (int idx=0; idx<depolvars.size(); idx++) {
+        out << depolvars[idx];
+        if (idx<depolvars.size()-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " depols  = [" ;
+    for (int idx=0; idx<depols.size(); idx++) {
+        out << depols[idx];
+        if (idx<depols.size()-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " fitformula = " << fitformula.c_str() << std::endl;
+    out << " nparams    = " << nparams <<std::endl;
+    out << " initial params = [" ;
+    for (int idx=0; idx<nparams; idx++) {
+        out << params[idx];
+        if (idx<nparams-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " params = [" ;
+    for (int idx=0; idx<nparams; idx++) {
+        out << pars[idx] << "±" << Epars[idx];
+        if (idx<nparams-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << "--------------------------------------------------" << std::endl;
+
+    // Go back to parent directory
+    outroot->cd("..");
+
+    // Fill return array
+    TArrayF *arr = new TArrayF((int)(3+2*nparams));
+    int k = 0;
+    arr->AddAt(mean,k++);
+    arr->AddAt(stddev,k++);
+    arr->AddAt(count,k++);
+    for (int idx=0; idx<nparams; idx++) {
+        arr->AddAt(pars[idx]/depols[idx],k++);
+        arr->AddAt(Epars[idx]/depols[idx],k++);
+    }
+
+    return arr;
+
+} // TArrayF* getKinBinBSA2DGenericRooFitML()
+
+TArrayF* getKinBinBSA1DGenericRooFitML(
+    std::string  outdir,
+    TFile      * outroot,
+    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+    std::string cuts,
+    std::string binvar,
+    double       bin_min,
+    double       bin_max,
+    double       pol,
+    std::vector<std::string>   depolvars,
+    std::string  helicity_name = "heli",
+    std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
+    int          nparams       = 2,
+    std::vector<double> params = std::vector<double>(5),
+    std::string  fitopt        = "S",
+    std::string  fitvarx       = "phi_h",
+    std::string  fitvarxtitle  = "#phi_{h p#pi^{-}}",
+    int nbinsx                 = 100,
+    double xmin                = 0.0,
+    double xmax                = 2*TMath::Pi(),
+    std::ostream &out          = std::cout
+    ) {
+
+    std::string title    = Form("%s %.3f<%s<%.3f",fitvarxtitle.c_str(),bin_min,binvar.c_str(),bin_max);
+    std::string bintitle = Form("%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+
+    // Set bin cuts
+    std::string bin_cut = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
+    auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
+
+    // Get data
+    auto count    = (int)   *f.Count();
+    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto stddev   = (double)*f.StdDev(binvar.c_str());
+
+    // Compute depolarization factor
+    std::vector<double> depols;
+    for (int i=0; i<depolvars.size(); i++) {
+        double depol = (double)*f.Mean(depolvars[i].c_str());
+        depols.push_back(depol);
+    }
+    
+    //TODO: Need to figure out why Stefan computed bin average of epsilon but not overall depolarization factor...
+
+    // Make subdirectory
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
+
+    // Switch off histogram stats
+    gStyle->SetOptStat(0);
+
+    // Define independent variables
+    RooRealVar h(helicity_name.c_str(), helicity_name.c_str(), -1.0, 1.0);
+    RooRealVar x(fitvarx.c_str(), fitvarx.c_str(), xmin, xmax);
+
+    // Create RDataFrame to RooDataSet pointer
+    ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = f.Book<float, float>(
+      RooDataSetHelper("dataset", // Name
+          "Title of dataset",     // Title
+          RooArgSet(h, x)      // Variables in this dataset
+          ),
+      {helicity_name.c_str(), fitvarx.c_str()} // Column names in RDataFrame.
+    );
+
+    // Create fit parameters
+    if (nparams>5) {std::cerr<<"ERROR: only up to 5 fit parameters are allowed."<<std::endl;}
+    RooRealVar a0("a0","a0",(nparams>0 ? params[0] : 0.0),-1.0,1.0); //NOTE: IMPORTANT!  These have to be declared individually here.  Creating in a loop and adding to a list will not work.
+    RooRealVar a1("a1","a1",(nparams>1 ? params[1] : 0.0),-1.0,1.0);
+    RooRealVar a2("a2","a2",(nparams>2 ? params[2] : 0.0),-1.0,1.0);
+    RooRealVar a3("a3","a3",(nparams>3 ? params[3] : 0.0),-1.0,1.0);
+    RooRealVar a4("a4","a4",(nparams>4 ? params[4] : 0.0),-1.0,1.0);
+    RooArgList arglist(h,x,a0,a1,a2,a3,a4); //NOTE: ONLY ALLOW UP TO 5 PARAMS FOR NOW.
+
+    // Create 1D PDF
+    std::string fitformula_plusone = Form("1.0+%.3f*%s",pol,fitformula.c_str());
+    std::cout<<"fitformula_plusone = "<<fitformula_plusone.c_str()<<std::endl;//DEBUGGING 10/8/24
+    RooGenericPdf gen("gen", fitformula_plusone.c_str(), arglist);
+
+    // Fit pdf to data
+    std::unique_ptr<RooFitResult> r{gen.fitTo(*rooDataSetResult, RooFit::Save(), RooFit::PrintLevel(-1))}; //RooFit::Minos(kTRUE),
+
+    // Print fit result
+    r->Print("v");
+
+    // Extract covariance and correlation matrix as TMatrixDSym
+    const TMatrixDSym &corMat = r->correlationMatrix();
+    const TMatrixDSym &covMat = r->covarianceMatrix();
+
+    // Print correlation, covariance matrix
+    std::cout << "correlation matrix" << std::endl;
+    corMat.Print();
+    std::cout << "covariance matrix" << std::endl;
+    covMat.Print();
+
+    // Get fit parameters
+    std::vector<double> pars;
+    if (nparams>0) pars.push_back((double)a0.getVal());
+    if (nparams>1) pars.push_back((double)a1.getVal());
+    if (nparams>2) pars.push_back((double)a2.getVal());
+    if (nparams>3) pars.push_back((double)a3.getVal());
+    if (nparams>4) pars.push_back((double)a4.getVal());
+    std::vector<double> Epars;
+    if (nparams>0) Epars.push_back((double)a0.getError());
+    if (nparams>1) Epars.push_back((double)a1.getError());
+    if (nparams>2) Epars.push_back((double)a2.getError());
+    if (nparams>3) Epars.push_back((double)a3.getError());
+    if (nparams>4) Epars.push_back((double)a4.getError());
+
+    // Print out fit info
+    out << "--------------------------------------------------" << std::endl;
+    out << " getKinBinBSA1DGenericRooFitML():" << std::endl;
+    out << " cuts       = " << cuts.c_str() << std::endl;
+    out << " bincut     = " << bin_cut.c_str() << std::endl;
+    out << " binmean    = " << mean << "±" << stddev << std::endl;
+    out << " bincount   = " << count << std::endl;
+    out << " pol        = " << pol << std::endl;
+    out << " depolvars  = [" ;
+    for (int idx=0; idx<depolvars.size(); idx++) {
+        out << depolvars[idx];
+        if (idx<depolvars.size()-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " depols  = [" ;
+    for (int idx=0; idx<depols.size(); idx++) {
+        out << depols[idx];
+        if (idx<depols.size()-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " fitformula = " << fitformula.c_str() << std::endl;
+    out << " nparams    = " << nparams <<std::endl;
+    out << " initial params = [" ;
+    for (int idx=0; idx<nparams; idx++) {
+        out << params[idx];
+        if (idx<nparams-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " params = [" ;
+    for (int idx=0; idx<nparams; idx++) {
+        out << pars[idx] << "±" << Epars[idx];
+        if (idx<nparams-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << "--------------------------------------------------" << std::endl;
+
+    // Go back to parent directory
+    outroot->cd("..");
+
+    // Fill return array
+    TArrayF *arr = new TArrayF((int)(3+2*nparams));
+    int k = 0;
+    arr->AddAt(mean,k++);
+    arr->AddAt(stddev,k++);
+    arr->AddAt(count,k++);
+    for (int idx=0; idx<nparams; idx++) {
+        arr->AddAt(pars[idx]/depols[idx],k++);
+        arr->AddAt(Epars[idx]/depols[idx],k++);
+    }
+
+    return arr;
+
+} // TArrayF* getKinBinBSA1DGenericRooFitML()
+
+TArrayF* getKinBinBSA2DGenericRooFit(
+    std::string  outdir,
+    TFile      * outroot,
+    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+    std::string cuts,
+    std::string binvar,
+    double       bin_min,
+    double       bin_max,
+    double       pol,
+    std::vector<std::string>   depolvars,
+    std::string  helicity_name = "heli",
+    std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
+    int          nparams       = 2,
+    std::vector<double> params = std::vector<double>(2),
+    std::string  fitopt        = "LS",
+    std::string  fitvarx       = "phi_h",
+    std::string  fitvarxtitle  = "#phi_{h p#pi^{-}}",
+    int nbinsx                 = 100,
+    double xmin                = 0.0,
+    double xmax                = 2*TMath::Pi(),
+    std::string  fitvary       = "phi_h",
+    std::string  fitvarytitle  = "#phi_{h p#pi^{-}}",
+    int nbinsy                 = 100,
+    double ymin                = 0.0,
+    double ymax                = 2*TMath::Pi(),
+    std::ostream &out          = std::cout
+    ) {
+
+    std::string title    = Form("%s vs. %s %.3f<%s<%.3f",fitvarytitle.c_str(),fitvarxtitle.c_str(),bin_min,binvar.c_str(),bin_max);
+    std::string bintitle = Form("%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+
+    // Set bin cuts
+    std::string bin_cut = Form("%s>=%f && %s<%f",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
+    auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
+
+    // Get data
+    auto count    = (int)   *f.Count();
+    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto stddev   = (double)*f.StdDev(binvar.c_str());
+
+    // Compute depolarization factor
+    std::vector<double> depols;
+    for (int i=0; i<depolvars.size(); i++) {
+        double depol = (double)*f.Mean(depolvars[i].c_str());
+        depols.push_back(depol);
+    }
+    
+    //TODO: Need to figure out why Stefan computed bin average of epsilon but not overall depolarization factor...
+
+    // Make subdirectory
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
+
+    // Switch off histogram stats
+    gStyle->SetOptStat(0);
+
+    // Create histograms
+    TH2D hplus_ = (TH2D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo2D({"hplus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str());
+    TH2D *hplus = (TH2D*)hplus_.Clone("hplus");
+    TH2D hminus_ = (TH2D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo2D({"hminus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str());
+    TH2D *hminus = (TH2D*)hminus_.Clone("hminus");
+
+    // Get asymmetry histogram
+    TH2D *hasym = (TH2D*)hplus->GetAsymmetry(hminus);
+    hasym->Scale(1.0/pol);
+    hasym->SetTitle(title.c_str());
+    hasym->GetXaxis()->SetTitle(fitvarxtitle.c_str());
+    hasym->GetXaxis()->SetTitleSize(0.06);
+    hasym->GetXaxis()->SetTitleOffset(0.75);
+    hasym->GetYaxis()->SetTitle(fitvarytitle.c_str());
+    hasym->GetYaxis()->SetTitleSize(0.06);
+    hasym->GetYaxis()->SetTitleOffset(0.87);
+
+
+    //-----> RooFit added BEGIN
+    TH2 *hasym_plusone = (TH2*)hasym->Clone("hasym_plusone");
+    for (int idx_x=1; idx_x<=hasym_plusone->GetNbinsX(); idx_x++) {
+      for (int idx_y=1; idx_y<=hasym_plusone->GetNbinsY(); idx_y++) {
+        hasym_plusone->SetBinContent(idx_x,idx_y,1.0);
+      }
+    }
+    hasym_plusone->Add(hasym); //NOTE: DEBUGGING TO CREATE POSITIVE FIT DATA
+    for (int idx_x=1; idx_x<=hasym_plusone->GetNbinsX(); idx_x++) {
+      for (int idx_y=1; idx_y<=hasym_plusone->GetNbinsY(); idx_y++) {
+        hasym_plusone->SetBinError(idx_x,idx_y,(double)hasym->GetBinError(idx_x,idx_y));
+        std::cout<<"i, j, bincontent, binerror = "<<idx_x<<" , "<<idx_y<<" , "<<hasym_plusone->GetBinContent(idx_x,idx_y)<<" , "<<hasym_plusone->GetBinError(idx_x,idx_y)<<std::endl;//DEBUGGING 
+      }
+    }
+
+    // Create helicity and fit variables
+    //RooRealVar h(helicity_name.c_str(), helicity_name.c_str(), -1.0, 1.0);
+    RooRealVar x(fitvarx.c_str(), fitvarx.c_str(), xmin, xmax);
+    RooRealVar y(fitvary.c_str(), fitvary.c_str(), ymin, ymax);
+
+    // // Create RDataFrame to RooDataSet pointer
+    // ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = frame.Book<float, float, float>(
+    //   RooDataSetHelper("dataset", // Name
+    //       "Title of dataset",     // Title
+    //       RooArgSet(h, x, y)      // Variables in this dataset
+    //       ),
+    //   {helicity_name.c_str(), fitvarx.c_str(), fitvary.c_str()} // Column names in RDataFrame.
+    // );
+
+    // // Run RDataFrame evaluation to fill RooDataSet
+    // RooDataSet const& rooDataSet = rooDataSetResult.GetValue();
+
+    // Create RooFit histogram
+    RooDataHist rdh("rdh","2d RooFit Histogram",RooArgSet(x,y),RooFit::Import(*hasym_plusone));
+
+    // Create fit parameters
+    if (nparams>5) {std::cerr<<"ERROR: only up to 5 fit parameters are allowed."<<std::endl;}
+    RooRealVar a0("a0","a0",(nparams>0 ? params[0] : 0.0),0.0,1.0); //NOTE: IMPORTANT!  These have to be declared individually here.  Creating in a loop and adding to a list will not work.
+    RooRealVar a1("a1","a1",(nparams>1 ? params[1] : 0.0),0.0,1.0);
+    RooRealVar a2("a2","a2",(nparams>2 ? params[2] : 0.0),0.0,1.0);
+    RooRealVar a3("a3","a3",(nparams>3 ? params[3] : 0.0),0.0,1.0);
+    RooRealVar a4("a4","a4",(nparams>4 ? params[4] : 0.0),0.0,1.0);
+    RooArgList arglist(x,y,a0,a1,a2,a3,a4); //NOTE: ONLY ALLOW UP TO 5 PARAMS FOR NOW.
+
+    // Create 2D PDF
+    std::string fitformula_plusone = Form("1.0+%s",fitformula.c_str());
+    RooGenericPdf gen("gen", fitformula_plusone.c_str(), arglist);
+
+    // Fit pdf to data
+    // std::unique_ptr<RooFitResult> r{gen.fitTo((RooAbsData&)rooDataSet, RooFit::Save(), RooFit::PrintLevel(-1))}; //RooFit::Minos(kTRUE),
+    std::unique_ptr<RooFitResult> r{gen.fitTo(rdh, RooFit::Save(), RooFit::SumW2Error(false), RooFit::PrintLevel(-1))}; //RooFit::Minos(kTRUE),
+
+    // Print fit result
+    r->Print("v");
+
+    // Extract covariance and correlation matrix as TMatrixDSym
+    const TMatrixDSym &corMat = r->correlationMatrix();
+    const TMatrixDSym &covMat = r->covarianceMatrix();
+
+    // Print correlation, covariance matrix
+    std::cout << "correlation matrix" << std::endl;
+    corMat.Print();
+    std::cout << "covariance matrix" << std::endl;
+    covMat.Print();
+
+    //-----> RooFit added END
+
+    // Draw asymmetry histogram
+    TCanvas *c1 = new TCanvas(Form("c1_%s",outdir.c_str()));
+    c1->cd();
+    hasym->Draw("COLZ");
+
+    //NOTE: COMMENT OUT DEFAULT ROOT FITTING
+    // // Fit and get covariance matrix
+    // TFitResultPtr fr = hasym->Fit("f1",fitopt.c_str(),"S"); // IMPORTANT THAT YOU JUST FIT TO WHERE YOU STOPPED PLOTTING THE FIT VARIABLE.
+    // TMatrixDSym *covMat = new TMatrixDSym(fr->GetCovarianceMatrix());
+
+    // Get fit parameters
+    std::vector<double> pars;
+    if (nparams>0) pars.push_back((double)a0.getVal());
+    if (nparams>1) pars.push_back((double)a1.getVal());
+    if (nparams>2) pars.push_back((double)a2.getVal());
+    if (nparams>3) pars.push_back((double)a3.getVal());
+    if (nparams>4) pars.push_back((double)a4.getVal());
+    std::vector<double> Epars;
+    if (nparams>0) Epars.push_back((double)a0.getError());
+    if (nparams>1) Epars.push_back((double)a1.getError());
+    if (nparams>2) Epars.push_back((double)a2.getError());
+    if (nparams>3) Epars.push_back((double)a3.getError());
+    if (nparams>4) Epars.push_back((double)a4.getError());
+    RooAbsReal* newchi2 = gen.createChi2(rdh, RooFit::Range("fullRange"),
+                 RooFit::Extended(true), RooFit::DataError(RooAbsData::Poisson));
+    double chi2 = newchi2->getVal();
+    double ndf = hasym->GetNbinsX() * hasym->GetNbinsY() - nparams;
+    double  chi2ndf = (double)chi2/ndf;
+
+    // Set fit function
+    std::string myOLDfitformula = "x*(TMath::Cos(y)*[0]+[1]+TMath::Cos(2.0*y)*[2])"; //TODO: Set this from function arguments.
+    TF2 *f1 = new TF2("f1",myOLDfitformula.c_str(),xmin,xmax,ymin,ymax);
+    for (int idx=0; idx<nparams; idx++) {
+        f1->SetParameter(idx,pars[idx]);
+        f1->SetParError(idx,Epars[idx]);
+        f1->SetParName(idx,Form("a%d",idx));
+    }
+    f1->SetLineColor(2);
+    f1->Draw("SAME");
+
+    // Print out fit info
+    out << "--------------------------------------------------" << std::endl;
+    out << " getKinBinBSA2DGenericRooFit():" << std::endl;
+    out << " cuts       = " << cuts.c_str() << std::endl;
+    out << " bincut     = " << bin_cut.c_str() << std::endl;
+    out << " binmean    = " << mean << "±" << stddev << std::endl;
+    out << " bincount   = " << count << std::endl;
+    out << " pol        = " << pol << std::endl;
+    out << " depolvars  = [" ;
+    for (int idx=0; idx<depolvars.size(); idx++) {
+        out << depolvars[idx];
+        if (idx<depolvars.size()-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " depols  = [" ;
+    for (int idx=0; idx<depols.size(); idx++) {
+        out << depols[idx];
+        if (idx<depols.size()-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " fitformula = " << fitformula.c_str() << std::endl;
+    out << " nparams    = " << nparams <<std::endl;
+    out << " initial params = [" ;
+    for (int idx=0; idx<nparams; idx++) {
+        out << params[idx];
+        if (idx<nparams-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " params = [" ;
+    for (int idx=0; idx<nparams; idx++) {
+        out << pars[idx] << "±" << Epars[idx];
+        if (idx<nparams-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
+    out << " chi2/ndf = " << chi2ndf << std::endl;
+    out << "--------------------------------------------------" << std::endl;
+
+    // Add Legend
+    TLegend *legend=new TLegend(0.5,0.15,0.75,0.4);
+    legend->SetTextSize(0.04);
+    legend->SetHeader("Fit Info:","c");
+    legend->SetMargin(0.1);
+    legend->AddEntry((TObject*)0, Form("#chi^{2}/NDF = %.2f",chi2ndf), Form(" %g ",chi2));
+    
+    for (int idx=0; idx<nparams; idx++) {
+        legend->AddEntry((TObject*)0, Form("A%d = %.3f #pm %.3f",idx,pars[idx],Epars[idx]), Form(" %g ",chi2));
+        legend->AddEntry((TObject*)0, Form("D%d = %.2f",idx,depols[idx]), Form(" %g ",chi2));
+    }
+    legend->Draw();
+
+    // Save to PDF
+    c1->SaveAs(Form("%s.pdf",c1->GetName()));
+
+    // Save to ROOT file
+    hasym->Write();
+
+    // Go back to parent directory
+    outroot->cd("..");
+
+    // Fill return array
+    TArrayF *arr = new TArrayF((int)(3+2*nparams));
+    int k = 0;
+    arr->AddAt(mean,k++);
+    arr->AddAt(stddev,k++);
+    arr->AddAt(count,k++);
+    for (int idx=0; idx<nparams; idx++) {
+        arr->AddAt(pars[idx]/depols[idx],k++);
+        arr->AddAt(Epars[idx]/depols[idx],k++);
+    }
+
+    return arr;
+
+} // TArrayF* getKinBinBSA2DGenericRooFit()
+
+/** 
+* Get TGraph of generic BSA binned in given kinematic variable with or without bg correction.
+*/
+void getKinBinnedGraphBSA2DGenericMCV2(
+                    std::string  outdir,
+                    TFile      * outroot,
+                    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
+                    std::string  sgcuts, // Signal cuts
+                    std::string  bgcuts, // Background cuts
+                    TString      method, // ONLY getKinBinBSAGeneric ('BSA') is allowed at the moment
+                    std::string  binvar, // Variable name to bin in
+                    int          nbins, // Number of bins
+                    double     * bins, // Bin limits (length=nbins+1)
+                    int        * poly4bins, // mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
+                    double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
+                    bool         use_bgfraction, // whether to use specified bgfraction
+                    double       pol, // Luminosity averaged beam polarization
+                    std::vector<std::string>  depolvars, // Depolarization variable names
+                    std::string  mass_name, // mass variable name for signal fit
+                    int          n_mass_bins, // number of mass bins
+                    double       mass_min, // mass variable max for signal fit
+                    double       mass_max, // mass variable min for signal fit
+                    double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
+                    double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
+                    std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  helicity_name = "heli", // Branch name for helicity
+                    std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
+                    int          nparams = 2, // number of parameters in fit formula above
+                    std::vector<double> params = std::vector<double>(2), // initial fit parameters
+                    std::string  fitopt = "LS", // option for ROOT <TH1> -> Fit() call
+                    std::string  fitvarx = "dphi", // fitvariable branch name to use
+                    std::string  fitvarxtitle = "#Delta#phi", // fit variable axis title
+                    int          n_fitvarx_bins = 10, // number of bins for fit variable if using LF method
+                    double       fitvarx_min = 0.0, // fit variable minimum
+                    double       fitvarx_max = 2*TMath::Pi(), // fit variable maximum
+                    std::string  fitvary = "dphi", // fitvariable branch name to use
+                    std::string  fitvarytitle = "#Delta#phi", // fit variable axis title
+                    int          n_fitvary_bins = 10, // number of bins for fit variable if using LF method
+                    double       fitvary_min = 0.0, // fit variable minimum
+                    double       fitvary_max = 2*TMath::Pi(), // fit variable maximum
+                    std::string  graph_title = "BSA A_{LU} vs. #Delta#phi", // Histogram title
+                    int          marker_color = 4, // 4 is blue
+                    int          marker_style = 20, // 20 is circle
+                    std::ostream &out = std::cout  // Output for all messages
+                    ) {
+
+    // Check arguments
+    if (method != "BSA2D") {out << " *** ERROR *** Method must be BSA2D.  Exiting...\n"; return;}
+    if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
+
+    // Starting message
+    out << "----------------------- getKinBinnedGraphBSA2DGenericMCV2 ----------------------\n";
+    out << "Getting " << binvar << " binned hist...\n";
+    out << "bins = { "; for (int i=0; i<nbins; i++) { out << bins[i] << " , ";} out << bins[nbins] << " }\n";
+
+    // Make output directory in ROOT file and cd
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
+
+    // Initialize data arrays
+    double xs[nbins];
+    double exs[nbins];
+    int    counts[nbins];
+    double xs_bg[nbins];
+    double exs_bg[nbins];
+    int    counts_bg[nbins];
+
+    double ys[nparams][nbins];
+    double eys[nparams][nbins];
+    double ys_bg[nparams][nbins];
+    double eys_bg[nparams][nbins];
+    double ys_corrected[nparams][nbins];
+    double eys_corrected[nparams][nbins];
+    
+    double bgfractions[nbins];
+    double ebgfractions[nbins];
+    double bgfractions_ls[nbins];
+    double ebgfractions_ls[nbins];
+    double bgfractions_us[nbins];
+    double ebgfractions_us[nbins];
+    double bgfractions_sb[nbins];
+    double ebgfractions_sb[nbins];
+
+    // Loop bins and get data
+    for (int binidx=0; binidx<nbins; binidx++) {
+        double bin_min = bins[binidx];
+        double bin_max = bins[binidx+1];
+
+        // Make bin cut on frame
+        std::string  bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
+        auto bin_frame = frame.Filter(bin_cut.c_str());
+
+        // Get background fraction for bin from mass fit
+        bgfractions[binidx] = bgfraction; //NOTE: This is a default setting that gets overridden if use_bgfraction==false.
+        if (!use_bgfraction) {
+            std::string  massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+            std::string  bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
+            TArrayF* massFitData;
+
+            if (poly4bins[binidx]==0) {
+                out<<"DEBUGGING: -----> Call to LambdaMassFit"<<std::endl;//DEBUGGING
+                massFitData = LambdaMassFitMC(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        dtheta_p_max,
+                        dtheta_pim_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
+            } else {
+                out<<"DEBUGGING: -----> Call to LambdaMassFitPoly4BG()"<<std::endl;//DEBUGGING
+                massFitData = LambdaMassFitPoly4BGMC(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        dtheta_p_max,
+                        dtheta_pim_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
+            }
+
+            // Add mass fit data to arrays
+            int k = 0;
+            bgfractions[binidx]     = massFitData->GetAt(k++);
+            ebgfractions[binidx]    = massFitData->GetAt(k++);
+            bgfractions_ls[binidx]  = massFitData->GetAt(k++);
+            ebgfractions_ls[binidx] = massFitData->GetAt(k++);
+            bgfractions_us[binidx]  = massFitData->GetAt(k++);
+            ebgfractions_us[binidx] = massFitData->GetAt(k++);
+            bgfractions_sb[binidx]  = massFitData->GetAt(k++);
+            ebgfractions_sb[binidx] = massFitData->GetAt(k++);
+        }
+
+        // Compute bin results
+        TArrayF *binData;
+        std::string  binoutdir = Form("method_%s_bin_%s_%.3f_%.3f",(const char*)method,binvar.c_str(),bin_min,bin_max);
+        binData = (TArrayF*) getKinBinBSA2DGenericV2(
+            binoutdir,
+            outroot,
+            frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+            sgcuts,
+            binvar,
+            bin_min,
+            bin_max,
+            pol,
+            depolvars,
+            helicity_name,
+            fitformula,
+            nparams,
+            params,
+            fitopt,
+            fitvarx,
+            fitvarxtitle,
+            n_fitvarx_bins,
+            fitvarx_min,
+            fitvarx_max,
+            fitvary,
+            fitvarytitle,
+            n_fitvary_bins,
+            fitvary_min,
+            fitvary_max,
+            out
+        );
+
+        // Get bin data
+        int k = 0;
+        xs[binidx]     = binData->GetAt(k++);
+        exs[binidx]    = binData->GetAt(k++);
+        counts[binidx] = binData->GetAt(k++);
+        for (int idx=0; idx<nparams; idx++) {
+            ys[idx][binidx] = binData->GetAt(k++);
+            eys[idx][binidx] = binData->GetAt(k++);
+        }
+
+        // Sideband subtraction background correction
+        if (bgfraction==1.00 && use_bgfraction) {
+            out << " *** WARNING *** bgfraction = 1 -> No BG correction made.\n";
+            
+            // Set BG corrected array to results array
+            for (int idx=0; idx<nparams; idx++) {
+                ys_corrected[idx][binidx]  = ys[idx][binidx];
+                eys_corrected[idx][binidx] = eys[idx][binidx];
+            }
+        } else {
+            TArrayF *bgBinData;
+            std::string  sbbinoutdir = Form("method_%s_sideband_bin_%s_%.3f_%.3f",(const char*)method,binvar.c_str(),bin_min,bin_max);
+            bgBinData = (TArrayF*) getKinBinBSA2DGenericV2(
+                sbbinoutdir,
+                outroot,
+                frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+                bgcuts,
+                binvar,
+                bin_min,
+                bin_max,
+                pol,
+                depolvars,
+                helicity_name,
+                fitformula,
+                nparams,
+                params,
+                fitopt,
+                fitvarx,
+                fitvarxtitle,
+                n_fitvarx_bins,
+                fitvarx_min,
+                fitvarx_max,
+                fitvary,
+                fitvarytitle,
+                n_fitvary_bins,
+                fitvary_min,
+                fitvary_max,
+                out
+            );
+
+            // Get background bin data
+            int j = 0;
+            xs_bg[binidx]     = bgBinData->GetAt(j++);
+            exs_bg[binidx]    = bgBinData->GetAt(j++);
+            counts_bg[binidx] = bgBinData->GetAt(j++);
+            for (int idx=0; idx<nparams; idx++) {
+
+                // Add background data to arrays
+                ys_bg[idx][binidx] = bgBinData->GetAt(j++);
+                eys_bg[idx][binidx] = bgBinData->GetAt(j++);
+
+                // Compute background corrected data and add to arrays
+                ys_corrected[idx][binidx]  = (ys[idx][binidx] - bgfractions[binidx] * ys_bg[idx][binidx]) / (1 - bgfractions[binidx]);
+                eys_corrected[idx][binidx] = TMath::Abs(TMath::Sqrt(eys[idx][binidx]*eys[idx][binidx]+bgfractions[binidx]*bgfractions[binidx]*eys_bg[idx][binidx]*eys_bg[idx][binidx]) / (1 - bgfractions[binidx]));
+            }
+
+            // Output message
+            out << "--- BG Corrected Signal ---\n";
+            out << " bgfractions["<<binidx<<"]      = " << bgfractions[binidx] << "\n";//NOTE: ADDED 7/7/23
+            out << " ebgfractions["<<binidx<<"]     = " << ebgfractions[binidx] << "\n";
+            for (int idx=0; idx<nparams; idx++) {
+                out << " ys["<< idx <<"]["<<binidx<<"]            = " << ys[idx][binidx] << "\n";
+                out << " eys["<< idx <<"]["<<binidx<<"]           = " << eys[idx][binidx] << "\n";
+                out << " ys_bg["<< idx <<"]["<<binidx<<"]         = " << ys_bg[idx][binidx] << "\n";
+                out << " eys_bg["<< idx <<"]["<<binidx<<"]        = " << eys_bg[idx][binidx] << "\n";
+                out << " ys_corrected["<< idx <<"]["<<binidx<<"]  = " << ys_corrected[idx][binidx] << "\n";
+                out << " eys_corrected["<< idx <<"]["<<binidx<<"] = " << eys_corrected[idx][binidx] << "\n";
+            }
+            out << "---------------------------\n";
+        }
+    }
+
+    // Loop results and plot
+    for (int idx=0; idx<nparams; idx++) {
+
+        // Create graph of results binned in binvar
+        TGraphErrors *gr = new TGraphErrors(nbins,xs,ys_corrected[idx],exs,eys_corrected[idx]);
+        gr->Write("gr");
+
+        // Plot results graph
+        TCanvas *c1 = new TCanvas();
+        c1->SetBottomMargin(0.125);
+        c1->cd(0);
+
+        // Stylistic choices that aren't really necessary
+        gStyle->SetEndErrorSize(5); gStyle->SetTitleFontSize(0.05);
+        gr->SetMarkerSize(1.25);
+        gr->GetXaxis()->SetTitleSize(0.05);
+        gr->GetXaxis()->SetTitleOffset(0.9);
+        gr->GetYaxis()->SetTitleSize(0.05);
+        gr->GetYaxis()->SetTitleOffset(0.9);
+
+        // More necessary stylistic choices
+        gr->SetTitle(graph_title.c_str());
+        gr->SetMarkerColor(marker_color); // 4  blue
+        gr->SetMarkerStyle(marker_style); // 20 circle
+        gr->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
+        gr->GetXaxis()->SetTitle(binvar.c_str());
+        std::string ytitle = Form("BSA A%d",idx);
+        gr->GetYaxis()->SetTitle(ytitle.c_str());
+        gr->Draw("PA");
+
+        // Add CLAS12 Preliminary watermark
+        TLatex *lt = new TLatex(0.3,0.2,"CLAS12 Preliminary");
+        lt->SetTextAngle(45);
+        lt->SetTextColor(18);
+        lt->SetTextSize(0.1);
+        lt->SetNDC();
+        lt->Draw();
+
+        // Add zero line
+        TF1 *f2 = new TF1("f2","0",bins[0],bins[nbins]);
+        f2->SetLineColor(1); // 1 black
+        f2->SetLineWidth(1); // 1 thinnest
+        f2->Draw("SAME");
+
+        // Set outname and save
+        TString fname;
+        fname.Form("%s_%s_%s_%s_%.3f_%.3f_A%d",(const char*)method,fitvarx.c_str(),fitvary.c_str(),binvar.c_str(),bins[0],bins[nbins],idx);
+        c1->Print(fname+".pdf");
+        gr->SaveAs(fname+".root","recreate");
+
+        // Output message
+        out << " Saved graph to " << fname << ".root\n";
+    }
+
+    // Cd out of outdir
+    outroot->cd("..");
+
+    // Ending message
+    out << "------------------- END of getKinBinnedGraphBSA2DGenericMCV2 -------------------\n";
+
+} // getKinBinnedGraphBSA2DGenericMCV2()
+
+/** 
+* Get TGraph of generic BSA 2D binned in given kinematic variable with or without bg correction.  Use RooFit Maximum Likelihood method to optimize fit parameters.
+*/
+void getKinBinnedGraphBSA2DGenericMCRooFit(
+                    std::string  outdir,
+                    TFile      * outroot,
+                    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
+                    std::string  sgcuts, // Signal cuts
+                    std::string  bgcuts, // Background cuts
+                    TString      method, // ONLY getKinBinBSAGeneric ('BSA') is allowed at the moment
+                    std::string  binvar, // Variable name to bin in
+                    int          nbins, // Number of bins
+                    double     * bins, // Bin limits (length=nbins+1)
+                    int        * poly4bins, // mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
+                    double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
+                    bool         use_bgfraction, // whether to use specified bgfraction
+                    double       pol, // Luminosity averaged beam polarization
+                    std::vector<std::string>  depolvars, // Depolarization variable names
+                    std::string  mass_name, // mass variable name for signal fit
+                    int          n_mass_bins, // number of mass bins
+                    double       mass_min, // mass variable max for signal fit
+                    double       mass_max, // mass variable min for signal fit
+                    double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
+                    double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
+                    std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  helicity_name = "heli", // Branch name for helicity
+                    std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
+                    int          nparams = 2, // number of parameters in fit formula above
+                    std::vector<double> params = std::vector<double>(2), // initial fit parameters
+                    std::string  fitopt = "LS", // option for ROOT <TH1> -> Fit() call
+                    std::string  fitvarx = "dphi", // fitvariable branch name to use
+                    std::string  fitvarxtitle = "#Delta#phi", // fit variable axis title
+                    int          n_fitvarx_bins = 10, // number of bins for fit variable if using LF method
+                    double       fitvarx_min = 0.0, // fit variable minimum
+                    double       fitvarx_max = 2*TMath::Pi(), // fit variable maximum
+                    std::string  fitvary = "dphi", // fitvariable branch name to use
+                    std::string  fitvarytitle = "#Delta#phi", // fit variable axis title
+                    int          n_fitvary_bins = 10, // number of bins for fit variable if using LF method
+                    double       fitvary_min = 0.0, // fit variable minimum
+                    double       fitvary_max = 2*TMath::Pi(), // fit variable maximum
+                    std::string  graph_title = "BSA A_{LU} vs. #Delta#phi", // Histogram title
+                    int          marker_color = 4, // 4 is blue
+                    int          marker_style = 20, // 20 is circle
+                    std::ostream &out = std::cout  // Output for all messages
+                    ) {
+
+    // Check arguments
+    if (method != "BSA2D") {out << " *** ERROR *** Method must be BSA2D.  Exiting...\n"; return;}
+    if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
+
+    // Starting message
+    out << "----------------------- getKinBinnedGraphBSA2DGenericMCRooFit ----------------------\n";
+    out << "Getting " << binvar << " binned hist...\n";
+    out << "bins = { "; for (int i=0; i<nbins; i++) { out << bins[i] << " , ";} out << bins[nbins] << " }\n";
+
+    // Make output directory in ROOT file and cd
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
+
+    // Initialize data arrays
+    double xs[nbins];
+    double exs[nbins];
+    int    counts[nbins];
+    double xs_bg[nbins];
+    double exs_bg[nbins];
+    int    counts_bg[nbins];
+
+    double ys[nparams][nbins];
+    double eys[nparams][nbins];
+    double ys_bg[nparams][nbins];
+    double eys_bg[nparams][nbins];
+    double ys_corrected[nparams][nbins];
+    double eys_corrected[nparams][nbins];
+    
+    double bgfractions[nbins];
+    double ebgfractions[nbins];
+    double bgfractions_ls[nbins];
+    double ebgfractions_ls[nbins];
+    double bgfractions_us[nbins];
+    double ebgfractions_us[nbins];
+    double bgfractions_sb[nbins];
+    double ebgfractions_sb[nbins];
+
+    // Loop bins and get data
+    for (int binidx=0; binidx<nbins; binidx++) {
+        double bin_min = bins[binidx];
+        double bin_max = bins[binidx+1];
+
+        // Make bin cut on frame
+        std::string  bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
+        auto bin_frame = frame.Filter(bin_cut.c_str());
+
+        // Get background fraction for bin from mass fit
+        bgfractions[binidx] = bgfraction; //NOTE: This is a default setting that gets overridden if use_bgfraction==false.
+        if (!use_bgfraction) {
+            std::string  massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+            std::string  bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
+            TArrayF* massFitData;
+
+            if (poly4bins[binidx]==0) {
+                out<<"DEBUGGING: -----> Call to LambdaMassFit"<<std::endl;//DEBUGGING
+                massFitData = LambdaMassFitMC(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        dtheta_p_max,
+                        dtheta_pim_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
+            } else {
+                out<<"DEBUGGING: -----> Call to LambdaMassFitPoly4BG()"<<std::endl;//DEBUGGING
+                massFitData = LambdaMassFitPoly4BGMC(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        dtheta_p_max,
+                        dtheta_pim_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
+            }
+
+            // Add mass fit data to arrays
+            int k = 0;
+            bgfractions[binidx]     = massFitData->GetAt(k++);
+            ebgfractions[binidx]    = massFitData->GetAt(k++);
+            bgfractions_ls[binidx]  = massFitData->GetAt(k++);
+            ebgfractions_ls[binidx] = massFitData->GetAt(k++);
+            bgfractions_us[binidx]  = massFitData->GetAt(k++);
+            ebgfractions_us[binidx] = massFitData->GetAt(k++);
+            bgfractions_sb[binidx]  = massFitData->GetAt(k++);
+            ebgfractions_sb[binidx] = massFitData->GetAt(k++);
+        }
+
+        // Compute bin results
+        TArrayF *binData;
+        std::string  binoutdir = Form("method_%s_bin_%s_%.3f_%.3f",(const char*)method,binvar.c_str(),bin_min,bin_max);
+        binData = (TArrayF*) getKinBinBSA2DGenericRooFitML(
+            binoutdir,
+            outroot,
+            frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+            sgcuts,
+            binvar,
+            bin_min,
+            bin_max,
+            pol,
+            depolvars,
+            helicity_name,
+            fitformula,
+            nparams,
+            params,
+            fitopt,
+            fitvarx,
+            fitvarxtitle,
+            n_fitvarx_bins,
+            fitvarx_min,
+            fitvarx_max,
+            fitvary,
+            fitvarytitle,
+            n_fitvary_bins,
+            fitvary_min,
+            fitvary_max,
+            out
+        );
+
+        // Get bin data
+        int k = 0;
+        xs[binidx]     = binData->GetAt(k++);
+        exs[binidx]    = binData->GetAt(k++);
+        counts[binidx] = binData->GetAt(k++);
+        for (int idx=0; idx<nparams; idx++) {
+            ys[idx][binidx] = binData->GetAt(k++);
+            eys[idx][binidx] = binData->GetAt(k++);
+        }
+
+        // Sideband subtraction background correction
+        if (bgfraction==1.00 && use_bgfraction) {
+            out << " *** WARNING *** bgfraction = 1 -> No BG correction made.\n";
+            
+            // Set BG corrected array to results array
+            for (int idx=0; idx<nparams; idx++) {
+                ys_corrected[idx][binidx]  = ys[idx][binidx];
+                eys_corrected[idx][binidx] = eys[idx][binidx];
+            }
+        } else {
+            TArrayF *bgBinData;
+            std::string  sbbinoutdir = Form("method_%s_sideband_bin_%s_%.3f_%.3f",(const char*)method,binvar.c_str(),bin_min,bin_max);
+            bgBinData = (TArrayF*) getKinBinBSA2DGenericRooFitML(
+                sbbinoutdir,
+                outroot,
+                frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+                bgcuts,
+                binvar,
+                bin_min,
+                bin_max,
+                pol,
+                depolvars,
+                helicity_name,
+                fitformula,
+                nparams,
+                params,
+                fitopt,
+                fitvarx,
+                fitvarxtitle,
+                n_fitvarx_bins,
+                fitvarx_min,
+                fitvarx_max,
+                fitvary,
+                fitvarytitle,
+                n_fitvary_bins,
+                fitvary_min,
+                fitvary_max,
+                out
+            );
+
+            // Get background bin data
+            int j = 0;
+            xs_bg[binidx]     = bgBinData->GetAt(j++);
+            exs_bg[binidx]    = bgBinData->GetAt(j++);
+            counts_bg[binidx] = bgBinData->GetAt(j++);
+            for (int idx=0; idx<nparams; idx++) {
+
+                // Add background data to arrays
+                ys_bg[idx][binidx] = bgBinData->GetAt(j++);
+                eys_bg[idx][binidx] = bgBinData->GetAt(j++);
+
+                // Compute background corrected data and add to arrays
+                ys_corrected[idx][binidx]  = (ys[idx][binidx] - bgfractions[binidx] * ys_bg[idx][binidx]) / (1 - bgfractions[binidx]);
+                eys_corrected[idx][binidx] = TMath::Abs(TMath::Sqrt(eys[idx][binidx]*eys[idx][binidx]+bgfractions[binidx]*bgfractions[binidx]*eys_bg[idx][binidx]*eys_bg[idx][binidx]) / (1 - bgfractions[binidx]));
+            }
+
+            // Output message
+            out << "--- BG Corrected Signal ---\n";
+            out << " bgfractions["<<binidx<<"]      = " << bgfractions[binidx] << "\n";//NOTE: ADDED 7/7/23
+            out << " ebgfractions["<<binidx<<"]     = " << ebgfractions[binidx] << "\n";
+            for (int idx=0; idx<nparams; idx++) {
+                out << " ys["<< idx <<"]["<<binidx<<"]            = " << ys[idx][binidx] << "\n";
+                out << " eys["<< idx <<"]["<<binidx<<"]           = " << eys[idx][binidx] << "\n";
+                out << " ys_bg["<< idx <<"]["<<binidx<<"]         = " << ys_bg[idx][binidx] << "\n";
+                out << " eys_bg["<< idx <<"]["<<binidx<<"]        = " << eys_bg[idx][binidx] << "\n";
+                out << " ys_corrected["<< idx <<"]["<<binidx<<"]  = " << ys_corrected[idx][binidx] << "\n";
+                out << " eys_corrected["<< idx <<"]["<<binidx<<"] = " << eys_corrected[idx][binidx] << "\n";
+            }
+            out << "---------------------------\n";
+        }
+    }
+
+    // Loop results and plot
+    for (int idx=0; idx<nparams; idx++) {
+
+        // Create graph of results binned in binvar
+        TGraphErrors *gr = new TGraphErrors(nbins,xs,ys_corrected[idx],exs,eys_corrected[idx]);
+        gr->Write("gr");
+
+        // Plot results graph
+        TCanvas *c1 = new TCanvas();
+        c1->SetBottomMargin(0.125);
+        c1->cd(0);
+
+        // Stylistic choices that aren't really necessary
+        gStyle->SetEndErrorSize(5); gStyle->SetTitleFontSize(0.05);
+        gr->SetMarkerSize(1.25);
+        gr->GetXaxis()->SetTitleSize(0.05);
+        gr->GetXaxis()->SetTitleOffset(0.9);
+        gr->GetYaxis()->SetTitleSize(0.05);
+        gr->GetYaxis()->SetTitleOffset(0.9);
+
+        // More necessary stylistic choices
+        gr->SetTitle(graph_title.c_str());
+        gr->SetMarkerColor(marker_color); // 4  blue
+        gr->SetMarkerStyle(marker_style); // 20 circle
+        gr->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
+        gr->GetXaxis()->SetTitle(binvar.c_str());
+        std::string ytitle = Form("BSA A%d",idx);
+        gr->GetYaxis()->SetTitle(ytitle.c_str());
+        gr->Draw("PA");
+
+        // Add CLAS12 Preliminary watermark
+        TLatex *lt = new TLatex(0.3,0.2,"CLAS12 Preliminary");
+        lt->SetTextAngle(45);
+        lt->SetTextColor(18);
+        lt->SetTextSize(0.1);
+        lt->SetNDC();
+        lt->Draw();
+
+        // Add zero line
+        TF1 *f2 = new TF1("f2","0",bins[0],bins[nbins]);
+        f2->SetLineColor(1); // 1 black
+        f2->SetLineWidth(1); // 1 thinnest
+        f2->Draw("SAME");
+
+        // Set outname and save
+        TString fname;
+        fname.Form("%s_%s_%s_%s_%.3f_%.3f_A%d",(const char*)method,fitvarx.c_str(),fitvary.c_str(),binvar.c_str(),bins[0],bins[nbins],idx);
+        c1->Print(fname+".pdf");
+        gr->SaveAs(fname+".root","recreate");
+
+        // Output message
+        out << " Saved graph to " << fname << ".root\n";
+    }
+
+    // Cd out of outdir
+    outroot->cd("..");
+
+    // Ending message
+    out << "------------------- END of getKinBinnedGraphBSA2DGenericMCRooFit -------------------\n";
+
+} // getKinBinnedGraphBSA2DGenericMCRooFit()
+
+/** 
+* Get TGraph of generic BSA 1D binned in given kinematic variable with or without bg correction. Use RooFit Maximum Likelihood method to optimize fit parameters.
+*/
+void getKinBinnedGraphBSA1DGenericMCRooFit(
+                    std::string  outdir,
+                    TFile      * outroot,
+                    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
+                    std::string  sgcuts, // Signal cuts
+                    std::string  bgcuts, // Background cuts
+                    TString      method, // ONLY getKinBinBSAGeneric ('BSA') is allowed at the moment
+                    std::string  binvar, // Variable name to bin in
+                    int          nbins, // Number of bins
+                    double     * bins, // Bin limits (length=nbins+1)
+                    int        * poly4bins, // mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
+                    double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
+                    bool         use_bgfraction, // whether to use specified bgfraction
+                    double       pol, // Luminosity averaged beam polarization
+                    std::vector<std::string>  depolvars, // Depolarization variable names
+                    std::string  mass_name, // mass variable name for signal fit
+                    int          n_mass_bins, // number of mass bins
+                    double       mass_min, // mass variable max for signal fit
+                    double       mass_max, // mass variable min for signal fit
+                    double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
+                    double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
+                    std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  helicity_name = "heli", // Branch name for helicity
+                    std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
+                    int          nparams = 2, // number of parameters in fit formula above
+                    std::vector<double> params = std::vector<double>(2), // initial fit parameters
+                    std::string  fitopt = "S", // option for ROOT <TH1> -> Fit() call
+                    std::string  fitvarx = "dphi", // fitvariable branch name to use
+                    std::string  fitvarxtitle = "#Delta#phi", // fit variable axis title
+                    int          n_fitvarx_bins = 10, // number of bins for fit variable if using LF method
+                    double       fitvarx_min = 0.0, // fit variable minimum
+                    double       fitvarx_max = 2*TMath::Pi(), // fit variable maximum
+                    std::string  graph_title = "BSA A_{LU} vs. #Delta#phi", // Histogram title
+                    int          marker_color = 4, // 4 is blue
+                    int          marker_style = 20, // 20 is circle
+                    std::ostream &out = std::cout  // Output for all messages
+                    ) {
+
+    // Check arguments
+    if (method != "BSA1D") {out << " *** ERROR *** Method must be BSA1D.  Exiting...\n"; return;}
+    if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
+
+    // Starting message
+    out << "----------------------- getKinBinnedGraphBSA1DGenericMCRooFit ----------------------\n";
+    out << "Getting " << binvar << " binned hist...\n";
+    out << "bins = { "; for (int i=0; i<nbins; i++) { out << bins[i] << " , ";} out << bins[nbins] << " }\n";
+
+    // Make output directory in ROOT file and cd
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
+
+    // Initialize data arrays
+    double xs[nbins];
+    double exs[nbins];
+    int    counts[nbins];
+    double xs_bg[nbins];
+    double exs_bg[nbins];
+    int    counts_bg[nbins];
+
+    double ys[nparams][nbins];
+    double eys[nparams][nbins];
+    double ys_bg[nparams][nbins];
+    double eys_bg[nparams][nbins];
+    double ys_corrected[nparams][nbins];
+    double eys_corrected[nparams][nbins];
+    
+    double bgfractions[nbins];
+    double ebgfractions[nbins];
+    double bgfractions_ls[nbins];
+    double ebgfractions_ls[nbins];
+    double bgfractions_us[nbins];
+    double ebgfractions_us[nbins];
+    double bgfractions_sb[nbins];
+    double ebgfractions_sb[nbins];
+
+    // Loop bins and get data
+    for (int binidx=0; binidx<nbins; binidx++) {
+        double bin_min = bins[binidx];
+        double bin_max = bins[binidx+1];
+
+        // Make bin cut on frame
+        std::string  bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
+        auto bin_frame = frame.Filter(bin_cut.c_str());
+
+        // Get background fraction for bin from mass fit
+        bgfractions[binidx] = bgfraction; //NOTE: This is a default setting that gets overridden if use_bgfraction==false.
+        if (!use_bgfraction) {
+            std::string  massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+            std::string  bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
+            TArrayF* massFitData;
+
+            if (poly4bins[binidx]==0) {
+                out<<"DEBUGGING: -----> Call to LambdaMassFit"<<std::endl;//DEBUGGING
+                massFitData = LambdaMassFitMC(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        dtheta_p_max,
+                        dtheta_pim_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
+            } else {
+                out<<"DEBUGGING: -----> Call to LambdaMassFitPoly4BG()"<<std::endl;//DEBUGGING
+                massFitData = LambdaMassFitPoly4BGMC(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        dtheta_p_max,
+                        dtheta_pim_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
+            }
+
+            // Add mass fit data to arrays
+            int k = 0;
+            bgfractions[binidx]     = massFitData->GetAt(k++);
+            ebgfractions[binidx]    = massFitData->GetAt(k++);
+            bgfractions_ls[binidx]  = massFitData->GetAt(k++);
+            ebgfractions_ls[binidx] = massFitData->GetAt(k++);
+            bgfractions_us[binidx]  = massFitData->GetAt(k++);
+            ebgfractions_us[binidx] = massFitData->GetAt(k++);
+            bgfractions_sb[binidx]  = massFitData->GetAt(k++);
+            ebgfractions_sb[binidx] = massFitData->GetAt(k++);
+        }
+
+        // Compute bin results
+        TArrayF *binData;
+        std::string  binoutdir = Form("method_%s_bin_%s_%.3f_%.3f",(const char*)method,binvar.c_str(),bin_min,bin_max);
+        binData = (TArrayF*) getKinBinBSA1DGenericRooFitML(
+            binoutdir,
+            outroot,
+            frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+            sgcuts,
+            binvar,
+            bin_min,
+            bin_max,
+            pol,
+            depolvars,
+            helicity_name,
+            fitformula,
+            nparams,
+            params,
+            fitopt,
+            fitvarx,
+            fitvarxtitle,
+            n_fitvarx_bins,
+            fitvarx_min,
+            fitvarx_max,
+            out
+        );
+
+        // Get bin data
+        int k = 0;
+        xs[binidx]     = binData->GetAt(k++);
+        exs[binidx]    = binData->GetAt(k++);
+        counts[binidx] = binData->GetAt(k++);
+        for (int idx=0; idx<nparams; idx++) {
+            ys[idx][binidx] = binData->GetAt(k++);
+            eys[idx][binidx] = binData->GetAt(k++);
+        }
+
+        // Sideband subtraction background correction
+        if (bgfraction==1.00 && use_bgfraction) {
+            out << " *** WARNING *** bgfraction = 1 -> No BG correction made.\n";
+            
+            // Set BG corrected array to results array
+            for (int idx=0; idx<nparams; idx++) {
+                ys_corrected[idx][binidx]  = ys[idx][binidx];
+                eys_corrected[idx][binidx] = eys[idx][binidx];
+            }
+        } else {
+            TArrayF *bgBinData;
+            std::string  sbbinoutdir = Form("method_%s_sideband_bin_%s_%.3f_%.3f",(const char*)method,binvar.c_str(),bin_min,bin_max);
+            bgBinData = (TArrayF*) getKinBinBSA1DGenericRooFitML(
+                sbbinoutdir,
+                outroot,
+                frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+                bgcuts,
+                binvar,
+                bin_min,
+                bin_max,
+                pol,
+                depolvars,
+                helicity_name,
+                fitformula,
+                nparams,
+                params,
+                fitopt,
+                fitvarx,
+                fitvarxtitle,
+                n_fitvarx_bins,
+                fitvarx_min,
+                fitvarx_max,
+                out
+            );
+
+            // Get background bin data
+            int j = 0;
+            xs_bg[binidx]     = bgBinData->GetAt(j++);
+            exs_bg[binidx]    = bgBinData->GetAt(j++);
+            counts_bg[binidx] = bgBinData->GetAt(j++);
+            for (int idx=0; idx<nparams; idx++) {
+
+                // Add background data to arrays
+                ys_bg[idx][binidx] = bgBinData->GetAt(j++);
+                eys_bg[idx][binidx] = bgBinData->GetAt(j++);
+
+                // Compute background corrected data and add to arrays
+                ys_corrected[idx][binidx]  = (ys[idx][binidx] - bgfractions[binidx] * ys_bg[idx][binidx]) / (1 - bgfractions[binidx]);
+                eys_corrected[idx][binidx] = TMath::Abs(TMath::Sqrt(eys[idx][binidx]*eys[idx][binidx]+bgfractions[binidx]*bgfractions[binidx]*eys_bg[idx][binidx]*eys_bg[idx][binidx]) / (1 - bgfractions[binidx]));
+            }
+
+            // Output message
+            out << "--- BG Corrected Signal ---\n";
+            out << " bgfractions["<<binidx<<"]      = " << bgfractions[binidx] << "\n";//NOTE: ADDED 7/7/23
+            out << " ebgfractions["<<binidx<<"]     = " << ebgfractions[binidx] << "\n";
+            for (int idx=0; idx<nparams; idx++) {
+                out << " ys["<< idx <<"]["<<binidx<<"]            = " << ys[idx][binidx] << "\n";
+                out << " eys["<< idx <<"]["<<binidx<<"]           = " << eys[idx][binidx] << "\n";
+                out << " ys_bg["<< idx <<"]["<<binidx<<"]         = " << ys_bg[idx][binidx] << "\n";
+                out << " eys_bg["<< idx <<"]["<<binidx<<"]        = " << eys_bg[idx][binidx] << "\n";
+                out << " ys_corrected["<< idx <<"]["<<binidx<<"]  = " << ys_corrected[idx][binidx] << "\n";
+                out << " eys_corrected["<< idx <<"]["<<binidx<<"] = " << eys_corrected[idx][binidx] << "\n";
+            }
+            out << "---------------------------\n";
+        }
+    }
+
+    // Loop results and plot
+    for (int idx=0; idx<nparams; idx++) {
+
+        // Create graph of results binned in binvar
+        TGraphErrors *gr = new TGraphErrors(nbins,xs,ys_corrected[idx],exs,eys_corrected[idx]);
+        gr->Write("gr");
+
+        // Plot results graph
+        TCanvas *c1 = new TCanvas();
+        c1->SetBottomMargin(0.125);
+        c1->cd(0);
+
+        // Stylistic choices that aren't really necessary
+        gStyle->SetEndErrorSize(5); gStyle->SetTitleFontSize(0.05);
+        gr->SetMarkerSize(1.25);
+        gr->GetXaxis()->SetTitleSize(0.05);
+        gr->GetXaxis()->SetTitleOffset(0.9);
+        gr->GetYaxis()->SetTitleSize(0.05);
+        gr->GetYaxis()->SetTitleOffset(0.9);
+
+        // More necessary stylistic choices
+        gr->SetTitle(graph_title.c_str());
+        gr->SetMarkerColor(marker_color); // 4  blue
+        gr->SetMarkerStyle(marker_style); // 20 circle
+        gr->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
+        gr->GetXaxis()->SetTitle(binvar.c_str());
+        std::string ytitle = Form("BSA A%d",idx);
+        gr->GetYaxis()->SetTitle(ytitle.c_str());
+        gr->Draw("PA");
+
+        // Add CLAS12 Preliminary watermark
+        TLatex *lt = new TLatex(0.3,0.2,"CLAS12 Preliminary");
+        lt->SetTextAngle(45);
+        lt->SetTextColor(18);
+        lt->SetTextSize(0.1);
+        lt->SetNDC();
+        lt->Draw();
+
+        // Add zero line
+        TF1 *f2 = new TF1("f2","0",bins[0],bins[nbins]);
+        f2->SetLineColor(1); // 1 black
+        f2->SetLineWidth(1); // 1 thinnest
+        f2->Draw("SAME");
+
+        // Set outname and save
+        TString fname;
+        fname.Form("%s_%s_%s_%.3f_%.3f_A%d",(const char*)method,fitvarx.c_str(),binvar.c_str(),bins[0],bins[nbins],idx);
+        c1->Print(fname+".pdf");
+        gr->SaveAs(fname+".root","recreate");
+
+        // Output message
+        out << " Saved graph to " << fname << ".root\n";
+    }
+
+    // Cd out of outdir
+    outroot->cd("..");
+
+    // Ending message
+    out << "------------------- END of getKinBinnedGraphBSA1DGenericMCRooFit -------------------\n";
+
+} // getKinBinnedGraphBSA1DGenericMCRooFit()
+
+/** 
+* Get TGraph of generic BSA binned in given kinematic variable with or without bg correction.
+*/
+void getKinBinnedGraphBSA2DGenericV2(
+                    std::string  outdir,
+                    TFile      * outroot,
+                    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
+                    std::string  sgcuts, // Signal cuts
+                    std::string  bgcuts, // Background cuts
+                    TString      method, // ONLY getKinBinBSAGeneric ('BSA') is allowed at the moment
+                    std::string  binvar, // Variable name to bin in
+                    int          nbins, // Number of bins
+                    double     * bins, // Bin limits (length=nbins+1)
+                    int        * poly4bins, // mask of bins for which to use poly4 bg function (0->poly2,1->poly4) (length=nbins)
+                    double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
+                    bool         use_bgfraction, // whether to use specified bgfraction
+                    double       pol, // Luminosity averaged beam polarization
+                    std::vector<std::string>  depolvars, // Depolarization variable names
+                    std::string  mass_name, // mass variable name for signal fit
+                    int          n_mass_bins, // number of mass bins
+                    double       mass_min, // mass variable max for signal fit
+                    double       mass_max, // mass variable min for signal fit
+                    // double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
+                    // double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
+                    std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  helicity_name = "heli", // Branch name for helicity
+                    std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
+                    int          nparams = 2, // number of parameters in fit formula above
+                    std::vector<double> params = std::vector<double>(2), // initial fit parameters
+                    std::string  fitopt = "LS", // option for ROOT <TH1> -> Fit() call
+                    std::string  fitvarx = "dphi", // fitvariable branch name to use
+                    std::string  fitvarxtitle = "#Delta#phi", // fit variable axis title
+                    int          n_fitvarx_bins = 10, // number of bins for fit variable if using LF method
+                    double       fitvarx_min = 0.0, // fit variable minimum
+                    double       fitvarx_max = 2*TMath::Pi(), // fit variable maximum
+                    std::string  fitvary = "dphi", // fitvariable branch name to use
+                    std::string  fitvarytitle = "#Delta#phi", // fit variable axis title
+                    int          n_fitvary_bins = 10, // number of bins for fit variable if using LF method
+                    double       fitvary_min = 0.0, // fit variable minimum
+                    double       fitvary_max = 2*TMath::Pi(), // fit variable maximum
+                    std::string  graph_title = "BSA A_{LU} vs. #Delta#phi", // Histogram title
+                    int          marker_color = 4, // 4 is blue
+                    int          marker_style = 20, // 20 is circle
+                    std::ostream &out = std::cout  // Output for all messages
+                    ) {
+
+    // Check arguments
+    if (method != "BSA2D") {out << " *** ERROR *** Method must be BSA2D.  Exiting...\n"; return;}
+    if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
+
+    // Starting message
+    out << "----------------------- getKinBinnedGraphBSA2DGenericV2 ----------------------\n";
+    out << "Getting " << binvar << " binned hist...\n";
+    out << "bins = { "; for (int i=0; i<nbins; i++) { out << bins[i] << " , ";} out << bins[nbins] << " }\n";
+
+    // Make output directory in ROOT file and cd
+    outroot->mkdir(outdir.c_str());
+    outroot->cd(outdir.c_str());
+
+    // Initialize data arrays
+    double xs[nbins];
+    double exs[nbins];
+    int    counts[nbins];
+    double xs_bg[nbins];
+    double exs_bg[nbins];
+    int    counts_bg[nbins];
+
+    double ys[nparams][nbins];
+    double eys[nparams][nbins];
+    double ys_bg[nparams][nbins];
+    double eys_bg[nparams][nbins];
+    double ys_corrected[nparams][nbins];
+    double eys_corrected[nparams][nbins];
+    
+    double bgfractions[nbins];
+    double ebgfractions[nbins];
+    double bgfractions_ls[nbins];
+    double ebgfractions_ls[nbins];
+    double bgfractions_us[nbins];
+    double ebgfractions_us[nbins];
+    double bgfractions_sb[nbins];
+    double ebgfractions_sb[nbins];
+
+    // Loop bins and get data
+    for (int binidx=0; binidx<nbins; binidx++) {
+        double bin_min = bins[binidx];
+        double bin_max = bins[binidx+1];
+
+        // Make bin cut on frame
+        std::string  bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
+        auto bin_frame = frame.Filter(bin_cut.c_str());
+
+        // Get background fraction for bin from mass fit
+        bgfractions[binidx] = bgfraction; //NOTE: This is a default setting that gets overridden if use_bgfraction==false.
+        if (!use_bgfraction) {
+            std::string  massoutdir = Form("mass_fit_bin_%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+            std::string  bin_title  = Form("%.3f #leq %s < %.3f  Invariant Mass p#pi^{-}",bin_min,binvar.c_str(),bin_max);
+            TArrayF* massFitData;
+
+            if (poly4bins[binidx]==0) {
+                out<<"DEBUGGING: -----> Call to LambdaMassFit"<<std::endl;//DEBUGGING
+                massFitData = LambdaMassFit(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        // dtheta_p_max,
+                        // dtheta_pim_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
+            } else {
+                out<<"DEBUGGING: -----> Call to LambdaMassFitPoly4BG()"<<std::endl;//DEBUGGING
+                massFitData = LambdaMassFitPoly4BG(
+                        massoutdir,
+                        outroot,
+                        bin_frame,
+                        mass_name,
+                        n_mass_bins,
+                        mass_min,
+                        mass_max,
+                        // dtheta_p_max,
+                        // dtheta_pim_max,
+                        mass_draw_opt,
+                        bin_title,
+                        out
+                        );
+            }
+
+            // Add mass fit data to arrays
+            int k = 0;
+            bgfractions[binidx]     = massFitData->GetAt(k++);
+            ebgfractions[binidx]    = massFitData->GetAt(k++);
+            bgfractions_ls[binidx]  = massFitData->GetAt(k++);
+            ebgfractions_ls[binidx] = massFitData->GetAt(k++);
+            bgfractions_us[binidx]  = massFitData->GetAt(k++);
+            ebgfractions_us[binidx] = massFitData->GetAt(k++);
+            bgfractions_sb[binidx]  = massFitData->GetAt(k++);
+            ebgfractions_sb[binidx] = massFitData->GetAt(k++);
+        }
+
+        // Compute bin results
+        TArrayF *binData;
+        std::string  binoutdir = Form("method_%s_bin_%s_%.3f_%.3f",(const char*)method,binvar.c_str(),bin_min,bin_max);
+        binData = (TArrayF*) getKinBinBSA2DGenericV2(
+            binoutdir,
+            outroot,
+            frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+            sgcuts,
+            binvar,
+            bin_min,
+            bin_max,
+            pol,
+            depolvars,
+            helicity_name,
+            fitformula,
+            nparams,
+            params,
+            fitopt,
+            fitvarx,
+            fitvarxtitle,
+            n_fitvarx_bins,
+            fitvarx_min,
+            fitvarx_max,
+            fitvary,
+            fitvarytitle,
+            n_fitvary_bins,
+            fitvary_min,
+            fitvary_max,
+            out
+        );
+
+        // Get bin data
+        int k = 0;
+        xs[binidx]     = binData->GetAt(k++);
+        exs[binidx]    = binData->GetAt(k++);
+        counts[binidx] = binData->GetAt(k++);
+        for (int idx=0; idx<nparams; idx++) {
+            ys[idx][binidx] = binData->GetAt(k++);
+            eys[idx][binidx] = binData->GetAt(k++);
+        }
+
+        // Sideband subtraction background correction
+        if (bgfraction==1.00 && use_bgfraction) {
+            out << " *** WARNING *** bgfraction = 1 -> No BG correction made.\n";
+            
+            // Set BG corrected array to results array
+            for (int idx=0; idx<nparams; idx++) {
+                ys_corrected[idx][binidx]  = ys[idx][binidx];
+                eys_corrected[idx][binidx] = eys[idx][binidx];
+            }
+        } else {
+            TArrayF *bgBinData;
+            std::string  sbbinoutdir = Form("method_%s_sideband_bin_%s_%.3f_%.3f",(const char*)method,binvar.c_str(),bin_min,bin_max);
+            bgBinData = (TArrayF*) getKinBinBSA2DGenericV2(
+                sbbinoutdir,
+                outroot,
+                frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
+                bgcuts,
+                binvar,
+                bin_min,
+                bin_max,
+                pol,
+                depolvars,
+                helicity_name,
+                fitformula,
+                nparams,
+                params,
+                fitopt,
+                fitvarx,
+                fitvarxtitle,
+                n_fitvarx_bins,
+                fitvarx_min,
+                fitvarx_max,
+                fitvary,
+                fitvarytitle,
+                n_fitvary_bins,
+                fitvary_min,
+                fitvary_max,
+                out
+            );
+
+            // Get background bin data
+            int j = 0;
+            xs_bg[binidx]     = bgBinData->GetAt(j++);
+            exs_bg[binidx]    = bgBinData->GetAt(j++);
+            counts_bg[binidx] = bgBinData->GetAt(j++);
+            for (int idx=0; idx<nparams; idx++) {
+
+                // Add background data to arrays
+                ys_bg[idx][binidx] = bgBinData->GetAt(j++);
+                eys_bg[idx][binidx] = bgBinData->GetAt(j++);
+
+                // Compute background corrected data and add to arrays
+                ys_corrected[idx][binidx]  = (ys[idx][binidx] - bgfractions[binidx] * ys_bg[idx][binidx]) / (1 - bgfractions[binidx]);
+                eys_corrected[idx][binidx] = TMath::Abs(TMath::Sqrt(eys[idx][binidx]*eys[idx][binidx]+bgfractions[binidx]*bgfractions[binidx]*eys_bg[idx][binidx]*eys_bg[idx][binidx]) / (1 - bgfractions[binidx]));
+            }
+
+            // Output message
+            out << "--- BG Corrected Signal ---\n";
+            out << " bgfractions["<<binidx<<"]      = " << bgfractions[binidx] << "\n";//NOTE: ADDED 7/7/23
+            out << " ebgfractions["<<binidx<<"]     = " << ebgfractions[binidx] << "\n";
+            for (int idx=0; idx<nparams; idx++) {
+                out << " ys["<< idx <<"]["<<binidx<<"]            = " << ys[idx][binidx] << "\n";
+                out << " eys["<< idx <<"]["<<binidx<<"]           = " << eys[idx][binidx] << "\n";
+                out << " ys_bg["<< idx <<"]["<<binidx<<"]         = " << ys_bg[idx][binidx] << "\n";
+                out << " eys_bg["<< idx <<"]["<<binidx<<"]        = " << eys_bg[idx][binidx] << "\n";
+                out << " ys_corrected["<< idx <<"]["<<binidx<<"]  = " << ys_corrected[idx][binidx] << "\n";
+                out << " eys_corrected["<< idx <<"]["<<binidx<<"] = " << eys_corrected[idx][binidx] << "\n";
+            }
+            out << "---------------------------\n";
+        }
+    }
+
+    // Loop results and plot
+    for (int idx=0; idx<nparams; idx++) {
+
+        // Create graph of results binned in binvar
+        TGraphErrors *gr = new TGraphErrors(nbins,xs,ys_corrected[idx],exs,eys_corrected[idx]);
+        gr->Write("gr");
+
+        // Plot results graph
+        TCanvas *c1 = new TCanvas();
+        c1->SetBottomMargin(0.125);
+        c1->cd(0);
+
+        // Stylistic choices that aren't really necessary
+        gStyle->SetEndErrorSize(5); gStyle->SetTitleFontSize(0.05);
+        gr->SetMarkerSize(1.25);
+        gr->GetXaxis()->SetTitleSize(0.05);
+        gr->GetXaxis()->SetTitleOffset(0.9);
+        gr->GetYaxis()->SetTitleSize(0.05);
+        gr->GetYaxis()->SetTitleOffset(0.9);
+
+        // More necessary stylistic choices
+        gr->SetTitle(graph_title.c_str());
+        gr->SetMarkerColor(marker_color); // 4  blue
+        gr->SetMarkerStyle(marker_style); // 20 circle
+        gr->GetXaxis()->SetRangeUser(bins[0],bins[nbins]);                                                       
+        gr->GetXaxis()->SetTitle(binvar.c_str());
+        std::string ytitle = Form("BSA A%d",idx);
+        gr->GetYaxis()->SetTitle(ytitle.c_str());
+        gr->Draw("PA");
+
+        // Add CLAS12 Preliminary watermark
+        TLatex *lt = new TLatex(0.3,0.2,"CLAS12 Preliminary");
+        lt->SetTextAngle(45);
+        lt->SetTextColor(18);
+        lt->SetTextSize(0.1);
+        lt->SetNDC();
+        lt->Draw();
+
+        // Add zero line
+        TF1 *f2 = new TF1("f2","0",bins[0],bins[nbins]);
+        f2->SetLineColor(1); // 1 black
+        f2->SetLineWidth(1); // 1 thinnest
+        f2->Draw("SAME");
+
+        // Set outname and save
+        TString fname;
+        fname.Form("%s_%s_%s_%s_%.3f_%.3f_A%d",(const char*)method,fitvarx.c_str(),fitvary.c_str(),binvar.c_str(),bins[0],bins[nbins],idx);
+        c1->Print(fname+".pdf");
+        gr->SaveAs(fname+".root","recreate");
+
+        // Output message
+        out << " Saved graph to " << fname << ".root\n";
+    }
+
+    // Cd out of outdir
+    outroot->cd("..");
+
+    // Ending message
+    out << "------------------- END of getKinBinnedGraphBSA2DGenericV2 -------------------\n";
+
+} // getKinBinnedGraphBSA2DGenericV2()
 
 /** 
 * Get TGraph of generic BSA binned in given kinematic variable with or without bg correction.
