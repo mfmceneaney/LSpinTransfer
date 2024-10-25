@@ -37,7 +37,7 @@ TArrayF* getMultiDBinSAGeneric(
     std::vector<std::string> binvars,
     int          binid,
     double       pol,
-    std::string  depolvar      = "depol",
+    std::vector<std::string> depolvars = {"depol"},
     std::string  helicity_name = "heli",
     std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
     int          nparams       = 2,
@@ -68,7 +68,14 @@ TArrayF* getMultiDBinSAGeneric(
     }
 
     // Compute depolarization factor
-    double depol = (double)*f.Mean(depolvar.c_str());
+    std::vector<double> depols;
+    std::vector<double> depolerrs;
+    for (int i=0; i<depolvars.size(); i++) {
+        double depol    = (double)*f.Mean(depolvars[i].c_str());
+        double depolerr = (double)*f.StdDev(depolvars[i].c_str());
+        depols.push_back(depol);
+        depolerrs.push_back(depolerr);
+    }
     //TODO: Need to figure out why Stefan computed bin average of epsilon but not overall depolarization factor...
 
     // Make subdirectory
@@ -131,7 +138,12 @@ TArrayF* getMultiDBinSAGeneric(
     out << " ]" << std::endl;
     out << " bincount   = " << count << std::endl;
     out << " pol        = " << pol << std::endl;
-    out << " depol      = " << depol << std::endl;
+    out << " depols  = [" ;
+    for (int idx=0; idx<depols.size(); idx++) {
+        out << depols[idx];
+        if (idx<depols.size()-1) { out << " , "; }
+    }
+    out << "]" << std::endl;
     out << " fitformula = " << fitformula.c_str() << std::endl;
     out << " nparams    = " << nparams <<std::endl;
     out << " params = [" ;
@@ -149,9 +161,9 @@ TArrayF* getMultiDBinSAGeneric(
     legend->SetHeader("Fit Info:","c");
     legend->SetMargin(0.1);
     legend->AddEntry((TObject*)0, Form("#chi^{2}/NDF = %.2f",chi2ndf), Form(" %g ",chi2));
-    legend->AddEntry((TObject*)0, Form("Depol = %.2f",depol), Form(" %g ",depol));
     for (int idx=0; idx<nparams; idx++) {
         legend->AddEntry((TObject*)0, Form("A%d = %.3f #pm %.3f",idx,pars[idx],Epars[idx]), Form(" %g ",chi2));
+        legend->AddEntry((TObject*)0, Form("D%d = %.2f #pm %.2f",idx,depols[idx],depolerrs[idx]), Form(" %g ",chi2));
     }
     legend->Draw();
 
@@ -165,17 +177,20 @@ TArrayF* getMultiDBinSAGeneric(
     outroot->cd();
 
     // Fill return array
-    TArrayF *arr = new TArrayF((int)(1+2*binvarmeans.size()+2*nparams)); //NOTE: dim= dim(counts+depol+binvarmeans+binvarstddevs+pars+Epars)
+    TArrayF *arr = new TArrayF((int)(1+2*binvarmeans.size()+2*depols.size()+2*nparams)); //NOTE: dim= dim(counts+depols+depolerrs+binvarmeans+binvarstddevs+pars+Epars)
     int k = 0;
     arr->AddAt(count,k++);
-    arr->AddAt(depol,k++);
+    for (int idx=0; idx<nparams; idx++) {
+        arr->AddAt(depols[idx],k++);
+        arr->AddAt(depolerrs[idx],k++);
+    }
     for (int idx=0; idx<binvarmeans.size(); idx++) {
         arr->AddAt(binvarmeans[idx],k++);
         arr->AddAt(binvarstddevs[idx],k++);
     }
     for (int idx=0; idx<nparams; idx++) {
-        arr->AddAt(pars[idx]/depol,k++);
-        arr->AddAt(Epars[idx]/depol,k++);
+        arr->AddAt(pars[idx],k++);
+        arr->AddAt(Epars[idx],k++);
     }
 
     return arr;
@@ -245,7 +260,7 @@ void getMultiDBinnedSAGenericMC(
                     // double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
                     // bool         use_bgfraction, // whether to use specified bgfraction
                     double       pol, // Luminosity averaged beam polarization
-                    std::string  depolvar, // Depolarization variable name
+                    std::vector<std::string>  depolvars = {"depol"}, // Depolarization variable name
                     // std::string  mass_name, // mass variable name for signal fit
                     // int          n_mass_bins, // number of mass bins
                     // double       mass_min, // mass variable max for signal fit
@@ -285,11 +300,14 @@ void getMultiDBinnedSAGenericMC(
     if (outroot->GetListOfKeys()->Contains(treename.c_str())) { tree = outroot->Get<TTree>(treename.c_str()); } 
     else  { tree = new TTree(treename.c_str(),treetitle.c_str()); }
 
-    // Create branches
+    // Create branch variables
     int binid = -1;
     int count = 0;
-    double depol = 1.0;
-    std::vector<double> binvarmeans, binvarstddevs, params, paramerrs; //NOTE: THESE ARE DEFINED ABOVE SO YOU CAN FILL TREE FROM REFERENCE.
+    std::vector<double> depols, depolerrs, binvarmeans, binvarstddevs, params, paramerrs; //NOTE: THESE ARE DEFINED ABOVE SO YOU CAN FILL TREE FROM REFERENCE.
+    for (int idx=0; idx<depols.size(); idx++) {
+        depols[idx]    = 0.0;
+        depolerrs[idx] = 0.0;
+    }
     for (int idx=0; idx<binvars.size(); idx++) {
         binvarmeans[idx]   = 0.0;
         binvarstddevs[idx] = 0.0;
@@ -299,16 +317,20 @@ void getMultiDBinnedSAGenericMC(
         paramerrs[idx] = 0.0;
     }
 
+    // Create branches
     auto binidBranch = tree->Branch("binid", &binid, "binid/I"); //NOTE: //TODO: Figure out if just need to get branches for existing file...?
     auto countBranch = tree->Branch("count", &count, "count/I");
-    auto depolBranch = tree->Branch("depol", &depol, "depol/D");
+    for (int i=0; i<depolvars.size(); i++) {
+        auto depolBranch    = tree->Branch(Form("%s_mean",depolvars[i].c_str()), &depols[i], Form("%s_mean/D",depolvars[i].c_str())); //NOTE: Need to use reference to double* not std::vector because when you reset everything gets overwritten...
+        auto depolerrBranch = tree->Branch(Form("%s_err",depolvars[i].c_str()), &depolerrs[i], Form("%s_err/D",depolvars[i].c_str()));
+    }
     for (int i=0; i<binvars.size(); i++) {
-        auto meanBranch   = tree->Branch(Form("%s_mean",binvars[i].c_str()), &binvarmeans[i], Form("%s_mean/D",binvars[i].c_str())); //NOTE: Need to use reference to double* not std::vector because when you reset everything gets overwritten...
-        auto stddevBranch = tree->Branch(Form("%s_err",binvars[i].c_str()), &binvarstddevs[i], Form("%s_err/D",binvars[i].c_str()));
+        auto meanBranch     = tree->Branch(Form("%s_mean",binvars[i].c_str()), &binvarmeans[i], Form("%s_mean/D",binvars[i].c_str())); //NOTE: Need to use reference to double* not std::vector because when you reset everything gets overwritten...
+        auto stddevBranch   = tree->Branch(Form("%s_err",binvars[i].c_str()), &binvarstddevs[i], Form("%s_err/D",binvars[i].c_str()));
     }
     for (int i=0; i<nparams; i++) {
-        auto asymBranch    = tree->Branch(Form("A%d",i), &params[i], Form("A%d/D",i));
-        auto asymerrBranch = tree->Branch(Form("A%d_err",i), &paramerrs[i], Form("A%d_err/D",i));
+        auto asymBranch     = tree->Branch(Form("A%d",i), &params[i], Form("A%d/D",i));
+        auto asymerrBranch  = tree->Branch(Form("A%d_err",i), &paramerrs[i], Form("A%d_err/D",i));
     }
 
     // Make output directory in ROOT file and cd
@@ -336,7 +358,7 @@ void getMultiDBinnedSAGenericMC(
             binvars,
             binids[binidx],
             pol,
-            depolvar,
+            depolvars,
             helicity_name,
             fitformula,
             nparams,
@@ -348,11 +370,13 @@ void getMultiDBinnedSAGenericMC(
             out
         );
 
-        // Organize results from bin data
-        // std::vector<double> binvarmeans, binvarstddevs, params, paramerrs; //NOTE: THESE ARE DEFINED ABOVE SO YOU CAN FILL TREE FROM REFERENCE.
+        // Organize results from bin data and add to reference variables so that they will fill the tree
         int k = 0;
         count = (int)binData->GetAt(k++);
-        depol = (int)binData->GetAt(k++);
+        for (int idx=0; idx<depolvars.size(); idx++) {
+            depols[idx]    = (double)binData->GetAt(k++);
+            depolerrs[idx] = (double)binData->GetAt(k++);
+        }
         for (int idx=0; idx<binvars.size(); idx++) {
             binvarmeans[idx]   = (double)binData->GetAt(k++);
             binvarstddevs[idx] = (double)binData->GetAt(k++);

@@ -157,23 +157,38 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "epsilonvarformulamc: " << epsilonvarformulamc << std::endl;
 
-    std::string depolvar = "depol";
-    if (node["depolvar"]) {
-        depolvar = node["depolvar"].as<std::string>();
+    std::vector<std::string> depolvars;
+    if (node["depolvars"]) {
+        depolvars = node["depolvars"].as<std::vector<std::string>>();
     }
-    std::cout << "depolvar: " << depolvar << std::endl;
+    std::cout << "depolvars: [ ";
+    for (int idx=0; idx<depolvars.size(); idx++) {
+        if (idx!=depolvars.size()-1) { std::cout<<depolvars[idx]<<", "; }
+        else { std::cout<<depolvars[idx]; }
+    }
+    std::cout<<" ]"<<std::endl;
 
-    std::string depolvarformula = "";
-    if (node["depolvarformula"]) {
-        depolvarformula = node["depolvarformula"].as<std::string>();
+    std::vector<std::string> depolvarformulas;
+    if (node["depolvarformulas"]) {
+        depolvarformulas = node["depolvarformulas"].as<std::vector<std::string>>();
     }
-    std::cout << "depolvarformula: " << depolvarformula << std::endl;
+    std::cout << "depolvarformulas: [ ";
+    for (int idx=0; idx<depolvarformulas.size(); idx++) {
+        if (idx!=depolvarformulas.size()-1) { std::cout<<depolvarformulas[idx]<<", "; }
+        else { std::cout<<depolvarformulas[idx]; }
+    }
+    std::cout<<" ]"<<std::endl;
 
-    std::string depolvarformulamc = "";
-    if (node["depolvarformulamc"]) {
-        depolvarformulamc = node["depolvarformulamc"].as<std::string>();
+    std::vector<std::string> depolvarformulasmc;
+    if (node["depolvarformulasmc"]) {
+        depolvarformulasmc = node["depolvarformulasmc"].as<std::vector<std::string>>();
     }
-    std::cout << "depolvarformulamc: " << depolvarformulamc << std::endl;
+    std::cout << "depolvarformulasmc: [ ";
+    for (int idx=0; idx<depolvarformulasmc.size(); idx++) {
+        if (idx!=depolvarformulasmc.size()-1) { std::cout<<depolvarformulasmc[idx]<<", "; }
+        else { std::cout<<depolvarformulasmc[idx]; }
+    }
+    std::cout<<" ]"<<std::endl;
     //----------------------------------------------------------------------------------------------------//
 
     std::string suffix1 = "pi";
@@ -469,7 +484,10 @@ void analysis(const YAML::Node& node) {
     std::string fitvar_mc = Form("%s_mc",fitvar.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string gammavar_mc = Form("%s_mc",gammavar.c_str());//NOTE: CHANGE GAMMAVAR->GAMMAVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string epsilonvar_mc = Form("%s_mc",epsilonvar.c_str());//NOTE: CHANGE EPSILONVAR->EPSILONVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
-    std::string depolvar_mc = Form("%s_mc",depolvar.c_str());//NOTE: CHANGE DEPOLVAR->DEPOLVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
+    std::vector<std::string> depolvars_mc;
+    for (int idx=0; idx<depolvars.size(); idx++) {
+        depolvars_mc.push_back(Form("%s_mc",depolvars[idx].c_str()));
+    } //NOTE: CHANGE DEPOLVAR->DEPOLVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string mc_cuts = "sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0";//NOTE: NOT SURE THAT THESE ARE STILL NECESSARY, 9/14/23.
     TF1 *fsgasyms = new TF2("fsgasyms",fitformula.c_str(),fitvar_min,fitvar_max);
     for (int idx=0; idx<nparams; idx++) { fsgasyms->SetParameter(idx,sgasyms[idx]); }
@@ -483,21 +501,40 @@ void analysis(const YAML::Node& node) {
     std::string dphi_name2   = Form("dphi%s",suffix2.c_str());
     std::string theta_name2 = Form("theta%s",suffix2.c_str());
     std::string phi_name2   = Form("phi%s",suffix2.c_str());
+
+    // Pre-define depolarization variables.
+    auto d2 = (!inject_asym) ? d
+                .Define(gammavar.c_str(),gammavarformula.c_str())
+                .Define(epsilonvar.c_str(),epsilonvarformula.c_str())
+                .Define(depolvars[0].c_str(),depolvarformulas[0].c_str()) :
+                d
+                .Define(gammavar.c_str(),gammavarformula.c_str())
+                .Define(gammavar_mc.c_str(),gammavarformulamc.c_str())
+                .Define(epsilonvar.c_str(),epsilonvarformula.c_str())
+                .Define(epsilonvar_mc.c_str(),epsilonvarformulamc.c_str())
+                .Define(depolvars[0].c_str(),depolvarformulas[0].c_str())
+                .Define(depolvars_mc[0].c_str(),depolvarformulasmc[0].c_str()); 
+    for (int idx=1; idx<depolvars.size(); idx++) {
+        d2 = (!inject_asym) ? d2.
+                                Define(depolvars[idx].c_str(),depolvarformulas[idx].c_str()) :
+                                d2
+                                .Define(depolvars[idx].c_str(),depolvarformulas[idx].c_str())
+                                .Define(depolvars_mc[idx].c_str(),depolvarformulasmc[idx].c_str());
+    }
+
+    // Define fit variables if fit formulas are not empty
+    bool define_fitvars = (fitvarformula.size()!=0 && fitvarformulamc.size()!=0);
+    if (define_fitvars) {
+        d2 = (!inject_asym) ? d2
+                                .Define(fitvar.c_str(),fitvarformula.c_str()) :
+                                d2
+                                .Define(fitvar.c_str(),fitvarformula.c_str())
+                                .Define(fitvar_mc.c_str(),fitvarformulamc.c_str());
+    } // if (define_fitvars) {
+
     auto frame = (!inject_asym) ? d.Filter(cuts.c_str()) 
-                    .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
-                    .Define(gammavar.c_str(),gammavarformula.c_str())
-                    .Define(epsilonvar.c_str(),epsilonvarformula.c_str())
-                    .Define(depolvar.c_str(),depolvarformula.c_str())
-                    .Define(fitvar.c_str(),fitvarformula.c_str()) :
+                    .Define(helicity_name.c_str(), "-helicity") : // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
                     d
-                    .Define(fitvar.c_str(),fitvarformula.c_str())
-                    .Define(fitvar_mc.c_str(),fitvarformulamc.c_str())
-                    .Define(gammavar.c_str(),gammavarformula.c_str())
-                    // .Define(gammavar_mc.c_str(),gammavarformulamc.c_str())
-                    .Define(epsilonvar.c_str(),epsilonvarformula.c_str())
-                    // .Define(epsilonvar_mc.c_str(),epsilonvarformulamc.c_str())
-                    .Define(depolvar.c_str(),depolvarformula.c_str())
-                    // .Define(depolvar_mc.c_str(),depolvarformulamc.c_str())
                     .Define(dtheta_name1.c_str(),[](float theta_p1, float theta_p1_mc){ return (float)TMath::Abs(theta_p1-theta_p1_mc); },{theta_name1.c_str(),Form("%s_mc",theta_name1.c_str())})
                     .Define(dphi_name1.c_str(),[](float phi_p1, float phi_p1_mc){
                         return (float) (TMath::Abs(phi_p1-phi_p1_mc)<TMath::Pi()
@@ -562,7 +599,7 @@ void analysis(const YAML::Node& node) {
         // double       bgfraction, // Background fraction for background correction //NOTE: NOW CALCULATED SEPARATELY FOR EACH BIN.
         // use_bgfraction, // bool         use_bgfraction, // whether to use specified bgfraction
         beam_polarization, // double       pol, // Luminosity averaged beam polarization
-        depolvar, //std::string  depolvar      = "depol", // Depolarization variable name
+        depolvars, //std::vector<std::string>  depolvar      = {"depol"}, // Depolarization variable name
         // mass_name, // std::string  mass_name, // mass variable name for signal fit
         // n_mass_bins, // int          n_mass_bins, // number of mass bins
         // mass_min, // double       mass_min, // mass variable max for signal fit
