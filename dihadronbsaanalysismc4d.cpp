@@ -42,13 +42,13 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "tree: " << tree << std::endl;
 
-    std::string outfilename = "";
+    std::string outfilename = "out.root";
     if (node["outfilename"]) {
         outfilename = node["outfilename"].as<std::string>();
     }
     std::cout << "outfilename: " << outfilename << std::endl;
 
-    std::string outfilemode = "";
+    std::string outfilemode = "RECREATE";
     if (node["outfilemode"]) {
         outfilemode = node["outfilemode"].as<std::string>();
     }
