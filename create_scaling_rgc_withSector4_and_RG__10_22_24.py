@@ -56,7 +56,7 @@ print("DEBUGGING: yaml_args = ",yaml_args)
 # sys.exit(0)
 
 # Set parameters
-pol = 0.85
+pol = 0.85 if len(neutron_target_name)==0 else 0.20
 asym = 0.2
 
 fracs_old = {}
