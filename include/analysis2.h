@@ -222,12 +222,14 @@ std::vector<std::string> getBinCuts(std::vector<std::string> binvars, std::vecto
             for (int bincuts_idx=0; bincuts_idx<bincuts.size(); bincuts_idx++) { //NOTE: Loop existing cuts
                 for (int bin_idx=0; bin_idx<binlims[binvar_idx].size()-1; bin_idx++) { //NOTE: Loop next bin variable
                     std::string newbincut = Form("%s && %.8f<=%s && %s<%.8f",bincuts[bincuts_idx].c_str(),binlims[binvar_idx][bin_idx],binvars[binvar_idx].c_str(),binvars[binvar_idx].c_str(),binlims[binvar_idx][bin_idx+1]); //NOTE: Add next binvar cut to existing cut
+                    std::cout<<"DEBUGGING: in 2nd loop: bincuts_idx, bin_idx, binvar_idx, = "<<bincuts_idx<<", "<<bin_idx<<", "<<binvar_idx<<std::endl;//DEBUGGING
+                    std::cout<<"DEBUGGING: ------------ newbincut                         = "<<newbincut.c_str()<<std::endl;//DEBUGGING
                     newbincuts.push_back(newbincut);
                 }
             }
 
             // Check recursion depth
-            if (binvar_idx>=binvars.size()-1) { return newbincuts; }//NOTE: IMPORTANT! NECESSARY TO AVOID INFINITE RECURSION
+            if (binvar_idx>=binvars.size()-1) { return newbincuts; }//NOTE: IMPORTANT! NECESSARY TO AVOID INFINITE RECURSION //////?TODO; see why this is not extecuting...
 
             // Increment and recurse
             newbincuts = getBinCuts(binvars,binlims,newbincuts,binvar_idx+1);
