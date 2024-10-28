@@ -396,7 +396,7 @@ def get_plots(
     #alternate_rg = 'rga' #NOTE: NOW DEFINED ABOVE AS FUNCTION PARAMETER
     print("-------------------------------------------------------------------> ALTERNATE RG = ",alternate_rg,"<-------------------------------------------------------")#DEBUGGING
     if alternate_rg == 'rgc':
-        rgh_data_counts = rga_data_counts * 1/np.square(y_ratio_v2_err) * 100/16.3 * 5/14 * np.square(3/20) #NOTE: COMMENTED OUT:  * (0.20) within np.square()  #NOTE: IMPORTANT!!! THIS IS ONLY  A VALID CONVERSION FACTOR FOR RGC!
+        rgh_data_counts = rga_data_counts * 1/np.square(y_ratio_v2_err) * 25/16.3 * 5/17 * np.square(3/20) #NOTE: COMMENTED OUT:  * (0.20) within np.square()  #NOTE: IMPORTANT!!! THIS IS ONLY  A VALID CONVERSION FACTOR FOR RGC!
         rgh_data_counts /= (12.112/9.818) # */ (integrated_xs_rgh_mc/integrated_xs_rgc_mc) #NOTE: THE /= is important because the acceptance is N_events per unit AREA #NOTE: OLD AS OF 10/21/24: /= (1.48/1.09)
     # rgh_mc_counts   *= n_inject_seeds #TODO: LOAD THIS FROM ROOT!!! get_data_from_tgrapherror(rgh_mc_path)
     x_rescaled      = x_mean #NOTE: KEEP ORIGINAL X
@@ -485,7 +485,7 @@ def get_plots(
     scale_factor = 1/np.square(y_ratio_v2_err) * 100/16 * 5/80 * 3/17 #NOTE: FOR RGA
     if alternate_rg == 'rgc':
         acceptance_ratio_rgh_over_rga /= (12.112/9.818) #NOTE: OLD AS OF 10/21/24: /= (1.48/1.09) #NOTE: SCALE BY CROSS SECTION RATIO FOR RGC
-        scale_factor = 1/np.square(y_ratio_v2_err) * 100/16.3 * 5/14 * np.square(3/20) #NOTE: COMMENTED OUT:  * (0.20) within np.square() #NOTE: FOR RGC #NOTE: AS OF 10/21/24 NO DILUTION FACTOR HERE SINCE RGC ALSO HAS NH3 TARGET
+        scale_factor = 1/np.square(y_ratio_v2_err) * 25/16.3 * 5/17 * np.square(3/20) #NOTE: COMMENTED OUT:  * (0.20) within np.square() #NOTE: FOR RGC #NOTE: AS OF 10/21/24 NO DILUTION FACTOR HERE SINCE RGC ALSO HAS NH3 TARGET
         print("DEBUGGING: scale_factor BEFORE = ",scale_factor)
         scale_factor /= (12.112/9.818) #NOTE: OLD AS OF 10/22/24: /= (1.48/1.09) # /= (integrated_xs_rgh_mc/integrated_xs_rgc_mc)
     print("DEBUGGING: acceptance_ratio_rgh_over_rga = ",acceptance_ratio_rgh_over_rga)
