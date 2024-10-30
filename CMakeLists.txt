@@ -32,6 +32,9 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 #----------------------------------------------------------------------#
 # ADD EXECUTABLES
+add_executable(test_splot test_splot.cpp)
+target_link_libraries(test_splot PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+
 add_executable(massdistr massdistr.cpp)
 target_link_libraries(massdistr PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
 add_executable(massdistrmc massdistrmc.cpp)
