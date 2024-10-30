@@ -83,7 +83,7 @@ void createDataset1D(
 
     // Check number of binning variables
     int nbinvars = binvars.size();
-    if (nbinvars>4) {std::cerr<<"ERROR: binvars.size() must be <=4"<<std::endl; return;}
+    if (nbinvars>1) {std::cerr<<"ERROR: binvars.size() must be 1"<<std::endl; return;}
 
     // Define independent variables
     RooRealVar h(helicity.c_str(), helicity.c_str(), -1.0, 1.0);
@@ -92,18 +92,14 @@ void createDataset1D(
 
     // Create binning variables
     RooRealVar binvar0((nbinvars>0 ? binvars[0].c_str() : helicity.c_str()), (nbinvars>0 ? binvars[0].c_str() : "binvar0"), (nbinvars>0 ? binvarlims[0][0] : -1.0), (nbinvars>0 ? binvarlims[0][1] : 1.0)); //NOTE: IMPORTANT!  These have to be declared individually here.  Creating in a loop and adding to a list will not work.
-    RooRealVar binvar1((nbinvars>1 ? binvars[1].c_str() : helicity.c_str()), (nbinvars>1 ? binvars[1].c_str() : "binvar1"), (nbinvars>1 ? binvarlims[1][0] : -1.0), (nbinvars>1 ? binvarlims[1][1] : 1.0));
-    RooRealVar binvar2((nbinvars>2 ? binvars[2].c_str() : helicity.c_str()), (nbinvars>2 ? binvars[2].c_str() : "binvar2"), (nbinvars>2 ? binvarlims[2][0] : -1.0), (nbinvars>2 ? binvarlims[2][1] : 1.0));
-    RooRealVar binvar3((nbinvars>3 ? binvars[3].c_str() : helicity.c_str()), (nbinvars>3 ? binvars[3].c_str() : "binvar3"), (nbinvars>3 ? binvarlims[3][0] : -1.0), (nbinvars>3 ? binvarlims[3][1] : 1.0));
-    RooArgList arglist(h,x,binvar0,binvar1,binvar2,binvar3); //NOTE: ONLY ALLOW UP TO 5 PARAMS FOR NOW.
 
     // Create RDataFrame to RooDataSet pointer
-    ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = frame.Book<float, float, float, float, float, float, float>(
-      RooDataSetHelper(name.c_str(), // Name
-          title.c_str(),             // Title
-          RooArgSet(h, x, m, binvar0, binvar1, binvar2, binvar3)         // Variables in this dataset
+    ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = frame.Book<float, float, float, float>(
+      RooDataSetHelper(name.c_str(),  // Name
+          title.c_str(),              // Title
+          RooArgSet(h, x, m, binvar0) // Variables in this dataset
           ),
-      {helicity.c_str(), fitvarx.c_str(), massvar.c_str(), binvar0.GetName(), binvar1.GetName(), binvar2.GetName(), binvar3.GetName()} // Column names in RDataFrame.
+      {helicity.c_str(), fitvarx.c_str(), massvar.c_str(), binvar0.GetName()} // Column names in RDataFrame.
     );
 
     // Import variables into workspace
@@ -111,9 +107,6 @@ void createDataset1D(
     w->import(x);
     w->import(m);
     w->import(binvar0);
-    w->import(binvar1);
-    w->import(binvar2);
-    w->import(binvar3);
 
     // Import data into the workspace
     w->import(*rooDataSetResult);
