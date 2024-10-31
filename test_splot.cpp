@@ -58,19 +58,7 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "cuts: " << cuts << std::endl;
 
-    std::string sgcuts = "";
-    if (node["sgcuts"]) {
-        sgcuts = node["sgcuts"].as<std::string>();
-    }
-    std::cout << "sgcuts: " << sgcuts << std::endl;
-
-    std::string bgcuts = "";
-    if (node["bgcuts"]) {
-        bgcuts = node["bgcuts"].as<std::string>();
-    }
-    std::cout << "bgcuts: " << bgcuts << std::endl;
-
-    std::string method = "BSA2D"; //NOTE: This can stay a std::string since it's a TString later...
+    std::string method = "BSA1D"; //NOTE: This can stay a std::string since it's a TString later...
     if (node["method"]) {
         method = node["method"].as<std::string>();
     }
@@ -375,43 +363,6 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "logpath: " << logpath << std::endl;
 
-    //NOTE: ADDED FOR TESTING 10/18/23
-    double u_sb_min = 0.0;
-    if (node["u_sb_min"]) {
-        u_sb_min = node["u_sb_min"].as<double>();
-    }
-    std::cout << "u_sb_min: " << u_sb_min << std::endl;
-
-    double u_sb_max = 0.0;
-    if (node["u_sb_max"]) {
-        u_sb_max = node["u_sb_max"].as<double>();
-    }
-    std::cout << "u_sb_max: " << u_sb_max << std::endl;
-
-    double l_sb_min = 0.0;
-    if (node["l_sb_min"]) {
-        l_sb_min = node["l_sb_min"].as<double>();
-    }
-    std::cout << "l_sb_min: " << l_sb_min << std::endl;
-
-    double l_sb_max = 0.0;
-    if (node["l_sb_max"]) {
-        l_sb_max = node["l_sb_max"].as<double>();
-    }
-    std::cout << "l_sb_max: " << l_sb_max << std::endl;
-
-    double sg_min = 0.0;
-    if (node["sg_min"]) {
-        sg_min = node["sg_min"].as<double>();
-    }
-    std::cout << "sg_min: " << sg_min << std::endl;
-
-    double sg_max = 0.0;
-    if (node["sg_max"]) {
-        sg_max = node["sg_max"].as<double>();
-    }
-    std::cout << "sg_max: " << sg_max << std::endl;
-
     int n_fitvar1_bins = 10;
     if (node["n_fitvar1_bins"]) {
         n_fitvar1_bins = node["n_fitvar1_bins"].as<int>();
@@ -430,17 +381,17 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "fitvar1_max: " << fitvar1_max << std::endl;
 
-    // Reset signal cuts if requested
-    if (sg_min>0.0 && sg_max>0.0) {
-        sgcuts = Form("%s>%.8f && %s<%.8f",mass_name.c_str(),sg_min,mass_name.c_str(),sg_max);
-        std::cout << "REASSIGNED: sgcuts: " << sgcuts << std::endl;
+    bool use_sumW2Error = true;
+    if (node["use_sumW2Error"]) {
+        use_sumW2Error = node["use_sumW2Error"].as<bool>();
     }
+    std::cout << "use_sumW2Error: " << use_sumW2Error << std::endl;
 
-    // Reset background cuts if requested
-    if (u_sb_min>0.0 && u_sb_max>0.0 && l_sb_min>0.0 && l_sb_max>0.0) {
-        bgcuts = Form("(%s>%.8f && %s<%.8f) || (%s>%.8f && %s<%.8f)",mass_name.c_str(),l_sb_min,mass_name.c_str(),l_sb_max,mass_name.c_str(),u_sb_min,mass_name.c_str(),u_sb_max);
-        std::cout << "REASSIGNED: bgcuts: " << bgcuts << std::endl;
+    bool use_splot = true;
+    if (node["use_splot"]) {
+        use_splot = node["use_splot"].as<bool>();
     }
+    std::cout << "use_splot: " << use_splot << std::endl;
 
     //NOTE: END ADDED FOR TESTING 10/18/23
 
@@ -591,10 +542,6 @@ void analysis(const YAML::Node& node) {
         // Set binvar outdir name
         std::string binvar_outdir = Form("binvar_%s",binvar.c_str());
 
-        std::vector<std::string> bincuts = {"0.0<=x<1.0"}; //TODO Need to pass bin cut for each bin in binning sscheme so binning cuts can be determined by external method
-        std::vector<std::string> binvars2 = {"x"};
-        std::vector<std::vector<double>> binvarlims = {{0.0,1.0}};// NOTE: THESE SHOULD JUST BE THE OUTERMOST BIN VARIABLE LIMITS FOR DEFINING THE BIN VARIABLES
-
         getKinBinnedAsymUBML1D(
             outdir, //std::string outdir,
             outroot, //TFile      *outroot,
@@ -623,8 +570,8 @@ void analysis(const YAML::Node& node) {
             nparams, //int         nparams         = 2,
             params, //std::vector<double> params  = std::vector<double>(5),
             fitvar1title, //std::string fitvarxtitle    = "#phi_{h p#pi^{-}}",
-            true, //bool        use_sumW2Error  = true,
-            true, //bool        use_splot       = true,
+            use_sumW2Error, //bool        use_sumW2Error  = true,
+            use_splot, //bool        use_splot       = true,
             graph_title, //std::string graph_title     = "BSA A_{LU} vs. #Delta#phi", // Histogram title
             marker_color, // int         marker_color    = 4, // 4 is blue
             marker_style, // int         marker_style    = 20, // 20 is circle
