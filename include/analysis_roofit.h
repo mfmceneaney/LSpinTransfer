@@ -103,10 +103,10 @@ void createDataset1D(
     RooRealVar binvar3((nbinvars>3 ? binvars[3].c_str() : "binvar3"), (nbinvars>3 ? binvars[3].c_str() : "binvar3"), (nbinvars>3 ? binvarlims[3][0] : -1.0), (nbinvars>3 ? binvarlims[3][1] : 1.0));
 
     // Define default bin variables if not defined so you don't get errors since variable names cannot conflict
-    if (!(nbinvars>0)) frame = frame.Define(binvar0.GetName(),"1.0");
-    if (!(nbinvars>1)) frame = frame.Define(binvar1.GetName(),"1.0");
-    if (!(nbinvars>2)) frame = frame.Define(binvar2.GetName(),"1.0");
-    if (!(nbinvars>3)) frame = frame.Define(binvar3.GetName(),"1.0");
+    if (!(nbinvars>0)) frame = frame.Define(binvar0.GetName(),"(float)1.0");
+    if (!(nbinvars>1)) frame = frame.Define(binvar1.GetName(),"(float)1.0");
+    if (!(nbinvars>2)) frame = frame.Define(binvar2.GetName(),"(float)1.0");
+    if (!(nbinvars>3)) frame = frame.Define(binvar3.GetName(),"(float)1.0");
 
     // Create depolarization variables
     RooRealVar depolvar0((ndepolvars>0 ? depolvars[0].c_str() : "depolvar0"), (ndepolvars>0 ? depolvars[0].c_str() : "depolvar0"), (ndepolvars>0 ? depolvarlims[0][0] : -1.0), (ndepolvars>0 ? depolvarlims[0][1] : 1.0)); //NOTE: IMPORTANT!  These have to be declared individually here.  Creating in a loop and adding to a list will not work.
@@ -117,11 +117,11 @@ void createDataset1D(
     RooArgList arglist(h,x,depolvar0,depolvar1,depolvar2,depolvar3,depolvar4); //NOTE: ONLY ALLOW UP TO 5 PARAMS FOR NOW.
 
     // Define default depolarization variables if not defined so you don't get errors since variable names cannot conflict
-    if (!(ndepolvars>0)) frame = frame.Define(depolvar0.GetName(),"1.0");
-    if (!(ndepolvars>1)) frame = frame.Define(depolvar1.GetName(),"1.0");
-    if (!(ndepolvars>2)) frame = frame.Define(depolvar2.GetName(),"1.0");
-    if (!(ndepolvars>3)) frame = frame.Define(depolvar3.GetName(),"1.0");
-    if (!(ndepolvars>4)) frame = frame.Define(depolvar4.GetName(),"1.0");
+    if (!(ndepolvars>0)) frame = frame.Define(depolvar0.GetName(),"(float)1.0");
+    if (!(ndepolvars>1)) frame = frame.Define(depolvar1.GetName(),"(float)1.0");
+    if (!(ndepolvars>2)) frame = frame.Define(depolvar2.GetName(),"(float)1.0");
+    if (!(ndepolvars>3)) frame = frame.Define(depolvar3.GetName(),"(float)1.0");
+    if (!(ndepolvars>4)) frame = frame.Define(depolvar4.GetName(),"(float)1.0");
 
     // Create RDataFrame to RooDataSet pointer
     ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = frame.Book<float, float, float, float, float, float, float, float, float, float, float, float>(
