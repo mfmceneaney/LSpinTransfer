@@ -78,12 +78,18 @@ void createDataset1D(
         double mmin,
         double mmax,
         std::vector<std::string> binvars,
-        std::vector<std::vector<double>> binvarlims //NOTE: THAT THESE SHOULD JUST BE THE OUTERMOST LIMITS!!!
+        std::vector<std::vector<double>> binvarlims, //NOTE: THAT THESE SHOULD JUST BE THE OUTERMOST LIMITS!!!
+        std::vector<std::string> depolvars,
+        std::vector<std::vector<double>> depolvarlims //NOTE: THAT THESE SHOULD JUST BE THE OUTERMOST LIMITS!!!
     ) {
 
     // Check number of binning variables
     int nbinvars = binvars.size();
-    if (nbinvars>1) {std::cerr<<"ERROR: binvars.size() must be 1"<<std::endl; return;}
+    if (nbinvars>4) {std::cerr<<"ERROR: binvars.size() must be <=4"<<std::endl; return;}
+
+    // Check number of binning variables
+    int ndepolvars = depolvars.size();
+    if (ndepolvars>5) {std::cerr<<"ERROR: depolvars.size() must be <=5"<<std::endl; return;}
 
     // Define independent variables
     RooRealVar h(helicity.c_str(), helicity.c_str(), -1.0, 1.0);
@@ -91,15 +97,38 @@ void createDataset1D(
     RooRealVar m(massvar.c_str(),  massvar.c_str(), mmin, mmax);
 
     // Create binning variables
-    RooRealVar binvar0((nbinvars>0 ? binvars[0].c_str() : helicity.c_str()), (nbinvars>0 ? binvars[0].c_str() : "binvar0"), (nbinvars>0 ? binvarlims[0][0] : -1.0), (nbinvars>0 ? binvarlims[0][1] : 1.0)); //NOTE: IMPORTANT!  These have to be declared individually here.  Creating in a loop and adding to a list will not work.
+    RooRealVar binvar0((nbinvars>0 ? binvars[0].c_str() : "binvar0"), (nbinvars>0 ? binvars[0].c_str() : "binvar0"), (nbinvars>0 ? binvarlims[0][0] : -1.0), (nbinvars>0 ? binvarlims[0][1] : 1.0)); //NOTE: IMPORTANT!  These have to be declared individually here.  Creating in a loop and adding to a list will not work.
+    RooRealVar binvar1((nbinvars>1 ? binvars[1].c_str() : "binvar1"), (nbinvars>1 ? binvars[1].c_str() : "binvar1"), (nbinvars>1 ? binvarlims[1][0] : -1.0), (nbinvars>1 ? binvarlims[1][1] : 1.0));
+    RooRealVar binvar2((nbinvars>2 ? binvars[2].c_str() : "binvar2"), (nbinvars>2 ? binvars[2].c_str() : "binvar2"), (nbinvars>2 ? binvarlims[2][0] : -1.0), (nbinvars>2 ? binvarlims[2][1] : 1.0));
+    RooRealVar binvar3((nbinvars>3 ? binvars[3].c_str() : "binvar3"), (nbinvars>3 ? binvars[3].c_str() : "binvar3"), (nbinvars>3 ? binvarlims[3][0] : -1.0), (nbinvars>3 ? binvarlims[3][1] : 1.0));
+
+    // Define default bin variables if not defined so you don't get errors since variable names cannot conflict
+    if (!(nbinvars>0)) frame = frame.Define(binvar0.GetName(),"1.0");
+    if (!(nbinvars>1)) frame = frame.Define(binvar1.GetName(),"1.0");
+    if (!(nbinvars>2)) frame = frame.Define(binvar2.GetName(),"1.0");
+    if (!(nbinvars>3)) frame = frame.Define(binvar3.GetName(),"1.0");
+
+    // Create depolarization variables
+    RooRealVar depolvar0((ndepolvars>0 ? depolvars[0].c_str() : "depolvar0"), (ndepolvars>0 ? depolvars[0].c_str() : "depolvar0"), (ndepolvars>0 ? depolvarlims[0][0] : -1.0), (ndepolvars>0 ? depolvarlims[0][1] : 1.0)); //NOTE: IMPORTANT!  These have to be declared individually here.  Creating in a loop and adding to a list will not work.
+    RooRealVar depolvar1((ndepolvars>1 ? depolvars[1].c_str() : "depolvar1"), (ndepolvars>1 ? depolvars[1].c_str() : "depolvar1"), (ndepolvars>1 ? depolvarlims[1][0] : -1.0), (ndepolvars>1 ? depolvarlims[1][1] : 1.0));
+    RooRealVar depolvar2((ndepolvars>2 ? depolvars[2].c_str() : "depolvar2"), (ndepolvars>2 ? depolvars[2].c_str() : "depolvar2"), (ndepolvars>2 ? depolvarlims[2][0] : -1.0), (ndepolvars>2 ? depolvarlims[2][1] : 1.0));
+    RooRealVar depolvar3((ndepolvars>3 ? depolvars[3].c_str() : "depolvar3"), (ndepolvars>3 ? depolvars[3].c_str() : "depolvar3"), (ndepolvars>3 ? depolvarlims[3][0] : -1.0), (ndepolvars>3 ? depolvarlims[3][1] : 1.0));
+    RooRealVar depolvar4((ndepolvars>4 ? depolvars[4].c_str() : "depolvar4"), (ndepolvars>4 ? depolvars[4].c_str() : "depolvar4"), (ndepolvars>4 ? depolvarlims[4][0] : -1.0), (ndepolvars>4 ? depolvarlims[4][1] : 1.0));
+    RooArgList arglist(h,x,depolvar0,depolvar1,depolvar2,depolvar3,depolvar4); //NOTE: ONLY ALLOW UP TO 5 PARAMS FOR NOW.
+
+    // Define default depolarization variables if not defined so you don't get errors since variable names cannot conflict
+    if (!(ndepolvars>0)) frame = frame.Define(depolvar0.GetName(),"1.0");
+    if (!(ndepolvars>1)) frame = frame.Define(depolvar1.GetName(),"1.0");
+    if (!(ndepolvars>2)) frame = frame.Define(depolvar2.GetName(),"1.0");
+    if (!(ndepolvars>3)) frame = frame.Define(depolvar3.GetName(),"1.0");
 
     // Create RDataFrame to RooDataSet pointer
-    ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = frame.Book<float, float, float, float>(
-      RooDataSetHelper(name.c_str(),  // Name
-          title.c_str(),              // Title
-          RooArgSet(h, x, m, binvar0) // Variables in this dataset
+    ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = frame.Book<float, float, float, float, float, float, float, float, float, float, float, float>(
+      RooDataSetHelper(name.c_str(), // Name
+          title.c_str(),             // Title
+          RooArgSet(h, x, m, binvar0, binvar1, binvar2, binvar3, depolvar0, depolvar1, depolvar2, depolvar3, depolvar4)         // Variables in this dataset
           ),
-      {helicity.c_str(), fitvarx.c_str(), massvar.c_str(), binvar0.GetName()} // Column names in RDataFrame.
+      {helicity.c_str(), fitvarx.c_str(), massvar.c_str(), binvar0.GetName(), binvar1.GetName(), binvar2.GetName(), binvar3.GetName(), depolvar0.GetName(), depolvar1.GetName(), depolvar2.GetName(), depolvar3.GetName(), depolvar4.GetName()} // Column names in RDataFrame.
     );
 
     // Import variables into workspace
@@ -107,6 +136,14 @@ void createDataset1D(
     w->import(x);
     w->import(m);
     w->import(binvar0);
+    w->import(binvar1);
+    w->import(binvar2);
+    w->import(binvar3);
+    w->import(depolvar0);
+    w->import(depolvar1);
+    w->import(depolvar2);
+    w->import(depolvar3);
+    w->import(depolvar4);
 
     // Import data into the workspace
     w->import(*rooDataSetResult);
@@ -554,6 +591,10 @@ void getKinBinnedAsymUBML1D(
     // Create bin var vector and outer bin lims vector
     std::vector binvars = {binvar};
     std::vector<std::vector<double>> binvarlims_outer = {{bins[0],bins[nbins]}};
+    std::vector<std::vector<double>> depolvarlims;
+    for (int idx=0; idx<depolvars.size(); idx++) {
+        depolvarlims.push_back({-2.0,2.0});//DEBUGGING: FOR NOW ASSUME ALL DEPOLARIZATION VARIABLES ARE IN THIS RANGE.
+    }
 
     // Create dataset
     createDataset1D(
@@ -569,7 +610,9 @@ void getKinBinnedAsymUBML1D(
         mmin,
         mmax,
         binvars,
-        binvarlims_outer
+        binvarlims_outer,
+        depolvars,
+        depolvarlims
     );
 
     // Apply Lambda mass fit
