@@ -316,6 +316,7 @@ TArrayF* getKinBinAsymUBML1D(
     std::string bintitle,
     double      pol,
     std::vector<std::string>   depolvars,
+    std::vector<std::vector<double>> depolvarlims,
     std::string  helicity_name = "heli",
     std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
     int          nparams       = 2,
@@ -352,7 +353,7 @@ TArrayF* getKinBinAsymUBML1D(
         // auto mean   = (double)*binframe.Mean(binvars[i].c_str());
         // auto stddev = (double)*binframe.StdDev(binvar[i].c_str());
         RooRealVar binvar(binvars[i].c_str(), binvars[i].c_str(), binvarlims[i][0], binvarlims[i][1]);
-        double mean   = bin_ds->mean(binvar); //TODO: How to get these from the bin variables??? -> That way they can be appropriately weighted for signal?
+        double mean   = bin_ds->mean(binvar);
         double stddev = TMath::Sqrt(bin_ds->moment(binvar,2.0));
         binvar_means.push_back(mean);
         binvar_errs.push_back(stddev);
@@ -364,13 +365,12 @@ TArrayF* getKinBinAsymUBML1D(
     for (int i=0; i<depolvars.size(); i++) {
         // double depol    = (double)*binframe.Mean(depolvars[i].c_str());
         // double depolerr = (double)*binframe.StdDev(depolvars[i].c_str());
-        double depol    = (double)*binframe.Mean(depolvars[i].c_str()); //TODO: How to get these from the bin variables??? -> That way they can be appropriately weighted for signal?
-        double depolerr = (double)*binframe.StdDev(depolvars[i].c_str());
-        depols.push_back(depol);
-        depolerrs.push_back(depolerr);
+        RooRealVar depolvar(depolvars[i].c_str(), depolvars[i].c_str(), depolvarlims[i][0], depolvarlims[i][1]);
+        double mean   = bin_ds->mean(depolvar);
+        double stddev = TMath::Sqrt(bin_ds->moment(depolvar,2.0));
+        depols.push_back(mean);
+        depolerrs.push_back(stddev);
     }
-    
-    //TODO: Need to figure out why Stefan computed bin average of epsilon but not overall depolarization factor...
 
     // Make subdirectory
     outroot->mkdir(outdir.c_str());
@@ -669,6 +669,7 @@ void getKinBinnedAsymUBML1D(
                                 (std::string)Form("bin_%d",binidx),//Bintitle
                                 pol,
                                 depolvars,
+                                depolvarlims,
                                 helicity_name,
                                 fitformula,
                                 nparams,
