@@ -121,6 +121,7 @@ void createDataset1D(
     if (!(ndepolvars>1)) frame = frame.Define(depolvar1.GetName(),"1.0");
     if (!(ndepolvars>2)) frame = frame.Define(depolvar2.GetName(),"1.0");
     if (!(ndepolvars>3)) frame = frame.Define(depolvar3.GetName(),"1.0");
+    if (!(ndepolvars>4)) frame = frame.Define(depolvar4.GetName(),"1.0");
 
     // Create RDataFrame to RooDataSet pointer
     ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = frame.Book<float, float, float, float, float, float, float, float, float, float, float, float>(
