@@ -273,7 +273,7 @@ void applySPlot(
 
     // Import sweighted datasets into workspace
     w->import(data_sg_sw);
-    w->import(data_sg_sw);
+    w->import(data_bg_sw);
 
 }
 
