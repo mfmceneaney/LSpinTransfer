@@ -88,6 +88,30 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "fitvar1title: " << fitvar1title << std::endl;
 
+    std::string fitvar2 = "";
+    if (node["fitvar2"]) {
+        fitvar2 = node["fitvar2"].as<std::string>();
+    }
+    std::cout << "fitvar2: " << fitvar2 << std::endl;
+
+    std::string fitvar2formula = "";
+    if (node["fitvar2formula"]) {
+        fitvar2formula = node["fitvar2formula"].as<std::string>();
+    }
+    std::cout << "fitvar2formula: " << fitvar2formula << std::endl;
+
+    std::string fitvar2formulamc = "";
+    if (node["fitvar2formulamc"]) {
+        fitvar2formulamc = node["fitvar2formulamc"].as<std::string>();
+    }
+    std::cout << "fitvar2formulamc: " << fitvar2formulamc << std::endl;
+
+    std::string fitvar2title = "dphi";
+    if (node["fitvar2title"]) {
+        fitvar2title = node["fitvar2title"].as<std::string>();
+    }
+    std::cout << "fitvar2title: " << fitvar2title << std::endl;
+
     // Define fit / injection function formulas
     std::string fitformula = "";
     if (node["fitformula"]) {
@@ -381,6 +405,24 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "fitvar1_max: " << fitvar1_max << std::endl;
 
+    int n_fitvar2_bins = 10;
+    if (node["n_fitvar2_bins"]) {
+        n_fitvar2_bins = node["n_fitvar2_bins"].as<int>();
+    }
+    std::cout << "n_fitvar2_bins: " << n_fitvar2_bins << std::endl;
+
+    double fitvar2_min = 0.0;
+    if (node["fitvar2_min"]) {
+        fitvar2_min = node["fitvar2_min"].as<double>();
+    }
+    std::cout << "fitvar2_min: " << fitvar2_min << std::endl;
+
+    double fitvar2_max = 2*TMath::Pi();
+    if (node["fitvar2_max"]) {
+        fitvar2_max = node["fitvar2_max"].as<double>();
+    }
+    std::cout << "fitvar2_max: " << fitvar2_max << std::endl;
+
     bool use_sumW2Error = true;
     if (node["use_sumW2Error"]) {
         use_sumW2Error = node["use_sumW2Error"].as<bool>();
@@ -432,8 +474,9 @@ void analysis(const YAML::Node& node) {
 
     // Create RDataFrame for statistics capabilities and reading tree and set branch names to use
     ROOT::RDataFrame d(tree, inpath);
-    std::string helicity_name       = "heli";
+    std::string helicity_name = "heli";
     std::string fitvar1_mc = Form("%s_mc",fitvar1.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
+    std::string fitvar2_mc = Form("%s_mc",fitvar2.c_str());//NOTE: CHANGE FITVAR->FITVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string gammavar_mc = Form("%s_mc",gammavar.c_str());//NOTE: CHANGE GAMMAVAR->GAMMAVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::string epsilonvar_mc = Form("%s_mc",epsilonvar.c_str());//NOTE: CHANGE EPSILONVAR->EPSILONVAR_MC AFTER THIS FOR SANITY CHECKING MC ASYMMETRY INJECTION
     std::vector<std::string> depolvars_mc;
@@ -445,9 +488,9 @@ void analysis(const YAML::Node& node) {
     // Set injection functions
     double y_min = 0.0;
     double y_max = 1.0;
-    TF1 *fsgasyms = new TF1("fsgasyms",fsgasymsformula.c_str(),y_min,y_max); //NOTE: args: y
+    TF2 *fsgasyms = new TF2("fsgasyms",fsgasymsformula.c_str(),y_min,y_max,fitvar2_min,fitvar2_max); //NOTE: args: y, cos_phi_h
     for (int idx=0; idx<sgasyms.size(); idx++) { fsgasyms->SetParameter(idx,sgasyms[idx]); }
-    TF1 *fbgasyms = new TF1("fbgasyms",fbgasymsformula.c_str(),y_min,y_max); //NOTE: args: y
+    TF2 *fbgasyms = new TF2("fbgasyms",fbgasymsformula.c_str(),y_min,y_max,fitvar2_min,fitvar2_max); //NOTE: args: y, cos_phi_h
     for (int idx=0; idx<bgasyms.size(); idx++) { fbgasyms->SetParameter(idx,bgasyms[idx]); }
 
     // Pre-define depolarization variables.
@@ -471,14 +514,22 @@ void analysis(const YAML::Node& node) {
     }
 
     // Define fit variables if fit formulas are not empty
-    bool define_fitvars = (fitvar1formula.size()!=0 && fitvar1formulamc.size()!=0);
-    if (define_fitvars) {
+    bool define_fitvar1 = (fitvar1formula.size()!=0 && fitvar1formulamc.size()!=0);
+    if (define_fitvar1) {
         d2 = (!inject_asym) ? d2
                                 .Define(fitvar1.c_str(),fitvar1formula.c_str()) :
                                 d2
                                 .Define(fitvar1.c_str(),fitvar1formula.c_str())
                                 .Define(fitvar1_mc.c_str(),fitvar1formulamc.c_str());
-    } // if (define_fitvars) {
+    } // if (define_fitvar1) {
+    bool define_fitvar2 = (fitvar2formula.size()!=0 && fitvar2formulamc.size()!=0);
+    if (define_fitvar2) {
+        d2 = (!inject_asym) ? d2
+                                .Define(fitvar2.c_str(),fitvar2formula.c_str()) :
+                                d2
+                                .Define(fitvar2.c_str(),fitvar2formula.c_str())
+                                .Define(fitvar2_mc.c_str(),fitvar2formulamc.c_str());
+    } // if (define_fitvar2) {
 
     // Define full RDataFrame
     auto frame = (!inject_asym) ? d2.Filter(cuts.c_str())
@@ -497,10 +548,10 @@ void analysis(const YAML::Node& node) {
                     .Filter(Form("(%s) && (%s)",cuts.c_str(),mc_cuts.c_str()))
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
                     .Define("XS", [&fsgasyms,&fbgasyms,&alpha,&beam_polarization,&dtheta_p_max,&dtheta_pim_max]
-                        (float costheta, float y, float ppid_p_mc, float pidx_p_mc, float pidx_pim_mc, float dtheta_p, float dtheta_pim) {
-                            return (float)((ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max) ? 0.5*(1.0 + alpha*beam_polarization*fsgasyms->Eval(y)*costheta) : 0.5*(1.0 + alpha*beam_polarization*fbgasyms->Eval(y)*costheta)); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.                  
+                        (float costheta, float y, float ppid_p_mc, float pidx_p_mc, float pidx_pim_mc, float dtheta_p, float dtheta_pim, float cos_phi_h) {
+                            return (float)((ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max) ? 0.5*(1.0 + alpha*beam_polarization*fsgasyms->Eval(y,cos_phi_h)*costheta) : 0.5*(1.0 + alpha*beam_polarization*fbgasyms->Eval(y,cos_phi_h)*costheta)); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.                  
                         },
-                        {fitvar1_mc.c_str(),"y_mc","ppid_p_mc","pidx_p_mc","pidx_pim_mc","dtheta_p","dtheta_pim"})
+                        {fitvar1_mc.c_str(),"y_mc","ppid_p_mc","pidx_p_mc","pidx_pim_mc","dtheta_p","dtheta_pim",fitvar2_mc.c_str()})
                     .Define(helicity_name.c_str(), [](float my_rand_var, float XS) {
                         return (float)(my_rand_var<XS ? 1.0 : -1.0);
                     },
@@ -541,7 +592,7 @@ void analysis(const YAML::Node& node) {
         // Set binvar outdir name
         std::string binvar_outdir = Form("binvar_%s",binvar.c_str());
 
-        getKinBinnedAsymUBML1D(
+        getKinBinnedAsymUBML2D(
             outdir, //std::string outdir,
             outroot, //TFile      *outroot,
             frame, //ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
@@ -559,6 +610,9 @@ void analysis(const YAML::Node& node) {
             fitvar1, //std::string fitvarx         = "x",
             fitvar1_min, //double      xmin            = 0.0,
             fitvar1_max, //double      xmax            = 1.0,
+            fitvar2, //std::string fitvary         = "y",
+            fitvar2_min, //double      ymin            = 0.0,
+            fitvar2_max, //double      ymax            = 1.0,
             mass_name, //std::string massvar         = "mass_ppim",
             mass_min, //double      mmin            = 1.08,
             mass_max, //double      mmax            = 1.24,
@@ -568,7 +622,8 @@ void analysis(const YAML::Node& node) {
             fitformula, //std::string fitformula      = "[0]*sin(x)+[1]*sin(2*x)",
             nparams, //int         nparams         = 2,
             params, //std::vector<double> params  = std::vector<double>(5),
-            fitvar1title, //std::string fitvarxtitle    = "#phi_{h p#pi^{-}}",
+            fitvar1title, //std::string fitvarxtitle    = "x",
+            fitvar2title, //std::string fitvarytitle    = "y",
             use_sumW2Error, //bool        use_sumW2Error  = true,
             use_splot, //bool        use_splot       = true,
             graph_title, //std::string graph_title     = "BSA A_{LU} vs. #Delta#phi", // Histogram title
