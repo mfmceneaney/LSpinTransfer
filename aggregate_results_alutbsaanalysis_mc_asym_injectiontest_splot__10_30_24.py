@@ -231,6 +231,7 @@ def get_arrs(out_file_list,sgasym):
             'yerr_mean':[],
             'y_min':[],
             'y_max':[],
+            'y_std':[],
             'ydiff_mean':[],
             'ydiff_std':[],
             'ydiff_mins':[],
@@ -250,6 +251,7 @@ def get_arrs(out_file_list,sgasym):
     yerr_mean = np.sqrt(np.mean(np.square(glist[3]),axis=0))
     y_min      = np.min(glist[1],axis=0)
     y_max      = np.max(glist[1],axis=0)
+    y_std      = np.std(glist[1],axis=0)
     ydiff_mean = np.mean(glist[1]-sgasym,axis=0)
     ydiff_std  = np.std(glist[3]-sgasym,axis=0)
     ydiff_mins = np.min(glist[1]-sgasym,axis=0)
@@ -262,6 +264,7 @@ def get_arrs(out_file_list,sgasym):
             'yerr_mean':yerr_mean,
             'y_min':y_min,
             'y_max':y_max,
+            'y_std':y_std,
             'ydiff_mean':ydiff_mean,
             'ydiff_std':ydiff_std,
             'ydiff_mins':ydiff_mins,
@@ -275,6 +278,7 @@ def get_plots(
     yerr_mean = [],
     y_min = [],
     y_max = [],
+    y_std = [],
     ydiff_mean = [],
     ydiff_std = [],
     ydiff_mins = [],
@@ -326,11 +330,12 @@ def get_plots(
     plt.title(title,usetex=True)
     plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
-    fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
+    fb = plt.fill_between(x_mean, np.add(y_mean,y_std), np.add(y_mean,-y_std), alpha=0.2, label='$\pm1\sigma$ Band', color=bcolor)
+    #fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='Mean $D_{LL\'}^{\Lambda}$')
+                        linewidth=linewidth, markersize=markersize,label='Mean '+ytitle)
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     if sgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
     ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth, label='Injected Signal Asymmetry')
