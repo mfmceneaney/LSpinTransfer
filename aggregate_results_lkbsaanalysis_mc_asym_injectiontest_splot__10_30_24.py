@@ -231,6 +231,7 @@ def get_arrs(out_file_list,sgasym):
             'yerr_mean':[],
             'y_min':[],
             'y_max':[],
+            'y_std':[],
             'ydiff_mean':[],
             'ydiff_std':[],
             'ydiff_mins':[],
@@ -250,6 +251,7 @@ def get_arrs(out_file_list,sgasym):
     yerr_mean = np.sqrt(np.mean(np.square(glist[3]),axis=0))
     y_min      = np.min(glist[1],axis=0)
     y_max      = np.max(glist[1],axis=0)
+    y_std      = np.std(glist[1],axis=0)
     ydiff_mean = np.mean(glist[1]-sgasym,axis=0)
     ydiff_std  = np.std(glist[3]-sgasym,axis=0)
     ydiff_mins = np.min(glist[1]-sgasym,axis=0)
@@ -262,6 +264,7 @@ def get_arrs(out_file_list,sgasym):
             'yerr_mean':yerr_mean,
             'y_min':y_min,
             'y_max':y_max,
+            'y_std':y_std,
             'ydiff_mean':ydiff_mean,
             'ydiff_std':ydiff_std,
             'ydiff_mins':ydiff_mins,
@@ -275,6 +278,7 @@ def get_plots(
     yerr_mean = [],
     y_min = [],
     y_max = [],
+    y_std = [],
     ydiff_mean = [],
     ydiff_std = [],
     ydiff_mins = [],
@@ -326,11 +330,12 @@ def get_plots(
     plt.title(title,usetex=True)
     plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
-    fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
+    fb = plt.fill_between(x_mean, np.add(y_mean,y_std), np.add(y_mean,-y_std), alpha=0.2, label='$\pm1\sigma$ Band', color=bcolor)
+    #fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='Mean $D_{LL\'}^{\Lambda}$')
+                        linewidth=linewidth, markersize=markersize,label='Mean '+ytitle)
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     if sgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
     ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth, label='Injected Signal Asymmetry')
@@ -402,12 +407,12 @@ if __name__=="__main__":
     bgasyms3 = {"bgasym3":[0.0]}
     """
     methods = {"method":["BSA1D"]}
-    fitvars = {"fitvar":["costheta1","costheta2"]}
+    fitvars = {"fitvar1":["dphi_h_ppim_k"]}
     sgasym  = {"sgasym":[-0.2, -0.1, -0.01, 0.00, 0.01, 0.1, 0.2]}
-    sgasyms = {"sgasyms":[[s1] for s1 in sgasym["sgasym"] ]}
+    sgasyms = {"sgasyms":[[s1,s2] for s1 in sgasym["sgasym"] for s2 in sgasym["sgasym"] ]}
     print("DEBUGGING: sgasyms = ",sgasyms)
     bgasym  = {"bgasym":[0.00]}
-    bgasyms = {"bgasyms":[[b1] for b1 in bgasym["bgasym"] ]}
+    bgasyms = {"bgasyms":[[b1,b2] for b1 in bgasym["bgasym"] for b2 in bgasym["bgasym"] ]}
     print("DEEBUGGING: bgasyms = ",bgasyms)
     seeds   = {"inject_seed":[2**i for i in range(16)]}
     use_mc  = False #NOTE: WHETHER TO APPEND '_mc' to fitvar in get_out_file_name
@@ -417,7 +422,7 @@ if __name__=="__main__":
     # -> e.g., loop keys if key is aggregate run aggregation otherwise you're creating a new file each time...
 
     # Results file paths and config
-    base_dir    = "results_lspintransferanalysis_mc_asym_injectiontest_splot__11_11_24/"
+    base_dir    = "results_lkbsaanalysis_mc_asym_injectiontest_splot__11_11_24/"
     submit_path = base_dir+"submit.sh"
     yaml_path   = base_dir+"args.yaml"
     out_path    = base_dir+"jobs.txt"
@@ -451,7 +456,7 @@ if __name__=="__main__":
                         use_mc=False,
                         **kwargs
                         ):
-        fitvar = "costheta1" #NOTE: DEBUGGING: 7/25/24 CHANGED THIS BACK FOR 1D CASE 10/11/24
+        fitvar = "dphi_h_ppim_k" #NOTE: DEBUGGING: 7/25/24 CHANGED THIS BACK FOR 1D CASE 10/11/24
         return method+'_'+fitvar+('_mc' if use_mc else '')+'_'+xvar+f'_{xvar_min:.3f}_{xvar_max:.3f}_'+asym_name+'.root'
 
     # NOW AGGREGATE RESULTS FOR DIFFERENT SEEDS...
@@ -464,16 +469,22 @@ if __name__=="__main__":
     # Get list of directories across which to aggregate
     aggregate_keys = ["inject_seed"]
     var_lims = {
-        #'mass_ppim':[1.08,1.24],
-        'Q2':[1.0,11.0],
-        'W':[2.0,5.0],
+        #'mass_ppim':[1.08,1.50],
+        #'Q2':[1.0,11.0],                                                                                                                                                                                         
+        #'W':[2.0,5.0],                                                                                                                                                                                           
         'x':[0.0,1.0],
-        'xF_ppim':[0.0,1.0],
-        'y':[0.0,0.8],
-        'z_ppim':[0.0,1.0],
+        #'xF_ppim':[-1.0,0.0],                                                                                                                                                                                    
+        #'y':[0.0,0.8],                                                                                                                                                                                           
+        #'z_ppim':[0.0,1.0],                                                                                                                                                                                      
+        #'xF_k':[0.0,1.0],                                                                                                                                                                                        
+        'z_k':[0.0,1.0],
+        'zeta_ppim':[0.0,1.0],#TODO: DOUBLE CHECK LIMITS HERE                                                                                                                                                     
+        'ptpt':[0.0,1.0],
+        #'phperp_ppim':[0.0,2.0],                                                                                                                                                                                 
+        #'phperp_k':[0.0,2.0], 
     }
-    asym_name = "A0"
-    sgasym_idx = 0 #NOTE: CHANGE THESE TOGETHER!!!
+    asym_name = "A1"
+    sgasym_idx = 1 #NOTE: CHANGE THESE TOGETHER!!!
     out_file_list = get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_file_name,use_mc,aggregate_keys,asym_name)
     # return [[filename for values in aggregate_keys] for combinations in divisions[~aggregate_keys]+var_lims]
     #NOTE: THAT var_lims keys will be added to divisions
@@ -489,13 +500,26 @@ if __name__=="__main__":
     #DEBUGGING: END
 
     xlimss = {
-        'mass_ppim':[1.08,1.24],
         'Q2':[1.0,11.0],
         'W':[2.0,5.0],
         'x':[0.0,1.0],
-        'xF_ppim':[0.0,1.0],
+        'xF_ppim':[-1.0,0.0],
         'y':[0.0,1.0],
         'z_ppim':[0.0,1.1],
+        'xF_k':[0.0,1.0],
+        'z_k':[0.0,1.1],
+        'zeta_ppim':[0.0,1.0],#TODO: DOUBLE CHECK LIMITS HERE                                                                                                                                                     
+        'ptpt':[0.0,1.25],
+        'phperp_ppim':[0.0,1.25],
+        'phperp_k':[0.0,1.25],
+    }
+    ylimss = [-0.5,0.5]
+    xlimss = {
+        'mass_ppim':[1.08,1.5],
+        'x':[0.0,1.0],
+	'z_k':[0.0,1.0],
+        'zeta_ppim':[0.0,1.0],
+        'ptpt':[0.0,1.0],
     }
     ylimss = [-0.5,0.5]
     titles = {
@@ -503,12 +527,14 @@ if __name__=="__main__":
         'costheta2':'Spin Transfer along $P_{\gamma^{*}}$',
         'costhetaT':'Transverse $\Lambda$ Polarization',
         'costhetaTy':'Transverse $\Lambda$ Polarization $\hat{y}$',
+        'dphi_h_ppim_k':'Spin Orbit Correlation for $\Lambda K^{+}$',
     }
     colors = {
         'costheta1':'blue',
         'costheta2':'red',
         'costhetaT':'blue',
         'costhetaTy':'blue',
+        'dphi_h_ppim_k':'blue',
     }
     xtitles = {
         'mass_ppim':'$M_{p\pi^{-}}$ (GeV)',
@@ -518,11 +544,15 @@ if __name__=="__main__":
         'xF_ppim':'$x_{F p\pi^{-}}$',
         'y':'$y$',
         'z_ppim':'$z_{p\pi^{-}}$',
+        'mass_ppim':'$M_{p\pi^{-}}$ (GeV)',
+        'x':'$x$',
+        'z_k':'$z_{K^{+}}$',
+        'zeta_ppim':'$\zeta_{p\pi^{-}}$',
+        'ptpt':'$P^{\perp}_{K^+}P^{\perp}_{p\pi^{-}}$',
     }
     ytitles = {
-        'A0':'$\mathcal{A}_{LUT}^{\cos{\phi_{\Lambda}-\phi_{S_{\Lambda}}}}$',
-        'A1':'$\mathcal{A}_{LUT}^{\cos{\phi_{S_{\Lambda}}}}$',
-        'A2':'$\mathcal{A}_{LUT}^{\cos{2\phi_{\Lambda}-\phi_{S_{\Lambda}}}}$',
+        'A0':'$A_{LU}^{\sin{\Delta\phi}}$',
+        'A1':'$A_{LU}^{\sin{2\Delta\phi}}$',
     }
 
     def get_outpath(base_dir,aggregate_keys,asym_name,**config):
@@ -546,7 +576,7 @@ if __name__=="__main__":
             outpath = get_outpath(base_dir,aggregate_keys,asym_name,**config)
             print("DEBUGGING: outpath = ",outpath)
             binvar = config['binvar'] #NOTE: VARIABLE IN WHICH THE BINNING IS DONE
-            fitvar = config['fitvar'] #NOTE: VARIABLE FOR COS THETA
+            fitvar = config['fitvar1'] #NOTE: VARIABLE FOR COS THETA
             print("DEBUGGING: binvar = ",binvar)
             print("DEBUGGING: ylimss = ",ylimss)
             get_plots(
@@ -589,7 +619,7 @@ if __name__=="__main__":
             tables = [[key,tables[key]] for key in tables]
             return tables
 
-        config_keys = ['method','fitvar','bgasym']
+        config_keys = ['method','fitvar1','bgasym']
         col_key, row_key  = ['binvar','sgasym']
         col_map = {el:i for i, el in enumerate(xtitles.keys())}
         row_map = {el:i for i, el in enumerate(sgasyms['sgasym'])}
