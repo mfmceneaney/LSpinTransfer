@@ -473,8 +473,8 @@ void analysis(const YAML::Node& node) {
     }
 
     // Define fit variables if fit formulas are not empty
-    bool define_fitvars = (fitvar1formula.size()!=0 && fitvar1formulamc.size()!=0);
-    if (define_fitvars && false) {
+    bool define_fitvars = (fitvar1formula.size()!=0/* && fitvar1formulamc.size()!=0*/);
+    if (define_fitvars) {
         d2 = (!inject_asym) ? d2
                                 .Define(fitvar1.c_str(),fitvar1formula.c_str()) :
                                 d2
@@ -496,10 +496,9 @@ void analysis(const YAML::Node& node) {
 
     // Define full RDataFrame
     auto frame = (!inject_asym) ? d2.Filter(cuts.c_str())
-                    .Define(helicity_name.c_str(), "-helicity")
+                    .Define(helicity_name.c_str(), "-helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
                     .Define("ptpt",Form("phperp_%s * phperp_%s",suffix1.c_str(),suffix2.c_str()))
-                    .Define(fitvar1.c_str(),[](float phi_1, float phi_2){ return (float) ((phi_1-phi_2)>=0 ? (phi_1-phi_2) : 2*TMath::Pi() + (phi_1-phi_2));},{phi_1_name.c_str(),phi_2_name.c_str()})
-                    .Define(fitvar1_mc.c_str(),[](float phi_1, float phi_2){ return (float) ((phi_1-phi_2)>=0 ? (phi_1-phi_2) : 2*TMath::Pi() + (phi_1-phi_2));},{phi_1_name_mc.c_str(),phi_2_name_mc.c_str()}) : // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
+                    .Define(fitvar1.c_str(),[](float phi_1, float phi_2){ return (float) ((phi_1-phi_2)>=0 ? (phi_1-phi_2) : 2*TMath::Pi() + (phi_1-phi_2));},{phi_1_name.c_str(),phi_2_name.c_str()}) :
                     d2 // INJECT ASYMMETRY BELOW
                     .Define("ptpt",Form("phperp_%s * phperp_%s",suffix1.c_str(),suffix2.c_str()))
                     .Define(fitvar1.c_str(),[](float phi_1, float phi_2){ return (float) ((phi_1-phi_2)>=0 ? (phi_1-phi_2) : 2*TMath::Pi() + (phi_1-phi_2));},{phi_1_name.c_str(),phi_2_name.c_str()})
