@@ -445,11 +445,9 @@ void analysis(const YAML::Node& node) {
     std::string mc_cuts = "sqrt(px_e*px_e+py_e*py_e+pz_e*pz_e)>2.0 && vz_e>-25.0 && vz_e<20.0";//NOTE: NOT SURE THAT THESE ARE STILL NECESSARY, 9/14/23.
 
     // Set injection functions
-    double y_min = 0.0;
-    double y_max = 1.0;
-    TF1 *fsgasyms = new TF1("fsgasyms",fsgasymsformula.c_str(),y_min,y_max); //NOTE: args: y
+    TF1 *fsgasyms = new TF1("fsgasyms",fsgasymsformula.c_str(),fitvar1_min,fitvar1_max); //NOTE: args: fitvarx_mc
     for (int idx=0; idx<sgasyms.size(); idx++) { fsgasyms->SetParameter(idx,sgasyms[idx]); }
-    TF1 *fbgasyms = new TF1("fbgasyms",fbgasymsformula.c_str(),y_min,y_max); //NOTE: args: y
+    TF1 *fbgasyms = new TF1("fbgasyms",fbgasymsformula.c_str(),fitvar1_min,fitvar1_max); //NOTE: args: fitvarx_mc
     for (int idx=0; idx<bgasyms.size(); idx++) { fbgasyms->SetParameter(idx,bgasyms[idx]); }
 
     // Pre-define depolarization variables.
@@ -485,12 +483,12 @@ void analysis(const YAML::Node& node) {
     std::cout<<"DEBUGGING: BEGINNING NEW STUFF"<<std::endl;//DEBUGGING 11/13/24 
 
     // Set suffix and phi names
-    fitvar1 = "dphi_h_ppim_k";
+    std::string suffix1 = "k";
+    std::string suffix2 = "ppim";
+    fitvar1 = Form("dphi_h_%s_%s",suffix1.c_str(),suffix2.c_str());
     fitvar1_mc = Form("%s_mc",fitvar1.c_str());
-    std::string suffix1 = "ppim";
-    std::string suffix2 = "k";
-    std::string phi_1_name = "phi_h_ppim";
-    std::string	phi_2_name = "phi_h_k";
+    std::string phi_1_name = Form("phi_h_%s",suffix1.c_str());
+    std::string phi_2_name = Form("phi_h_%s",suffix2.c_str());
     std::string phi_1_name_mc = Form("%s_mc",phi_1_name.c_str());
     std::string	phi_2_name_mc =	Form("%s_mc",phi_2_name.c_str());
 
@@ -517,10 +515,10 @@ void analysis(const YAML::Node& node) {
                     .Filter(Form("(%s) && (%s)",cuts.c_str(),mc_cuts.c_str()))
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
       .Define("XS", [&fsgasyms,&fbgasyms,&alpha,&beam_polarization,&dtheta_p_max,&dtheta_pim_max,&dtheta_k_max]
-                        (float costheta, float y, float ppid_p_mc, float pidx_p_mc, float pidx_pim_mc, float dtheta_p, float dtheta_pim, float dtheta_k) {
-                            return (float)((ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max && dtheta_k<dtheta_k_max) ? 0.5*(1.0 + alpha*beam_polarization*fsgasyms->Eval(y)*costheta) : 0.5*(1.0 + alpha*beam_polarization*fbgasyms->Eval(y)*costheta)); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.                  
+                        (float dphi, float ppid_p_mc, float pidx_p_mc, float pidx_pim_mc, float dtheta_p, float dtheta_pim, float dtheta_k) {
+                            return (float)((ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max && dtheta_k<dtheta_k_max) ? 0.5*(1.0 + alpha*beam_polarization*fsgasyms->Eval(dphi)) : 0.5*(1.0 + alpha*beam_polarization*fbgasyms->Eval(dphi))); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.                  
                         },
-	      {fitvar1_mc.c_str(),"y_mc","ppid_p_mc","pidx_p_mc","pidx_pim_mc","dtheta_p","dtheta_pim","dtheta_k"})
+	      {fitvar1_mc.c_str(),"ppid_p_mc","pidx_p_mc","pidx_pim_mc","dtheta_p","dtheta_pim","dtheta_k"})
                     .Define(helicity_name.c_str(), [](float my_rand_var, float XS) {
                         return (float)(my_rand_var<XS ? 1.0 : -1.0);
                     },
