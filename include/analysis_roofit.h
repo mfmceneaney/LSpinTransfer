@@ -561,8 +561,9 @@ void getKinBinnedAsymUBML1D(
     ) {
 
     // Check arguments
-    if (method != "BSA1D") {out << " *** ERROR *** Method must be BSA1D.  Exiting...\n"; return;}
-    if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
+    if (method != "BSA1D") {std::cerr<<" *** ERROR *** Method must be BSA1D.  Exiting...\n"; return;}
+    if (nbins<1) {std::cerr<<" *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
+    if (depolvars.size()!=nparams) {std::cerr<<" *** ERROR *** depolvars.size() must match the number of parameters injected."<<std::endl; return;}
 
     // Starting message
     out << "----------------------- getKinBinnedAsymUBML1D ----------------------\n";
@@ -1283,8 +1284,9 @@ void getKinBinnedAsymUBML2D(
     ) {
 
     // Check arguments
-    if (method != "BSA2D") {out << " *** ERROR *** Method must be BSA2D.  Exiting...\n"; return;}
-    if (nbins<1) {out << " *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
+    if (method != "BSA2D") {std::cerr<<" *** ERROR *** Method must be BSA2D.  Exiting...\n"; return;}
+    if (nbins<1) {std::cerr<<" *** ERROR *** Number of " << binvar << " bins is too small.  Exiting...\n"; return;}
+    if (depolvars.size()!=nparams) {std::cerr<<" *** ERROR *** depolvars.size() must match the number of parameters injected."<<std::endl; return;}
 
     // Starting message
     out << "----------------------- getKinBinnedAsymUBML2D ----------------------\n";
