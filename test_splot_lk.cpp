@@ -514,9 +514,9 @@ void analysis(const YAML::Node& node) {
                         },{"phi_pim","phi_pim_mc"})
                     .Filter(Form("(%s) && (%s)",cuts.c_str(),mc_cuts.c_str()))
                     .Define("my_rand_var",[&gRandom](){ return (float)gRandom->Rndm(); },{})
-      .Define("XS", [&fsgasyms,&fbgasyms,&alpha,&beam_polarization,&dtheta_p_max,&dtheta_pim_max,&dtheta_k_max]
+      .Define("XS", [&fsgasyms,&fbgasyms,&beam_polarization,&dtheta_p_max,&dtheta_pim_max,&dtheta_k_max]
                         (float dphi, float ppid_p_mc, float pidx_p_mc, float pidx_pim_mc, float dtheta_p, float dtheta_pim, float dtheta_k) {
-                            return (float)((ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max && dtheta_k<dtheta_k_max) ? 0.5*(1.0 + alpha*beam_polarization*fsgasyms->Eval(dphi)) : 0.5*(1.0 + alpha*beam_polarization*fbgasyms->Eval(dphi))); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.                  
+                            return (float)((ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && dtheta_p<dtheta_p_max && dtheta_pim<dtheta_pim_max && dtheta_k<dtheta_k_max) ? 0.5*(1.0 + beam_polarization*fsgasyms->Eval(dphi)) : 0.5*(1.0 + beam_polarization*fbgasyms->Eval(dphi))); //NOTE: THIS ASSUMES THAT y and costheta are zero if no mc truth match found so then distribution is uniform.                  
                         },
 	      {fitvar1_mc.c_str(),"ppid_p_mc","pidx_p_mc","pidx_pim_mc","dtheta_p","dtheta_pim","dtheta_k"})
                     .Define(helicity_name.c_str(), [](float my_rand_var, float XS) {
