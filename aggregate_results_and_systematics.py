@@ -415,23 +415,26 @@ def compute_systematics(results,bin_migration_mat=None,bin_migration_order=1,sys
 
     # Compute and add bin migration systematics
     if bin_migration_mat is not None: #NOTE: ASSUME BINNING IS 1D HERE.
-        if results_order==1:
-            diags = np.ones(np.diag(bin_migration_mat).shape)
-            neighbors = np.sum(
-                [
-                    np.sum((np.diag(diags[i:],i),np.diag(diags[i:],-i)),axis=0)
-                    for i in range(1,bin_migration_order+1)
-                ],
-                axis=0)
-            new_systematics = np.diag( # DeltaA = Diag(n.(a.f-f.a)) = Diag(n.[a,f])
-                np.matmul(
-                    neighbors,
-                    np.matmul(np.diag(results),bin_migration_mat) - np.matmul(bin_migration_mat,np.diag(results))
-                )
-            )
-            systematics = np.sqrt(np.square(systematics) + np.square(new_systematics)) #NOTE: IMPORTANT!  ADD IN QUADRATURE, NOT NECESSARY FOR FIRST STEP THOUGH SINCE YOU JUST SET SYSTEMATICS TO ZERO TO BEGIN WITH.
-        else:
-            print("WARNING: BIN MIGRATION NOT IMPLEMENTED FOR 2+D BINNING CASES.")
+        bin_migration_mat_inv = np.linalg.inv(bin_migration_mat) #NOTE: Make sure that bin_migration_mat is of the form f[i,j] = [# gen in bin i AND rec. in bin j] / [# gen. in bin i], remember that ROOT histogram indexing i,j is opposite (idx_x,idx_y) typical matrix indexing (idx_y,idx_x) and begins at 1 not 0
+        new_systematics = np.add(results,-np.matmul(bin_migration_mat_inv,results)) # DeltaA = a - f_inv . a
+        systematics = np.sqrt(np.square(systematics) + np.square(new_systematics))
+        # if results_order==1:
+        #     diags = np.ones(np.diag(bin_migration_mat).shape)
+        #     neighbors = np.sum(
+        #         [
+        #             np.sum((np.diag(diags[i:],i),np.diag(diags[i:],-i)),axis=0)
+        #             for i in range(1,bin_migration_order+1)
+        #         ],
+        #         axis=0)
+        #     new_systematics = np.diag( # DeltaA = Diag(n.(a.f-f.a)) = Diag(n.[a,f])
+        #         np.matmul(
+        #             neighbors,
+        #             np.matmul(np.diag(results),bin_migration_mat) - np.matmul(bin_migration_mat,np.diag(results))
+        #         )
+        #     )
+        #     systematics = np.sqrt(np.square(systematics) + np.square(new_systematics)) #NOTE: IMPORTANT!  ADD IN QUADRATURE, NOT NECESSARY FOR FIRST STEP THOUGH SINCE YOU JUST SET SYSTEMATICS TO ZERO TO BEGIN WITH.
+        # else:
+        #     print("WARNING: BIN MIGRATION NOT IMPLEMENTED FOR 2+D BINNING CASES.")
 
     # Apply multiplicative scale systematics, note that these should already be summed over all sources of systematic error
     if systematic_scales_mat is not None:
