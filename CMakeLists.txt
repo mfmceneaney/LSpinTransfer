@@ -68,6 +68,15 @@ add_executable(analysismcfullinjectionv2 analysismcfullinjectionv2.cpp)
 target_link_libraries(analysismcfullinjectionv2 PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
 add_executable(analysisgausscbdiff analysisgausscbdiff.cpp)
 target_link_libraries(analysisgausscbdiff PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+
+
+add_executable(massfitlandau massfitlandau.cpp)
+target_link_libraries(massfitlandau PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+add_executable(massfitmclandau massfitmclandau.cpp)
+target_link_libraries(massfitmclandau PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+add_executable(analysislandaucbdiff analysislandaucbdiff.cpp)
+target_link_libraries(analysislandaucbdiff PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+
 add_executable(transverseanalysis transverseanalysis.cpp)
 target_link_libraries(transverseanalysis PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
 add_executable(bsaanalysis bsaanalysis.cpp)
