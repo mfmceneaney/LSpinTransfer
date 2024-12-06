@@ -41,6 +41,9 @@ target_link_libraries(test_splot_lk PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT
 add_executable(test_splot2d test_splot2d.cpp)
 target_link_libraries(test_splot2d PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
 
+add_executable(test_splot_inject2d test_splot_inject2d.cpp)
+target_link_libraries(test_splot_inject2d PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+
 add_executable(massdistr massdistr.cpp)
 target_link_libraries(massdistr PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
 add_executable(massdistrmc massdistrmc.cpp)
