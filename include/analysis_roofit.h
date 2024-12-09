@@ -7,6 +7,7 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <TAxis.h>
+#include <TLegend.h>
 #include <TH1.h>
 #include <ROOT/RDataFrame.hxx>
 #include <Fit/Fitter.h>
@@ -21,8 +22,8 @@
 
 // RooFit Includes
 #include <RooRealVar.h>
+#include <RooProduct.h>
 #include <RooDataSet.h>
-#include <RooGaussian.h>
 #include <RooPlot.h>
 #include <RooAbsDataHelper.h>
 #include <RooDataHist.h>
@@ -30,6 +31,9 @@
 #include <RooAddPdf.h>
 #include <RooGenericPdf.h>
 #include <RooCrystalBall.h>
+#include <RooLandau.h>
+#include <RooGaussian.h>
+#include <RooFFTConvPdf.h>
 #include <RooChebychev.h>
 #include <RooFitResult.h>
 #include <RooWorkspace.h>
@@ -231,6 +235,326 @@ void applyLambdaMassFit(
     w->import(model);
 
     return;
+}
+
+/**
+* Apply a lambda mass fit with signal function chosen from
+* ("gauss","landau","cb","landau_X_gauss","cb_X_gauss") and
+* chebychev polynomial background function and save model and
+* yield variables to workspace for use with sPlot method.
+* This will also return epsilon which is the fraction of events
+* in the signal region (sig_region_min,sig_region_max) which
+* are background based on the difference between the observed
+* distribution and the histogrammed background function.
+*
+* @param RooWorkspace *w
+* @param std::string massvar
+* @param std::string dataset_name
+* @param std::string sgYield_name
+* @param std::string bgYield_name
+* @param ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame
+* @param int mass_nbins_hist
+* @param double mass_min
+* @param double mass_max
+* @param int mass_nbins_conv
+* @param std::string model_name
+* @param std::string sig_pdf_name
+* @param double sg_region_min
+* @param double sg_region_max
+* @param std::string bin_name
+*
+* @return std::vector<double> epsilon
+*/
+std::vector<double> applyLambdaMassFit(
+    RooWorkspace *w,
+    std::string massvar,
+    std::string dataset_name,
+    std::string sgYield_name,
+    std::string bgYield_name,
+    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame,
+    int mass_nbins_hist,
+    double mass_min,
+    double mass_max,
+    int mass_nbins_conv,
+    std::string model_name,
+    std::string sig_pdf_name,
+    double sg_region_min,
+    double sg_region_max,
+    std::string bin_name
+    ) {
+
+    using namespace RooFit;
+
+    // Get variables from workspace
+    RooRealVar *m = w->var(massvar.c_str());
+
+    // Get dataset from workspace
+    RooAbsData *rooDataSetResult = w->data(dataset_name.c_str());
+
+    // Get dataset length
+    int count = (int)rooDataSetResult->numEntries();
+
+    // Create histogram
+    auto h1 = (TH1D) *frame.Histo1D({"h1",massvar.c_str(),mass_nbins_hist,mass_min,mass_max},massvar.c_str());
+    TH1D *h = (TH1D*)h1.Clone(massvar.c_str());
+    h->SetTitle("");
+    h->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
+    h->GetXaxis()->SetTitleSize(0.06);
+    h->GetXaxis()->SetTitleOffset(0.75);
+    h->GetYaxis()->SetTitle("Counts");
+    h->GetYaxis()->SetTitleSize(0.06);
+    h->GetYaxis()->SetTitleOffset(0.87);
+
+    // Set y axes limits
+    h->GetYaxis()->SetRangeUser(0.0,1.05*h->GetMaximum());
+
+    // Construct signal parameters and function
+    RooRealVar mu("mu","#mu",1.1157,0.0,2.0);
+    RooRealVar s("s","#sigma",0.008,0.0,1.0);
+    RooRealVar a_left("a_left","alpha_left",10.0);
+    RooRealVar n_left("n_left","n_left",10.0);
+    RooRealVar a("a","#alpha",1.0,0.0,3.0);
+    RooRealVar n("n","n",2.0,2.0,10.0);
+    RooCrystalBall cb("cb", "crystal_ball", *m, mu, s, a_left, n_left, a, n);
+ 
+    // Construct landau(t,ml,sl) ;
+    RooRealVar ml("ml", "mean landau", 1.1157, mass_min, mass_max);
+    RooRealVar sl("sl", "sigma landau", 0.005, 0.0, 0.1);
+    RooLandau landau("lx", "lx", *m, ml, sl);
+
+    // Construct signal gauss(t,mg,sg)
+    RooRealVar mg("mg", "mg", 1.1157, mass_min, mass_max);
+    RooRealVar sg("sg", "sg", 0.008, 0.0, 0.1);
+    RooGaussian gauss("gauss", "gauss", *m, mg, sg);
+
+    // Construct convolution gauss
+    RooRealVar mg_conv("mg_conv", "mg_conv", 0.0);
+    RooRealVar sg_conv("sg_conv", "sg_conv", 0.008, 0.0, 0.1);
+    RooGaussian gauss_conv("gauss_conv", "gauss_conv", *m, mg_conv, sg_conv);
+    
+    // Set #bins to be used for FFT sampling to 10000
+    m->setBins(mass_nbins_conv, "cache");
+    
+    // Construct Convolution PDFs
+    RooFFTConvPdf landau_X_gauss("landau_X_gauss", "CB (X) gauss_conv", *m, landau, gauss_conv);
+    RooFFTConvPdf cb_X_gauss("cb_X_gauss", "CB (X) gauss_conv", *m, cb, gauss_conv);
+
+    // Construct dummy zero pdf to trick RooFit so you can declare sig as a RooAddPdf and switch out the PDF type for whatever is specified by sig_pdf_name
+    RooGenericPdf dummy("dummy","dummy","1.0",RooArgSet(*m));
+
+    // Assign signal pdf based on option name
+    RooAddPdf * sig;
+    RooRealVar g1frac("g1frac","fraction of sig",1.0);
+    RooRealVar g2frac("g2frac","fraction of dummy",0.0);
+    if      (sig_pdf_name=="gauss") {
+        sig = new RooAddPdf("sig", "gauss+dummy", RooArgList(gauss,dummy));
+    }
+    else if (sig_pdf_name=="landau") {
+        sig = new RooAddPdf("sig", "landau+dummy", RooArgList(landau,dummy));
+    }
+    else if (sig_pdf_name=="cb") {
+        sig = new RooAddPdf("sig", "cb+dummy", RooArgList(cb,dummy));
+    }
+    else if (sig_pdf_name=="landau_X_gauss") {
+        sig = new RooAddPdf("sig", "landau_X_gauss+dummy", RooArgList(landau_X_gauss,dummy));
+    }
+    else if (sig_pdf_name=="cb_X_gauss") {
+        sig = new RooAddPdf("sig", "cb_X_gauss+dummy", RooArgList(cb_X_gauss,dummy));
+    }
+    else {
+        std::cout<<"INFO: Signal PDF name: "<<sig_pdf_name.c_str()<<" not recognized.  Using cb instead."<<std::endl;
+        sig = new RooAddPdf("sig", "cb+dummy", RooArgList(cb,dummy));
+    }
+
+    // Consruct background parameters and function
+    RooRealVar b1("b1","b_{1}",  0.72,-10.0,10.0);
+    RooRealVar b2("b2","b_{2}", -0.17,-10.0,10.0);
+    RooRealVar b3("b3","b_{3}",  0.05,-10.0,10.0);
+    RooRealVar b4("b4","b_{4}", -0.01,-10.0,10.0);
+    RooChebychev bg("bg","bg",*m,RooArgList(b1,b2,b3,b4));
+    
+    // Combine signal and background functions
+    double sgfrac = 0.1;
+    double sgYield_init = sgfrac * count;
+    double bgYield_init = (1.0-sgfrac) * count;
+    RooRealVar sgYield(sgYield_name.c_str(), "fitted yield for signal", sgYield_init, 0., 2.0*count);
+    RooRealVar bgYield(bgYield_name.c_str(), "fitted yield for background", bgYield_init, 0., 2.0*count);
+    RooAddPdf model(model_name.c_str(), "sig+bg", RooArgList(*sig,bg), RooArgList(sgYield,bgYield)); //NOTE: N-1 Coefficients!  Unless you want extended ML Fit
+
+    // Fit invariant mass spectrum
+    std::unique_ptr<RooFitResult> fit_result_data{model.fitTo(*rooDataSetResult, Save(), PrintLevel(-1))};
+
+    //---------------------------------------- Compute chi2 ----------------------------------------//
+    // Import TH1 histogram into RooDataHist
+    RooDataHist dh("dh", "dh", *m, Import(*h));
+
+    // Compute chi2 value
+    RooFit::OwningPtr<RooAbsReal> chi2 = model.createChi2(dh, Range("fullRange"),
+                 Extended(true), DataError(RooAbsData::Poisson));
+    int nparameters = (int) model.getParameters(RooArgSet(*m))->size();
+    int ndf = mass_nbins_hist - nparameters; //NOTE: ASSUME ALL BINS NONZERO
+    double chi2ndf = (double) chi2->getVal()/ndf;
+
+    //---------------------------------------- Compute epsilon ----------------------------------------//
+    // Bg hist
+    RooFit::OwningPtr<RooDataHist> bghist_roofit = bg.generateBinned(RooArgSet(*m), (double)bgYield.getVal());
+    TH1F *bghist = (TH1F*)bghist_roofit->createHistogram("bghist",*m); //bg->GetHistogram();
+    bghist->SetTitle("");
+    bghist->SetBins(mass_nbins_hist,mass_min,mass_max);
+    bghist->SetLineWidth(1);
+    bghist->SetLineColor(kAzure);
+    bghist->Draw("SAME PE"); // Rebinning is a pain and fn is automatically binned to 100, so just keep 100 bins.
+
+    // Signal hist
+    TH1D *hist = (TH1D*)h->Clone("hist");
+    hist->Add(bghist,-1);
+    hist->SetLineWidth(1);
+    hist->SetLineColor(8);
+    hist->Draw("SAME PE");
+
+    // Integrate signal histogram
+    auto i_sig_err = 0.0;
+    auto i_sig = hist->IntegralAndError(hist->FindBin(sg_region_min),hist->FindBin(sg_region_max),i_sig_err);
+
+    // Define a range named "signal" in x from -5,5
+    m->setRange("signal", sg_region_min, sg_region_max);
+ 
+    // Integrate the signal PDF
+    std::unique_ptr<RooAbsReal> igm_sig{sig->createIntegral(*m, NormSet(*m), Range("signal"))};
+    RooProduct i_sg_yield{"i_sg_yield", "i_sg_yield", {*igm_sig, sgYield}};
+    Double_t integral_sg_value = i_sg_yield.getVal();
+    Double_t integral_sg_value_error = i_sg_yield.getPropagatedError(*fit_result_data, *m); // Note Need fit result saved for this to work!
+
+    // Integrate the background PDF
+    std::unique_ptr<RooAbsReal> igm_bg{bg.createIntegral(*m, NormSet(*m), Range("signal"))};
+    RooProduct i_bg_yield{"i_bg_yield", "i_bg_yield", {*igm_bg, bgYield}};
+    Double_t integral_bg_value = i_bg_yield.getVal();
+    Double_t integral_bg_value_error = i_bg_yield.getPropagatedError(*fit_result_data, *m); // Note Need fit result saved for this to work!                                                                                                                
+
+    // Get Full Model PDF integral
+    std::unique_ptr<RooAbsReal> igm_model{model.createIntegral(*m, NormSet(*m), Range("signal"))};
+    RooRealVar model_yield("model_yield", "model_yield",sgYield.getVal()+bgYield.getVal());
+    Double_t integral_model_value = igm_model->getVal() * model_yield.getVal();
+    Double_t integral_model_value_error = igm_model->getPropagatedError(*fit_result_data, *m) * model_yield.getVal(); // Note Need fit result saved for this to work!                                                                                                                 
+
+    // Sum on dataset
+    std::string signal_cut = Form("%.8f<%s && %s<%.8f",(double)sg_region_min,m->GetName(),m->GetName(),(double)sg_region_max);
+    double i_ds = rooDataSetResult->sumEntries(signal_cut.c_str());
+    double i_ds_err = TMath::Sqrt(i_ds);
+
+    // Compute epsilon in a couple different ways
+    double eps_pdf_int = integral_bg_value / i_ds;
+    double eps_sg_th1_int = 1.0 - i_sig / i_ds ;
+    double eps_sg_pdf_int = 1.0 - integral_sg_value / i_ds ;
+
+    // Compute epsilon errors in a couple different ways
+    double eps_pdf_int_err = integral_bg_value_error / i_ds;
+    double eps_sg_th1_int_err = i_sig_err / i_ds ;
+    double eps_sg_pdf_int_err = integral_sg_value_error / i_ds ;
+
+    // // Now compute true epsilon
+    // double true_bg_count = (double)*frame.Filter(mccuts_true_bg.c_str()).Filter(signal_cut.c_str()).Count();
+    // double true_full_count = (double)*frame.Filter(signal_cut.c_str()).Count();
+    // double eps_true = (double) true_bg_count / true_full_count;
+
+    // Plot invariant mass fit from RooFit
+    RooPlot *mframe_1d = m->frame(Title("1D pdf fit mass_ppim."));
+    rooDataSetResult->plotOn(mframe_1d);
+    model.plotOn(mframe_1d);
+    model.plotOn(mframe_1d, Components(*sig), LineStyle(kDashed), LineColor(kRed));
+    model.plotOn(mframe_1d, Components(bg), LineStyle(kDashed), LineColor(kBlue));
+    TCanvas *c_massfit = new TCanvas("c_massfit");
+    c_massfit->cd();
+    gPad->SetLeftMargin(0.15);
+    mframe_1d->GetYaxis()->SetTitleOffset(1.6);
+    mframe_1d->Draw();
+
+    // Plot sig and bg histograms
+    bghist->Draw("SAME");
+    hist->Draw("SAME");
+
+    // Create Legend Entries
+    TString s_chi2, s_ntot, s_nbg, s_epsilon;
+    s_chi2.Form("#chi^{2}/NDF = %.2f",chi2ndf);
+    s_ntot.Form("N_{Tot} = %.2e #pm %.0f",i_ds,i_ds_err);
+    s_nbg.Form("N_{bg} = %.2e #pm %.0f",integral_bg_value,integral_bg_value_error);
+    s_epsilon.Form("#varepsilon = %.3f #pm %.3f",eps_pdf_int,eps_pdf_int_err);
+    TString s_mg, s_sg;
+    s_mg.Form("#mu_{Gaus} = %.4f #pm %.4f GeV",mg.getVal(),mg.getError());
+    s_sg.Form("#sigma_{Gaus} = %.4f #pm %.4f GeV",sg.getVal(),sg.getError());
+    TString s_mg_conv, s_sg_conv;
+    s_mg_conv.Form("#mu_{Gaus} = %.4f #pm %.4f GeV",mg_conv.getVal(),mg_conv.getError());
+    s_sg_conv.Form("#sigma_{Gaus} = %.4f #pm %.4f GeV",sg_conv.getVal(),sg_conv.getError());
+    TString s_ml, s_sl;
+    s_ml.Form("#mu_{Landau} = %.4f #pm %.4f GeV",ml.getVal(),ml.getError());
+    s_sl.Form("#sigma_{Landau} = %.4f #pm %.4f GeV",sl.getVal(),sl.getError());
+    TString s_alpha, s_n, s_sigma, s_mu, s_c1;
+    s_alpha.Form("#alpha = %.3f #pm %.3f",a.getVal(),a.getError());
+    s_n.Form("n = %.2f #pm %.2f",n.getVal(),n.getError());
+    s_sigma.Form("#sigma = %.5f #pm %.5f GeV",s.getVal(),s.getError());
+    s_mu.Form("#mu = %.5f #pm %.2f GeV",mu.getVal(),mu.getError());
+    s_c1.Form("C = %.5f #pm %.5f GeV",sgYield.getVal(),sgYield.getError());
+
+    // Draw Legend
+    TLegend *legend=new TLegend(0.45,0.2,0.875,0.625); //NOTE: FOR WITHOUT MC DECOMP
+    legend->SetTextSize(0.04);
+    legend->SetMargin(0.1);
+    legend->AddEntry((TObject*)0, s_chi2, Form(" %g ",chi2ndf));
+    if (sig_pdf_name=="gauss") {
+        legend->AddEntry((TObject*)0, s_mg, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_sg, Form(" %g ",chi2ndf));
+    }
+    else if (sig_pdf_name=="landau") {
+        legend->AddEntry((TObject*)0, s_ml, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_sl, Form(" %g ",chi2ndf));
+    }
+    else if (sig_pdf_name=="cb") {
+        legend->AddEntry((TObject*)0, s_alpha, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_n, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_sigma, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_mu, Form(" %g ",chi2ndf));
+    }
+    else if (sig_pdf_name=="landau_X_gauss") {
+        legend->AddEntry((TObject*)0, s_ml, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_sl, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_mg_conv, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_sg_conv, Form(" %g ",chi2ndf));
+    }
+    else if (sig_pdf_name=="cb_X_gauss") {
+        legend->AddEntry((TObject*)0, s_alpha, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_n, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_sigma, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_mu, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_mg_conv, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_sg_conv, Form(" %g ",chi2ndf));
+    }
+    else {
+        legend->AddEntry((TObject*)0, s_alpha, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_n, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_sigma, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_mu, Form(" %g ",chi2ndf));
+    }
+    legend->AddEntry((TObject*)0, s_ntot, Form(" %g ",chi2ndf));
+    legend->AddEntry((TObject*)0, s_nbg, Form(" %g ",chi2ndf));
+    legend->AddEntry((TObject*)0, s_epsilon, Form(" %g ",chi2ndf));
+    legend->Draw();
+
+    // Save Canvas
+    c_massfit->SaveAs(Form("%s_%s_%s.pdf",c_massfit->GetName(),sig_pdf_name.c_str(),bin_name.c_str()));
+
+    // Add yield variables to workspace
+    w->import(sgYield);
+    w->import(bgYield);
+
+    // Add model to workspace
+    w->import(model);
+
+    // Return background fraction and error
+    std::vector<double> result;
+    result.push_back(eps_sg_th1_int);
+    result.push_back(eps_sg_th1_int_err);
+    return result;
+
 }
 
 /**
