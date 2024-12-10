@@ -5912,7 +5912,8 @@ void getKinBinnedGraphGenericDiff(
                     sig_pdf_name1,
                     sg_region_min,//TODO add to overall arguments
                     sg_region_max,//TODO add to overall arguments
-                    ""
+                    "",
+                    poly4bins[i-1]//use_poly4_bg
                 );
 
             epsilon = massFitData[0];
@@ -5976,7 +5977,8 @@ void getKinBinnedGraphGenericDiff(
                     sig_pdf_name2,
                     sg_region_min,//TODO add to overall arguments
                     sg_region_max,//TODO add to overall arguments
-                    ""
+                    "",
+                    poly4bins[i-1]//use_poly4_bg
                 );
 
             epsilon_gauss = massFitData_gauss[0];

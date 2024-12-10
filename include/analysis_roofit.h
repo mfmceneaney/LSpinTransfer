@@ -262,6 +262,7 @@ void applyLambdaMassFit(
 * @param double sg_region_min
 * @param double sg_region_max
 * @param std::string ws_unique_id
+* @param int use_poly4_bg
 *
 * @return std::vector<double> epsilon
 */
@@ -280,7 +281,8 @@ std::vector<double> applyLambdaMassFit(
     std::string sig_pdf_name,
     double sg_region_min,
     double sg_region_max,
-    std::string ws_unique_id
+    std::string ws_unique_id,
+    int use_poly4_bg
     ) {
 
     using namespace RooFit;
@@ -359,7 +361,7 @@ std::vector<double> applyLambdaMassFit(
     RooRealVar b3("b3","b_{3}",  0.05,-10.0,10.0);
     RooRealVar b4("b4","b_{4}", -0.01,-10.0,10.0);
     std::string bg_pdf_name_unique = Form("bg%s",ws_unique_id.c_str());
-    RooChebychev bg(bg_pdf_name_unique.c_str(),bg_pdf_name_unique.c_str(),*m,RooArgList(b1,b2,b3,b4));
+    RooChebychev bg(bg_pdf_name_unique.c_str(),bg_pdf_name_unique.c_str(),*m,(use_poly4_bg==1 ? RooArgList(b1,b2,b3,b4) : RooArgList(b1,b2)));
     
     // Combine signal and background functions
     double sgfrac = 0.1;
@@ -1276,7 +1278,8 @@ void getKinBinnedAsym1D(
                 sig_pdf_name,
                 sg_region_min,
                 sg_region_max,
-                ""//ws_unique_id->This changes pdf,yieldvar names, but NOT (bin,depol,mass,fit)vars,pdf parameters which are saved internally.
+                "",//ws_unique_id->This changes pdf,yieldvar names, but NOT (bin,depol,mass,fit)vars,pdf parameters which are saved internally.
+                1//use_poly4_bg
             );
 
         // Apply SPlot
