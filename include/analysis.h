@@ -5809,7 +5809,7 @@ void getKinBinnedGraphGenericDiff(
 
         // Create workspace
         RooWorkspace *ws1 = new RooWorkspace(Form("%s_1",workspace_name.c_str()),workspace_title.c_str());
-        RooWorkspace *ws2 = new RooWorkspace(Form("%s_1",workspace_name.c_str()),workspace_title.c_str());//NOTE: Use two workspaces to avoid naming conflicts
+        RooWorkspace *ws2 = new RooWorkspace(Form("%s_2",workspace_name.c_str()),workspace_title.c_str());//NOTE: Use two workspaces to avoid naming conflicts
 
         // Make bin cut on frame
         std::string  bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
