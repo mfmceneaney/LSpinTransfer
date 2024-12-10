@@ -339,32 +339,15 @@ std::vector<double> applyLambdaMassFit(
     RooFFTConvPdf landau_X_gauss("landau_X_gauss", "CB (X) gauss_conv", *m, landau, gauss_conv);
     RooFFTConvPdf cb_X_gauss("cb_X_gauss", "CB (X) gauss_conv", *m, cb, gauss_conv);
 
-    // Construct dummy zero pdf to trick RooFit so you can declare sig as a RooAddPdf and switch out the PDF type for whatever is specified by sig_pdf_name
-    RooGenericPdf dummy("dummy","dummy","1.0",RooArgSet(*m));
+    // Import signal functions to workspace
+    w->import(gauss);
+    w->import(landau);
+    w->import(cb);
+    w->import(landau_X_gauss);
+    w->import(cb_X_gauss);
 
-    // Assign signal pdf based on option name
-    RooAddPdf * sig;
-    RooRealVar g1frac("g1frac","fraction of sig",1.0);
-    RooRealVar g2frac("g2frac","fraction of dummy",0.0);
-    if      (sig_pdf_name=="gauss") {
-        sig = new RooAddPdf("sig", "gauss+dummy", RooArgList(gauss,dummy));
-    }
-    else if (sig_pdf_name=="landau") {
-        sig = new RooAddPdf("sig", "landau+dummy", RooArgList(landau,dummy));
-    }
-    else if (sig_pdf_name=="cb") {
-        sig = new RooAddPdf("sig", "cb+dummy", RooArgList(cb,dummy));
-    }
-    else if (sig_pdf_name=="landau_X_gauss") {
-        sig = new RooAddPdf("sig", "landau_X_gauss+dummy", RooArgList(landau_X_gauss,dummy));
-    }
-    else if (sig_pdf_name=="cb_X_gauss") {
-        sig = new RooAddPdf("sig", "cb_X_gauss+dummy", RooArgList(cb_X_gauss,dummy));
-    }
-    else {
-        std::cout<<"INFO: Signal PDF name: "<<sig_pdf_name.c_str()<<" not recognized.  Using cb instead."<<std::endl;
-        sig = new RooAddPdf("sig", "cb+dummy", RooArgList(cb,dummy));
-    }
+    // Pick out signal function based on preference
+    RooAbsPdf *sig = w->pdf(sig_pdf_name.c_str());
 
     // Consruct background parameters and function
     RooRealVar b1("b1","b_{1}",  0.72,-10.0,10.0);
@@ -379,7 +362,7 @@ std::vector<double> applyLambdaMassFit(
     double bgYield_init = (1.0-sgfrac) * count;
     RooRealVar sgYield(sgYield_name.c_str(), "fitted yield for signal", sgYield_init, 0., 2.0*count);
     RooRealVar bgYield(bgYield_name.c_str(), "fitted yield for background", bgYield_init, 0., 2.0*count);
-    RooAddPdf model(model_name.c_str(), "sig+bg", RooArgList(*sig,bg), RooArgList(sgYield,bgYield)); //NOTE: N-1 Coefficients!  Unless you want extended ML Fit
+    RooAddPdf model(model_name.c_str(), Form("%s+bg",sig_pdf_name.c_str()), RooArgList(*sig,bg), RooArgList(sgYield,bgYield)); //NOTE: N-1 Coefficients!  Unless you want extended ML Fit
 
     // Fit invariant mass spectrum
     std::unique_ptr<RooFitResult> fit_result_data{model.fitTo(*rooDataSetResult, Save(), PrintLevel(-1))};
