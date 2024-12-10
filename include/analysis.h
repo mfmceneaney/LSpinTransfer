@@ -5808,7 +5808,8 @@ void getKinBinnedGraphGenericDiff(
         double bin_max = bins[i];
 
         // Create workspace
-        RooWorkspace *w = new RooWorkspace(workspace_name.c_str(),workspace_title.c_str());
+        RooWorkspace *ws1 = new RooWorkspace(Form("%s_1",workspace_name.c_str()),workspace_title.c_str());
+        RooWorkspace *ws2 = new RooWorkspace(Form("%s_1",workspace_name.c_str()),workspace_title.c_str());//NOTE: Use two workspaces to avoid naming conflicts
 
         // Make bin cut on frame
         std::string  bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
@@ -5856,10 +5857,29 @@ void getKinBinnedGraphGenericDiff(
             //             );
             // }
 
-            // Create bin dataset
+            // Create bin dataset 1
             createDataset1D(
                 bin_frame,
-                w,//TODO Define here
+                ws1,//TODO Define here
+                dataset_name,//TODO add to overall arguments
+                dataset_title,//TODO add to overall arguments
+                helicity_name,
+                fitvar,
+                fitvar_min,
+                fitvar_max,
+                mass_name, //TODO Define here
+                mass_min,
+                mass_max,
+                binvars, //TODO Define here
+                binvarlims_outer, //TODO Define here
+                depolvars, //TODO Define here
+                depolvarlims //TODO Define here
+            );
+
+            // Create bin dataset 2
+            createDataset1D(
+                bin_frame,
+                ws2,//TODO Define here
                 dataset_name,//TODO add to overall arguments
                 dataset_title,//TODO add to overall arguments
                 helicity_name,
@@ -5878,7 +5898,7 @@ void getKinBinnedGraphGenericDiff(
             // Apply Lambda mass fit to FULL bin frame
             std::string bin_name = Form("bin_%d",i);
             massFitData = applyLambdaMassFit(
-                    w,
+                    ws1,
                     mass_name,
                     dataset_name,//TODO add to overall arguments
                     sgYield_name,//TODO add to overall arguments
@@ -5892,7 +5912,7 @@ void getKinBinnedGraphGenericDiff(
                     sig_pdf_name1,
                     sg_region_min,//TODO add to overall arguments
                     sg_region_max,//TODO add to overall arguments
-                    massoutdir
+                    ""
                 );
 
             epsilon = massFitData[0];
@@ -5942,7 +5962,7 @@ void getKinBinnedGraphGenericDiff(
             // Apply Lambda mass fit to FULL bin frame
             // std::string bin_name = Form("bin_%d",i);//NOTE: DEFINED ABOVE ALREADY
             massFitData_gauss = applyLambdaMassFit(
-                    w,
+                    ws2,
                     mass_name,
                     dataset_name,//TODO add to overall arguments
                     sgYield_name,//TODO add to overall arguments
@@ -5956,7 +5976,7 @@ void getKinBinnedGraphGenericDiff(
                     sig_pdf_name2,
                     sg_region_min,//TODO add to overall arguments
                     sg_region_max,//TODO add to overall arguments
-                    massoutdir
+                    ""
                 );
 
             epsilon_gauss = massFitData_gauss[0];
