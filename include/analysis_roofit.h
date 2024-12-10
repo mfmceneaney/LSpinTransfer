@@ -308,6 +308,16 @@ std::vector<double> applyLambdaMassFit(
     // Set y axes limits
     h->GetYaxis()->SetRangeUser(0.0,1.05*h->GetMaximum());
 
+    // Construct signal gauss(t,mg,sg)
+    RooRealVar mg("mg", "mg", 1.1157, mass_min, mass_max);
+    RooRealVar sg("sg", "sg", 0.008, 0.0, 0.1);
+    RooGaussian gauss(Form("gauss%s",ws_unique_id.c_str()), "gauss", *m, mg, sg);
+
+    // Construct landau(t,ml,sl) ;
+    RooRealVar ml("ml", "mean landau", 1.1157, mass_min, mass_max);
+    RooRealVar sl("sl", "sigma landau", 0.005, 0.0, 0.1);
+    RooLandau landau(Form("landau%s",ws_unique_id.c_str()), "landau", *m, ml, sl);
+
     // Construct signal parameters and function
     RooRealVar mu("mu","#mu",1.1157,0.0,2.0);
     RooRealVar s("s","#sigma",0.008,0.0,1.0);
@@ -316,28 +326,20 @@ std::vector<double> applyLambdaMassFit(
     RooRealVar a("a","#alpha",1.0,0.0,3.0);
     RooRealVar n("n","n",2.0,2.0,10.0);
     RooCrystalBall cb(Form("cb%s",ws_unique_id.c_str()), "crystal_ball", *m, mu, s, a_left, n_left, a, n); //NOTE: Include model name for uniqueness within bin.
- 
-    // Construct landau(t,ml,sl) ;
-    RooRealVar ml("ml", "mean landau", 1.1157, mass_min, mass_max);
-    RooRealVar sl("sl", "sigma landau", 0.005, 0.0, 0.1);
-    RooLandau landau(Form("landau%s",ws_unique_id.c_str()), "lx", *m, ml, sl);
 
-    // Construct signal gauss(t,mg,sg)
-    RooRealVar mg("mg", "mg", 1.1157, mass_min, mass_max);
-    RooRealVar sg("sg", "sg", 0.008, 0.0, 0.1);
-    RooGaussian gauss(Form("gauss%s",ws_unique_id.c_str()), "gauss", *m, mg, sg);
-
-    // Construct convolution gauss
+    // Construct convolution component pdfs
     RooRealVar mg_conv("mg_conv", "mg_conv", 0.0);
     RooRealVar sg_conv("sg_conv", "sg_conv", 0.008, 0.0, 0.1);
     RooGaussian gauss_conv(Form("gauss_conv%s",ws_unique_id.c_str()), "gauss_conv", *m, mg_conv, sg_conv);
+    RooLandau landau_conv(Form("landau_conv%s",ws_unique_id.c_str()), "landau_conv", *m, ml, sl);
+    RooCrystalBall cb_conv(Form("cb_conv%s",ws_unique_id.c_str()), "crystal_ball_conv", *m, mu, s, a_left, n_left, a, n);
     
     // Set #bins to be used for FFT sampling to 10000
     m->setBins(mass_nbins_conv, "cache");
     
     // Construct Convolution PDFs
-    RooFFTConvPdf landau_X_gauss(Form("landau_X_gauss%s",ws_unique_id.c_str()), "CB (X) gauss_conv", *m, landau, gauss_conv);
-    RooFFTConvPdf cb_X_gauss(Form("cb_X_gauss%s",ws_unique_id.c_str()), "CB (X) gauss_conv", *m, cb, gauss_conv);
+    RooFFTConvPdf landau_X_gauss(Form("landau_X_gauss%s",ws_unique_id.c_str()), "CB (X) gauss_conv", *m, landau_conv, gauss_conv);
+    RooFFTConvPdf cb_X_gauss(Form("cb_X_gauss%s",ws_unique_id.c_str()), "CB (X) gauss_conv", *m, cb_conv, gauss_conv);
 
     // Import signal functions to workspace
     w->import(gauss);
