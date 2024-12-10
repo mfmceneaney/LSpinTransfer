@@ -261,7 +261,7 @@ void applyLambdaMassFit(
 * @param std::string sig_pdf_name
 * @param double sg_region_min
 * @param double sg_region_max
-* @param std::string bin_name
+* @param std::string ws_unique_id
 *
 * @return std::vector<double> epsilon
 */
@@ -280,7 +280,7 @@ std::vector<double> applyLambdaMassFit(
     std::string sig_pdf_name,
     double sg_region_min,
     double sg_region_max,
-    std::string bin_name
+    std::string ws_unique_id
     ) {
 
     using namespace RooFit;
@@ -315,29 +315,29 @@ std::vector<double> applyLambdaMassFit(
     RooRealVar n_left("n_left","n_left",10.0);
     RooRealVar a("a","#alpha",1.0,0.0,3.0);
     RooRealVar n("n","n",2.0,2.0,10.0);
-    RooCrystalBall cb("cb", "crystal_ball", *m, mu, s, a_left, n_left, a, n);
+    RooCrystalBall cb(Form("cb__%s",ws_unique_id.c_str()), "crystal_ball", *m, mu, s, a_left, n_left, a, n); //NOTE: Include model name for uniqueness within bin.
  
     // Construct landau(t,ml,sl) ;
     RooRealVar ml("ml", "mean landau", 1.1157, mass_min, mass_max);
     RooRealVar sl("sl", "sigma landau", 0.005, 0.0, 0.1);
-    RooLandau landau("lx", "lx", *m, ml, sl);
+    RooLandau landau(Form("landau__%s",ws_unique_id.c_str()), "lx", *m, ml, sl);
 
     // Construct signal gauss(t,mg,sg)
     RooRealVar mg("mg", "mg", 1.1157, mass_min, mass_max);
     RooRealVar sg("sg", "sg", 0.008, 0.0, 0.1);
-    RooGaussian gauss("gauss", "gauss", *m, mg, sg);
+    RooGaussian gauss(Form("gauss__%s",ws_unique_id.c_str()), "gauss", *m, mg, sg);
 
     // Construct convolution gauss
     RooRealVar mg_conv("mg_conv", "mg_conv", 0.0);
     RooRealVar sg_conv("sg_conv", "sg_conv", 0.008, 0.0, 0.1);
-    RooGaussian gauss_conv("gauss_conv", "gauss_conv", *m, mg_conv, sg_conv);
+    RooGaussian gauss_conv(Form("gauss_conv__%s",ws_unique_id.c_str()), "gauss_conv", *m, mg_conv, sg_conv);
     
     // Set #bins to be used for FFT sampling to 10000
     m->setBins(mass_nbins_conv, "cache");
     
     // Construct Convolution PDFs
-    RooFFTConvPdf landau_X_gauss("landau_X_gauss", "CB (X) gauss_conv", *m, landau, gauss_conv);
-    RooFFTConvPdf cb_X_gauss("cb_X_gauss", "CB (X) gauss_conv", *m, cb, gauss_conv);
+    RooFFTConvPdf landau_X_gauss(Form("landau_X_gauss__%s",ws_unique_id.c_str()), "CB (X) gauss_conv", *m, landau, gauss_conv);
+    RooFFTConvPdf cb_X_gauss(Form("cb_X_gauss__%s",ws_unique_id.c_str()), "CB (X) gauss_conv", *m, cb, gauss_conv);
 
     // Import signal functions to workspace
     w->import(gauss);
@@ -347,7 +347,8 @@ std::vector<double> applyLambdaMassFit(
     w->import(cb_X_gauss);
 
     // Pick out signal function based on preference
-    RooAbsPdf *sig = w->pdf(sig_pdf_name.c_str());
+    std::string sig_pdf_name_unique = Form("%s__%s",sig_pdf_name.c_str(),ws_unique_id.c_str());
+    RooAbsPdf *sig = w->pdf(sig_pdf_name_unique.c_str());
 
     // Consruct background parameters and function
     RooRealVar b1("b1","b_{1}",  0.72,-10.0,10.0);
@@ -360,9 +361,9 @@ std::vector<double> applyLambdaMassFit(
     double sgfrac = 0.1;
     double sgYield_init = sgfrac * count;
     double bgYield_init = (1.0-sgfrac) * count;
-    RooRealVar sgYield(sgYield_name.c_str(), "fitted yield for signal", sgYield_init, 0., 2.0*count);
-    RooRealVar bgYield(bgYield_name.c_str(), "fitted yield for background", bgYield_init, 0., 2.0*count);
-    RooAddPdf model(model_name.c_str(), Form("%s+bg",sig_pdf_name.c_str()), RooArgList(*sig,bg), RooArgList(sgYield,bgYield)); //NOTE: N-1 Coefficients!  Unless you want extended ML Fit
+    RooRealVar sgYield(Form("%s__%s",sgYield_name.c_str(),ws_unique_id.c_str()), "fitted yield for signal", sgYield_init, 0., 2.0*count);
+    RooRealVar bgYield(Form("%s__%s",bgYield_name.c_str(),ws_unique_id.c_str()), "fitted yield for background", bgYield_init, 0., 2.0*count);
+    RooAddPdf model(model_name.c_str(), Form("%s+bg",sig_pdf_name_unique.c_str()), RooArgList(*sig,bg), RooArgList(sgYield,bgYield)); //NOTE: N-1 Coefficients!  Unless you want extended ML Fit
 
     // Fit invariant mass spectrum
     std::unique_ptr<RooFitResult> fit_result_data{model.fitTo(*rooDataSetResult, Save(), PrintLevel(-1))};
@@ -523,7 +524,7 @@ std::vector<double> applyLambdaMassFit(
     legend->Draw();
 
     // Save Canvas
-    c_massfit->SaveAs(Form("%s_%s_%s.pdf",c_massfit->GetName(),sig_pdf_name.c_str(),bin_name.c_str()));
+    c_massfit->SaveAs(Form("%s_%s_%s.pdf",c_massfit->GetName(),sig_pdf_name.c_str(),ws_unique_id.c_str()));
 
     // Add yield variables to workspace
     w->import(sgYield);
@@ -1207,9 +1208,6 @@ void getKinBinnedAsym1D(
     double ys_corrected[nparams][nbins];
     double eys_corrected[nparams][nbins];
 
-    // Create workspace
-    RooWorkspace *w = new RooWorkspace(workspace_name.c_str(),workspace_title.c_str());
-
     // Create bin var vector and outer bin lims vector
     std::vector binvars = {binvar};
     std::vector<std::vector<double>> binvarlims_outer = {{bins[0],bins[nbins]}};
@@ -1228,6 +1226,10 @@ void getKinBinnedAsym1D(
         // Get bin limits
         double bin_min = bins[binidx];
         double bin_max = bins[binidx+1];
+
+        // Create workspace
+        RooWorkspace *w = new RooWorkspace(workspace_name.c_str(),workspace_title.c_str());
+        RooWorkspace *w_sb = new RooWorkspace(Form("%s_sb",workspace_name.c_str()),Form("%s_sideband",workspace_title.c_str())); //NOTE: Use separate sideband workspace for dataset, variable, and pdf name uniqueness.
 
         // Make bin cut on frame
         std::string  bincut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
@@ -1254,7 +1256,7 @@ void getKinBinnedAsym1D(
         );
 
         // Apply Lambda mass fit to FULL bin frame
-        std::string bin_name = Form("bin_%d",binidx);
+        std::string ws_unique_id = Form("sg_bin_%d",binidx);
         std::vector<double> epss = applyLambdaMassFit(
                 w,
                 massvar,
@@ -1270,7 +1272,7 @@ void getKinBinnedAsym1D(
                 sig_pdf_name,
                 sg_region_min,
                 sg_region_max,
-                bin_name
+                ws_unique_id
             );
 
         // Apply SPlot
@@ -1281,8 +1283,8 @@ void getKinBinnedAsym1D(
             applySPlot(
                 w,
                 dataset_name,
-                sgYield_name,
-                bgYield_name,
+                (std::string)Form("%s__%s",sgYield_name.c_str(),ws_unique_id.c_str()),
+                (std::string)Form("%s__%s",bgYield_name.c_str(),ws_unique_id.c_str()),
                 model_name,
                 dataset_sg_name,
                 dataset_bg_name
@@ -1295,7 +1297,7 @@ void getKinBinnedAsym1D(
         if (use_sb_subtraction) {
             createDataset1D(
                 sgbinframe,
-                w,
+                w_sb, //NOTE: Use separate sideband workspace for dataset, variable, and pdf name uniqueness.
                 sg_dataset_name,
                 dataset_title,
                 helicity_name,
@@ -1351,7 +1353,7 @@ void getKinBinnedAsym1D(
             std::string sb_dataset_name = Form("sb_%s",dataset_name.c_str());
             createDataset1D(
                 sbbinframe,
-                w,
+                w_sb, //NOTE: Use separate sideband workspace for dataset, variable, and pdf name uniqueness.
                 sb_dataset_name,
                 dataset_title,
                 helicity_name,
@@ -1372,7 +1374,7 @@ void getKinBinnedAsym1D(
                                 binoutdir,
                                 outroot,
                                 sbbinframe, //NOTE: FRAME SHOULD ALREADY BE FILTERED WITH OVERALL CUTS
-                                w,
+                                w_sb,
                                 sb_dataset_name, //NOTE: DATASET SHOULD ALREADY BE FILTERED WITH OVERALL CUTS AND CONTAIN WEIGHT VARIABLE IF NEEDED
                                 binvars,
                                 binvarlims_outer,

@@ -5793,9 +5793,6 @@ void getKinBinnedGraphGenericDiff(
     double bgfractions_sb[nbins];
     double bgfractions_sb_err[nbins];
 
-    // Create workspace
-    RooWorkspace *w = new RooWorkspace(workspace_name.c_str(),workspace_title.c_str());
-
     // Create bin var vector and outer bin lims vector
     std::vector<std::string> binvars = {binvar};
     std::vector<std::vector<double>> binvarlims_outer = {{bins[0],bins[nbins]}};
@@ -5805,8 +5802,13 @@ void getKinBinnedGraphGenericDiff(
 
     // Loop bins and get data
     for (int i=1; i<=nbins; i++) {
+
+        // Get bin limits
         double bin_min = bins[i-1];
         double bin_max = bins[i];
+
+        // Create workspace
+        RooWorkspace *w = new RooWorkspace(workspace_name.c_str(),workspace_title.c_str());
 
         // Make bin cut on frame
         std::string  bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
