@@ -330,7 +330,8 @@ std::vector<double> applyLambdaMassFit(
     // Construct convolution component pdfs
     RooRealVar mg_conv("mg_conv", "mg_conv", 0.0);
     RooRealVar sg_conv("sg_conv", "sg_conv", 0.008, 0.0, 0.1);
-    RooGaussian gauss_conv(Form("gauss_conv%s",ws_unique_id.c_str()), "gauss_conv", *m, mg_conv, sg_conv);
+    RooGaussian gauss_landau_conv(Form("gauss_landau_conv%s",ws_unique_id.c_str()), "gauss_landau_conv", *m, mg_conv, sg_conv);
+    RooGaussian gauss_cb_conv(Form("gauss_cb_conv%s",ws_unique_id.c_str()), "gauss_cb_conv", *m, mg_conv, sg_conv);
     RooLandau landau_conv(Form("landau_conv%s",ws_unique_id.c_str()), "landau_conv", *m, ml, sl);
     RooCrystalBall cb_conv(Form("cb_conv%s",ws_unique_id.c_str()), "crystal_ball_conv", *m, mu, s, a_left, n_left, a, n);
     
@@ -338,8 +339,8 @@ std::vector<double> applyLambdaMassFit(
     m->setBins(mass_nbins_conv, "cache");
     
     // Construct Convolution PDFs
-    RooFFTConvPdf landau_X_gauss(Form("landau_X_gauss%s",ws_unique_id.c_str()), "CB (X) gauss_conv", *m, landau_conv, gauss_conv);
-    RooFFTConvPdf cb_X_gauss(Form("cb_X_gauss%s",ws_unique_id.c_str()), "CB (X) gauss_conv", *m, cb_conv, gauss_conv);
+    RooFFTConvPdf landau_X_gauss(Form("landau_X_gauss%s",ws_unique_id.c_str()), "CB (X) gauss_conv", *m, landau_conv, gauss_landau_conv);
+    RooFFTConvPdf cb_X_gauss(Form("cb_X_gauss%s",ws_unique_id.c_str()), "CB (X) gauss_conv", *m, cb_conv, gauss_cb_conv);
 
     // Import signal functions to workspace
     w->import(gauss);
