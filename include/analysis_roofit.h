@@ -101,10 +101,10 @@ void createDataset1D(
     RooRealVar m(massvar.c_str(),  massvar.c_str(), mmin, mmax);
 
     // Create binning variables
-    RooRealVar binvar0((nbinvars>0 ? binvars[0].c_str() : "binvar0"), (nbinvars>0 ? binvars[0].c_str() : "binvar0"), (nbinvars>0 ? binvarlims[0][0] : -1.0), (nbinvars>0 ? binvarlims[0][1] : 1.0)); //NOTE: IMPORTANT!  These have to be declared individually here.  Creating in a loop and adding to a list will not work.
-    RooRealVar binvar1((nbinvars>1 ? binvars[1].c_str() : "binvar1"), (nbinvars>1 ? binvars[1].c_str() : "binvar1"), (nbinvars>1 ? binvarlims[1][0] : -1.0), (nbinvars>1 ? binvarlims[1][1] : 1.0));
-    RooRealVar binvar2((nbinvars>2 ? binvars[2].c_str() : "binvar2"), (nbinvars>2 ? binvars[2].c_str() : "binvar2"), (nbinvars>2 ? binvarlims[2][0] : -1.0), (nbinvars>2 ? binvarlims[2][1] : 1.0));
-    RooRealVar binvar3((nbinvars>3 ? binvars[3].c_str() : "binvar3"), (nbinvars>3 ? binvars[3].c_str() : "binvar3"), (nbinvars>3 ? binvarlims[3][0] : -1.0), (nbinvars>3 ? binvarlims[3][1] : 1.0));
+    RooRealVar binvar0(((nbinvars>0 && binvars[0]!=massvar) ? binvars[0].c_str() : "binvar0"), ((nbinvars>0 && binvars[0]!=massvar) ? binvars[0].c_str() : "binvar0"), ((nbinvars>0 && binvars[0]!=massvar) ? binvarlims[0][0] : -1.0), (nbinvars>0 ? binvarlims[0][1] : 1.0)); //NOTE: IMPORTANT!  These have to be declared individually here.  Creating in a loop and adding to a list will not work.
+    RooRealVar binvar1(((nbinvars>1 && binvars[0]!=massvar) ? binvars[1].c_str() : "binvar1"), ((nbinvars>1 && binvars[0]!=massvar) ? binvars[1].c_str() : "binvar1"), ((nbinvars>1 && binvars[0]!=massvar) ? binvarlims[1][0] : -1.0), (nbinvars>1 ? binvarlims[1][1] : 1.0));
+    RooRealVar binvar2(((nbinvars>2 && binvars[0]!=massvar) ? binvars[2].c_str() : "binvar2"), ((nbinvars>2 && binvars[0]!=massvar) ? binvars[2].c_str() : "binvar2"), ((nbinvars>2 && binvars[0]!=massvar) ? binvarlims[2][0] : -1.0), (nbinvars>2 ? binvarlims[2][1] : 1.0));
+    RooRealVar binvar3(((nbinvars>3 && binvars[0]!=massvar) ? binvars[3].c_str() : "binvar3"), ((nbinvars>3 && binvars[0]!=massvar) ? binvars[3].c_str() : "binvar3"), ((nbinvars>3 && binvars[0]!=massvar) ? binvarlims[3][0] : -1.0), (nbinvars>3 ? binvarlims[3][1] : 1.0));
 
     // Define default bin variables if not defined so you don't get errors since variable names cannot conflict
     if (!(nbinvars>0)) frame = frame.Define(binvar0.GetName(),"(float)1.0");
@@ -1663,10 +1663,10 @@ void createDataset2D(
     RooRealVar m(massvar.c_str(),  massvar.c_str(), mmin, mmax);
 
     // Create binning variables
-    RooRealVar binvar0((nbinvars>0 ? binvars[0].c_str() : "binvar0"), (nbinvars>0 ? binvars[0].c_str() : "binvar0"), (nbinvars>0 ? binvarlims[0][0] : -1.0), (nbinvars>0 ? binvarlims[0][1] : 1.0)); //NOTE: IMPORTANT!  These have to be declared individually here.  Creating in a loop and adding to a list will not work.
-    RooRealVar binvar1((nbinvars>1 ? binvars[1].c_str() : "binvar1"), (nbinvars>1 ? binvars[1].c_str() : "binvar1"), (nbinvars>1 ? binvarlims[1][0] : -1.0), (nbinvars>1 ? binvarlims[1][1] : 1.0));
-    RooRealVar binvar2((nbinvars>2 ? binvars[2].c_str() : "binvar2"), (nbinvars>2 ? binvars[2].c_str() : "binvar2"), (nbinvars>2 ? binvarlims[2][0] : -1.0), (nbinvars>2 ? binvarlims[2][1] : 1.0));
-    RooRealVar binvar3((nbinvars>3 ? binvars[3].c_str() : "binvar3"), (nbinvars>3 ? binvars[3].c_str() : "binvar3"), (nbinvars>3 ? binvarlims[3][0] : -1.0), (nbinvars>3 ? binvarlims[3][1] : 1.0));
+    RooRealVar binvar0(((nbinvars>0 && binvars[0]!=massvar) ? binvars[0].c_str() : "binvar0"), ((nbinvars>0 && binvars[0]!=massvar) ? binvars[0].c_str() : "binvar0"), ((nbinvars>0 && binvars[0]!=massvar) ? binvarlims[0][0] : -1.0), (nbinvars>0 ? binvarlims[0][1] : 1.0)); //NOTE: IMPORTANT!  These have to be declared individually here.  Creating in a loop and adding to a list will not work.
+    RooRealVar binvar1(((nbinvars>1 && binvars[0]!=massvar) ? binvars[1].c_str() : "binvar1"), ((nbinvars>1 && binvars[0]!=massvar) ? binvars[1].c_str() : "binvar1"), ((nbinvars>1 && binvars[0]!=massvar) ? binvarlims[1][0] : -1.0), (nbinvars>1 ? binvarlims[1][1] : 1.0));
+    RooRealVar binvar2(((nbinvars>2 && binvars[0]!=massvar) ? binvars[2].c_str() : "binvar2"), ((nbinvars>2 && binvars[0]!=massvar) ? binvars[2].c_str() : "binvar2"), ((nbinvars>2 && binvars[0]!=massvar) ? binvarlims[2][0] : -1.0), (nbinvars>2 ? binvarlims[2][1] : 1.0));
+    RooRealVar binvar3(((nbinvars>3 && binvars[0]!=massvar) ? binvars[3].c_str() : "binvar3"), ((nbinvars>3 && binvars[0]!=massvar) ? binvars[3].c_str() : "binvar3"), ((nbinvars>3 && binvars[0]!=massvar) ? binvarlims[3][0] : -1.0), (nbinvars>3 ? binvarlims[3][1] : 1.0));
 
     // Define default bin variables if not defined so you don't get errors since variable names cannot conflict
     if (!(nbinvars>0)) frame = frame.Define(binvar0.GetName(),"(float)1.0");
