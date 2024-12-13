@@ -31,16 +31,22 @@
 
 // Local includes
 #include <massfit.h>
-#include <analysis_roofit.h>
+#include <analysis.h>
+
+#pragma once
 
 /**
-* @author Matthew McEneaney
-* @date 7/Jul./23
+* @author Matthew F. McEneaney
+* @date 12/Dec./2024
+* @version 0.0.0
 * Description: Compute and plot dll Spin Transfer coefficient using 
 *              Helicity Balance (HB) and Linear Fit (LF) methods
 *              binning in given kinematic variables.
 */
 
+/**
+* TEST FUNCTION
+*/
 void test() { std::cout<<"TEST"<<std::endl; } //DEBUGGING
 
 /** 
@@ -5858,7 +5864,7 @@ void getKinBinnedGraphGenericDiff(
             // }
 
             // Create bin dataset 1
-            createDataset1D(
+            analysis::createDataset1D(
                 bin_frame,
                 ws1,//TODO Define here
                 dataset_name,//TODO add to overall arguments
@@ -5877,7 +5883,7 @@ void getKinBinnedGraphGenericDiff(
             );
 
             // Create bin dataset 2
-            createDataset1D(
+            analysis::createDataset1D(
                 bin_frame,
                 ws2,//TODO Define here
                 dataset_name,//TODO add to overall arguments
@@ -5897,7 +5903,7 @@ void getKinBinnedGraphGenericDiff(
 
             // Apply Lambda mass fit to FULL bin frame
             std::string bin_name = Form("bin_%d",i);
-            massFitData = applyLambdaMassFit(
+            massFitData = analysis::applyLambdaMassFit(
                     ws1,
                     mass_name,
                     dataset_name,//TODO add to overall arguments
@@ -5962,7 +5968,7 @@ void getKinBinnedGraphGenericDiff(
 
             // Apply Lambda mass fit to FULL bin frame
             // std::string bin_name = Form("bin_%d",i);//NOTE: DEFINED ABOVE ALREADY
-            massFitData_gauss = applyLambdaMassFit(
+            massFitData_gauss = analysis::applyLambdaMassFit(
                     ws2,
                     mass_name,
                     dataset_name,//TODO add to overall arguments

@@ -19,9 +19,12 @@
 #include <TFitResult.h>
 #include <TMath.h>
 
+#pragma once
+
 /**
-* @author Matthew McEneaney
-* @date 7/Jul./23
+* @author Matthew F. McEneaney
+* @date 12/Dec./2024
+* @version 0.0.0
 * Description: Fit Lambda mass spectrum and return background fraction in signal region.
 */
 

@@ -21,9 +21,12 @@
 // Local includes
 #include <massfit.h>
 
+#pragma once
+
 /**
-* @author Matthew McEneaney
-* @date 13/Sep./24
+* @author Matthew F. McEneaney
+* @date 12/Dec./2024
+* @version 0.0.0
 * Description: Compute and plot generic BSAs using 3D histograms. Optionally
 *              perform background corrections with Lambda mass fits.
 */

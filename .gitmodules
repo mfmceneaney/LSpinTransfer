@@ -1,6 +1,6 @@
-[submodule "yaml-cpp"]
-	path = yaml-cpp
+[submodule "alib/yaml-cpp"]
+	path = alib/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp.git
-[submodule "argparse"]
-	path = argparse
+[submodule "alib/argparse"]
+	path = alib/argparse
 	url = https://github.com/jamolnng/argparse.git

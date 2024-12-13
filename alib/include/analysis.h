@@ -44,30 +44,40 @@
 // Local includes
 // #include <massfit.h>
 
-/**
-* @author Matthew McEneaney
-* @date 30/Oct./24
-* Description: Compute spin asymmetries using RooFit Maximum Likelihood methods
-*              and SPlot methods for background correction.
-*/
+#pragma once
 
 /**
-* Create an invariant and asymmetry fit data set and add to dataset along
-* with helicity, fit variable, and mass variable.
+* @file
+* @author Matthew F. McEneaney
+* @date 12/Dec./2024
+* @version 0.0.0
+* @brief Fit asymmetries using RooFit unbinned extended Maximum Likelihood methods and sideband subtraction 
+* or the sPlot method from <a href="http://arxiv.org/abs/physics/0402083">arXiv:physics/0402083</a> for background correction.
+*/
+
+namespace analysis {
+
+/**
+* @brief Create a dataset for a 1D fit
 *
-* @param ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame
-* @param RooWorkspace *w
-* @param std::string dataset_name
-* @param std::string dataset_title
-* @param std::string helicity
-* @param std::string fitvarx
-* @param double xmin
-* @param double xmax
-* @param std::string massvar
-* @param double mmin
-* @param double mmax
-* @param std::vector<std::string> binvars
-* @param std::vector<std::vector<double>> binvarlims
+* Create a RooFit dataset for use with an invariant mass signal fit
+* and an asymmetry fit, adding helicity, fit, mass, binning, and depolarization variables.
+*
+* @param frame ROOT RDataframe from which to create a RooDataSet
+* @param w RooWorkspace in which to work
+* @param name Dataset name
+* @param title Dataset title
+* @param helicity Name of helicity variable
+* @param fitvarx Name of fit variable
+* @param xmin Minimum bound for fit variable
+* @param xmax Maximum bound for fit variable
+* @param massvar Invariant mass variable name
+* @param mmin Minimum bound for invariant mass variable
+* @param mmax Maximum bound for invariant mass variable
+* @param binvars List of kinematic binning variables (up to 4)
+* @param binvarlims List of minimum and maximum bounds for each kinematic binning variable
+* @param depolvars List of depolarization variables (up to 5)
+* @param depolvarlims List of minimum and maximum bounds for each depolarization variable
 */
 void createDataset1D(
         ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
@@ -78,7 +88,7 @@ void createDataset1D(
         std::string fitvarx,
         double xmin,
         double xmax,
-        std::string massvar,
+        std::string massvar, //TODO: add options for variable titles and then propagate to produced plots...
         double mmin,
         double mmax,
         std::vector<std::string> binvars,
@@ -157,15 +167,17 @@ void createDataset1D(
 }
 
 /**
-* Apply a lambda mass fit with crystal ball signal and chebychev polynomial
+* @brief Apply a \f$\Lambda\f$ baryon mass fit
+*
+* Apply a \f$\Lambda\f$ baryon mass fit with crystal ball signal and Chebychev polynomial
 * background and save model and yield variables to workspace.
 *
-* @param RooWorkspace *w,
-* @param std::string massvar,
-* @param std::string dataset_name,
-* @param std::string sgYield_name,
-* @param std::string bgYield_name,
-* @param std::string model_name,
+* @param w RooWorkspace in which to work
+* @param massvar Invariant mass variable name
+* @param dataset_name Dataset name
+* @param sgYield_name Signal yield variable name
+* @param bgYield_name Background yield variable name
+* @param model_name Full PDF name
 */
 void applyLambdaMassFit(
     RooWorkspace *w,
@@ -238,33 +250,35 @@ void applyLambdaMassFit(
 }
 
 /**
-* Apply a lambda mass fit with signal function chosen from
-* ("gauss","landau","cb","landau_X_gauss","cb_X_gauss") and
-* chebychev polynomial background function and save model and
-* yield variables to workspace for use with sPlot method.
-* This will also return epsilon which is the fraction of events
-* in the signal region (sig_region_min,sig_region_max) which
+* @brief Apply a \f$\Lambda\f$ baryon mass fit
+*
+* Apply a \f$\Lambda\f$ baryon mass fit with signal function chosen from
+* (`"gauss"`, `"landau"`, `"cb"`, `"landau_X_gauss"`, `"cb_X_gauss"`) and
+* Chebychev polynomial background function and save model and
+* yield variables to workspace for use with sPlot method from <a href="http://arxiv.org/abs/physics/0402083">arXiv:physics/0402083</a>.
+* This will also return \f$\varepsilon\f$ which is the fraction of events
+* in the signal region (`sig_region_min`,`sig_region_max`) which
 * are background based on the difference between the observed
 * distribution and the histogrammed background function.
 *
-* @param RooWorkspace *w
-* @param std::string massvar
-* @param std::string dataset_name
-* @param std::string sgYield_name
-* @param std::string bgYield_name
-* @param ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame
-* @param int mass_nbins_hist
-* @param double mass_min
-* @param double mass_max
-* @param int mass_nbins_conv
-* @param std::string model_name
-* @param std::string sig_pdf_name
-* @param double sg_region_min
-* @param double sg_region_max
-* @param std::string ws_unique_id
-* @param int use_poly4_bg
+* @param w RooWorkspace in which to work
+* @param massvar Invariant mass variable name
+* @param dataset_name Dataset name
+* @param sgYield_name Signal yield variable name
+* @param bgYield_name Background yield variable name
+* @param frame ROOT RDataframe from which to create a histogram of invariant mass
+* @param mass_nbins_hist Number of bins for the invariant mass histogram
+* @param mass_min Minimum bound for invariant mass variable
+* @param mass_max Maximum bound for invariant mass variable
+* @param mass_nbins_conv Number of invariant mass bins for convolution of PDFs
+* @param model_name Full PDF name
+* @param sig_pdf_name Signal PDF name
+* @param sg_region_min Invariant mass signal region lower bound
+* @param sg_region_max Invariant mass signal region upper bound
+* @param ws_unique_id Identifier string to ensure PDFs uniqueness in workspace
+* @param use_poly4_bg Use a 4th order Chebychev polynomial background instead 2nd order
 *
-* @return std::vector<double> epsilon
+* @return List containing background fraction epsilon and its statistical error
 */
 std::vector<double> applyLambdaMassFit(
     RooWorkspace *w,
@@ -300,7 +314,7 @@ std::vector<double> applyLambdaMassFit(
     auto h1 = (TH1D) *frame.Histo1D({"h1",massvar.c_str(),mass_nbins_hist,mass_min,mass_max},massvar.c_str());
     TH1D *h = (TH1D*)h1.Clone(massvar.c_str());
     h->SetTitle("");
-    h->GetXaxis()->SetTitle("M_{p#pi^{-}} (GeV)");
+    h->GetXaxis()->SetTitle(Form("%s (GeV)",m->GetTitle()));
     h->GetXaxis()->SetTitleSize(0.06);
     h->GetXaxis()->SetTitleOffset(0.75);
     h->GetYaxis()->SetTitle("Counts");
@@ -544,20 +558,21 @@ std::vector<double> applyLambdaMassFit(
     result.push_back(eps_sg_th1_int);
     result.push_back(eps_sg_th1_int_err);
     return result;
-
 }
 
 /**
-* Apply SPlot method given a dataset, yield variables, and a model and 
-* add the sweighted datasets to the workspace.
+* @brief Apply the sPlot method from <a href="http://arxiv.org/abs/physics/0402083">arXiv:physics/0402083</a>.
+*
+* Apply sPlot method from <a href="http://arxiv.org/abs/physics/0402083">arXiv:physics/0402083</a> given a dataset, yield variables, and a model and 
+* add the sWeighted datasets to the workspace.
 * 
-* @param RooWorkspace *w,
-* @param std::string dataset_name,
-* @param std::string sgYield_name,
-* @param std::string bgYield_name,
-* @param std::string model_name,
-* @param std::string dataset_sg_name,
-* @param std::string dataset_bg_name,
+* @param w RooWorkspace in which to work
+* @param dataset_name Dataset name
+* @param sgYield_name Signal yield variable name
+* @param bgYield_name Background yield variable name
+* @param model_name Full PDF name
+* @param dataset_sg_name Name of dataset with signal sweights
+* @param dataset_bg_name Name of dataset with background sweights
 */
 void applySPlot(
         RooWorkspace *w,
@@ -579,8 +594,8 @@ void applySPlot(
     // Get dataset from workspace
     RooDataSet *rooDataSetResult = (RooDataSet*)w->data(dataset_name.c_str());
 
-    // Run SPlot and create weighted datasets
-    RooStats::SPlot sData{"sData", "SPlot Data", *rooDataSetResult, model, RooArgList(*sgYield, *bgYield)};
+    // Run sPlot and create weighted datasets
+    RooStats::SPlot sData{"sData", "sPlot Data", *rooDataSetResult, model, RooArgList(*sgYield, *bgYield)};
     auto& data1 = static_cast<RooDataSet&>(*rooDataSetResult);
     RooDataSet data_sg_sw{dataset_sg_name.c_str(), data1.GetTitle(), &data1, *data1.get(), nullptr, "sgYield_sw"};
     RooDataSet data_bg_sw{dataset_bg_name.c_str(), data1.GetTitle(), &data1, *data1.get(), nullptr, "bgYield_sw"};
@@ -592,31 +607,42 @@ void applySPlot(
 }
 
 /**
+* @brief Compute an asymmetry using an unbinned maximum likelihood fit with 1 fit variable.
+* 
 * Compute the bin count, bin variable values and errors, depolarization variable values and errors,
-* and fit parameter values and errors using an unbinned maximum likelihood fit and an asymmetry fit.
-* Note that the given asymmetry formula (fitformula) will be converted to a PDF internally.
+* and fit parameter values and errors using an unbinned maximum likelihood fit to the asymmetry.
+* Note that the given asymmetry formula \f$ A(x, a_0, a_1, a_2, ...) \f$ will be converted internally to a PDF of the form
 *
-* @param std::string  outdir
-* @param TFile      * outroot
-* @param ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame
-* @param RooWorkspace *w
-* @param std::string dataset_name
-* @param std::vector<std::string> binvars
-* @param std::vector<std::vector<double>> binvarlims
-* @param std::string bincut
-* @param std::string bintitle
-* @param double      pol
-* @param std::vector<std::string>   depolvars
-* @param std::string  helicity_name = "heli"
-* @param std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)"
-* @param int          nparams       = 2
-* @param std::vector<double> params = std::vector<double>(5)
-* @param std::string  fitvarx       = "phi_h"
-* @param std::string  fitvarxtitle  = "#phi_{h p#pi^{-}}"
-* @param double xmin                = 0.0
-* @param double xmax                = 2*TMath::Pi()
-* @param bool use_sumW2Error        = true
-* @param std::ostream &out          = std::cout
+* @f[
+* PDF(h, x, a_0, a_1, a_2,...) = 1 + h \cdot P \cdot A(x, a_0, a_1, a_2, ...)
+* @f]
+*
+* The variable names should be replaced in the fit formula by `helicity`\f$\rightarrow\f$`[0]`, `x`\f$\rightarrow\f$`[1]`, `a_0`\f$\rightarrow\f$`[2]`, etc.
+*
+* @param outdir Name of output directory
+* @param outroot Name of output ROOT file
+* @param frame ROOT RDataframe from which to get bin count
+* @param w RooWorkspace in which to work
+* @param dataset_name Dataset name
+* @param binvars List of kinematic binning variables
+* @param binvarlims List of minimum and maximum bounds for each kinematic binning variable
+* @param bincut Kinematic variable cut for bin
+* @param bintitle Bin title
+* @param pol Luminosity averaged beam polarization
+* @param depolvars List of depolarization variables
+* @param depolvarlims List of minimum and maximum bounds for each depolarization variable
+* @param helicity Name of helicity variable
+* @param fitformula The asymmetry formula
+* @param nparams Number of parameters in the asymmetry formula (up to 5)
+* @param params List of initial values for asymmetry parameters
+* @param fitvarx Name of fit variable
+* @param fitvarxtitle Title of fit variable
+* @param xmin Minimum bound for fit variable
+* @param xmax Maximum bound for fit variable
+* @param use_sumW2Error Option to use RooFit::SumW2Error(true) option when fitting to dataset which is necessary if using a weighted dataset
+* @param out Output stream
+*
+* @return List of bin count, bin variable means and errors, depolarization variable means and errors, fit parameters and errors
 */
 TArrayF* getKinBinAsymUBML1D(
     std::string  outdir,
@@ -631,7 +657,7 @@ TArrayF* getKinBinAsymUBML1D(
     double      pol,
     std::vector<std::string>   depolvars,
     std::vector<std::vector<double>> depolvarlims,
-    std::string  helicity_name = "heli",
+    std::string  helicity = "heli",
     std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
     int          nparams       = 2,
     std::vector<double> params = std::vector<double>(5),
@@ -647,7 +673,7 @@ TArrayF* getKinBinAsymUBML1D(
     std::string title    = Form("%s %s",fitvarxtitle.c_str(),bincut.c_str());
 
     // TODO: Load fit avariables from workspace
-    RooRealVar *h = w->var(helicity_name.c_str());
+    RooRealVar *h = w->var(helicity.c_str());
     RooRealVar *x = w->var(fitvarx.c_str());
 
     //TODO Load dataset from workspace
@@ -801,42 +827,51 @@ TArrayF* getKinBinAsymUBML1D(
 } // TArrayF* getKinBinAsymUBML1D()
 
 /**
-* Loop bins and compute an asymmetry using an unbinned maximum likelihood fit.
-* Optionally apply an invariant mass fit and background correction using the SPlot method.
+* @brief Loop kinematic bins and fit a 1D asymmetry.
 *
-* @param std::string outdir
-* @param TFile      *outroot
-* @param ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
-* @param std::string method
-* @param std::string binvar
-* @param int         nbins, // Number of bins
-* @param double      *bins, // Bin limits (length=nbins+1)
-* @param double      pol
-* @param std::vector<std::string> depolvars
-* @param std::string workspace_name  = "w"
-* @param std::string workspace_title = "workspace"
-* @param std::string dataset_name    = "dataset"
-* @param std::string dataset_title   = "dataset"
-* @param std::string helicity_name   = "heli"
-* @param std::string fitvarx         = "x"
-* @param double      xmin            = 0.0
-* @param double      xmax            = 1.0
-* @param std::string massvar         = "mass_ppim"
-* @param double      mmin            = 1.08
-* @param double      mmax            = 1.24
-* @param std::string sgYield_name    = "sgYield"
-* @param std::string bgYield_name    = "bgYield"
-* @param std::string model_name      = "model"
-* @param std::string fitformula      = "[0]*sin(x)+[1]*sin(2*x)"
-* @param int         nparams         = 2
-* @param std::vector<double> params  = std::vector<double>(5)
-* @param std::string fitvarxtitle    = "#phi_{h p#pi^{-}}"
-* @param bool        use_sumW2Error  = true
-* @param bool        use_splot       = true
-* @param std::string graph_title     = "BSA A_{LU} vs. #Delta#phi", // Histogram title
-* @param int         marker_color    = 4, // 4 is blue
-* @param int         marker_style    = 20, // 20 is circle
-* @param std::ostream &out           = std::cout
+* Loop bins and compute an asymmetry using an unbinned maximum likelihood fit.
+* Optionally apply an invariant mass fit and background correction using the sPlot method from <a href="http://arxiv.org/abs/physics/0402083">arXiv:physics/0402083</a>.
+* Note that the asymmetry fit formula \f$ A(x, a_0, a_1, a_2, ...) \f$ will be converted internally to a PDF of the form
+*
+* @f[
+* PDF(h, x, a_0, a_1, a_2,...) = 1 + h \cdot P \cdot A(x, a_0, a_1, a_2, ...)
+* @f]
+*
+* The variable names should be replaced in the fit formula by `helicity`\f$\rightarrow\f$`[0]`, `x`\f$\rightarrow\f$`[1]`, `a_0`\f$\rightarrow\f$`[2]`, etc.
+*
+* @param outdir Name of output directory
+* @param outroot Name of output ROOT file
+* @param frame ROOT RDataFrame
+* @param method Asymmetry fit method
+* @param binvar Kinematic binning variable
+* @param nbins Number of kinematic variable bins
+* @param bins List of bin limits, which must have dimension nbins+1
+* @param pol Luminosity averaged beam polarization
+* @param depolvars List of depolarization variables (up to 5)
+* @param workspace_name Name of workspace in which to work
+* @param workspace_title Title of workspace in which to work
+* @param dataset_name Dataset name
+* @param dataset_title Dataset title
+* @param helicity Name of helicity variable
+* @param fitvarx Name of fit variable
+* @param xmin Minimum bound for fit variable
+* @param xmax Maximum bound for fit variable
+* @param massvar Invariant mass variable name
+* @param mmin Minimum bound for invariant mass variable
+* @param mmax Maximum bound for invariant mass variable
+* @param sgYield_name Signal yield variable name
+* @param bgYield_name Background yield variable name
+* @param model_name Full PDF name
+* @param fitformula The asymmetry formula
+* @param nparams Number of parameters in the asymmetry formula (up to 5)
+* @param params List of initial values for asymmetry parameters
+* @param fitvarxtitle Title of fit variable
+* @param use_sumW2Error Option to use RooFit::SumW2Error(true) option when fitting to dataset which is necessary if using a weighted dataset
+* @param use_splot Option to use sPlot method and perform fit with sWeighted dataset
+* @param graph_title Title of kinematically binned graph of asymmetry parameters
+* @param marker_color Graph ROOT marker color
+* @param marker_style Graph ROOT marker style
+* @param out Output stream
 */
 void getKinBinnedAsymUBML1D(
         std::string outdir,
@@ -852,7 +887,7 @@ void getKinBinnedAsymUBML1D(
         std::string workspace_title = "workspace",
         std::string dataset_name    = "dataset",
         std::string dataset_title   = "dataset",
-        std::string helicity_name   = "heli",
+        std::string helicity   = "heli",
         std::string fitvarx         = "x",
         double      xmin            = 0.0,
         double      xmax            = 1.0,
@@ -917,7 +952,7 @@ void getKinBinnedAsymUBML1D(
         w,
         dataset_name,
         dataset_title,
-        helicity_name,
+        helicity,
         fitvarx,
         xmin,
         xmax,
@@ -942,7 +977,7 @@ void getKinBinnedAsymUBML1D(
         );
     }
 
-    // Apply SPlot
+    // Apply sPlot
     std::string fit_dataset_name = dataset_name;
     if (use_splot) {
         std::string dataset_sg_name = (std::string)Form("%s_sg_sw",dataset_name.c_str());
@@ -985,7 +1020,7 @@ void getKinBinnedAsymUBML1D(
                                 pol,
                                 depolvars,
                                 depolvarlims,
-                                helicity_name,
+                                helicity,
                                 fitformula,
                                 nparams,
                                 params,
@@ -1018,7 +1053,7 @@ void getKinBinnedAsymUBML1D(
         }
 
         // Output message
-        out << "--- SPlot Corrected Signal ---\n";
+        out << "--- sPlot Corrected Signal ---\n";
         for (int idx=0; idx<nparams; idx++) {
             out << " ys["<< idx <<"]["<<binidx<<"]             = " << ys[idx][binidx] << "\n";
             out << " eys["<< idx <<"]["<<binidx<<"]            = " << eys[idx][binidx] << "\n";
@@ -1061,7 +1096,7 @@ void getKinBinnedAsymUBML1D(
         gr->Draw("PA");
 
         // Add CLAS12 Preliminary watermark
-        TLatex *lt = new TLatex(0.3,0.2,"CLAS12 Preliminary");
+        TLatex *lt = new TLatex(0.3,0.2,"CLAS12 Preliminary"); //TODO: Add option for watermark
         lt->SetTextAngle(45);
         lt->SetTextColor(18);
         lt->SetTextSize(0.1);
@@ -1076,7 +1111,7 @@ void getKinBinnedAsymUBML1D(
 
         // Set outname and save
         TString fname;
-        fname.Form("%s_%s_%s_%.3f_%.3f_A%d",method.c_str(),fitvarx.c_str(),binvar.c_str(),bins[0],bins[nbins],idx);
+        fname.Form("%s_%s_%s_%.3f_%.3f_A%d",method.c_str(),fitvarx.c_str(),binvar.c_str(),bins[0],bins[nbins],idx); //TODO: Replace all bin naming schemes with bin id after introducing arbitrary dimensional binning
         c1->Print(fname+".pdf");
         gr->SaveAs(fname+".root","recreate");
 
@@ -1092,54 +1127,60 @@ void getKinBinnedAsymUBML1D(
 
 } // getKinBinnedAsymUBML1D()
 
-
-
 /**
-* Loop bins and compute an asymmetry using an unbinned maximum likelihood fit.
-* Optionally apply an invariant mass fit and background correction using the SPlot method
-* or the sideband subtraction method.
+* @brief Loop kinematic bins and fit a 1D asymmetry, correcting for background with sideband subtraction or <a href="http://arxiv.org/abs/physics/0402083">sPlots</a>.
 *
-* @param std::string outdir
-* @param TFile      *outroot
-* @param ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame //NOTE: FRAME SHOULD ALREADY BE FILTERED
-* @param std::string method
-* @param std::string binvar
-* @param int         nbins // Number of bins
-* @param double      *bins // Bin limits (length=nbins+1)
-* @param double      pol
-* @param std::vector<std::string> depolvars
-* @param std::string workspace_name  = "w"
-* @param std::string workspace_title = "workspace"
-* @param std::string dataset_name    = "dataset"
-* @param std::string dataset_title   = "dataset"
-* @param std::string helicity_name   = "heli"
-* @param std::string fitvarx         = "x"
-* @param double      xmin            = 0.0
-* @param double      xmax            = 1.0
-* @param std::string massvar         = "mass_ppim"
-* @param double      mass_min        = 1.08
-* @param double      mass_max        = 1.24
-* @param std::string sgYield_name    = "sgYield"
-* @param std::string bgYield_name    = "bgYield"
-* @param std::string model_name      = "model"
-* @param std::string fitformula      = "[0]*sin(x)+[1]*sin(2*x)"
-* @param int         nparams         = 2
-* @param std::vector<double> params  = std::vector<double>(5)
-* @param std::string fitvarxtitle    = "#phi_{h p#pi^{-}}"
-* @param bool        use_sumW2Error  = true
-* @param bool        use_splot       = true
-* @param std::string graph_title     = "BSA A_{LU} vs. #Delta#phi", // Histogram title
-* @param int         marker_color    = 4, // 4 is blue
-* @param int         marker_style    = 20 // 20 is circle
-* @param std::ostream &out           = std::cout
-* @param std::string  sgcut          = "Q2>1"
-* @param std::string  bgcut          = "Q2>1"
-* @param int mass_nbins_hist         = 100
-* @param int mass_nbins_conv         = 1000
-* @param std::string sig_pdf_name    = "cb" //NOTE: This must be one of ("gauss","landau","cb","landau_X_gauss","cb_X_gauss")
-* @param double sg_region_min        = 1.11
-* @param double sg_region_max        = 1.13
-* @param boolean use_sb_subtraction  = false
+* Loop bins and compute an asymmetry using an unbinned maximum likelihood fit.
+* Optionally apply an invariant mass fit and background correction using the sPlot method from <a href="http://arxiv.org/abs/physics/0402083">arXiv:physics/0402083</a>.
+* or the sideband subtraction method.Note that the asymmetry fit formula \f$ A(x, a_0, a_1, a_2, ...) \f$ will be converted internally to a PDF of the form
+*
+* @f[
+* PDF(h, x, a_0, a_1, a_2,...) = 1 + h \cdot P \cdot A(x, a_0, a_1, a_2, ...)
+* @f]
+*
+* The variable names should be replaced in the fit formula by `h`\f$\rightarrow\f$`[0]`, `x`\f$\rightarrow\f$`[1]`, `a_0`\f$\rightarrow\f$`[2]`, etc.
+*
+* @param outdir Name of output directory
+* @param outroot Name of output ROOT file
+* @param frame ROOT RDataframe from which to create RooFit datasets
+* @param method Asymmetry fit method
+* @param binvar Kinematic binning variable
+* @param nbins Number of kinematic variable bins
+* @param bins List of bin limits, which must have dimension nbins+1
+* @param pol Luminosity averaged beam polarization
+* @param depolvars List of depolarization variables (up to 5)
+* @param workspace_name Name of workspace in which to work
+* @param workspace_title Title of workspace in which to work
+* @param dataset_name Dataset name
+* @param dataset_title Dataset title
+* @param helicity Name of helicity variable
+* @param fitvarx Name of fit variable
+* @param xmin Minimum bound for fit variable
+* @param xmax Maximum bound for fit variable
+* @param massvar Invariant mass variable name
+* @param mass_min Minimum bound for invariant mass variable
+* @param mass_max Maximum bound for invariant mass variable
+* @param sgYield_name Signal yield variable name
+* @param bgYield_name Background yield variable name
+* @param model_name Full PDF name
+* @param fitformula The asymmetry formula
+* @param nparams Number of parameters in the asymmetry formula (up to 5)
+* @param params List of initial values for asymmetry parameters
+* @param fitvarxtitle Title of fit variable
+* @param use_sumW2Error Option to use RooFit::SumW2Error() option when fitting to dataset which is necessary if using a weighted dataset
+* @param use_splot Option to use sPlot method and perform fit with sWeighted dataset
+* @param graph_title Title of kinematically binned graph of asymmetry parameters
+* @param marker_color Graph ROOT marker color
+* @param marker_style Graph ROOT style color
+* @param out Output stream
+* @param sgcut Signal region cut for sideband subtraction background correction
+* @param bgcut Signal region cut for sideband subtraction background correction
+* @param mass_nbins_hist Number of bins for the invariant mass histogram
+* @param mass_nbins_conv Number of invariant mass bins for convolution of PDFs
+* @param sig_pdf_name Signal PDF name
+* @param sg_region_min Invariant mass signal region lower bound
+* @param sg_region_max Invariant mass signal region upper bound
+* @param use_sb_subtraction Option to use sideband subtraction for background correction
 */
 void getKinBinnedAsym1D(
         std::string outdir,
@@ -1155,7 +1196,7 @@ void getKinBinnedAsym1D(
         std::string workspace_title = "workspace",
         std::string dataset_name    = "dataset",
         std::string dataset_title   = "dataset",
-        std::string helicity_name   = "heli",
+        std::string helicity   = "heli",
         std::string fitvarx         = "x",
         double      xmin            = 0.0,
         double      xmax            = 1.0,
@@ -1249,7 +1290,7 @@ void getKinBinnedAsym1D(
             ws,
             dataset_name,
             dataset_title,
-            helicity_name,
+            helicity,
             fitvarx,
             xmin,
             xmax,
@@ -1282,7 +1323,7 @@ void getKinBinnedAsym1D(
                 1//use_poly4_bg
             );
 
-        // Apply SPlot
+        // Apply sPlot
         std::string fit_dataset_name = dataset_name; // -> Use this for sPlot
         if (use_splot) {
             std::string dataset_sg_name = (std::string)Form("%s_sg_sw",dataset_name.c_str());
@@ -1306,7 +1347,7 @@ void getKinBinnedAsym1D(
                 ws_sg, //NOTE: Use separate sideband workspace for dataset, variable, and pdf name uniqueness.
                 dataset_name,
                 dataset_title,
-                helicity_name,
+                helicity,
                 fitvarx,
                 xmin,
                 xmax,
@@ -1335,7 +1376,7 @@ void getKinBinnedAsym1D(
                                 pol,
                                 depolvars,
                                 depolvarlims,
-                                helicity_name,
+                                helicity,
                                 fitformula,
                                 nparams,
                                 params,
@@ -1361,7 +1402,7 @@ void getKinBinnedAsym1D(
                 ws_sb, //NOTE: Use separate sideband workspace for dataset, variable, and pdf name uniqueness.
                 dataset_name,
                 dataset_title,
-                helicity_name,
+                helicity,
                 fitvarx,
                 xmin,
                 xmax,
@@ -1388,7 +1429,7 @@ void getKinBinnedAsym1D(
                                 pol,
                                 depolvars,
                                 depolvarlims,
-                                helicity_name,
+                                helicity,
                                 fitformula,
                                 nparams,
                                 params,
@@ -1513,119 +1554,30 @@ void getKinBinnedAsym1D(
 
 } // getKinBinnedAsym1D()
 
-    
-
-
-/*
-
-    ) {
-
-    // Create workspace
-    RooWorkspace *w = new RooWorkspace(workspace_name.c_str(),workspace_title.c_str());
-
-    // Create dataset
-    createDataset1D(
-        frame,
-        w,
-        dataset_name,
-        dataset_title,
-        helicity_name,
-        fitvarx,
-        xmin,
-        xmax,
-        massvar,
-        mmin,
-        mmax,
-        binvars,
-        binvarlims
-    );
-
-    // Apply Lambda mass fit
-    if (use_splot) {
-        applyLambdaMassFit(
-            w,
-            massvar,
-            dataset_name,
-            sgYield_name,
-            bgYield_name,
-            model_name
-        );
-    }
-
-    // Apply SPlot
-    std::string fit_dataset_name = dataset_name;
-    if (use_splot) {
-        std::string dataset_sg_name = (std::string)Form("%s_sg_sw",dataset_name.c_str());
-        std::string dataset_bg_name = (std::string)Form("%s_bg_sw",dataset_name.c_str());
-        applySPlot(
-            w,
-            dataset_name,
-            sgYield_name,
-            bgYield_name,
-            model_name,
-            dataset_sg_name,
-            dataset_bg_name
-        );
-        fit_dataset_name = dataset_sg_name;
-    }
-
-    // TODO: Save to file so you can load if it's already created???
-
-    // Loop bins
-    for (int idx=0; idx<bincuts.size(); idx++) {
-
-        TArrayF* binResults = getKinBinAsymUBML1D(
-                                outdir,
-                                outroot,
-                                frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED WITH OVERALL CUTS
-                                w,
-                                fit_dataset_name, //NOTE: DATASET SHOULD ALREADY BE FILTERED WITH OVERALL CUTS AND CONTAIN WEIGHT VARIABLE IF NEEDED
-                                binvars,
-                                binvarlims,
-                                bincuts[idx],
-                                (std::string)Form("bin_%d",idx),//Bintitle
-                                pol,
-                                depolvars,
-                                helicity_name,
-                                fitformula,
-                                nparams,
-                                params,
-                                fitvarx,
-                                fitvarxtitle,
-                                xmin,
-                                xmax,
-                                use_sumW2Error,
-                                out
-                            );
-    
-        //TODO: Unpack results
-    }
-
-}
-
-*/
-
-
 /**
-* Create an invariant and asymmetry fit data set and add to dataset along
-* with helicity, fit variable, and mass variable.
+* @brief Create a dataset for a 2D fit
 *
-* @param ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame
-* @param RooWorkspace *w
-* @param std::string dataset_name
-* @param std::string dataset_title
-* @param std::string helicity
-* @param std::string fitvarx
-* @param double xmin
-* @param double xmax
-* @param std::string fitvary
-* @param double ymin
-* @param double ymax
-* @param std::string massvar
-* @param double mmin
-* @param double mmax
-* @param std::vector<std::string> binvars
-* @param std::vector<std::vector<double>> binvarlims
+* Create a RooFit dataset for use with an invariant mass signal fit
+* and an asymmetry fit, adding helicity, fit, mass, binning, and depolarization variables.
+*
+* @param frame ROOT RDataframe from which to create a RooDataSet
+* @param w RooWorkspace in which to work
+* @param name Dataset name
+* @param title Dataset title
+* @param helicity Name of helicity variable
+* @param fitvarx Name of fit variable
+* @param xmin Minimum bound for fit variable 1
+* @param xmax Maximum bound for fit variable 1
+* @param fitvary Name of fit variable 2
+* @param ymin Minimum bound for fit variable 2
+* @param ymax Maximum bound for fit variable 2
+* @param massvar Invariant mass variable name
+* @param mmin Minimum bound for invariant mass variable
+* @param mmax Maximum bound for invariant mass variable
+* @param binvars List of kinematic binning variables (up to 4)
+* @param binvarlims List of minimum and maximum bounds for each kinematic binning variable
+* @param depolvars List of depolarization variables (up to 5)
+* @param depolvarlims List of minimum and maximum bounds for each depolarization variable
 */
 void createDataset2D(
         ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
@@ -1720,35 +1672,46 @@ void createDataset2D(
 }
 
 /**
+* @brief Compute an asymmetry using an unbinned maximum likelihood fit with 2 fit variables.
+*
 * Compute the bin count, bin variable values and errors, depolarization variable values and errors,
 * and fit parameter values and errors using an unbinned maximum likelihood fit and an asymmetry fit.
-* Note that the given asymmetry formula (fitformula) will be converted to a PDF internally.
+* Note that the given asymmetry formula \f$ A(x, y, a_0, a_1, a_2, ...) \f$ will be converted internally to a PDF of the form
 *
-* @param std::string  outdir
-* @param TFile      * outroot
-* @param ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame
-* @param RooWorkspace *w
-* @param std::string dataset_name
-* @param std::vector<std::string> binvars
-* @param std::vector<std::vector<double>> binvarlims
-* @param std::string bincut
-* @param std::string bintitle
-* @param double      pol
-* @param std::vector<std::string>   depolvars
-* @param std::string  helicity_name = "heli"
-* @param std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)"
-* @param int          nparams       = 2
-* @param std::vector<double> params = std::vector<double>(5)
-* @param std::string  fitvarx       = "phi_h"
-* @param std::string  fitvarxtitle  = "#phi_{h p#pi^{-}}"
-* @param double xmin                = 0.0
-* @param double xmax                = 2*TMath::Pi()
-* @param std::string  fitvary       = "phi_h"
-* @param std::string  fitvarytitle  = "#phi_{h p#pi^{-}}"
-* @param double ymin                = 0.0
-* @param double ymax                = 2*TMath::Pi()
-* @param bool use_sumW2Error        = true
-* @param std::ostream &out          = std::cout
+* @f[
+* PDF(h, x, y, a_0, a_1, a_2,...) = 1 + h \cdot P \cdot A(x, y, a_0, a_1, a_2, ...)
+* @f]
+*
+* The variable names should be replaced in the fit formula by `helicity`\f$\rightarrow\f$`[0]`, `x`\f$\rightarrow\f$`[1]`, `y`\f$\rightarrow\f$`[2]`, `a_0`\f$\rightarrow\f$`[3]`, etc.
+*
+* @param outdir Name of output directory
+* @param outroot Name of output ROOT file
+* @param frame ROOT RDataframe from which to create a RooDataSet
+* @param w RooWorkspace in which to work
+* @param dataset_name Dataset name
+* @param binvars List of kinematic binning variables
+* @param binvarlims List of minimum and maximum bounds for each kinematic binning variable
+* @param bincut Kinematic variable cut for bin
+* @param bintitle Bin title
+* @param pol Luminosity averaged beam polarization
+* @param depolvars List of depolarization variables (up to 5)
+* @param depolvarlims List of minimum and maximum bounds for each depolarization variable
+* @param helicity Name of helicity variable
+* @param fitformula The asymmetry formula
+* @param nparams Number of parameters in the asymmetry formula (up to 5)
+* @param params List of initial values for asymmetry parameters
+* @param fitvarx Name of fit variable 1
+* @param fitvarxtitle Title of fit variable 1
+* @param xmin Minimum bound for fit variable 1
+* @param xmax Maximum bound for fit variable 1
+* @param fitvary Name of fit variable 2
+* @param fitvarytitle Title of fit variable 2
+* @param ymin Minimum bound for fit variable 2
+* @param ymax Maximum bound for fit variable 2
+* @param use_sumW2Error Option to use RooFit::SumW2Error(true) option when fitting to dataset which is necessary if using a weighted dataset
+* @param out Output stream
+*
+* @return List of bin count, bin variable means and errors, depolarization variable means and errors, fit parameters and errors
 */
 TArrayF* getKinBinAsymUBML2D(
     std::string  outdir,
@@ -1763,7 +1726,7 @@ TArrayF* getKinBinAsymUBML2D(
     double      pol,
     std::vector<std::string>   depolvars,
     std::vector<std::vector<double>> depolvarlims,
-    std::string  helicity_name = "heli",
+    std::string  helicity = "heli",
     std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
     int          nparams       = 2,
     std::vector<double> params = std::vector<double>(5),
@@ -1783,7 +1746,7 @@ TArrayF* getKinBinAsymUBML2D(
     std::string title    = Form("%s %s",fitvarxtitle.c_str(),bincut.c_str());
 
     // TODO: Load fit avariables from workspace
-    RooRealVar *h = w->var(helicity_name.c_str());
+    RooRealVar *h = w->var(helicity.c_str());
     RooRealVar *x = w->var(fitvarx.c_str());
     RooRealVar *y = w->var(fitvary.c_str());
 
@@ -1938,45 +1901,55 @@ TArrayF* getKinBinAsymUBML2D(
 } // TArrayF* getKinBinAsymUBML2D()
 
 /**
-* Loop bins and compute an asymmetry using an unbinned maximum likelihood fit.
-* Optionally apply an invariant mass fit and background correction using the SPlot method.
+* @brief Loop kinematic bins and fit a 2D asymmetry.
 *
-* @param std::string outdir
-* @param TFile      *outroot
-* @param ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
-* @param std::string method
-* @param std::string binvar
-* @param int         nbins, // Number of bins
-* @param double      *bins, // Bin limits (length=nbins+1)
-* @param double      pol
-* @param std::vector<std::string> depolvars
-* @param std::string workspace_name  = "w"
-* @param std::string workspace_title = "workspace"
-* @param std::string dataset_name    = "dataset"
-* @param std::string dataset_title   = "dataset"
-* @param std::string helicity_name   = "heli"
-* @param std::string fitvarx         = "x"
-* @param double      xmin            = 0.0
-* @param double      xmax            = 1.0
-* @param std::string fitvary         = "y"
-* @param double      ymin            = 0.0
-* @param double      ymax            = 1.0
-* @param std::string massvar         = "mass_ppim"
-* @param double      mmin            = 1.08
-* @param double      mmax            = 1.24
-* @param std::string sgYield_name    = "sgYield"
-* @param std::string bgYield_name    = "bgYield"
-* @param std::string model_name      = "model"
-* @param std::string fitformula      = "[0]*sin(x)+[1]*sin(2*x)"
-* @param int         nparams         = 2
-* @param std::vector<double> params  = std::vector<double>(5)
-* @param std::string fitvarxtitle    = "#phi_{h p#pi^{-}}"
-* @param bool        use_sumW2Error  = true
-* @param bool        use_splot       = true
-* @param std::string graph_title     = "BSA A_{LU} vs. #Delta#phi", // Histogram title
-* @param int         marker_color    = 4, // 4 is blue
-* @param int         marker_style    = 20, // 20 is circle
-* @param std::ostream &out           = std::cout
+* Loop bins and compute an asymmetry using an unbinned maximum likelihood fit.
+* Optionally apply an invariant mass fit and background correction using the sPlot method from <a href="http://arxiv.org/abs/physics/0402083">arXiv:physics/0402083</a>.
+* Note that the given asymmetry formula \f$ A(x, y, a_0, a_1, a_2, ...) \f$ will be converted internally to a PDF of the form
+*
+* @f[
+* PDF(h, x, y, a_0, a_1, a_2,...) = 1 + h \cdot P \cdot A(x, y, a_0, a_1, a_2, ...)
+* @f]
+*
+* The variable names should be replaced in the fit formula by `helicity`\f$\rightarrow\f$`[0]`, `x`\f$\rightarrow\f$`[1]`, `y`\f$\rightarrow\f$`[2]`, `a_0`\f$\rightarrow\f$`[3]`, etc.
+*
+* @param outdir Name of output directory
+* @param outroot Name of output ROOT file
+* @param frame ROOT RDataFrame
+* @param method Asymmetry fit method
+* @param binvar Kinematic binning variable
+* @param nbins Number of kinematic variable bins
+* @param bins List of bin limits, which must have dimension nbins+1
+* @param pol Luminosity averaged beam polarization
+* @param depolvars List of depolarization variables (up to 5)
+* @param workspace_name Name of workspace in which to work
+* @param workspace_title Title of workspace in which to work
+* @param dataset_name Dataset name
+* @param dataset_title Dataset title
+* @param helicity Name of helicity variable
+* @param fitvarx Name of fit variable 1
+* @param xmin Minimum bound for fit variable 1
+* @param xmax Maximum bound for fit variable 1
+* @param fitvary Name of fit variable 2
+* @param ymin Minimum bound for fit variable 2
+* @param ymax Maximum bound for fit variable 2
+* @param massvar Invariant mass variable name
+* @param mmin Minimum bound for invariant mass variable
+* @param mmax Maximum bound for invariant mass variable
+* @param sgYield_name Signal yield variable name
+* @param bgYield_name Background yield variable name
+* @param model_name Full PDF name
+* @param fitformula The asymmetry formula
+* @param nparams Number of parameters in the asymmetry formula (up to 5)
+* @param params List of initial values for asymmetry parameters
+* @param fitvarxtitle Title of fit variable 1
+* @param fitvarytitle Title of fit variable 2
+* @param use_sumW2Error Option to use RooFit::SumW2Error(true) option when fitting to dataset which is necessary if using a weighted dataset
+* @param use_splot Option to use sPlot method and perform fit with sWeighted dataset
+* @param graph_title Title of kinematically binned graph of asymmetry parameters
+* @param marker_color Graph ROOT marker color
+* @param marker_style Graph ROOT marker style
+* @param out Output stream
 */
 void getKinBinnedAsymUBML2D(
         std::string outdir,
@@ -1992,7 +1965,7 @@ void getKinBinnedAsymUBML2D(
         std::string workspace_title = "workspace",
         std::string dataset_name    = "dataset",
         std::string dataset_title   = "dataset",
-        std::string helicity_name   = "heli",
+        std::string helicity   = "heli",
         std::string fitvarx         = "x",
         double      xmin            = 0.0,
         double      xmax            = 1.0,
@@ -2061,7 +2034,7 @@ void getKinBinnedAsymUBML2D(
         w,
         dataset_name,
         dataset_title,
-        helicity_name,
+        helicity,
         fitvarx,
         xmin,
         xmax,
@@ -2089,7 +2062,7 @@ void getKinBinnedAsymUBML2D(
         );
     }
 
-    // Apply SPlot
+    // Apply sPlot
     std::string fit_dataset_name = dataset_name;
     if (use_splot) {
         std::string dataset_sg_name = (std::string)Form("%s_sg_sw",dataset_name.c_str());
@@ -2132,7 +2105,7 @@ void getKinBinnedAsymUBML2D(
                                 pol,
                                 depolvars,
                                 depolvarlims,
-                                helicity_name,
+                                helicity,
                                 fitformula,
                                 nparams,
                                 params,
@@ -2169,7 +2142,7 @@ void getKinBinnedAsymUBML2D(
         }
 
         // Output message
-        out << "--- SPlot Corrected Signal ---\n";
+        out << "--- sPlot Corrected Signal ---\n";
         for (int idx=0; idx<nparams; idx++) {
             out << " ys["<< idx <<"]["<<binidx<<"]             = " << ys[idx][binidx] << "\n";
             out << " eys["<< idx <<"]["<<binidx<<"]            = " << eys[idx][binidx] << "\n";
@@ -2242,3 +2215,5 @@ void getKinBinnedAsymUBML2D(
     out << "------------------- END of getKinBinnedAsymUBML2D -------------------\n";
 
 } // getKinBinnedAsymUBML2D()
+
+} // namespace analysis {

@@ -1,11 +1,19 @@
-# $\Lambda$ Spin Transfer Analysis
+# Asymmetry Analysis
 
-Analysis for $\Lambda$ hyperon longitudinal spin transfer in SIDIS at CLAS12.
+Run a generic SIDIS asymmetry analysis with CLAS12 data.
 
-Use [CLAS12-Analysis](https://github.com/mfmceneaney/CLAS12-Analysis.git) or your own software to produce the input ROOT trees with event by event kinematics selecting all $e^{-}p\pi^{-}$ combinations.
+Use [CLAS12-Analysis](https://github.com/mfmceneaney/CLAS12-Analysis.git) or your own software to produce the input ROOT trees with event by event kinematics selecting all unique $e^{-}+X$ combinations.
 
-# Build the project
+# Prerequisites
 
+* Python >=3.7.3
+* A compiler with C++11 support
+* Pip 10+ or CMake >= 3.4 (or 3.14+ on Windows, which was the first version to support VS 2019)
+* [ROOT](https://root.cern.ch)
+
+# Installation
+
+# C++ Libraries
 This is a CMake project so you can build wherever but this is probably the simplest way to go:
 ```bash
 mkdir build
@@ -15,22 +23,49 @@ make
 ```
 You should now have several executables in your `build` directory.
 
-# Compute binned results
+TODO: Add directions for adding dependency to another CMake project.
 
-Put your binning arguments in a yaml file.  An example is included at [args.yaml](args.yaml).
-You may add arbitrary 1D binning in any kinematic variable.  Details are all in [analysis.cpp](analysis.cpp) and [include/analysis.h](include/analysis.h).
+# Python3 Modules
 
-Also since this is a $\Lambda$ analysis you have to isolate the mass peak.
-Hence, there is a mass signal fit done for each kinematic bin.  Details are all in [include/massfit.h](include/massfit.h).
+TODO:
 
+For now just include these lines in your python code:
+```python
+import sys
 
-# Make nice plots
+sys.path.append('/path/to/<thisrepository>/py')
 
-Finally, ROOT is a bit finicky about plots so I use matplotlib instead for the final $D^{\Lambda}_{LL'}$ results.
-This plotting is run with the [aggregate_results.py](aggregate_results.py) script, although input file paths may need to be changed.
+import asym_analysis as aa
+```
 
-# Plot Kinematics
-The ROOT macros [PlotComparisons.C](PlotComparisons.C) and [PlotBeforeAndAfterCuts.C](PlotBeforeAndAfterCuts.C) are used to plot the 1D and 2D kinematics distributions comparing data and MC and the effects of different cuts.
+# Documentation
+Check out the documentation page on [Read The Docs]()!
+
+# Running an Analysis
+TODO
+
+## Design Philosophy
+
+## Examining Kinematics
+The first step to any analysis should be to peruse your data.
+
+## Binning
+
+## Invariant Mass Signal + Background Fits
+
+## Background Correction: Sideband Subtraction and sPlots
+
+## Fitting Asymmetries
+
+## Injecting Asymmetries
+
+## Orchestrating Jobs
+
+## Aggregating Jobs
+
+## Tabulating and Plotting Results
+
+## Scaling MC for Future Experiments
 
 #
 
