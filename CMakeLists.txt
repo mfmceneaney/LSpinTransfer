@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #----------------------------------------------------------------------#
 # Set options
-option(BUILD_DOXYGEN "Build doxygen documentation" FALSE)
+option(BUILD_DOXYGEN "Build doxygen documentation" TRUE)
 
 #----------------------------------------------------------------------#
 # Add the cmake folder so the FindSphinx module is found
