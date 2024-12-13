@@ -39,7 +39,20 @@ import asym_analysis as aa
 ```
 
 # Documentation
-Check out the documentation page on [Read The Docs]()!
+Check out the documentation page on [Read The Docs](https://lspintransfer.readthedocs.io/en/latest/)!
+
+## Building the Documentation
+
+Additional prerequisites for building the documentation:
+* [doxygen](https://www.doxygen.nl)
+* [sphinx](https://pypi.org/project/Sphinx/)
+* [sphinx_rtd_theme](https://pypi.org/project/sphinx-rtd-theme/)
+* [breathe](https://pypi.org/project/breathe/)
+
+To build the documentation run cmake with the `BUILD_DOXYGEN` option set to `TRUE`:
+```bash
+cmake .. -DBUILD_DOXYGEN=TRUE
+```
 
 # Running an Analysis
 TODO
