@@ -1,4 +1,4 @@
-# Asymmetry Analysis
+# Spin Asymmetry Generic Analysis (SAGA)
 
 Run a generic SIDIS asymmetry analysis with CLAS12 data.
 
@@ -12,6 +12,11 @@ Use [CLAS12-Analysis](https://github.com/mfmceneaney/CLAS12-Analysis.git) or you
 * [ROOT](https://root.cern.ch)
 
 # Installation
+
+Begin by cloning this repository:
+```bash
+git clone --recurse-submodules https://github.com/mfmceneaney/saga.git
+```
 
 # C++ Libraries
 This is a CMake project so you can build wherever but this is probably the simplest way to go:

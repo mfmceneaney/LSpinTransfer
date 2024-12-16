@@ -5,7 +5,10 @@
 
 # -- CMake Configuration -----------------------------------------------------
 # https://devblogs.microsoft.com/cppblog/clear-functional-c-documentation-with-sphinx-breathe-doxygen-cmake/#setting-up-sphinx
-import subprocess, os
+import subprocess, os, sys
+
+# -- Add source files for autodoc
+sys.path.insert(0, os.path.abspath('../../py/'))
 
 def configureDoxyfile(input_dir, output_dir):
     with open('../Doxyfile.in', 'r') as file :
@@ -40,7 +43,21 @@ release = '0.0.0'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["breathe", "sphinx.ext.mathjax"]
+extensions = [
+    'breathe',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.duration',
+    'sphinx.ext.doctest',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.intersphinx'
+    ]
+
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3/', None),
+    'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
+}
+intersphinx_disabled_domains = ['std']
 
 # Breathe Configuration
 breathe_default_project = "alib"
@@ -58,3 +75,6 @@ exclude_patterns = []
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+html_logo = 'saga_0.0.0_logo.png'
+html_theme_options = {"logo_only": True, "sticky_navigation": False}
+
