@@ -899,6 +899,12 @@ if __name__=="__main__":
             bin_migration_mat_inv = np.linalg.inv(bin_migration_mat) #NOTE: Make sure that bin_migration_mat is of the form f[i,j] = [# gen in bin i AND rec. in bin j] / [# gen. in bin i], remember that ROOT histogram indexing i,j is opposite (idx_x,idx_y) typical matrix indexing (idx_y,idx_x) and begins at 1 not 0
             arrs['y_mean'] = np.matmul(bin_migration_mat_inv,arrs['y_mean']) # DeltaA = a - f_inv . a
 
+            #TODO: Correct uncertainties for bin migration as well?
+            print("DEBUGGING: bin_migration_mat = ",bin_migration_mat)
+            print("DEBUGGING: bin_migration_mat_inv = ",bin_migration_mat_inv)
+            print("DEBUGGING: bin_migration_mat * bin_migration_mat_inv = ",np.matmul(bin_migration_mat,bin_migration_mat_inv))
+            arrs['yerr_mean'] = np.sqrt(np.matmul(bin_migration_mat_inv,np.square(arrs['yerr_mean'])))
+
             yerr_syst = compute_systematics(
                 arrs['y_mean'],
                 bin_migration_mat=bin_migration_mat,
