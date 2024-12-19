@@ -417,7 +417,7 @@ def compute_systematics(results,bin_migration_mat=None,bin_migration_order=1,sys
     if bin_migration_mat is not None: #NOTE: ASSUME BINNING IS 1D HERE.
         bin_migration_mat_inv = np.linalg.inv(bin_migration_mat) #NOTE: Make sure that bin_migration_mat is of the form f[i,j] = [# gen in bin i AND rec. in bin j] / [# gen. in bin i], remember that ROOT histogram indexing i,j is opposite (idx_x,idx_y) typical matrix indexing (idx_y,idx_x) and begins at 1 not 0
         new_systematics = np.add(results,-np.matmul(bin_migration_mat_inv,results)) # DeltaA = a - f_inv . a
-        systematics = np.sqrt(np.square(systematics) + np.square(new_systematics))
+        #systematics = np.sqrt(np.square(systematics) + np.square(new_systematics))
         # if results_order==1:
         #     diags = np.ones(np.diag(bin_migration_mat).shape)
         #     neighbors = np.sum(
@@ -848,6 +848,11 @@ if __name__=="__main__":
             systematic_scales_mat = yerr_syst_mc_asym_injection / sgasym
             systematic_scales_mat = np.sqrt(np.square(systematic_scales_mat) + np.square(alpha_lambda_systematic) + np.square(beam_polarization_systematic) + np.square(yerr_syst_cb_gauss_diff) + np.square(cos_phi_h_ppim_systematic))
             print("DEBUGGING: BEFORE: systematic_scales_mat = ",systematic_scales_mat)
+
+            # APPLY BIN MIGRATION CORRECTION
+            bin_migration_mat_inv = np.linalg.inv(bin_migration_mat) #NOTE: Make sure that bin_migration_mat is of the form f[i,j] = [# gen in bin i AND rec. in bin j] / [# gen. in bin i], remember that ROOT histogram indexing i,j is opposite (idx_x,idx_y) typical matrix indexing (idx_y,idx_x) and begins at 1 not 0
+            arrs['y_mean'] = np.matmul(bin_migration_mat_inv,arrs['y_mean']) # DeltaA = a - f_inv . a
+
             yerr_syst = compute_systematics(
                 arrs['y_mean'],
                 bin_migration_mat=bin_migration_mat,
@@ -890,13 +895,13 @@ if __name__=="__main__":
             )
             all_systematics = np.moveaxis(
                 np.array(
-                    [el for el in (alpha_lambda_systematics,beam_polarization_systematics,mc_asym_injection_systematics,bin_migration_systematics,mass_fit_systematics,cos_phi_h_ppim_systematics)]
+                    [el for el in (alpha_lambda_systematics,beam_polarization_systematics,mc_asym_injection_systematics,mass_fit_systematics,cos_phi_h_ppim_systematics)]
                 ),
                 (0,1),
                 (1,0)
             )
             print("DEBUGGING: all_systematics.shape = ",all_systematics.shape)
-            labels = ['$\\alpha_{\Lambda}$','$P_{B}$','MC','Bin Migration', 'Mass Fit','$\cos{\phi_{\Lambda}}$']
+            labels = ['$\\alpha_{\Lambda}$','$P_{B}$','MC', 'Mass Fit','$\cos{\phi_{\Lambda}}$']
 
             # Get systematics all plotted stacked without results...
             plot_systematics(
@@ -917,7 +922,7 @@ if __name__=="__main__":
 
             # Save systematics to csv file
             delimiter = ","
-            header = delimiter.join(["bin","x","xerr","alpha","beam","inj","mig","fit","cosphi"])
+            header = delimiter.join(["bin","x","xerr","alpha","beam","inj","fit","cosphi"])
             fmt    = ["%d","%.3g","%.3g", "%.3g","%.3g","%.3g","%.3g","%.3g","%.3g"]
             convert_systematics_to_csv(
                 outpath.replace('.pdf','__systematics.pdf.csv'),
