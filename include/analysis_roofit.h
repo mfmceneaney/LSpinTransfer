@@ -239,7 +239,7 @@ void applyLambdaMassFit(
 
 /**
 * Apply a lambda mass fit with signal function chosen from
-* ("gauss","landau","cb","landau_X_gauss","cb_X_gauss") and
+* ("gauss","landau","cb","landau_X_gauss","cb_X_gauss","cb_gauss") and
 * chebychev polynomial background function and save model and
 * yield variables to workspace for use with sPlot method.
 * This will also return epsilon which is the fraction of events
@@ -329,6 +329,16 @@ std::vector<double> applyLambdaMassFit(
     RooRealVar n("n","n",2.0,2.0,10.0);
     RooCrystalBall cb(Form("cb%s",ws_unique_id.c_str()), "crystal_ball", *m, mu, s, a_left, n_left, a, n); //NOTE: Include model name for uniqueness within bin.
 
+    // Construct addition component pdfs
+    RooRealVar sg_add("sg_add", "sg_add", 0.0001, 0.0, 0.001);
+    RooGaussian gauss_add(Form("gauss_add%s",ws_unique_id.c_str()), "gauss_add", *m, mu, sg_add);
+    double sgfrac = 0.1;
+    double cbYield_init = sgfrac * sgfrac * count;
+    double gsYield_init = (1.0-sgfrac) * sgfrac * count;
+    RooRealVar cbYield(Form("cbYield%s",ws_unique_id.c_str()), "fitted yield for signal", cbYield_init, 0., 2.0*count);
+    RooRealVar gsYield(Form("gsYield%s",ws_unique_id.c_str()), "fitted yield for background", gsYield_init, 0., 2.0*count);
+    RooAddPdf cb_gauss(Form("cb_gauss%s",ws_unique_id.c_str()), Form("cb%s+gauss_add%s",ws_unique_id.c_str(),ws_unique_id.c_str()), RooArgList(cb,gauss_add), RooArgList(cbYield,gsYield)); //NOTE: N-1 Coefficients! 
+
     // Construct convolution component pdfs
     RooRealVar mg_conv("mg_conv", "mg_conv", 0.0);
     RooRealVar sg_conv("sg_conv", "sg_conv", 0.008, 0.0, 0.1);
@@ -350,6 +360,7 @@ std::vector<double> applyLambdaMassFit(
     w->import(cb);
     w->import(landau_X_gauss);
     w->import(cb_X_gauss);
+    w->import(cb_gauss);
 
     // Pick out signal function based on preference
     std::string sig_pdf_name_unique = Form("%s%s",sig_pdf_name.c_str(),ws_unique_id.c_str());
@@ -364,7 +375,7 @@ std::vector<double> applyLambdaMassFit(
     RooChebychev bg(bg_pdf_name_unique.c_str(),bg_pdf_name_unique.c_str(),*m,(use_poly4_bg==1 ? RooArgList(b1,b2,b3,b4) : RooArgList(b1,b2)));
     
     // Combine signal and background functions
-    double sgfrac = 0.1;
+    // double sgfrac = 0.1;
     double sgYield_init = sgfrac * count;
     double bgYield_init = (1.0-sgfrac) * count;
     RooRealVar sgYield(Form("%s%s",sgYield_name.c_str(),ws_unique_id.c_str()), "fitted yield for signal", sgYield_init, 0., 2.0*count);
@@ -475,6 +486,8 @@ std::vector<double> applyLambdaMassFit(
     TString s_mg_conv, s_sg_conv;
     s_mg_conv.Form("#mu_{Gaus} = %.4f #pm %.4f GeV",mg_conv.getVal(),mg_conv.getError());
     s_sg_conv.Form("#sigma_{Gaus} = %.4f #pm %.4f GeV",sg_conv.getVal(),sg_conv.getError());
+    TString s_mg_add, s_sg_add;
+    s_sg_add.Form("#sigma_{Gaus} = %.4f #pm %.4f GeV",sg_add.getVal(),sg_add.getError());
     TString s_ml, s_sl;
     s_ml.Form("#mu_{Landau} = %.4f #pm %.4f GeV",ml.getVal(),ml.getError());
     s_sl.Form("#sigma_{Landau} = %.4f #pm %.4f GeV",sl.getVal(),sl.getError());
@@ -507,7 +520,6 @@ std::vector<double> applyLambdaMassFit(
     else if (sig_pdf_name=="landau_X_gauss") {
         legend->AddEntry((TObject*)0, s_ml, Form(" %g ",chi2ndf));
         legend->AddEntry((TObject*)0, s_sl, Form(" %g ",chi2ndf));
-        legend->AddEntry((TObject*)0, s_mg_conv, Form(" %g ",chi2ndf));
         legend->AddEntry((TObject*)0, s_sg_conv, Form(" %g ",chi2ndf));
     }
     else if (sig_pdf_name=="cb_X_gauss") {
@@ -515,8 +527,14 @@ std::vector<double> applyLambdaMassFit(
         legend->AddEntry((TObject*)0, s_n, Form(" %g ",chi2ndf));
         legend->AddEntry((TObject*)0, s_sigma, Form(" %g ",chi2ndf));
         legend->AddEntry((TObject*)0, s_mu, Form(" %g ",chi2ndf));
-        legend->AddEntry((TObject*)0, s_mg_conv, Form(" %g ",chi2ndf));
         legend->AddEntry((TObject*)0, s_sg_conv, Form(" %g ",chi2ndf));
+    }
+    else if (sig_pdf_name=="cb_gauss") {
+        legend->AddEntry((TObject*)0, s_alpha, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_n, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_sigma, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_mu, Form(" %g ",chi2ndf));
+        legend->AddEntry((TObject*)0, s_sg_add, Form(" %g ",chi2ndf));
     }
     else {
         legend->AddEntry((TObject*)0, s_alpha, Form(" %g ",chi2ndf));
