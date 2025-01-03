@@ -119,7 +119,7 @@ if __name__=="__main__":
     title = 'Longitudinal Spin Transfer along $P_{\Lambda}$' if fitvar=='costheta1' else 'Longitudinal Spin Transfer along $P_{\gamma^{*}}$'
 
     # Set data paths and load
-    inpath = "/Users/mfm45/drop/results_and_systematics__9_30_24/results/csv/aggregate___binvar_"+xvar+"__fitvar_"+fitvar+"__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
+    inpath = "/Users/mfm45/drop/results_LSpinTransfer/csv/aggregate___binvar_"+xvar+"__fitvar_"+fitvar+"__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
     arr = np.loadtxt(inpath,delimiter=",",skiprows=1)
     x_mean = arr[:,1]
     y_mean = arr[:,2]
@@ -159,7 +159,7 @@ if __name__=="__main__":
     y_theory_tfrcfr = arr_theory_tfrcfr[:,1]
 
     # Set yaml path and load
-    yaml_path = "/Users/mfm45/drop/results__4_17_24/args.yaml"
+    yaml_path = "/Users/mfm45/drop/results_LSpinTransfer/args.yaml"
     yaml_args = {}
     with open(yaml_path) as f:
         yaml_args = yaml.safe_load(f)
