@@ -595,7 +595,7 @@ def get_plots(
     #s1 = plt.hist(x_mean, weights=yerr_syst, bins=xbins, color='gray', alpha=0.5, label='Systematic Error') #NOTE: THAT HISTOGRAM X DATA SHOULD JUST USE BIN X MEANS SO THAT EACH BIN GETS ONE ENTRY AND THEN YOU CAN SCALE APPROPRIATELY WITH THE WEIGHTS ARGUMENT.
     
     # Now plot old results first
-    x_mean_old = x_mean_old+0.05 #NOTE: OFFSET X OF OLD RESULTS
+    x_mean_old = x_mean_old + (0.05 * (xlims[1]-xlims[0])) #NOTE: OFFSET X OF OLD RESULTS
     g1_old = plt.errorbar(x_mean_old,y_mean_old,xerr=None,yerr=yerr_syst_old,
                 ecolor='gray', elinewidth=elinewidth*20, capsize=0,
                 color=color, marker='o', linestyle=linestyle, alpha=0.5,
@@ -907,7 +907,7 @@ if __name__=="__main__":
 
             yerr_syst = compute_systematics(
                 arrs['y_mean'],
-                bin_migration_mat=bin_migration_mat,
+                bin_migration_mat=None,#bin_migration_mat,
                 bin_migration_order=1,
                 systematic_scales_mat=systematic_scales_mat,
                 systematics_additive_mat=None,
@@ -926,7 +926,7 @@ if __name__=="__main__":
             )
             bin_migration_systematics = compute_systematics(
                 arrs['y_mean'],
-                bin_migration_mat=bin_migration_mat,
+                bin_migration_mat=None,#bin_migration_mat,
                 bin_migration_order=1,
                 systematic_scales_mat=None,
                 # systematics_additive_mat=yerr_syst_cb_gauss_diff,

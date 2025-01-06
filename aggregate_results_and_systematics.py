@@ -855,7 +855,7 @@ if __name__=="__main__":
 
             yerr_syst = compute_systematics(
                 arrs['y_mean'],
-                bin_migration_mat=bin_migration_mat,
+                bin_migration_mat=None,#bin_migration_mat,
                 bin_migration_order=1,
                 systematic_scales_mat=systematic_scales_mat,
                 systematics_additive_mat=None,
@@ -874,7 +874,7 @@ if __name__=="__main__":
             )
             bin_migration_systematics = compute_systematics(
                 arrs['y_mean'],
-                bin_migration_mat=bin_migration_mat,
+                bin_migration_mat=None,#bin_migration_mat,
                 bin_migration_order=1,
                 systematic_scales_mat=None,
                 # systematics_additive_mat=yerr_syst_cb_gauss_diff,
