@@ -332,12 +332,13 @@ std::vector<double> applyLambdaMassFit(
     // Construct addition component pdfs
     RooRealVar sg_add("sg_add", "sg_add", 0.0001, 0.0, 0.001);
     RooGaussian gauss_add(Form("gauss_add%s",ws_unique_id.c_str()), "gauss_add", *m, mu, sg_add);
+    RooCrystalBall cb_add(Form("cb_add%s",ws_unique_id.c_str()), "crystal_ball", *m, mu, s, a_left, n_left, a, n); //NOTE: Include model name for uniqueness within bin.
     double sgfrac = 0.1;
-    double cbYield_init = sgfrac * sgfrac * count;
-    double gsYield_init = (1.0-sgfrac) * sgfrac * count;
-    RooRealVar cbYield(Form("cbYield%s",ws_unique_id.c_str()), "fitted yield for signal", cbYield_init, 0., 2.0*count);
-    RooRealVar gsYield(Form("gsYield%s",ws_unique_id.c_str()), "fitted yield for background", gsYield_init, 0., 2.0*count);
-    RooAddPdf cb_gauss(Form("cb_gauss%s",ws_unique_id.c_str()), Form("cb%s+gauss_add%s",ws_unique_id.c_str(),ws_unique_id.c_str()), RooArgList(cb,gauss_add), RooArgList(cbYield,gsYield)); //NOTE: N-1 Coefficients! 
+    double cbYield_init = sgfrac;// * sgfrac * count;
+    // double gsYield_init = (1.0-sgfrac) * sgfrac * count;
+    RooRealVar cbYield(Form("cbYield%s",ws_unique_id.c_str()), "fitted yield for signal", cbYield_init, 0., 1.0/*2.0*count*/);
+    //RooRealVar gsYield(Form("gsYield%s",ws_unique_id.c_str()), "fitted yield for background", gsYield_init, 0., 2.0*count);
+    RooAddPdf cb_gauss(Form("cb_gauss%s",ws_unique_id.c_str()), Form("cb_add%s+gauss_add%s",ws_unique_id.c_str(),ws_unique_id.c_str()), RooArgList(cb_add,gauss_add), RooArgList(cbYield)); //NOTE: N-1 Coefficients! 
 
     // Construct convolution component pdfs
     RooRealVar mg_conv("mg_conv", "mg_conv", 0.0);
@@ -553,6 +554,10 @@ std::vector<double> applyLambdaMassFit(
     // Add yield variables to workspace
     w->import(sgYield);
     w->import(bgYield);
+    if (sig_pdf_name=="cb_gauss") {
+        w->import(cbYield);
+        // w->import(gsYield);
+    }
 
     // Add model to workspace
     w->import(model);

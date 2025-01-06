@@ -5977,7 +5977,7 @@ void getKinBinnedGraphGenericDiff(
                     sig_pdf_name2,
                     sg_region_min,//TODO add to overall arguments
                     sg_region_max,//TODO add to overall arguments
-                    "",
+                    "ws2",
                     poly4bins[i-1]//use_poly4_bg
                 );
 
