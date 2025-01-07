@@ -5815,6 +5815,9 @@ void getKinBinnedGraphGenericDiff(
         std::string  bin_cut = Form("(%s>=%.16f && %s<%.16f)",binvar.c_str(),bin_min,binvar.c_str(),bin_max);
         auto bin_frame = frame.Filter(bin_cut.c_str());
 
+        // Set bin id
+        std::string bin_id = Form("%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
+
         // Get background fraction for bin from mass fit
         double epsilon = bgfraction;
         double bgfraction_err = 0.0; //TODO: add option for this.
@@ -5913,7 +5916,8 @@ void getKinBinnedGraphGenericDiff(
                     sg_region_min,//TODO add to overall arguments
                     sg_region_max,//TODO add to overall arguments
                     "",
-                    poly4bins[i-1]//use_poly4_bg
+                    poly4bins[i-1],//use_poly4_bg
+                    bin_id
                 );
 
             epsilon = massFitData[0];
@@ -5978,7 +5982,8 @@ void getKinBinnedGraphGenericDiff(
                     sg_region_min,//TODO add to overall arguments
                     sg_region_max,//TODO add to overall arguments
                     "ws2",
-                    poly4bins[i-1]//use_poly4_bg
+                    poly4bins[i-1],//use_poly4_bg
+                    bin_id
                 );
 
             epsilon_gauss = massFitData_gauss[0];

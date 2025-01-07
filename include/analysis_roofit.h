@@ -263,6 +263,7 @@ void applyLambdaMassFit(
 * @param double sg_region_max
 * @param std::string ws_unique_id
 * @param int use_poly4_bg
+* @param std::string bin_id
 *
 * @return std::vector<double> epsilon
 */
@@ -282,7 +283,8 @@ std::vector<double> applyLambdaMassFit(
     double sg_region_min,
     double sg_region_max,
     std::string ws_unique_id,
-    int use_poly4_bg
+    int use_poly4_bg,
+    std::string bin_id
     ) {
 
     using namespace RooFit;
@@ -549,7 +551,7 @@ std::vector<double> applyLambdaMassFit(
     legend->Draw();
 
     // Save Canvas
-    c_massfit->SaveAs(Form("%s_%s_%s.pdf",c_massfit->GetName(),sig_pdf_name.c_str(),ws_unique_id.c_str()));
+    c_massfit->SaveAs(Form("%s_%s_%s_%s.pdf",c_massfit->GetName(),sig_pdf_name.c_str(),ws_unique_id.c_str(),bin_id.c_str()));
 
     // Add yield variables to workspace
     w->import(sgYield);
@@ -1286,6 +1288,7 @@ void getKinBinnedAsym1D(
         );
 
         // Apply Lambda mass fit to FULL bin frame
+        std::string bin_id = Form("%s_%.3f_%.3f",binvar.c_str(),bin_min,bin_max);
         std::vector<double> epss = applyLambdaMassFit(
                 ws,
                 massvar,
@@ -1302,7 +1305,8 @@ void getKinBinnedAsym1D(
                 sg_region_min,
                 sg_region_max,
                 "",//ws_unique_id->This changes pdf,yieldvar names, but NOT (bin,depol,mass,fit)vars,pdf parameters which are saved internally.
-                1//use_poly4_bg
+                1,//use_poly4_bg
+                bin_id
             );
 
         // Apply SPlot
