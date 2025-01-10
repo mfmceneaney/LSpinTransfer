@@ -30,6 +30,7 @@
 #include <RooArgList.h>
 #include <RooAddPdf.h>
 #include <RooGenericPdf.h>
+#include <RooExtendPdf.h>
 #include <RooCrystalBall.h>
 #include <RooLandau.h>
 #include <RooGaussian.h>
@@ -729,7 +730,11 @@ TArrayF* getKinBinAsymUBML1D(
 
     // Create 1D PDF
     std::string fitformula_plusone = Form("1.0+%.3f*%s",pol,fitformula.c_str());
-    RooGenericPdf gen("gen", fitformula_plusone.c_str(), arglist);
+    RooGenericPdf _gen("_gen", fitformula_plusone.c_str(), arglist);
+
+    // Create extended pdf
+    RooRealVar nsig("nsig", "number of signal events", count, 0.0, 2.0*count);
+    RooExtendPdf gen("gen", "extended signal pdf", _gen, nsig);
 
     // Fit pdf to data
     std::unique_ptr<RooFitResult> r{gen.fitTo(*bin_ds, RooFit::Save(), RooFit::SumW2Error(use_sumW2Error), RooFit::PrintLevel(-1))}; //RooFit::Minos(kTRUE),
@@ -799,6 +804,7 @@ TArrayF* getKinBinAsymUBML1D(
         if (idx<nparams-1) { out << " , "; }
     }
     out << "]" << std::endl;
+    out << " nsig = " << (double)nsig.getVal() << "±" << (double)nsig.getError() << std::endl;
     out << "--------------------------------------------------" << std::endl;
 
     // Go back to parent directory
@@ -1868,7 +1874,11 @@ TArrayF* getKinBinAsymUBML2D(
 
     // Create 1D PDF
     std::string fitformula_plusone = Form("1.0+%.3f*%s",pol,fitformula.c_str());
-    RooGenericPdf gen("gen", fitformula_plusone.c_str(), arglist);
+    RooGenericPdf _gen("_gen", fitformula_plusone.c_str(), arglist);
+
+    // Create extended pdf
+    RooRealVar nsig("nsig", "number of signal events", count, 0.0, 2.0*count);
+    RooExtendPdf gen("gen", "extended signal pdf", _gen, nsig);
 
     // Fit pdf to data
     std::unique_ptr<RooFitResult> r{gen.fitTo(*bin_ds, RooFit::Save(), RooFit::SumW2Error(use_sumW2Error), RooFit::PrintLevel(-1))}; //RooFit::Minos(kTRUE),
@@ -1938,6 +1948,7 @@ TArrayF* getKinBinAsymUBML2D(
         if (idx<nparams-1) { out << " , "; }
     }
     out << "]" << std::endl;
+    out << " nsig = " << (double)nsig.getVal() << "±" << (double)nsig.getError() << std::endl;
     out << "--------------------------------------------------" << std::endl;
 
     // Go back to parent directory
