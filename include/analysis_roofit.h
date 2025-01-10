@@ -752,6 +752,22 @@ TArrayF* getKinBinAsymUBML1D(
     std::cout << "covariance matrix" << std::endl;
     covMat.Print();
 
+    // Plot projection of fitted distribution in x.
+    RooPlot *xframe = x->frame(RooFit::Title(Form("%s Projection, Bin: %s",fitvarxtitle.c_str(),bincut.c_str())));
+    bin_ds->plotOn(xframe);
+    gen.plotOn(xframe, RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
+
+    // Overlay the background component of model with a dashed line
+    gen.plotOn(xframe, RooFit::LineStyle(kDashed), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
+
+    // Draw the frame on the canvas
+    std::string c1_x_name = Form("c1_%s__fitvarx_%s",outdir.c_str(),fitvarx.c_str());
+    TCanvas *c1_x = new TCanvas(c1_x_name.c_str(), c1_x_name.c_str());
+    gPad->SetLeftMargin(0.15);
+    xframe->GetYaxis()->SetTitleOffset(1.4);
+    xframe->Draw();
+    c1_x->SaveAs(Form("%s",c1_x_name.c_str()));
+
     // Get fit parameters
     std::vector<double> pars;
     if (nparams>0) pars.push_back((double)a0.getVal());
@@ -1895,6 +1911,38 @@ TArrayF* getKinBinAsymUBML2D(
     corMat.Print();
     std::cout << "covariance matrix" << std::endl;
     covMat.Print();
+
+    // Plot projection of fitted distribution in x.
+    RooPlot *xframe = x->frame(RooFit::Title(Form("%s Projection, Bin: %s",fitvarxtitle.c_str(),bincut.c_str())));
+    bin_ds->plotOn(xframe);
+    gen.plotOn(xframe, RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
+
+    // Overlay the background component of model with a dashed line
+    gen.plotOn(xframe, RooFit::LineStyle(kDashed), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
+
+    // Draw the frame on the canvas
+    std::string c1_x_name = Form("c1_%s__fitvarx_%s",outdir.c_str(),fitvarx.c_str());
+    TCanvas *c1_x = new TCanvas(c1_x_name.c_str(), c1_x_name.c_str());
+    gPad->SetLeftMargin(0.15);
+    xframe->GetYaxis()->SetTitleOffset(1.4);
+    xframe->Draw();
+    c1_x->SaveAs(Form("%s",c1_x_name.c_str()));
+
+    // Plot projection of fitted distribution in y.
+    RooPlot *yframe = y->frame(RooFit::Title(Form("%s Projection, Bin: %s",fitvarytitle.c_str(),bincut.c_str())));
+    bin_ds->plotOn(yframe);
+    gen.plotOn(yframe, RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
+
+    // Overlay the background component of model with a dashed line
+    gen.plotOn(yframe, RooFit::LineStyle(kDashed), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
+
+    // Draw the frame on the canvas
+    std::string c1_y_name = Form("c1_%s__fitvary_%s",outdir.c_str(),fitvary.c_str());
+    TCanvas *c1_y = new TCanvas(c1_y_name.c_str(), c1_y_name.c_str());
+    gPad->SetLeftMargin(0.15);
+    yframe->GetYaxis()->SetTitleOffset(1.4);
+    yframe->Draw();
+    c1_y->SaveAs(Form("%s",c1_y_name.c_str()));
 
     // Get fit parameters
     std::vector<double> pars;
