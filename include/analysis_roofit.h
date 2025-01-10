@@ -766,7 +766,7 @@ TArrayF* getKinBinAsymUBML1D(
     gPad->SetLeftMargin(0.15);
     xframe->GetYaxis()->SetTitleOffset(1.4);
     xframe->Draw();
-    c1_x->SaveAs(Form("%s",c1_x_name.c_str()));
+    c1_x->Print(Form("%s.pdf",c1_x_name.c_str()));
 
     // Get fit parameters
     std::vector<double> pars;
@@ -1926,7 +1926,7 @@ TArrayF* getKinBinAsymUBML2D(
     gPad->SetLeftMargin(0.15);
     xframe->GetYaxis()->SetTitleOffset(1.4);
     xframe->Draw();
-    c1_x->SaveAs(Form("%s",c1_x_name.c_str()));
+    c1_x->Print(Form("%s.pdf",c1_x_name.c_str()));
 
     // Plot projection of fitted distribution in y.
     RooPlot *yframe = y->frame(RooFit::Title(Form("%s Projection, Bin: %s",fitvarytitle.c_str(),bincut.c_str())));
@@ -1942,7 +1942,7 @@ TArrayF* getKinBinAsymUBML2D(
     gPad->SetLeftMargin(0.15);
     yframe->GetYaxis()->SetTitleOffset(1.4);
     yframe->Draw();
-    c1_y->SaveAs(Form("%s",c1_y_name.c_str()));
+    c1_y->Print(Form("%s.pdf",c1_y_name.c_str()));
 
     // Get fit parameters
     std::vector<double> pars;
