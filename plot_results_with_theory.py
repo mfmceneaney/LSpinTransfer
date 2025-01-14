@@ -128,7 +128,7 @@ if __name__=="__main__":
     xerr_syst = arr[:,5]
     yerr_syst = arr[:,6]
 
-    inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results/aggregate___binvar_"+xvar+"__fitvar_costheta1__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
+    inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results__v11_13_24/aggregate___binvar_"+xvar+"__fitvar_costheta1__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
     arr_binned = np.loadtxt(inpath,delimiter=",",skiprows=1)
     # x_mean = arr_binned[:,1]
     # y_mean = arr_binned[:,2]
@@ -148,13 +148,14 @@ if __name__=="__main__":
     print("DEBUGGING: xerr_syst = ",xerr_syst)
     print("DEBUGGING: yerr_syst = ",yerr_syst)
 
-    theory_cfr_inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results/CLAS_"+xvar.replace("_ppim","")+"_CFR.dat"
-    arr_theory_cfr = np.loadtxt(theory_cfr_inpath, delimiter="\t", skiprows=0)
+    theory_cfr_inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results__v11_13_24/CLAS_"+xvar.replace("_ppim","")+"_CFR.dat"
+    print("DEBUGGING: loading theory_cfr_inpath = ",theory_cfr_inpath)#DEBUGGING
+    arr_theory_cfr = np.loadtxt(theory_cfr_inpath, delimiter=",", skiprows=0)
     x_theory_cfr = arr_theory_cfr[:,0]
     y_theory_cfr = arr_theory_cfr[:,1]
 
-    theory_tfrcfr_inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results/CLAS_"+xvar.replace("_ppim","")+"_TFRandCFR.dat"
-    arr_theory_tfrcfr = np.loadtxt(theory_tfrcfr_inpath, delimiter="\t", skiprows=0)
+    theory_tfrcfr_inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results__v11_13_24/CLAS_"+xvar.replace("_ppim","")+"_CFRandTFR.dat"
+    arr_theory_tfrcfr = np.loadtxt(theory_tfrcfr_inpath, delimiter=",", skiprows=0)
     x_theory_tfrcfr = arr_theory_tfrcfr[:,0]
     y_theory_tfrcfr = arr_theory_tfrcfr[:,1]
 
