@@ -775,16 +775,27 @@ TArrayF* getKinBinAsymUBML1D(
         arglist->add(*d[dd]);
     }
 
-    // Create 1D PDF
-    std::string fitformula_plusone = Form("1.0+%.3f*%s",pol,fitformula.c_str());
-    RooGenericPdf _gen("_gen", fitformula_plusone.c_str(), *arglist);
+    // Create 1D PDF positive helicity
+    std::string fitformula_pos = Form("1.0+%.3f*%s",pol,fitformula.c_str());
+    RooGenericPdf _gen_pos("_gen_pos", fitformula_pos.c_str(), *arglist);
 
-    // Create extended pdf
-    RooRealVar nsig("nsig", "number of signal events", count, 0.0, 2.0*count);
-    RooExtendPdf gen("gen", "extended signal pdf", _gen, nsig);
+    // Create extended pdf positive helicity
+    RooRealVar nsig_pos("nsig_pos", "number of signal events", count/2, 0.0, count);
+    RooExtendPdf gen_pos("gen_pos", "extended signal pdf", _gen_pos, nsig_pos);
 
-    // Fit pdf to data
-    std::unique_ptr<RooFitResult> r{gen.fitTo(*bin_ds, RooFit::Save(), RooFit::SumW2Error(use_sumW2Error), RooFit::PrintLevel(-1))}; //RooFit::Minos(kTRUE),
+    // Create 1D PDF negative helicity
+    std::string fitformula_neg = Form("1.0-%.3f*%s",pol,fitformula.c_str());
+    RooGenericPdf _gen_neg("_gen_neg", fitformula_neg.c_str(), *arglist);
+
+    // Create extended pdf negative helicity
+    RooRealVar nsig_neg("nsig_neg", "number of signal events", count/2, 0.0, count);
+    RooExtendPdf gen_neg("gen_neg", "extended signal pdf", _gen_neg, nsig_neg);
+
+    // Create simultaneous pdf
+    RooSimultaneous gen("gen", "simultaneous pdf", {{"plus", &gen_pos}, {"minus", &gen_neg}}, h);
+
+    // Fit the pdf to data
+    std::unique_ptr<RooFitResult> r{gen.fitTo(*bin_ds, RooFit::Save(), RooFit::SumW2Error(use_sumW2Error), RooFit::PrintLevel(-1), RooFit::Minos(kTRUE))};
 
     // Print fit result
     r->Print("v");
@@ -861,7 +872,8 @@ TArrayF* getKinBinAsymUBML1D(
         if (idx<nparams-1) { out << " , "; }
     }
     out << "]" << std::endl;
-    out << " nsig = " << (double)nsig.getVal() << "±" << (double)nsig.getError() << std::endl;
+    out << " nsig_pos = " << (double)nsig_pos.getVal() << "±" << (double)nsig_pos.getError() << std::endl;
+    out << " nsig_neg = " << (double)nsig_neg.getVal() << "±" << (double)nsig_neg.getError() << std::endl;
     out << "--------------------------------------------------" << std::endl;
 
     // Go back to parent directory
