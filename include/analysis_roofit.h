@@ -72,7 +72,7 @@
 * @param std::vector<std::string> binvars
 * @param std::vector<std::vector<double>> binvarlims
 */
-void createDataset1D(
+RooCategory createDataset1D(
         ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
         RooWorkspace *w,
         std::string name,
@@ -90,16 +90,21 @@ void createDataset1D(
         std::vector<std::vector<double>> depolvarlims //NOTE: THAT THESE SHOULD JUST BE THE OUTERMOST LIMITS!!!
     ) {
 
+    // Define helicity variable
+    RooCategory h(helicity.c_str(), helicity.c_str());
+    h.defineType("plus",   1);
+    h.defineType("minus", -1);
+    h.defineType("zero",   0);
+
     // Check number of binning variables
     int nbinvars = binvars.size();
-    if (nbinvars>4) {std::cerr<<"ERROR: binvars.size() must be <=4"<<std::endl; return;}
+    if (nbinvars>4) {std::cerr<<"ERROR: binvars.size() must be <=4"<<std::endl; return h;}
 
     // Check number of binning variables
     int ndepolvars = depolvars.size();
-    if (ndepolvars>5) {std::cerr<<"ERROR: depolvars.size() must be <=5"<<std::endl; return;}
+    if (ndepolvars>5) {std::cerr<<"ERROR: depolvars.size() must be <=5"<<std::endl; return h;}
 
     // Define independent variables
-    RooRealVar h(helicity.c_str(), helicity.c_str(), -1.0, 1.0);
     RooRealVar x(fitvarx.c_str(),  fitvarx.c_str(), xmin, xmax);
     RooRealVar m(massvar.c_str(),  massvar.c_str(), mmin, mmax);
 
@@ -121,7 +126,6 @@ void createDataset1D(
     RooRealVar depolvar2((ndepolvars>2 ? depolvars[2].c_str() : "depolvar2"), (ndepolvars>2 ? depolvars[2].c_str() : "depolvar2"), (ndepolvars>2 ? depolvarlims[2][0] : -1.0), (ndepolvars>2 ? depolvarlims[2][1] : 1.0));
     RooRealVar depolvar3((ndepolvars>3 ? depolvars[3].c_str() : "depolvar3"), (ndepolvars>3 ? depolvars[3].c_str() : "depolvar3"), (ndepolvars>3 ? depolvarlims[3][0] : -1.0), (ndepolvars>3 ? depolvarlims[3][1] : 1.0));
     RooRealVar depolvar4((ndepolvars>4 ? depolvars[4].c_str() : "depolvar4"), (ndepolvars>4 ? depolvars[4].c_str() : "depolvar4"), (ndepolvars>4 ? depolvarlims[4][0] : -1.0), (ndepolvars>4 ? depolvarlims[4][1] : 1.0));
-    RooArgList arglist(h,x,depolvar0,depolvar1,depolvar2,depolvar3,depolvar4); //NOTE: ONLY ALLOW UP TO 5 PARAMS FOR NOW.
 
     // Define default depolarization variables if not defined so you don't get errors since variable names cannot conflict
     if (!(ndepolvars>0)) frame = frame.Define(depolvar0.GetName(),"(float)1.0");
@@ -131,13 +135,42 @@ void createDataset1D(
     if (!(ndepolvars>4)) frame = frame.Define(depolvar4.GetName(),"(float)1.0");
 
     // Create RDataFrame to RooDataSet pointer
-    ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = frame.Book<float, float, float, float, float, float, float, float, float, float, float, float>(
+    ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = frame.Book<float, float, float, float, float, float, float, float, float, float, float>(
       RooDataSetHelper(name.c_str(), // Name
           title.c_str(),             // Title
-          RooArgSet(h, x, m, binvar0, binvar1, binvar2, binvar3, depolvar0, depolvar1, depolvar2, depolvar3, depolvar4)         // Variables in this dataset
+          RooArgSet(x, m, binvar0, binvar1, binvar2, binvar3, depolvar0, depolvar1, depolvar2, depolvar3, depolvar4)         // Variables in this dataset
           ),
-      {helicity.c_str(), fitvarx.c_str(), massvar.c_str(), binvar0.GetName(), binvar1.GetName(), binvar2.GetName(), binvar3.GetName(), depolvar0.GetName(), depolvar1.GetName(), depolvar2.GetName(), depolvar3.GetName(), depolvar4.GetName()} // Column names in RDataFrame.
+      {fitvarx.c_str(), massvar.c_str(), binvar0.GetName(), binvar1.GetName(), binvar2.GetName(), binvar3.GetName(), depolvar0.GetName(), depolvar1.GetName(), depolvar2.GetName(), depolvar3.GetName(), depolvar4.GetName()} // Column names in RDataFrame.
     );
+
+        // Manually create dataset containing helicity as a RooCategory variable
+    RooDataSet *ds_h = new RooDataSet("ds_h","ds_h", RooArgSet(h));
+
+    // Set cuts for fit variable limits so that new dataset will have same length as old dataset
+    std::string x_cut = Form("%s>=%.8f && %s<=%.8f", fitvarx.c_str(), xmin, fitvarx.c_str(), xmax); //NOTE: Should jusst put these cuts in the executable...
+    std::string m_cut = Form("%s>=%.8f && %s<=%.8f", massvar.c_str(), mmin, massvar.c_str(), mmax);
+    std::string a_cut = Form("(%s) && (%s)", x_cut.c_str(), m_cut.c_str());
+
+    // Loop RDataFrame and fill helicity dataset
+    frame.Filter(a_cut.c_str()).Foreach(
+                  [&h,&ds_h](float val){
+
+                    // Assign the state for the categorical variable (using 1 or -1 as the states)
+                    if (val > 0) {
+                      h.setIndex(1);
+                    } else if (val < 0) {
+                      h.setIndex(-1);  // Set category to StateMinus1
+                    } else {
+                      h.setIndex(0);
+                    }
+                    // Add the event to the RooDataSet
+                    ds_h->add(RooArgSet(h));
+                  },
+                  {h.GetName()}
+                  );
+
+    // Merge datasets
+    static_cast<RooDataSet&>(*rooDataSetResult).merge(&static_cast<RooDataSet&>(*ds_h));
 
     // Import variables into workspace
     w->import(h);
@@ -156,7 +189,7 @@ void createDataset1D(
     // Import data into the workspace
     w->import(*rooDataSetResult);
 
-    return;
+    return h;
 }
 
 /**
@@ -961,7 +994,7 @@ void getKinBinnedAsymUBML1D(
     }
 
     // Create dataset
-    createDataset1D(
+    RooCategory h = createDataset1D(
         frame,
         w,
         dataset_name,
@@ -1293,7 +1326,7 @@ void getKinBinnedAsym1D(
         auto binframe_sg = frame_sg.Filter(bincut.c_str());
 
         // Create bin dataset
-        createDataset1D(
+        RooCategory h = createDataset1D(
             binframe,
             ws,
             dataset_name,
@@ -1352,7 +1385,7 @@ void getKinBinnedAsym1D(
 
         // Create signal region dataset for sideband subtraction
         if (use_sb_subtraction) {
-            createDataset1D(
+            RooCategory h_sg = createDataset1D(
                 binframe_sg,
                 ws_sg, //NOTE: Use separate sideband workspace for dataset, variable, and pdf name uniqueness.
                 dataset_name,
@@ -1407,7 +1440,7 @@ void getKinBinnedAsym1D(
             auto binframe_sb = frame_sb.Filter(bincut.c_str());
 
             // Create sideband dataset
-            createDataset1D(
+            RooCategory h_sb = createDataset1D(
                 binframe_sb,
                 ws_sb, //NOTE: Use separate sideband workspace for dataset, variable, and pdf name uniqueness.
                 dataset_name,
