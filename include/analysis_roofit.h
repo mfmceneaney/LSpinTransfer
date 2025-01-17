@@ -1899,12 +1899,11 @@ TArrayF* getKinBinAsymUBML2D(
     // Get depolarization factors
     std::vector<double> depols;
     std::vector<double> depolerrs;
+    RooRealVar * d[(const int)depolvars.size()];
     for (int i=0; i<depolvars.size(); i++) {
-        // double depol    = (double)*binframe.Mean(depolvars[i].c_str());
-        // double depolerr = (double)*binframe.StdDev(depolvars[i].c_str());
-        RooRealVar depolvar(depolvars[i].c_str(), depolvars[i].c_str(), depolvarlims[i][0], depolvarlims[i][1]);
-        double mean   = bin_ds->mean(depolvar);
-        double stddev = TMath::Sqrt(bin_ds->moment(depolvar,2.0));
+        d[i] = new RooRealVar(depolvars[i].c_str(), depolvars[i].c_str(), depolvarlims[i][0], depolvarlims[i][1]);
+        double mean   = bin_ds->mean(*d[i]);
+        double stddev = TMath::Sqrt(bin_ds->moment(*d[i],2.0));
         depols.push_back(mean);
         depolerrs.push_back(stddev);
     }
@@ -1917,17 +1916,31 @@ TArrayF* getKinBinAsymUBML2D(
     gStyle->SetOptStat(0);
 
     // Create fit parameters
-    if (nparams>5) {std::cerr<<"ERROR: only up to 5 fit parameters are allowed."<<std::endl;}
-    RooRealVar a0("a0","a0",(nparams>0 ? params[0] : 0.0),-1.0,1.0); //NOTE: IMPORTANT!  These have to be declared individually here.  Creating in a loop and adding to a list will not work.
-    RooRealVar a1("a1","a1",(nparams>1 ? params[1] : 0.0),-1.0,1.0);
-    RooRealVar a2("a2","a2",(nparams>2 ? params[2] : 0.0),-1.0,1.0);
-    RooRealVar a3("a3","a3",(nparams>3 ? params[3] : 0.0),-1.0,1.0);
-    RooRealVar a4("a4","a4",(nparams>4 ? params[4] : 0.0),-1.0,1.0);
-    RooArgList arglist(*x,*y,a0,a1,a2,a3,a4); //NOTE: ONLY ALLOW UP TO 5 PARAMS FOR NOW.
+    std::vector<std::string> aNames;
+    std::vector<std::vector<double>> parlims; //TODO: Set entries from function argument.
+    double parLimit = 0.5;
+    RooRealVar *a[nparams];
+    for (int aa=0; aa<nparams; aa++) {
+        parlims.push_back({-parLimit,parLimit});
+        std::string aName = Form("a%d",aa);
+        aNames.push_back(aName);
+        a[aa] = new RooRealVar(aNames[aa].c_str(),aNames[aa].c_str(),params[aa],parlims[aa][0],parlims[aa][1]);
+    }
+
+    // Add parameters to argument list in order
+    RooArgSet *arglist = new RooArgSet();
+    arglist->add(*x); // Fit variables
+    arglist->add(*y);
+    for (int aa=0; aa<nparams; aa++) { // Fit asymmetry parameters
+        arglist->add(*a[aa]);
+    }
+    for (int dd=0; dd<depolvars.size(); dd++) { // Fit depolarization variables
+        arglist->add(*d[dd]);
+    }
 
     // Create 1D PDF
     std::string fitformula_plusone = Form("1.0+%.3f*%s",pol,fitformula.c_str());
-    RooGenericPdf _gen("_gen", fitformula_plusone.c_str(), arglist);
+    RooGenericPdf _gen("_gen", fitformula_plusone.c_str(), *arglist);
 
     // Create extended pdf
     RooRealVar nsig("nsig", "number of signal events", count, 0.0, 2.0*count);
@@ -1983,17 +1996,11 @@ TArrayF* getKinBinAsymUBML2D(
 
     // Get fit parameters
     std::vector<double> pars;
-    if (nparams>0) pars.push_back((double)a0.getVal());
-    if (nparams>1) pars.push_back((double)a1.getVal());
-    if (nparams>2) pars.push_back((double)a2.getVal());
-    if (nparams>3) pars.push_back((double)a3.getVal());
-    if (nparams>4) pars.push_back((double)a4.getVal());
     std::vector<double> Epars;
-    if (nparams>0) Epars.push_back((double)a0.getError());
-    if (nparams>1) Epars.push_back((double)a1.getError());
-    if (nparams>2) Epars.push_back((double)a2.getError());
-    if (nparams>3) Epars.push_back((double)a3.getError());
-    if (nparams>4) Epars.push_back((double)a4.getError());
+    for (int aa=0; aa<nparams; aa++) {
+        pars.push_back((double)a[aa]->getVal());
+        Epars.push_back((double)a[aa]->getError());
+    }
 
     // Print out fit info
     out << "--------------------------------------------------" << std::endl;
