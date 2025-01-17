@@ -1736,7 +1736,6 @@ RooCategory createDataset2D(
     RooRealVar depolvar2((ndepolvars>2 ? depolvars[2].c_str() : "depolvar2"), (ndepolvars>2 ? depolvars[2].c_str() : "depolvar2"), (ndepolvars>2 ? depolvarlims[2][0] : -1.0), (ndepolvars>2 ? depolvarlims[2][1] : 1.0));
     RooRealVar depolvar3((ndepolvars>3 ? depolvars[3].c_str() : "depolvar3"), (ndepolvars>3 ? depolvars[3].c_str() : "depolvar3"), (ndepolvars>3 ? depolvarlims[3][0] : -1.0), (ndepolvars>3 ? depolvarlims[3][1] : 1.0));
     RooRealVar depolvar4((ndepolvars>4 ? depolvars[4].c_str() : "depolvar4"), (ndepolvars>4 ? depolvars[4].c_str() : "depolvar4"), (ndepolvars>4 ? depolvarlims[4][0] : -1.0), (ndepolvars>4 ? depolvarlims[4][1] : 1.0));
-    RooArgList arglist(h,x,y,depolvar0,depolvar1,depolvar2,depolvar3,depolvar4); //NOTE: ONLY ALLOW UP TO 5 PARAMS FOR NOW.
 
     // Define default depolarization variables if not defined so you don't get errors since variable names cannot conflict
     if (!(ndepolvars>0)) frame = frame.Define(depolvar0.GetName(),"(float)1.0");
