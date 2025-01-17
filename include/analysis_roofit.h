@@ -1008,7 +1008,7 @@ void getKinBinnedAsymUBML1D(
     std::vector<std::vector<double>> binvarlims_outer = {{bins[0],bins[nbins]}};
     std::vector<std::vector<double>> depolvarlims;
     for (int idx=0; idx<depolvars.size(); idx++) {
-        depolvarlims.push_back({-2.0,2.0});//DEBUGGING: FOR NOW ASSUME ALL DEPOLARIZATION VARIABLES ARE IN THIS RANGE.
+        depolvarlims.push_back({0.0,2.0});//DEBUGGING: FOR NOW ASSUME ALL DEPOLARIZATION VARIABLES ARE IN THIS RANGE.
     }
 
     // Create dataset
@@ -1320,7 +1320,7 @@ void getKinBinnedAsym1D(
     std::vector<std::vector<double>> binvarlims_outer = {{bins[0],bins[nbins]}};
     std::vector<std::vector<double>> depolvarlims;
     for (int idx=0; idx<depolvars.size(); idx++) {
-        depolvarlims.push_back({-2.0,2.0});//DEBUGGING: FOR NOW ASSUME ALL DEPOLARIZATION VARIABLES ARE IN THIS RANGE.
+        depolvarlims.push_back({0.0,2.0});//DEBUGGING: FOR NOW ASSUME ALL DEPOLARIZATION VARIABLES ARE IN THIS RANGE.
     }
 
     // Filter frames for signal and sideband
@@ -2155,7 +2155,7 @@ void getKinBinnedAsymUBML2D(
     std::vector<std::vector<double>> binvarlims_outer = {{bins[0],bins[nbins]}};
     std::vector<std::vector<double>> depolvarlims;
     for (int idx=0; idx<depolvars.size(); idx++) {
-        depolvarlims.push_back({-2.0,2.0});//DEBUGGING: FOR NOW ASSUME ALL DEPOLARIZATION VARIABLES ARE IN THIS RANGE.
+        depolvarlims.push_back({0.0,2.0});//DEBUGGING: FOR NOW ASSUME ALL DEPOLARIZATION VARIABLES ARE IN THIS RANGE.
     }
 
     // Create dataset
