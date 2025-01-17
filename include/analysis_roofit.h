@@ -21,6 +21,7 @@
 #include <TLatex.h>
 
 // RooFit Includes
+#include <RooCategory.h>
 #include <RooRealVar.h>
 #include <RooProduct.h>
 #include <RooDataSet.h>
@@ -1676,7 +1677,7 @@ void getKinBinnedAsym1D(
 * @param std::vector<std::string> binvars
 * @param std::vector<std::vector<double>> binvarlims
 */
-void createDataset2D(
+RooCategory createDataset2D(
         ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED
         RooWorkspace *w,
         std::string name,
@@ -1697,16 +1698,21 @@ void createDataset2D(
         std::vector<std::vector<double>> depolvarlims //NOTE: THAT THESE SHOULD JUST BE THE OUTERMOST LIMITS!!!
     ) {
 
+    // Define helicity variable
+    RooCategory h(helicity.c_str(), helicity.c_str());
+    h.defineType("plus",   1);
+    h.defineType("minus", -1);
+    h.defineType("zero",   0);
+
     // Check number of binning variables
     int nbinvars = binvars.size();
-    if (nbinvars>4) {std::cerr<<"ERROR: binvars.size() must be <=4"<<std::endl; return;}
+    if (nbinvars>4) {std::cerr<<"ERROR: binvars.size() must be <=4"<<std::endl; return h;}
 
     // Check number of binning variables
     int ndepolvars = depolvars.size();
-    if (ndepolvars>5) {std::cerr<<"ERROR: depolvars.size() must be <=5"<<std::endl; return;}
+    if (ndepolvars>5) {std::cerr<<"ERROR: depolvars.size() must be <=5"<<std::endl; return h;}
 
     // Define independent variables
-    RooRealVar h(helicity.c_str(), helicity.c_str(), -1.0, 1.0);
     RooRealVar x(fitvarx.c_str(),  fitvarx.c_str(), xmin, xmax);
     RooRealVar y(fitvary.c_str(),  fitvary.c_str(), ymin, ymax);
     RooRealVar m(massvar.c_str(),  massvar.c_str(), mmin, mmax);
@@ -1739,13 +1745,43 @@ void createDataset2D(
     if (!(ndepolvars>4)) frame = frame.Define(depolvar4.GetName(),"(float)1.0");
 
     // Create RDataFrame to RooDataSet pointer
-    ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = frame.Book<float, float, float, float, float, float, float, float, float, float, float, float, float>(
+    ROOT::RDF::RResultPtr<RooDataSet> rooDataSetResult = frame.Book<float, float, float, float, float, float, float, float, float, float, float, float>(
       RooDataSetHelper(name.c_str(), // Name
           title.c_str(),             // Title
-          RooArgSet(h, x, y, m, binvar0, binvar1, binvar2, binvar3, depolvar0, depolvar1, depolvar2, depolvar3, depolvar4)         // Variables in this dataset
+          RooArgSet(x, y, m, binvar0, binvar1, binvar2, binvar3, depolvar0, depolvar1, depolvar2, depolvar3, depolvar4)         // Variables in this dataset
           ),
-      {helicity.c_str(), fitvarx.c_str(), fitvary.c_str(), massvar.c_str(), binvar0.GetName(), binvar1.GetName(), binvar2.GetName(), binvar3.GetName(), depolvar0.GetName(), depolvar1.GetName(), depolvar2.GetName(), depolvar3.GetName(), depolvar4.GetName()} // Column names in RDataFrame.
+      {fitvarx.c_str(), fitvary.c_str(), massvar.c_str(), binvar0.GetName(), binvar1.GetName(), binvar2.GetName(), binvar3.GetName(), depolvar0.GetName(), depolvar1.GetName(), depolvar2.GetName(), depolvar3.GetName(), depolvar4.GetName()} // Column names in RDataFrame.
     );
+
+    // Manually create dataset containing helicity as a RooCategory variable
+    RooDataSet *ds_h = new RooDataSet("ds_h","ds_h", RooArgSet(h));
+
+    // Set cuts for fit variable limits so that new dataset will have same length as old dataset
+    std::string x_cut = Form("%s>=%.8f && %s<=%.8f", fitvarx.c_str(), xmin, fitvarx.c_str(), xmax); //NOTE: Should jusst put these cuts in the executable...
+    std::string y_cut = Form("%s>=%.8f && %s<=%.8f", fitvary.c_str(), ymin, fitvary.c_str(), ymax);
+    std::string m_cut = Form("%s>=%.8f && %s<=%.8f", massvar.c_str(), mmin, massvar.c_str(), mmax);
+    std::string a_cut = Form("(%s) && (%s) && (%s)", x_cut.c_str(), y_cut.c_str(), m_cut.c_str());
+
+    // Loop RDataFrame and fill helicity dataset
+    frame.Filter(a_cut.c_str()).Foreach(
+                  [&h,&ds_h](float val){
+
+                    // Assign the state for the categorical variable (using 1 or -1 as the states)
+                    if (val > 0) {
+                      h.setIndex(1);
+                    } else if (val < 0) {
+                      h.setIndex(-1);  // Set category to StateMinus1
+                    } else {
+                      h.setIndex(0);
+                    }
+                    // Add the event to the RooDataSet
+                    ds_h->add(RooArgSet(h));
+                  },
+                  {h.GetName()}
+                  );
+
+    // Merge datasets
+    static_cast<RooDataSet&>(*rooDataSetResult).merge(&static_cast<RooDataSet&>(*ds_h));
 
     // Import variables into workspace
     w->import(h);
@@ -1765,7 +1801,7 @@ void createDataset2D(
     // Import data into the workspace
     w->import(*rooDataSetResult);
 
-    return;
+    return h;
 }
 
 /**
@@ -1773,6 +1809,7 @@ void createDataset2D(
 * and fit parameter values and errors using an unbinned maximum likelihood fit and an asymmetry fit.
 * Note that the given asymmetry formula (fitformula) will be converted to a PDF internally.
 *
+* @param RooCategory  h
 * @param std::string  outdir
 * @param TFile      * outroot
 * @param ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame
@@ -1800,6 +1837,7 @@ void createDataset2D(
 * @param std::ostream &out          = std::cout
 */
 TArrayF* getKinBinAsymUBML2D(
+    RooCategory h,
     std::string  outdir,
     TFile      * outroot,
     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED WITH OVERALL CUTS
@@ -1832,7 +1870,6 @@ TArrayF* getKinBinAsymUBML2D(
     std::string title    = Form("%s %s",fitvarxtitle.c_str(),bincut.c_str());
 
     // TODO: Load fit avariables from workspace
-    RooRealVar *h = w->var(helicity_name.c_str());
     RooRealVar *x = w->var(fitvarx.c_str());
     RooRealVar *y = w->var(fitvary.c_str());
 
@@ -1886,7 +1923,7 @@ TArrayF* getKinBinAsymUBML2D(
     RooRealVar a2("a2","a2",(nparams>2 ? params[2] : 0.0),-1.0,1.0);
     RooRealVar a3("a3","a3",(nparams>3 ? params[3] : 0.0),-1.0,1.0);
     RooRealVar a4("a4","a4",(nparams>4 ? params[4] : 0.0),-1.0,1.0);
-    RooArgList arglist(*h,*x,*y,a0,a1,a2,a3,a4); //NOTE: ONLY ALLOW UP TO 5 PARAMS FOR NOW.
+    RooArgList arglist(*x,*y,a0,a1,a2,a3,a4); //NOTE: ONLY ALLOW UP TO 5 PARAMS FOR NOW.
 
     // Create 1D PDF
     std::string fitformula_plusone = Form("1.0+%.3f*%s",pol,fitformula.c_str());
@@ -2142,7 +2179,7 @@ void getKinBinnedAsymUBML2D(
     }
 
     // Create dataset
-    createDataset2D(
+    RooCategory h = createDataset2D(
         frame,
         w,
         dataset_name,
@@ -2206,6 +2243,7 @@ void getKinBinnedAsymUBML2D(
         // Compute bin results
         std::string  binoutdir = Form("method_%s_bin_%s_%.3f_%.3f",method.c_str(),binvar.c_str(),bin_min,bin_max);
         TArrayF* bin_data = getKinBinAsymUBML2D(
+                                h,
                                 binoutdir,
                                 outroot,
                                 frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED WITH OVERALL CUTS
