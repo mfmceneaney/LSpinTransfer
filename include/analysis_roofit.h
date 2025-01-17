@@ -1902,7 +1902,7 @@ TArrayF* getKinBinAsymUBML2D(
     std::vector<double> depolerrs;
     RooRealVar * d[(const int)depolvars.size()];
     for (int i=0; i<depolvars.size(); i++) {
-        d[i] = new RooRealVar(depolvars[i].c_str(), depolvars[i].c_str(), depolvarlims[i][0], depolvarlims[i][1]);
+        d[i] = w->var(depolvars[i].c_str());
         double mean   = bin_ds->mean(*d[i]);
         double stddev = TMath::Sqrt(bin_ds->moment(*d[i],2.0));
         depols.push_back(mean);
