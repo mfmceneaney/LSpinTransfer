@@ -678,6 +678,7 @@ void applySPlot(
 * @param double xmax                = 2*TMath::Pi()
 * @param bool use_sumW2Error        = true
 * @param std::ostream &out          = std::cout
+* @param bool use_average_depol     = false
 */
 TArrayF* getKinBinAsymUBML1D(
     RooCategory h,
@@ -702,7 +703,8 @@ TArrayF* getKinBinAsymUBML1D(
     double xmin                = 0.0,
     double xmax                = 2*TMath::Pi(),
     bool use_sumW2Error        = true,
-    std::ostream &out          = std::cout
+    std::ostream &out          = std::cout,
+    bool use_average_depol     = false
     ) {
 
     // Set plotting title for bin
@@ -771,8 +773,10 @@ TArrayF* getKinBinAsymUBML1D(
     for (int aa=0; aa<nparams; aa++) { // Fit asymmetry parameters
         arglist->add(*a[aa]);
     }
-    for (int dd=0; dd<depolvars.size(); dd++) { // Fit depolarization variables
-        arglist->add(*d[dd]);
+    if (!use_average_depol) {
+        for (int dd=0; dd<depolvars.size(); dd++) { // Fit depolarization variables
+            arglist->add(*d[dd]);
+        }
     }
 
     // Create 1D PDF positive helicity
@@ -937,6 +941,7 @@ TArrayF* getKinBinAsymUBML1D(
 * @param int         marker_color    = 4, // 4 is blue
 * @param int         marker_style    = 20, // 20 is circle
 * @param std::ostream &out           = std::cout
+* @param bool use_average_depol      = false
 */
 void getKinBinnedAsymUBML1D(
         std::string outdir,
@@ -971,7 +976,8 @@ void getKinBinnedAsymUBML1D(
         std::string graph_title     = "BSA A_{LU} vs. #Delta#phi", // Histogram title
         int         marker_color    = 4, // 4 is blue
         int         marker_style    = 20, // 20 is circle
-        std::ostream &out           = std::cout
+        std::ostream &out           = std::cout,
+        bool use_average_depol      = false
     ) {
 
     // Check arguments
@@ -1113,9 +1119,11 @@ void getKinBinnedAsymUBML1D(
         }
 
         // Divide out depolarization factors
-        for (int idx=0; idx<nparams; idx++) {
-            ys_corrected[idx][binidx] = ys[idx][binidx] / depols[idx][binidx];
-            eys_corrected[idx][binidx] = eys[idx][binidx] / depols[idx][binidx];
+        if (use_average_depol) {
+            for (int idx=0; idx<nparams; idx++) {
+                ys_corrected[idx][binidx] = ys[idx][binidx] / depols[idx][binidx];
+                eys_corrected[idx][binidx] = eys[idx][binidx] / depols[idx][binidx];
+            }
         }
 
         // Output message
@@ -1233,6 +1241,7 @@ void getKinBinnedAsymUBML1D(
 * @param int         marker_color    = 4, // 4 is blue
 * @param int         marker_style    = 20 // 20 is circle
 * @param std::ostream &out           = std::cout
+* @param bool use_average_depol      = false
 * @param std::string  sgcut          = "Q2>1"
 * @param std::string  bgcut          = "Q2>1"
 * @param int mass_nbins_hist         = 100
@@ -1276,6 +1285,7 @@ void getKinBinnedAsym1D(
         int         marker_color    = 4, // 4 is blue
         int         marker_style    = 20, // 20 is circle
         std::ostream &out           = std::cout,
+        bool use_average_depol      = false,
         std::string sgcut           = "Q2>1",
         std::string bgcut           = "Q2>1",
         int mass_nbins_hist         = 100,
@@ -1535,9 +1545,11 @@ void getKinBinnedAsym1D(
         }
 
         // Divide out depolarization factors
-        for (int idx=0; idx<nparams; idx++) {
-            ys_corrected[idx][binidx] = ys[idx][binidx] / depols[idx][binidx];
-            eys_corrected[idx][binidx] = eys[idx][binidx] / depols[idx][binidx];
+        if (use_average_depol) {
+            for (int idx=0; idx<nparams; idx++) {
+                ys_corrected[idx][binidx] = ys[idx][binidx] / depols[idx][binidx];
+                eys_corrected[idx][binidx] = eys[idx][binidx] / depols[idx][binidx];
+            }
         }
 
         // Output message
@@ -1796,6 +1808,7 @@ RooCategory createDataset2D(
 * @param double ymax                = 2*TMath::Pi()
 * @param bool use_sumW2Error        = true
 * @param std::ostream &out          = std::cout
+* @param bool use_average_depol     = false
 */
 TArrayF* getKinBinAsymUBML2D(
     RooCategory h,
@@ -1824,7 +1837,8 @@ TArrayF* getKinBinAsymUBML2D(
     double ymin                = 0.0,
     double ymax                = 2*TMath::Pi(),
     bool use_sumW2Error        = true,
-    std::ostream &out          = std::cout
+    std::ostream &out          = std::cout,
+    bool use_average_depol     = false
     ) {
 
     // Set plotting title for bin
@@ -1895,8 +1909,10 @@ TArrayF* getKinBinAsymUBML2D(
     for (int aa=0; aa<nparams; aa++) { // Fit asymmetry parameters
         arglist->add(*a[aa]);
     }
-    for (int dd=0; dd<depolvars.size(); dd++) { // Fit depolarization variables
-        arglist->add(*d[dd]);
+    if (!use_average_depol) {
+        for (int dd=0; dd<depolvars.size(); dd++) { // Fit depolarization variables
+            arglist->add(*d[dd]);
+        }
     }
 
     // Create 1D PDF positive helicity
@@ -2080,6 +2096,7 @@ TArrayF* getKinBinAsymUBML2D(
 * @param int         marker_color    = 4, // 4 is blue
 * @param int         marker_style    = 20, // 20 is circle
 * @param std::ostream &out           = std::cout
+* @param bool use_average_depol      = false
 */
 void getKinBinnedAsymUBML2D(
         std::string outdir,
@@ -2118,7 +2135,8 @@ void getKinBinnedAsymUBML2D(
         std::string graph_title     = "BSA A_{LU} vs. #Delta#phi", // Histogram title
         int         marker_color    = 4, // 4 is blue
         int         marker_style    = 20, // 20 is circle
-        std::ostream &out           = std::cout
+        std::ostream &out           = std::cout,
+        bool use_average_depol      = false
     ) {
 
     // Check arguments
@@ -2267,9 +2285,11 @@ void getKinBinnedAsymUBML2D(
         }
 
         // Divide out depolarization factors
-        for (int idx=0; idx<nparams; idx++) {
-            ys_corrected[idx][binidx] = ys[idx][binidx] / depols[idx][binidx];
-            eys_corrected[idx][binidx] = eys[idx][binidx] / depols[idx][binidx];
+        if (use_average_depol) {
+            for (int idx=0; idx<nparams; idx++) {
+                ys_corrected[idx][binidx] = ys[idx][binidx] / depols[idx][binidx];
+                eys_corrected[idx][binidx] = eys[idx][binidx] / depols[idx][binidx];
+            }
         }
 
         // Output message
@@ -2388,6 +2408,7 @@ void getKinBinnedAsymUBML2D(
 * @param int         marker_color    = 4, // 4 is blue
 * @param int         marker_style    = 20, // 20 is circle
 * @param std::ostream &out           = std::cout
+* @param bool use_average_depol      = false
 * @param std::string  sgcut          = "Q2>1"
 * @param std::string  bgcut          = "Q2>1"
 * @param int mass_nbins_hist         = 100
@@ -2435,6 +2456,7 @@ void getKinBinnedAsym2D(
         int         marker_color    = 4, // 4 is blue
         int         marker_style    = 20, // 20 is circle
         std::ostream &out           = std::cout,
+        bool use_average_depol      = false,
         std::string sgcut           = "Q2>1",
         std::string bgcut           = "Q2>1",
         int mass_nbins_hist         = 100,
@@ -2710,9 +2732,11 @@ void getKinBinnedAsym2D(
         }
 
         // Divide out depolarization factors
-        for (int idx=0; idx<nparams; idx++) {
-            ys_corrected[idx][binidx] = ys[idx][binidx] / depols[idx][binidx];
-            eys_corrected[idx][binidx] = eys[idx][binidx] / depols[idx][binidx];
+        if (use_average_depol) {
+            for (int idx=0; idx<nparams; idx++) {
+                ys_corrected[idx][binidx] = ys[idx][binidx] / depols[idx][binidx];
+                eys_corrected[idx][binidx] = eys[idx][binidx] / depols[idx][binidx];
+            }
         }
 
         // Output message

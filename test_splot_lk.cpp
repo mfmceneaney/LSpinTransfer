@@ -393,6 +393,12 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "use_splot: " << use_splot << std::endl;
 
+    bool use_average_depol = false;
+    if (node["use_average_depol"]) {
+        use_average_depol = node["use_average_depol"].as<bool>();
+    }
+    std::cout << "use_average_depol: " << use_average_depol << std::endl;
+
     //NOTE: END ADDED FOR TESTING 10/18/23
 
     //----------------------------------------------------------------------------------------------------//
@@ -592,7 +598,8 @@ void analysis(const YAML::Node& node) {
             graph_title, //std::string graph_title     = "BSA A_{LU} vs. #Delta#phi", // Histogram title
             marker_color, // int         marker_color    = 4, // 4 is blue
             marker_style, // int         marker_style    = 20, // 20 is circle
-            out //std::ostream &out           = std::cout
+            out, //std::ostream &out           = std::cout
+            use_average_depol //bool use_average_depol      = false
         );
    
     }// loop over bin variables
