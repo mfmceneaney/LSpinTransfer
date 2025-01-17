@@ -2048,7 +2048,7 @@ TArrayF* getKinBinAsymUBML2D(
 
     // Print out fit info
     out << "--------------------------------------------------" << std::endl;
-    out << " getKinBinAsymUBML1D():" << std::endl;
+    out << " getKinBinAsymUBML2D():" << std::endl;
     out << " bincut     = " << bincut.c_str() << std::endl;
     out << " bincount   = " << count << std::endl;
     out << " binvar means = [" ;
