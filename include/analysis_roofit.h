@@ -680,6 +680,7 @@ void applySPlot(
 * @param std::ostream &out          = std::cout
 */
 TArrayF* getKinBinAsymUBML1D(
+    RooCategory h,
     std::string  outdir,
     TFile      * outroot,
     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED WITH OVERALL CUTS
@@ -708,7 +709,6 @@ TArrayF* getKinBinAsymUBML1D(
     std::string title    = Form("%s %s",fitvarxtitle.c_str(),bincut.c_str());
 
     // TODO: Load fit avariables from workspace
-    RooRealVar *h = w->var(helicity_name.c_str());
     RooRealVar *x = w->var(fitvarx.c_str());
 
     //TODO Load dataset from workspace
@@ -761,7 +761,7 @@ TArrayF* getKinBinAsymUBML1D(
     RooRealVar a2("a2","a2",(nparams>2 ? params[2] : 0.0),-1.0,1.0);
     RooRealVar a3("a3","a3",(nparams>3 ? params[3] : 0.0),-1.0,1.0);
     RooRealVar a4("a4","a4",(nparams>4 ? params[4] : 0.0),-1.0,1.0);
-    RooArgList arglist(*h,*x,a0,a1,a2,a3,a4); //NOTE: ONLY ALLOW UP TO 5 PARAMS FOR NOW.
+    RooArgList arglist(h,*x,a0,a1,a2,a3,a4); //NOTE: ONLY ALLOW UP TO 5 PARAMS FOR NOW.
 
     // Create 1D PDF
     std::string fitformula_plusone = Form("1.0+%.3f*%s",pol,fitformula.c_str());
@@ -1055,6 +1055,7 @@ void getKinBinnedAsymUBML1D(
         // Compute bin results
         std::string  binoutdir = Form("method_%s_bin_%s_%.3f_%.3f",method.c_str(),binvar.c_str(),bin_min,bin_max);
         TArrayF* bin_data = getKinBinAsymUBML1D(
+                                h, //NOTE: This should always have the same definition and name regardless of workspace.
                                 binoutdir,
                                 outroot,
                                 frame, //NOTE: FRAME SHOULD ALREADY BE FILTERED WITH OVERALL CUTS
@@ -1407,6 +1408,7 @@ void getKinBinnedAsym1D(
         // Compute signal region bin results
         std::string  binoutdir = Form("method_%s_bin_%s_%.3f_%.3f",method.c_str(),binvar.c_str(),bin_min,bin_max);
         TArrayF* bin_data = getKinBinAsymUBML1D(
+                                h, //NOTE: This should always have the same definition and name regardless of workspace.
                                 binoutdir,
                                 outroot,
                                 (use_sb_subtraction ? binframe_sg : binframe), //NOTE: FRAME SHOULD ALREADY BE FILTERED WITH OVERALL CUTS
@@ -1460,6 +1462,7 @@ void getKinBinnedAsym1D(
 
             // Compute sideband bin results
             bin_data_sb = getKinBinAsymUBML1D(
+                                h, //NOTE: This should always have the same definition and name regardless of workspace.
                                 binoutdir,
                                 outroot,
                                 binframe_sb, //NOTE: FRAME SHOULD ALREADY BE FILTERED WITH OVERALL CUTS
