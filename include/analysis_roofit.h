@@ -795,7 +795,7 @@ TArrayF* getKinBinAsymUBML1D(
     RooSimultaneous gen("gen", "simultaneous pdf", {{"plus", &gen_pos}, {"minus", &gen_neg}}, h);
 
     // Fit the pdf to data
-    std::unique_ptr<RooFitResult> r{gen.fitTo(*bin_ds, RooFit::Save(), RooFit::SumW2Error(use_sumW2Error), RooFit::PrintLevel(-1), RooFit::Minos(kTRUE))};
+    std::unique_ptr<RooFitResult> r{gen.fitTo(*bin_ds, RooFit::Save(), RooFit::SumW2Error(use_sumW2Error), RooFit::PrintLevel(-1))};
 
     // Print fit result
     r->Print("v");
@@ -1919,7 +1919,7 @@ TArrayF* getKinBinAsymUBML2D(
     RooSimultaneous gen("gen", "simultaneous pdf", {{"plus", &gen_pos}, {"minus", &gen_neg}}, h);
 
     // Fit the pdf to data
-    std::unique_ptr<RooFitResult> r{gen.fitTo(*bin_ds, RooFit::Save(), RooFit::SumW2Error(use_sumW2Error), RooFit::PrintLevel(-1), RooFit::Minos(kTRUE))};
+    std::unique_ptr<RooFitResult> r{gen.fitTo(*bin_ds, RooFit::Save(), RooFit::SumW2Error(use_sumW2Error), RooFit::PrintLevel(-1))};
 
     // Print fit result
     r->Print("v");
