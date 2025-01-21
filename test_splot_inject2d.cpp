@@ -399,6 +399,12 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "use_average_depol: " << use_average_depol << std::endl;
 
+    bool use_extended_nll = false;
+    if (node["use_extended_nll"]) {
+        use_extended_nll = node["use_extended_nll"].as<bool>();
+    }
+    std::cout << "use_extended_nll: " << use_extended_nll << std::endl;
+
     //NOTE: END ADDED FOR TESTING 10/18/23
 
     //----------------------------------------------------------------------------------------------------//
@@ -587,7 +593,8 @@ void analysis(const YAML::Node& node) {
             marker_color, // int         marker_color    = 4, // 4 is blue
             marker_style, // int         marker_style    = 20, // 20 is circle
             out, //std::ostream &out           = std::cout
-            use_average_depol //bool use_average_depol      = false
+            use_average_depol, //bool use_average_depol      = false
+            use_extended_nll //bool use_extended_nll       = false
         );
    
     }// loop over bin variables

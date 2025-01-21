@@ -679,6 +679,7 @@ void applySPlot(
 * @param bool use_sumW2Error        = true
 * @param std::ostream &out          = std::cout
 * @param bool use_average_depol     = false
+* @param bool use_extended_nll      = false
 */
 TArrayF* getKinBinAsymUBML1D(
     RooCategory h,
@@ -704,7 +705,8 @@ TArrayF* getKinBinAsymUBML1D(
     double xmax                = 2*TMath::Pi(),
     bool use_sumW2Error        = true,
     std::ostream &out          = std::cout,
-    bool use_average_depol     = false
+    bool use_average_depol     = false,
+    bool use_extended_nll      = false
     ) {
 
     // Set plotting title for bin
@@ -796,10 +798,12 @@ TArrayF* getKinBinAsymUBML1D(
     RooExtendPdf gen_neg("gen_neg", "extended signal pdf", _gen_neg, nsig_neg);
 
     // Create simultaneous pdf
-    RooSimultaneous gen("gen", "simultaneous pdf", {{"plus", &gen_pos}, {"minus", &gen_neg}}, h);
+    RooSimultaneous * gen;
+    if (use_extended_nll) { gen = new RooSimultaneous("gen", "simultaneous pdf", {{"plus", &gen_pos}, {"minus", &gen_neg}}, h); }
+    else { gen = new RooSimultaneous("gen", "simultaneous pdf", {{"plus", &_gen_pos}, {"minus", &_gen_neg}}, h); }
 
     // Fit the pdf to data
-    std::unique_ptr<RooFitResult> r{gen.fitTo(*bin_ds, RooFit::Save(), RooFit::SumW2Error(use_sumW2Error), RooFit::PrintLevel(-1))};
+    std::unique_ptr<RooFitResult> r{gen->fitTo(*bin_ds, RooFit::Save(), RooFit::SumW2Error(use_sumW2Error), RooFit::PrintLevel(-1))};
 
     // Print fit result
     r->Print("v");
@@ -817,10 +821,10 @@ TArrayF* getKinBinAsymUBML1D(
     // Plot projection of fitted distribution in x.
     RooPlot *xframe = x->frame(RooFit::Title(Form("%s Projection, Bin: %s",fitvarxtitle.c_str(),bincut.c_str())));
     bin_ds->plotOn(xframe);
-    gen.plotOn(xframe, RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
+    gen->plotOn(xframe, RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
 
     // Overlay the background component of model with a dashed line
-    gen.plotOn(xframe, RooFit::LineStyle(kDashed), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
+    gen->plotOn(xframe, RooFit::LineStyle(kDashed), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
 
     // Draw the frame on the canvas
     std::string c1_x_name = Form("c1_%s__fitvarx_%s",outdir.c_str(),fitvarx.c_str());
@@ -942,6 +946,7 @@ TArrayF* getKinBinAsymUBML1D(
 * @param int         marker_style    = 20, // 20 is circle
 * @param std::ostream &out           = std::cout
 * @param bool use_average_depol      = false
+* @param bool use_extended_nll       = false
 */
 void getKinBinnedAsymUBML1D(
         std::string outdir,
@@ -977,7 +982,8 @@ void getKinBinnedAsymUBML1D(
         int         marker_color    = 4, // 4 is blue
         int         marker_style    = 20, // 20 is circle
         std::ostream &out           = std::cout,
-        bool use_average_depol      = false
+        bool use_average_depol      = false,
+        bool use_extended_nll       = false
     ) {
 
     // Check arguments
@@ -1101,7 +1107,9 @@ void getKinBinnedAsymUBML1D(
                                 xmin,
                                 xmax,
                                 use_sumW2Error,
-                                out
+                                out,
+                                use_average_depol,
+                                use_extended_nll
                             );
 
         // Get bin data
@@ -1242,6 +1250,7 @@ void getKinBinnedAsymUBML1D(
 * @param int         marker_style    = 20 // 20 is circle
 * @param std::ostream &out           = std::cout
 * @param bool use_average_depol      = false
+* @param bool use_extended_nll       = false
 * @param std::string  sgcut          = "Q2>1"
 * @param std::string  bgcut          = "Q2>1"
 * @param int mass_nbins_hist         = 100
@@ -1286,6 +1295,7 @@ void getKinBinnedAsym1D(
         int         marker_style    = 20, // 20 is circle
         std::ostream &out           = std::cout,
         bool use_average_depol      = false,
+        bool use_extended_nll       = false,
         std::string sgcut           = "Q2>1",
         std::string bgcut           = "Q2>1",
         int mass_nbins_hist         = 100,
@@ -1458,7 +1468,9 @@ void getKinBinnedAsym1D(
                                 xmin,
                                 xmax,
                                 use_sumW2Error,
-                                out
+                                out,
+                                use_average_depol,
+                                use_extended_nll
                             );
 
         // Compute sideband region bin results
@@ -1512,7 +1524,9 @@ void getKinBinnedAsym1D(
                                 xmin,
                                 xmax,
                                 use_sumW2Error,
-                                out
+                                out,
+                                use_average_depol,
+                                use_extended_nll
                             );
         } 
 
@@ -1809,6 +1823,7 @@ RooCategory createDataset2D(
 * @param bool use_sumW2Error        = true
 * @param std::ostream &out          = std::cout
 * @param bool use_average_depol     = false
+* @param bool use_extended_nll      = false
 */
 TArrayF* getKinBinAsymUBML2D(
     RooCategory h,
@@ -1838,7 +1853,8 @@ TArrayF* getKinBinAsymUBML2D(
     double ymax                = 2*TMath::Pi(),
     bool use_sumW2Error        = true,
     std::ostream &out          = std::cout,
-    bool use_average_depol     = false
+    bool use_average_depol     = false,
+    bool use_extended_nll      = false
     ) {
 
     // Set plotting title for bin
@@ -1932,10 +1948,12 @@ TArrayF* getKinBinAsymUBML2D(
     RooExtendPdf gen_neg("gen_neg", "extended signal pdf", _gen_neg, nsig_neg);
 
     // Create simultaneous pdf
-    RooSimultaneous gen("gen", "simultaneous pdf", {{"plus", &gen_pos}, {"minus", &gen_neg}}, h);
+    RooSimultaneous * gen;
+    if (use_extended_nll) { gen = new RooSimultaneous("gen", "simultaneous pdf", {{"plus", &gen_pos}, {"minus", &gen_neg}}, h); }
+    else { gen = new RooSimultaneous("gen", "simultaneous pdf", {{"plus", &_gen_pos}, {"minus", &_gen_neg}}, h); }
 
     // Fit the pdf to data
-    std::unique_ptr<RooFitResult> r{gen.fitTo(*bin_ds, RooFit::Save(), RooFit::SumW2Error(use_sumW2Error), RooFit::PrintLevel(-1))};
+    std::unique_ptr<RooFitResult> r{gen->fitTo(*bin_ds, RooFit::Save(), RooFit::SumW2Error(use_sumW2Error), RooFit::PrintLevel(-1))};
 
     // Print fit result
     r->Print("v");
@@ -1953,10 +1971,10 @@ TArrayF* getKinBinAsymUBML2D(
     // Plot projection of fitted distribution in x.
     RooPlot *xframe = x->frame(RooFit::Title(Form("%s Projection, Bin: %s",fitvarxtitle.c_str(),bincut.c_str())));
     bin_ds->plotOn(xframe);
-    gen.plotOn(xframe, RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
+    gen->plotOn(xframe, RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
 
     // Overlay the background component of model with a dashed line
-    gen.plotOn(xframe, RooFit::LineStyle(kDashed), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
+    gen->plotOn(xframe, RooFit::LineStyle(kDashed), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
 
     // Draw the frame on the canvas
     std::string c1_x_name = Form("c1_%s__fitvarx_%s",outdir.c_str(),fitvarx.c_str());
@@ -1969,10 +1987,10 @@ TArrayF* getKinBinAsymUBML2D(
     // Plot projection of fitted distribution in y.
     RooPlot *yframe = y->frame(RooFit::Title(Form("%s Projection, Bin: %s",fitvarytitle.c_str(),bincut.c_str())));
     bin_ds->plotOn(yframe);
-    gen.plotOn(yframe, RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
+    gen->plotOn(yframe, RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
 
     // Overlay the background component of model with a dashed line
-    gen.plotOn(yframe, RooFit::LineStyle(kDashed), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
+    gen->plotOn(yframe, RooFit::LineStyle(kDashed), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
 
     // Draw the frame on the canvas
     std::string c1_y_name = Form("c1_%s__fitvary_%s",outdir.c_str(),fitvary.c_str());
@@ -2097,6 +2115,7 @@ TArrayF* getKinBinAsymUBML2D(
 * @param int         marker_style    = 20, // 20 is circle
 * @param std::ostream &out           = std::cout
 * @param bool use_average_depol      = false
+* @param bool use_extended_nll       = false
 */
 void getKinBinnedAsymUBML2D(
         std::string outdir,
@@ -2136,7 +2155,8 @@ void getKinBinnedAsymUBML2D(
         int         marker_color    = 4, // 4 is blue
         int         marker_style    = 20, // 20 is circle
         std::ostream &out           = std::cout,
-        bool use_average_depol      = false
+        bool use_average_depol      = false,
+        bool use_extended_nll       = false
     ) {
 
     // Check arguments
@@ -2267,7 +2287,9 @@ void getKinBinnedAsymUBML2D(
                                 ymin,
                                 ymax,
                                 use_sumW2Error,
-                                out
+                                out,
+                                use_average_depol,
+                                use_extended_nll
                             );
 
         // Get bin data
@@ -2409,6 +2431,7 @@ void getKinBinnedAsymUBML2D(
 * @param int         marker_style    = 20, // 20 is circle
 * @param std::ostream &out           = std::cout
 * @param bool use_average_depol      = false
+* @param bool use_extended_nll       = false
 * @param std::string  sgcut          = "Q2>1"
 * @param std::string  bgcut          = "Q2>1"
 * @param int mass_nbins_hist         = 100
@@ -2457,6 +2480,7 @@ void getKinBinnedAsym2D(
         int         marker_style    = 20, // 20 is circle
         std::ostream &out           = std::cout,
         bool use_average_depol      = false,
+        bool use_extended_nll       = false,
         std::string sgcut           = "Q2>1",
         std::string bgcut           = "Q2>1",
         int mass_nbins_hist         = 100,
@@ -2639,7 +2663,9 @@ void getKinBinnedAsym2D(
                                 ymin,
                                 ymax,
                                 use_sumW2Error,
-                                out
+                                out,
+                                use_average_depol,
+                                use_extended_nll
                             );
 
         // Compute sideband region bin results
@@ -2699,7 +2725,9 @@ void getKinBinnedAsym2D(
                                 ymin,
                                 ymax,
                                 use_sumW2Error,
-                                out
+                                out,
+                                use_average_depol,
+                                use_extended_nll
                             );
         }
 
