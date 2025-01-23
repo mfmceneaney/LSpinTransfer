@@ -1066,6 +1066,41 @@ void getKinBinnedAsymUBML1D(
             dataset_bg_name
         );
         fit_dataset_name = dataset_sg_name;
+
+        //---------------------------------------- DEBUGGING ----------------------------------------//
+        // Plot signal weighted fit variable distributions
+
+        using namespace RooFit;
+
+        // Get signal sweight dataset from workspace
+        RooDataSet * sg_ds = (RooDataSet*)w->data(dataset_sg_name.c_str());
+
+        // Plot projection of fitted distribution in x.
+        RooRealVar *x = w->var(fitvarx.c_str());
+        RooPlot *xframe = x->frame(RooFit::Title(Form("%s sWeighted distribution",fitvarxtitle.c_str())));
+        sg_ds->plotOn(xframe, RooFit::DataError(RooAbsData::SumW2));
+
+        // Draw the frame on the canvas
+        std::string c1_x_name = Form("c_sg_sweight__fitvarx_%s",fitvarx.c_str());
+        TCanvas *c1_x = new TCanvas(c1_x_name.c_str(), c1_x_name.c_str());
+        gPad->SetLeftMargin(0.15);
+        xframe->GetYaxis()->SetTitleOffset(1.4);
+        xframe->Draw();
+        c1_x->Print(Form("%s.pdf",c1_x_name.c_str()));
+
+        // Plot projection of fitted distribution in the bin variable.
+        RooRealVar *b = w->var(binvar.c_str());
+        RooPlot *bframe = b->frame(RooFit::Title(Form("%s sWeighted distribution",binvar.c_str())));
+        sg_ds->plotOn(bframe, RooFit::DataError(RooAbsData::SumW2));
+
+        // Draw the frame on the canvas
+        std::string c1_b_name = Form("c_sg_sweight__binvar_%s",binvar.c_str());
+        TCanvas *c1_b = new TCanvas(c1_b_name.c_str(), c1_b_name.c_str());
+        gPad->SetLeftMargin(0.15);
+        bframe->GetYaxis()->SetTitleOffset(1.4);
+        bframe->Draw();
+        c1_b->Print(Form("%s.pdf",c1_b_name.c_str()));
+        //---------------------------------------- DEBUGGING ----------------------------------------//
     }
 
     // Loop bins and get data
@@ -2250,6 +2285,54 @@ void getKinBinnedAsymUBML2D(
             dataset_bg_name
         );
         fit_dataset_name = dataset_sg_name;
+
+        //---------------------------------------- DEBUGGING ----------------------------------------//
+        // Plot signal weighted fit variable distributions
+
+        using namespace RooFit;
+
+        // Get signal sweight dataset from workspace
+        RooDataSet * sg_ds = (RooDataSet*)w->data(dataset_sg_name.c_str());
+
+        // Plot projection of fitted distribution in x.
+        RooRealVar *x = w->var(fitvarx.c_str());
+        RooPlot *xframe = x->frame(RooFit::Title(Form("%s sWeighted distribution",fitvarxtitle.c_str())));
+        sg_ds->plotOn(xframe, RooFit::DataError(RooAbsData::SumW2));
+
+        // Draw the frame on the canvas
+        std::string c1_x_name = Form("c_sg_sweight__fitvarx_%s",fitvarx.c_str());
+        TCanvas *c1_x = new TCanvas(c1_x_name.c_str(), c1_x_name.c_str());
+        gPad->SetLeftMargin(0.15);
+        xframe->GetYaxis()->SetTitleOffset(1.4);
+        xframe->Draw();
+        c1_x->Print(Form("%s.pdf",c1_x_name.c_str()));
+
+        // Plot projection of fitted distribution in y.
+        RooRealVar *y = w->var(fitvary.c_str());
+        RooPlot *yframe = y->frame(RooFit::Title(Form("%s sWeighted distribution",fitvarytitle.c_str())));
+        sg_ds->plotOn(yframe, RooFit::DataError(RooAbsData::SumW2));
+
+        // Draw the frame on the canvas
+        std::string c1_y_name = Form("c_sg_sweight__fitvary_%s",fitvary.c_str());
+        TCanvas *c1_y = new TCanvas(c1_y_name.c_str(), c1_y_name.c_str());
+        gPad->SetLeftMargin(0.15);
+        yframe->GetYaxis()->SetTitleOffset(1.4);
+        yframe->Draw();
+        c1_y->Print(Form("%s.pdf",c1_y_name.c_str()));
+
+        // Plot projection of fitted distribution in the bin variable.
+        RooRealVar *b = w->var(binvar.c_str());
+        RooPlot *bframe = b->frame(RooFit::Title(Form("%s sWeighted distribution",binvar.c_str())));
+        sg_ds->plotOn(bframe, RooFit::DataError(RooAbsData::SumW2));
+
+        // Draw the frame on the canvas
+        std::string c1_b_name = Form("c_sg_sweight__binvar_%s",binvar.c_str());
+        TCanvas *c1_b = new TCanvas(c1_b_name.c_str(), c1_b_name.c_str());
+        gPad->SetLeftMargin(0.15);
+        bframe->GetYaxis()->SetTitleOffset(1.4);
+        bframe->Draw();
+        c1_b->Print(Form("%s.pdf",c1_b_name.c_str()));
+        //---------------------------------------- DEBUGGING ----------------------------------------//
     }
 
     // Loop bins and get data
