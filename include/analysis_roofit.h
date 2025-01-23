@@ -1130,15 +1130,22 @@ void getKinBinnedAsymUBML1D(
                 ys_corrected[idx][binidx] = ys[idx][binidx] / depols[idx][binidx];
                 eys_corrected[idx][binidx] = eys[idx][binidx] / depols[idx][binidx];
             }
+        } else {
+            for (int idx=0; idx<nparams; idx++) {
+                ys_corrected[idx][binidx] = ys[idx][binidx];
+                eys_corrected[idx][binidx] = eys[idx][binidx];
+            }
         }
 
         // Output message
-        out << "--- SPlot Corrected Signal ---\n";
+        out << "--- Accpetance, background, and depolarization corrected signal ---\n";
         for (int idx=0; idx<nparams; idx++) {
-            out << " ys["<< idx <<"]["<<binidx<<"]             = " << ys[idx][binidx] << "\n";
-            out << " eys["<< idx <<"]["<<binidx<<"]            = " << eys[idx][binidx] << "\n";
-            out << " depols["<< idx <<"]["<<binidx<<"]         = " << depols[idx][binidx] << "\n";
-            out << " edepols["<< idx <<"]["<<binidx<<"]        = " << edepols[idx][binidx] << "\n";
+            if (use_average_depol) {
+                out << " ys["<< idx <<"]["<<binidx<<"]             = " << ys[idx][binidx] << "\n";
+                out << " eys["<< idx <<"]["<<binidx<<"]            = " << eys[idx][binidx] << "\n";
+                out << " depols["<< idx <<"]["<<binidx<<"]         = " << depols[idx][binidx] << "\n";
+                out << " edepols["<< idx <<"]["<<binidx<<"]        = " << edepols[idx][binidx] << "\n";
+            }
             out << " ys_corrected["<< idx <<"]["<<binidx<<"]   = " << ys_corrected[idx][binidx] << "\n";
             out << " eys_corrected["<< idx <<"]["<<binidx<<"]  = " << eys_corrected[idx][binidx] << "\n";
         }
@@ -1562,20 +1569,27 @@ void getKinBinnedAsym1D(
                 ys_corrected[idx][binidx] = ys[idx][binidx] / depols[idx][binidx];
                 eys_corrected[idx][binidx] = eys[idx][binidx] / depols[idx][binidx];
             }
+        } else {
+            for (int idx=0; idx<nparams; idx++) {
+                ys_corrected[idx][binidx] = ys[idx][binidx];
+                eys_corrected[idx][binidx] = eys[idx][binidx];
+            }
         }
 
         // Output message
-        out << "--- Background Corrected Signal ---\n";
-        out << " epsilon = "<<epsilon<<" ± "<<epsilon_err<<"\n";
+        out << "--- Accpetance, background, and depolarization corrected signal ---\n";
         for (int idx=0; idx<nparams; idx++) {
-            out << " ys_sb["<< idx <<"]["<<binidx<<"]       = " << ys[idx][binidx] << "\n";
-            out << " eys_sb["<< idx <<"]["<<binidx<<"]      = " << eys[idx][binidx] << "\n";
-            out << " ys["<< idx <<"]["<<binidx<<"]          = " << ys[idx][binidx] << "\n";
-            out << " eys["<< idx <<"]["<<binidx<<"]         = " << eys[idx][binidx] << "\n";
-            out << " depols["<< idx <<"]["<<binidx<<"]      = " << depols[idx][binidx] << "\n";
-            out << " edepols["<< idx <<"]["<<binidx<<"]     = " << edepols[idx][binidx] << "\n";
-            out << " ys/depols["<< idx <<"]["<<binidx<<"]   = " << ys_corrected[idx][binidx] << "\n";
-            out << " eys/depols["<< idx <<"]["<<binidx<<"]  = " << eys_corrected[idx][binidx] << "\n";
+            if (use_average_depol) {
+                out << " ys["<< idx <<"]["<<binidx<<"]             = " << ys[idx][binidx] << "\n";
+                out << " eys["<< idx <<"]["<<binidx<<"]            = " << eys[idx][binidx] << "\n";
+                out << " depols["<< idx <<"]["<<binidx<<"]         = " << depols[idx][binidx] << "\n";
+                out << " edepols["<< idx <<"]["<<binidx<<"]        = " << edepols[idx][binidx] << "\n";
+            } if (use_sb_subtraction) {
+                out << " ys_sb["<< idx <<"]["<<binidx<<"]       = " << ys_sb[idx][binidx] << "\n";
+                out << " eys_sb["<< idx <<"]["<<binidx<<"]      = " << eys_sb[idx][binidx] << "\n";
+            }
+            out << " ys_corrected["<< idx <<"]["<<binidx<<"]   = " << ys_corrected[idx][binidx] << "\n";
+            out << " eys_corrected["<< idx <<"]["<<binidx<<"]  = " << eys_corrected[idx][binidx] << "\n";
         }
         out << "---------------------------\n";
     }
@@ -2306,15 +2320,22 @@ void getKinBinnedAsymUBML2D(
                 ys_corrected[idx][binidx] = ys[idx][binidx] / depols[idx][binidx];
                 eys_corrected[idx][binidx] = eys[idx][binidx] / depols[idx][binidx];
             }
+        } else {
+            for (int idx=0; idx<nparams; idx++) {
+                ys_corrected[idx][binidx] = ys[idx][binidx];
+                eys_corrected[idx][binidx] = eys[idx][binidx];
+            }
         }
 
         // Output message
-        out << "--- SPlot Corrected Signal ---\n";
+        out << "--- Accpetance, background, and depolarization corrected signal ---\n";
         for (int idx=0; idx<nparams; idx++) {
-            out << " ys["<< idx <<"]["<<binidx<<"]             = " << ys[idx][binidx] << "\n";
-            out << " eys["<< idx <<"]["<<binidx<<"]            = " << eys[idx][binidx] << "\n";
-            out << " depols["<< idx <<"]["<<binidx<<"]         = " << depols[idx][binidx] << "\n";
-            out << " edepols["<< idx <<"]["<<binidx<<"]        = " << edepols[idx][binidx] << "\n";
+            if (use_average_depol) {
+                out << " ys["<< idx <<"]["<<binidx<<"]             = " << ys[idx][binidx] << "\n";
+                out << " eys["<< idx <<"]["<<binidx<<"]            = " << eys[idx][binidx] << "\n";
+                out << " depols["<< idx <<"]["<<binidx<<"]         = " << depols[idx][binidx] << "\n";
+                out << " edepols["<< idx <<"]["<<binidx<<"]        = " << edepols[idx][binidx] << "\n";
+            }
             out << " ys_corrected["<< idx <<"]["<<binidx<<"]   = " << ys_corrected[idx][binidx] << "\n";
             out << " eys_corrected["<< idx <<"]["<<binidx<<"]  = " << eys_corrected[idx][binidx] << "\n";
         }
@@ -2759,15 +2780,25 @@ void getKinBinnedAsym2D(
                 ys_corrected[idx][binidx] = ys[idx][binidx] / depols[idx][binidx];
                 eys_corrected[idx][binidx] = eys[idx][binidx] / depols[idx][binidx];
             }
+        } else {
+            for (int idx=0; idx<nparams; idx++) {
+                ys_corrected[idx][binidx] = ys[idx][binidx];
+                eys_corrected[idx][binidx] = eys[idx][binidx];
+            }
         }
 
         // Output message
-        out << "--- SPlot Corrected Signal ---\n";
+        out << "--- Accpetance, background, and depolarization corrected signal ---\n";
         for (int idx=0; idx<nparams; idx++) {
-            out << " ys["<< idx <<"]["<<binidx<<"]             = " << ys[idx][binidx] << "\n";
-            out << " eys["<< idx <<"]["<<binidx<<"]            = " << eys[idx][binidx] << "\n";
-            out << " depols["<< idx <<"]["<<binidx<<"]         = " << depols[idx][binidx] << "\n";
-            out << " edepols["<< idx <<"]["<<binidx<<"]        = " << edepols[idx][binidx] << "\n";
+            if (use_average_depol) {
+                out << " ys["<< idx <<"]["<<binidx<<"]             = " << ys[idx][binidx] << "\n";
+                out << " eys["<< idx <<"]["<<binidx<<"]            = " << eys[idx][binidx] << "\n";
+                out << " depols["<< idx <<"]["<<binidx<<"]         = " << depols[idx][binidx] << "\n";
+                out << " edepols["<< idx <<"]["<<binidx<<"]        = " << edepols[idx][binidx] << "\n";
+            } if (use_sb_subtraction) {
+                out << " ys_sb["<< idx <<"]["<<binidx<<"]       = " << ys_sb[idx][binidx] << "\n";
+                out << " eys_sb["<< idx <<"]["<<binidx<<"]      = " << eys_sb[idx][binidx] << "\n";
+            }
             out << " ys_corrected["<< idx <<"]["<<binidx<<"]   = " << ys_corrected[idx][binidx] << "\n";
             out << " eys_corrected["<< idx <<"]["<<binidx<<"]  = " << eys_corrected[idx][binidx] << "\n";
         }
