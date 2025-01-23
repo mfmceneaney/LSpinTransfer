@@ -822,7 +822,6 @@ TArrayF* getKinBinAsymUBML1D(
     RooPlot *xframe = x->frame(RooFit::Title(Form("%s Projection, Bin: %s",fitvarxtitle.c_str(),bincut.c_str())));
     bin_ds->plotOn(xframe);
     gen->plotOn(xframe, RooFit::ProjWData(h, *bin_ds), RooFit::DataError(RooAbsData::SumW2));
-    gen->plotOn(xframe, RooFit::Components("plus,minus"), RooFit::ProjWData(h, *bin_ds), RooFit::LineStyle(kDashed), RooFit::DataError(RooAbsData::SumW2));
 
     // Draw the frame on the canvas
     std::string c1_x_name = Form("c1_%s__fitvarx_%s",outdir.c_str(),fitvarx.c_str());
@@ -1984,7 +1983,6 @@ TArrayF* getKinBinAsymUBML2D(
     RooPlot *xframe = x->frame(RooFit::Title(Form("%s Projection, Bin: %s",fitvarxtitle.c_str(),bincut.c_str())));
     bin_ds->plotOn(xframe);
     gen->plotOn(xframe, RooFit::ProjWData(h, *bin_ds), RooFit::DataError(RooAbsData::SumW2));
-    gen->plotOn(xframe, RooFit::Components("plus,minus"), RooFit::ProjWData(h, *bin_ds), RooFit::LineStyle(kDashed), RooFit::DataError(RooAbsData::SumW2));
 
     // Draw the frame on the canvas
     std::string c1_x_name = Form("c1_%s__fitvarx_%s",outdir.c_str(),fitvarx.c_str());
@@ -1998,7 +1996,6 @@ TArrayF* getKinBinAsymUBML2D(
     RooPlot *yframe = y->frame(RooFit::Title(Form("%s Projection, Bin: %s",fitvarytitle.c_str(),bincut.c_str())));
     bin_ds->plotOn(yframe);
     gen->plotOn(yframe, RooFit::ProjWData(h, *bin_ds), RooFit::DataError(RooAbsData::SumW2));
-    gen->plotOn(yframe, RooFit::Components("plus,minus"), RooFit::ProjWData(h, *bin_ds), RooFit::LineStyle(kDashed), RooFit::DataError(RooAbsData::SumW2));
 
     // Draw the frame on the canvas
     std::string c1_y_name = Form("c1_%s__fitvary_%s",outdir.c_str(),fitvary.c_str());
