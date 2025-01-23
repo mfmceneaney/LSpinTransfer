@@ -820,8 +820,8 @@ TArrayF* getKinBinAsymUBML1D(
 
     // Plot projection of fitted distribution in x.
     RooPlot *xframe = x->frame(RooFit::Title(Form("%s Projection, Bin: %s",fitvarxtitle.c_str(),bincut.c_str())));
-    bin_ds->plotOn(xframe);
-    gen->plotOn(xframe, RooFit::ProjWData(h, *bin_ds), RooFit::DataError(RooAbsData::SumW2));
+    bin_ds->plotOn(xframe, RooFit::DataError(RooAbsData::SumW2));
+    gen->plotOn(xframe, RooFit::ProjWData(h, *bin_ds));
 
     // Draw the frame on the canvas
     std::string c1_x_name = Form("c1_%s__fitvarx_%s",outdir.c_str(),fitvarx.c_str());
@@ -2016,8 +2016,8 @@ TArrayF* getKinBinAsymUBML2D(
 
     // Plot projection of fitted distribution in x.
     RooPlot *xframe = x->frame(RooFit::Title(Form("%s Projection, Bin: %s",fitvarxtitle.c_str(),bincut.c_str())));
-    bin_ds->plotOn(xframe);
-    gen->plotOn(xframe, RooFit::ProjWData(h, *bin_ds), RooFit::DataError(RooAbsData::SumW2));
+    bin_ds->plotOn(xframe, RooFit::DataError(RooAbsData::SumW2));
+    gen->plotOn(xframe, RooFit::ProjWData(h, *bin_ds));
 
     // Draw the frame on the canvas
     std::string c1_x_name = Form("c1_%s__fitvarx_%s",outdir.c_str(),fitvarx.c_str());
@@ -2029,8 +2029,8 @@ TArrayF* getKinBinAsymUBML2D(
 
     // Plot projection of fitted distribution in y.
     RooPlot *yframe = y->frame(RooFit::Title(Form("%s Projection, Bin: %s",fitvarytitle.c_str(),bincut.c_str())));
-    bin_ds->plotOn(yframe);
-    gen->plotOn(yframe, RooFit::ProjWData(h, *bin_ds), RooFit::DataError(RooAbsData::SumW2));
+    bin_ds->plotOn(yframe, RooFit::DataError(RooAbsData::SumW2));
+    gen->plotOn(yframe, RooFit::ProjWData(h, *bin_ds));
 
     // Draw the frame on the canvas
     std::string c1_y_name = Form("c1_%s__fitvary_%s",outdir.c_str(),fitvary.c_str());
