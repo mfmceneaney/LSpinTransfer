@@ -23,6 +23,7 @@
 // RooFit Includes
 #include <RooCategory.h>
 #include <RooRealVar.h>
+#include <RooFormulaVar.h>
 #include <RooProduct.h>
 #include <RooDataSet.h>
 #include <RooPlot.h>
@@ -818,10 +819,14 @@ TArrayF* getKinBinAsymUBML1D(
     std::cout << "covariance matrix" << std::endl;
     covMat.Print();
 
+    // Define the asymmetry as a function
+    RooFormulaVar f_asym("f_asym","Asymmetry function",Form("%.3f*%s",pol,fitformula.c_str()), *arglist);//NOTE: NEED TO CORRECT FOR POLARIZATION FACTOR.
+    int xbins = 16;//TODO: Make these into function arguments
+
     // Plot projection of fitted distribution in x.
-    RooPlot *xframe = x->frame(RooFit::Title(Form("%s Projection, Bin: %s",fitvarxtitle.c_str(),bincut.c_str())));
-    bin_ds->plotOn(xframe, RooFit::DataError(RooAbsData::SumW2));
-    gen->plotOn(xframe, RooFit::ProjWData(h, *bin_ds));
+    RooPlot *xframe = x->frame(RooFit::Bins(xbins), RooFit::Title(Form("%s Projection, Bin: %s",fitvarxtitle.c_str(),bincut.c_str())));
+    bin_ds->plotOn(xframe, RooFit::Asymmetry(h));
+    f_asym.plotOn(xframe, RooFit::LineColor(kRed));
 
     // Draw the frame on the canvas
     std::string c1_x_name = Form("c1_%s__fitvarx_%s",outdir.c_str(),fitvarx.c_str());
@@ -2014,10 +2019,15 @@ TArrayF* getKinBinAsymUBML2D(
     std::cout << "covariance matrix" << std::endl;
     covMat.Print();
 
+    // Define the asymmetry as a function
+    RooFormulaVar f_asym("f_asym","Asymmetry function",Form("%.3f*%s",pol,fitformula.c_str()), *arglist);//NOTE: NEED TO CORRECT FOR POLARIZATION FACTOR.
+    int xbins = 10;//TODO: Make these into function arguments
+    int ybins = 10;
+
     // Plot projection of fitted distribution in x.
-    RooPlot *xframe = x->frame(RooFit::Title(Form("%s Projection, Bin: %s",fitvarxtitle.c_str(),bincut.c_str())));
-    bin_ds->plotOn(xframe, RooFit::DataError(RooAbsData::SumW2));
-    gen->plotOn(xframe, RooFit::ProjWData(h, *bin_ds));
+    RooPlot *xframe = x->frame(RooFit::Bins(xbins), RooFit::Title(Form("%s Projection, Bin: %s",fitvarxtitle.c_str(),bincut.c_str())));
+    bin_ds->plotOn(xframe, RooFit::Asymmetry(h));
+    f_asym.plotOn(xframe, RooFit::LineColor(kRed));
 
     // Draw the frame on the canvas
     std::string c1_x_name = Form("c1_%s__fitvarx_%s",outdir.c_str(),fitvarx.c_str());
@@ -2028,9 +2038,9 @@ TArrayF* getKinBinAsymUBML2D(
     c1_x->Print(Form("%s.pdf",c1_x_name.c_str()));
 
     // Plot projection of fitted distribution in y.
-    RooPlot *yframe = y->frame(RooFit::Title(Form("%s Projection, Bin: %s",fitvarytitle.c_str(),bincut.c_str())));
-    bin_ds->plotOn(yframe, RooFit::DataError(RooAbsData::SumW2));
-    gen->plotOn(yframe, RooFit::ProjWData(h, *bin_ds));
+    RooPlot *yframe = y->frame(RooFit::Bins(ybins), RooFit::Title(Form("%s Projection, Bin: %s",fitvarytitle.c_str(),bincut.c_str())));
+    bin_ds->plotOn(yframe, RooFit::Asymmetry(h));
+    f_asym.plotOn(xframe, RooFit::LineColor(kRed));
 
     // Draw the frame on the canvas
     std::string c1_y_name = Form("c1_%s__fitvary_%s",outdir.c_str(),fitvary.c_str());
