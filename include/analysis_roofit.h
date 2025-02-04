@@ -55,6 +55,33 @@
 *              and SPlot methods for background correction.
 */
 
+// Define find and replace function following solution here: https://stackoverflow.com/questions/5878775/how-to-find-and-replace-string
+void replace_all(
+        std::string& s,
+        std::string const& toReplace,
+        std::string const& replaceWith
+    ) {
+    std::string buf;
+    std::size_t pos = 0;
+    std::size_t prevPos;
+
+    // Reserves rough estimate of final size of string.
+    buf.reserve(s.size());
+
+    while (true) {
+        prevPos = pos;
+        pos = s.find(toReplace, pos);
+        if (pos == std::string::npos)
+            break;
+        buf.append(s, prevPos, pos - prevPos);
+        buf += replaceWith;
+        pos += toReplace.size();
+    }
+
+    buf.append(s, prevPos, s.size() - prevPos);
+    s.swap(buf);
+}
+
 /**
 * Create an invariant and asymmetry fit data set and add to dataset along
 * with helicity, fit variable, and mass variable.
@@ -2049,6 +2076,48 @@ TArrayF* getKinBinAsymUBML2D(
     yframe->GetYaxis()->SetTitleOffset(1.4);
     yframe->Draw();
     c1_y->Print(Form("%s.pdf",c1_y_name.c_str()));
+
+    // Draw the 2D histogram
+    int nbins_x = 10; //TODO: Set these from function arguments
+    int nbins_y = 10;
+
+    // Split dataset into positive and negative helicity subsets
+    RooDataSet * bin_ds_pos = (RooDataSet*)bin_ds->reduce(Form("%s>0",h.GetName()));
+    RooDataSet * bin_ds_neg = (RooDataSet*)bin_ds->reduce(Form("%s<0",h.GetName()));
+
+    // Get x binnned histogram with positive helicity subset
+    std::unique_ptr<RooDataHist> dh_pos{bin_ds_pos->binnedClone()};
+    TH2D *h_pos = (TH2D*)dh_pos->createHistogram(Form("%s,%s",x->GetName(),y->GetName()),RooFit::Binning(nbins_x),RooFit::Binning(nbins_y));
+    h_pos->SetTitle("");
+
+    // Get x binnned histogram with negative helicity subset
+    std::unique_ptr<RooDataHist> dh_neg{bin_ds_neg->binnedClone()};
+    TH2D *h_neg = (TH2D*)dh_neg->createHistogram(Form("%s,%s",x->GetName(),y->GetName()),RooFit::Binning(nbins_x),RooFit::Binning(nbins_y));
+    h_neg->SetTitle("");
+
+    // Convert RooAbsPdf TFormula format to regular TF1 TFormula format
+    std::string f2_asym_formula = Form("%.3f*%s",pol,fitformula.c_str());
+    for (int idx=0; idx<(nparams+depolvars.size()); idx++) {
+        replace_all(f2_asym_formula, Form("x[%d]",idx+2), Form("x[%d]",idx)); // REPLACE ALL x[2->2+nparams+ndepols] with x[0->nparams+ndepols]
+    }
+    replace_all(f2_asym_formula, "x[0]", "x"); // REPLACE ALL x[0] with x
+    replace_all(f2_asym_formula, "x[1]", "y"); // REPLACE ALL x[1] with y
+
+    // Create asymmetry function
+    TF2 *f2_asym = new TF2("f2_asym",f2_asym_formula.c_str(),x->getMin(),x->getMax(),y->getMin(),y->getMax());
+    for (int aa=0; aa<nparams; aa++) { f2_asym->SetParameter(aa,a[aa]->getVal()); }
+    for (int dd=0; dd<depolvars.size(); dd++) {f2_asym->SetParameter(nparams+dd,depols[dd]); }//NOTE: Just plot with mean depolarization value
+
+    // Get asymmetry histogram
+    TH2D *h_asym = (TH2D*)h_pos->GetAsymmetry(h_neg);
+
+    // Plot asymmetry histogram and function
+    std::string c2_asym_name = Form("c2_asym_%s__fitvarx_%s__fitvary_%s",outdir.c_str(),fitvarx.c_str(),fitvary.c_str());
+    TCanvas *c2_asym = new TCanvas(c2_asym_name.c_str(), c2_asym_name.c_str());
+    c2_asym->cd();
+    h_asym->Draw("COLZ");
+    f2_asym->Draw("SAME");
+    c2_asym->Print(Form("%s.pdf",c2_asym_name.c_str()));
 
     // Get fit parameters
     std::vector<double> pars;
