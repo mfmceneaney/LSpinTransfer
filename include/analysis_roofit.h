@@ -751,7 +751,7 @@ TArrayF* getKinBinAsymUBML1D(
     RooDataSet *bin_ds = (RooDataSet*)ds->reduce(bincut.c_str());
 
     // Get count
-    auto count = (int) *binframe.Count();
+    auto count = (int)bin_ds->sumEntries();
    
     // Get bin variable means
     std::vector<double> binvar_means;
@@ -1950,7 +1950,7 @@ TArrayF* getKinBinAsymUBML2D(
     RooDataSet *bin_ds = (RooDataSet*)ds->reduce(bincut.c_str());
 
     // Get count
-    auto count = (int) *binframe.Count();
+    auto count = (int)bin_ds->sumEntries();
 
     // Get bin variable means
     std::vector<double> binvar_means;
