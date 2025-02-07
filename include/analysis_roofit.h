@@ -2683,7 +2683,7 @@ void getKinBinnedAsym2D(
 
         // Create dataset
         RooCategory h = createDataset2D(
-            frame,
+            binframe,
             ws,
             dataset_name,
             dataset_title,
