@@ -820,14 +820,15 @@ TArrayF* LambdaMassFitPoly4BG(
 
     // First figure out roughly where background maxes out
     double m0 = varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...
-
+    double fit_min = varMin;
     double true_prod_min = 1.078;
     double beta = 1/((true_prod_min-m0)*(true_prod_min-m0)*(true_prod_min-m0)*(true_prod_min-m0));
     double hmax = h->GetBinContent(nbins)/(1-beta*(varMax-m0)*(varMax-m0)*(varMax-m0)*(varMax-m0));
     out<<"DEBUGGING: true_prod_min = "<<true_prod_min<<std::endl;
     out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
     if (delVal<0.20) {
-      double prod_min = varMin - (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM                                                                                                                      
+      double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM //NOTE: ADD TO varMin INSTEAD OF SUBTRACTING AS OF 5/27/25
+      fit_min = prod_min; //NOTE: ADDED 5/27/25
       m0 = varMax*1.025;//DEBUGGING 4/22/24 varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...
       out<<"DEBUGGING: Reassigned m0 = "<<m0<<std::endl;
       beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
@@ -837,7 +838,7 @@ TArrayF* LambdaMassFitPoly4BG(
     }
 
     // Set intial signal parameters
-    double fit_min = varMin;
+    // double fit_min = varMin;
     double fit_max = varMax;
     double sigma_init = 0.006;
     double sig_max_init = h->GetMaximum()/4;
