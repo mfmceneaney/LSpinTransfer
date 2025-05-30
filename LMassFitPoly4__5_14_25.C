@@ -217,8 +217,8 @@ void LMassFitPoly4__5_14_25() {
 
     Double_t BinWidth = (varMax - varMin) / nbins;
 
-    LBInt = 1.11; //DEBUGGING
-    UBInt = 1.13;
+    LBInt = 1.1104; //DEBUGGING
+    UBInt = 1.12959;
 
     // Fit fn:
     out << "i_fitf" << std::endl;
