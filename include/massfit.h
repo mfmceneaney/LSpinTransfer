@@ -827,8 +827,9 @@ TArrayF* LambdaMassFitPoly4BG(
     out<<"DEBUGGING: true_prod_min = "<<true_prod_min<<std::endl;
     out<<"DEBUGGING: m0, beta, hmax = "<<m0<<" , "<<beta<<" , "<<hmax<<std::endl;
     if (delVal<0.20) {
-      double prod_min = varMin + (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM //NOTE: ADD TO varMin INSTEAD OF SUBTRACTING AS OF 5/27/25
-      fit_min = prod_min; //NOTE: ADDED 5/27/25
+      double prod_min = varMin - (varMax-varMin)*0.0625; //BRING UP PRODUCTION MINIMUM
+      if (delVal<0.10) prod_min = varMin + (varMax-varMin)*0.0625;
+      fit_min = prod_min;//NOTE: ADDED 5/23/25
       m0 = varMax*1.025;//DEBUGGING 4/22/24 varMax*1.2;//COMMENTED OUT FOR DEBUGGING: HIGH Y BIN: varMax; and replaced with 1.25...
       out<<"DEBUGGING: Reassigned m0 = "<<m0<<std::endl;
       beta = 1/((prod_min-m0)*(prod_min-m0)*(prod_min-m0)*(prod_min-m0));
