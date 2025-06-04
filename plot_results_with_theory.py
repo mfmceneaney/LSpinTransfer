@@ -119,7 +119,7 @@ if __name__=="__main__":
     title = 'Longitudinal Spin Transfer along $P_{\Lambda}$' if fitvar=='costheta1' else 'Longitudinal Spin Transfer along $P_{\gamma^{*}}$'
 
     # Set data paths and load
-    inpath = "/Users/mfm45/drop/results_LSpinTransfer/csv/aggregate___binvar_"+xvar+"__fitvar_"+fitvar+"__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
+    inpath = "/Users/mfm45/drop/results_momc__5_30_25/csv/aggregate___binvar_"+xvar+"__fitvar_"+fitvar+"__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
     arr = np.loadtxt(inpath,delimiter=",",skiprows=1)
     x_mean = arr[:,1]
     y_mean = arr[:,2]
