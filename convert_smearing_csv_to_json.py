@@ -1,5 +1,5 @@
 import os
-import csv
+import pandas as pd
 import json
 
 # Set particle names and PIDs
@@ -31,7 +31,7 @@ for pname in pnames:
     dphi_sigma_key = f"dphi_{pname}_sigma"
 
     # Get PID
-    pid = pnames[pname]
+    pid = int(pnames[pname])
 
     # Initialize nested dicts
     result["mombinlims"][pid] = {}
@@ -40,27 +40,28 @@ for pname in pnames:
     result["phi"][pid] = {}
 
     # Open the CSV
-    with open(filename, newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            binid = row[binid_key]
-            bin_min = float(row[mom_min_key])
-            bin_max = float(row[mom_max_key])
+    df = pd.read_csv(filename)
+    for row_idx in range(len(df)):
+        row = df.iloc[row_idx]
+        binid = int(row.loc[binid_key])
+        print("DEBUGGING: type(binid) = ",type(binid))
+        bin_min = float(row.loc[mom_min_key])
+        bin_max = float(row.loc[mom_max_key])
 
-            # Store momentum bin limits
-            result["mombinlims"][pid][binid] = [bin_min, bin_max]
+        # Store momentum bin limits
+        result["mombinlims"][pid][binid] = [bin_min, bin_max]
 
-            # Store mom, theta, phi as [mean, resolution]
-            result["mom"][pid][binid] = [
-                float(row[dmom_mean_key]), float(row[dmom_sigma_key])
-            ]
-            result["theta"][pid][binid] = [
-                float(row[dtheta_mean_key]), float(row[dtheta_sigma_key])
-            ]
-            result["phi"][pid][binid] = [
-                float(row[dphi_mean_key]), float(row[dphi_sigma_key])
-            ]
+        # Store mom, theta, phi as [mean, resolution]
+        result["mom"][pid][binid] = [
+            float(row.loc[dmom_mean_key]), float(row.loc[dmom_sigma_key])
+        ]
+        result["theta"][pid][binid] = [
+            float(row.loc[dtheta_mean_key]), float(row.loc[dtheta_sigma_key])
+        ]
+        result["phi"][pid][binid] = [
+            float(row.loc[dphi_mean_key]), float(row.loc[dphi_sigma_key])
+        ]
 
-# Output to JSON
+# Output to JSON #NOTE: JSON ONLY ALLOWS STRINGS AS KEYS. EVEN THOUGH THERE ARE INTEGER KEYS HERE, YOU WILL NEED TO CORRECTLY CONVERT THESE WHEN LOADING IN JAVA.
 with open("output.json", "w") as jsonfile:
     json.dump(result, jsonfile, indent=2)
