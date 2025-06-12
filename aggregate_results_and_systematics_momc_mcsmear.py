@@ -893,7 +893,7 @@ if __name__=="__main__":
                 results_mcsmear,
                 bin_migration_mat=None,#bin_migration_mat,
                 bin_migration_order=1,
-                systematic_scales_mat=systematic_scales_mat_mcsmear,
+                systematic_scales_mat=systematic_scales_mat,
                 systematics_additive_mat=None,
             )
             print("DEBUGGING: AFTER: systematic_scales_mat_mcsmear = ",systematic_scales_mat_mcsmear)
