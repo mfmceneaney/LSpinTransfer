@@ -151,7 +151,7 @@ clas12_files = {
 }
 
 # Set CLAS12 input directory
-clas12_dir = '/Users/mfm45/drop/results_momc__5_30_25/csv/'
+clas12_dir = '/Users/mfm45/drop/results_momc__6_24_25/csv/'
 
 # Create list of full paths for CLAS12
 clas12_files = {key:os.path.join(clas12_dir,clas12_files[key]) for key in clas12_files}
