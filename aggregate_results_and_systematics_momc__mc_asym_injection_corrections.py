@@ -583,14 +583,14 @@ def get_plots(
 
     #TODO: DEBUGGING MESSAGE FOR BINS SEE IF SOMETHING GETS MESSED UP THERE AND MAKE SURE YOU ARE SETTING CORRECTLY...
     #s1 = plt.hist(x_mean, weights=yerr_syst, bins=xbins, color='gray', alpha=0.5, label='Systematic Error') #NOTE: THAT HISTOGRAM X DATA SHOULD JUST USE BIN X MEANS SO THAT EACH BIN GETS ONE ENTRY AND THEN YOU CAN SCALE APPROPRIATELY WITH THE WEIGHTS ARGUMENT.
-    g1 = plt.errorbar(x_mean,y_mean,xerr=None,yerr=yerr_syst,
-                ecolor='gray', elinewidth=elinewidth*20, capsize=0,
-                color=color, marker='o', linestyle=linestyle, alpha=1.0,
-                linewidth=0, markersize=0,label='Systematic error of $D_{LL\'}^{\Lambda}$')
+    # g1 = plt.errorbar(x_mean,y_mean,xerr=None,yerr=yerr_syst,
+    #             ecolor='gray', elinewidth=elinewidth*20, capsize=0,
+    #             color=color, marker='o', linestyle=linestyle, alpha=1.0,
+    #             linewidth=0, markersize=0,label='Systematic error of $D_{LL\'}^{\Lambda}$')
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='$D_{LL\'}^{\Lambda}$')
+                        linewidth=linewidth, markersize=markersize,label='$\\Delta D_{LL\'}^{\Lambda}$')
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
     # plt.text(0.5, 0.5, 'CLAS12 Preliminary',
@@ -938,8 +938,8 @@ if __name__=="__main__":
 
             get_plots(
                 **arrs,
-                xerr_syst = xerr_syst,
-                yerr_syst = yerr_syst,
+                xerr_syst = None, #xerr_syst,
+                yerr_syst = None, #yerr_syst,
                 xlims   = xlimss[binvar],
                 ylims   = ylimss,
                 title   = titles[fitvar],
