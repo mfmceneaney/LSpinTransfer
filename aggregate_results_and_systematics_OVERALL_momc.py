@@ -801,8 +801,9 @@ if __name__=="__main__":
             print("\n\nDEBUGGING: cos_phi_h_ppim_systematic = ",cos_phi_h_ppim_systematic,"\n\n") #TODO: ADD THIS TO THE SYSTEMATIC ERROR ADDITIVE MAT BELOW AND THE SUMMARY PLOTS.
             #----------------------------------------------------------------------------------------------------#
 
-            # # Apply MC corrections
-            # arrs['y_mean'] += y_corrections_mc_asym_injection
+            # Apply MC corrections
+            y_corrections_mc_asym_injection = np.multiply(y_corrections_mc_asym_injection/sgasym,arrs['y_mean'])
+            arrs['y_mean'] -= y_corrections_mc_asym_injection
 
             # Compute systematics
             alpha_lambda_systematic = 0.0120

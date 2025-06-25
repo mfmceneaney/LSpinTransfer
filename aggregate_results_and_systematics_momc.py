@@ -839,7 +839,8 @@ if __name__=="__main__":
             #----------------------------------------------------------------------------------------------------#
 
             # Apply MC corrections
-            arrs['y_mean'] += y_corrections_mc_asym_injection
+            y_corrections_mc_asym_injection = np.multiply(y_corrections_mc_asym_injection/sgasym,arrs['y_mean'])
+            arrs['y_mean'] -= y_corrections_mc_asym_injection
 
             # Compute systematics
             alpha_lambda_systematic = 0.0120
