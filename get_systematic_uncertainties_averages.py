@@ -5,10 +5,16 @@ import sys
 
 # Set systematic uncertainties column names
 col_names = ["alphalambda", "beam", "inj", "fit", "cosphi"]
-col_name_latex_labels = ["$\\Lambda$ Decay Asymmetry Parameter $\\alpha_{\\Lambda}$", "Beam Polarization $\\overline{P^2_B}$", "MC Asymmetry Injection", "Mass Fit", "$\\cos{\phi_\Lambda}$ Effects"]
+col_name_latex_labels = [
+    "Decay Parameter $\\alpha_{\\Lambda}$",
+    "Beam Polarization $\\overline{\\lambda^2_{\\ell}}$",
+    "MC Injection",
+    "Mass Fit",
+    "$\\cos{\\phi_\\Lambda}$ Effects"
+]
 
 # Set paths
-base_dir = "/Users/mfm45/Downloads/LSpinTransfer_PRD_2024-10/tables/systematics/breakdown/"
+base_dir = "/Users/mfm45/Downloads/LSpinTransfer_PRD_2024-11/tables/systematics/breakdown/"
 paths1 = [
     "aggregate___binvar_z_ppim__fitvar_costheta1__method_HB__z_ppim_0.0_1.0__systematics.pdf.csv",
     # "aggregate___binvar_z_ppim__fitvar_costheta2__method_HB__z_ppim_0.0_1.0__systematics.pdf.csv",
