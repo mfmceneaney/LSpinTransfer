@@ -529,7 +529,7 @@ if __name__=="__main__":
 
     # Create job submission structure
     methods = {"method":["BSA"]} #"BSA2D"
-    fitvars = {"fitvar":["sin_phi_rt_pipim_sin_theta_p1_pipim"]}  #"sin_dphi_pipim_sin_phi_rt_pipim"
+    fitvars = {"fitvar":["sin_phi_h_pi"]}  #"sin_dphi_pipim_sin_phi_rt_pipim"
     asyms   = [0.00, 0.01]  #[-0.1, -0.01, 0.00, 0.01, 0.1] #NOTE: ONLY USE ZERO ASYMMETRY TO START AND SO YOU DON'T HAVE TO WORRY ABOUT SELECTING CORRECT SGASYM/BGASYM COMBO [-0.1, -0.01, 0.00, 0.01, 0.1]
     sgasym  = [0.10]
     bgasym  = [0.00]
@@ -543,7 +543,7 @@ if __name__=="__main__":
     # -> e.g., loop keys if key is aggregate run aggregation otherwise you're creating a new file each time...
 
     # Results file paths and config
-    base_dir    = "results_pippimdihadronbsaanalysis_mc_asym_injection_rgh_neutron_target__4_19_24/" #NOTE: DON'T FORGET ABOUT NOSECTOR4 SCENARIO
+    base_dir    = "results_pipbsaanalysis_mc_asym_injection_rgh_neutron_target_noSector4__4_19_24/" #NOTE: DON'T FORGET ABOUT NOSECTOR4 SCENARIO
     alternate_rg = 'rgc'
     base_dir_csv_input = base_dir.replace('rgh',alternate_rg).replace('_noSector4','')#NOTE: ADDED 4/29/24
     output_dir_rga_data = base_dir.replace('_noSector4','').replace('mc_asym_injection','counts_mc').replace('rgh',alternate_rg).replace('mc','data')+"method_BSA/"
@@ -582,7 +582,7 @@ if __name__=="__main__":
                         **kwargs
                         ):
         method = 'BSA' #'BSA2D'
-        fitvar='sin_phi_rt_pipim_sin_theta_p1_pipim' #'sin_dphi_pipim_sin_phi_rt_pipim' 
+        fitvar='sin_phi_h_pi' #'sin_dphi_pipim_sin_phi_rt_pipim' 
         return method+'_'+fitvar+('_mc' if use_mc else '')+'_'+xvar+f'_{xvar_min:.3f}_{xvar_max:.3f}_'+asym_name+'.root'
 
     # NOW AGGREGATE RESULTS FOR DIFFERENT SEEDS...
@@ -595,17 +595,17 @@ if __name__=="__main__":
     # Get list of directories across which to aggregate
     aggregate_keys = ["inject_seed"] #NOTE: COMMENTED OUT FOR TESTING
     var_lims = {
-        #'Q2':[1.0,11.0], #[1.3,11.0],
+        'Q2':[1.3,11.0],
         #'W':[2.0,5.0],
         #'y':[0.0,0.8],
-        'x':[0.0,1.0], #[0.090,0.7],
-        'z_pipim':[0.0,1.0],#[0.150,0.7],
+        'x':[0.090,0.7],
+        'z_pi':[0.150,0.7],
         #'xF_pipim':[0.0,1.0],
-        #'phperp_pipim':[0.0,1.0],
+        'phperp_pi':[0.0,1.0],
         #'xF_pi':[-1.0,1.0],
         #'zeta_pi':[0.0,1.0],
         # 'phperp_pi':[0.0,1.0],
-        'mass_pipim':[0.0,3.0],
+        #'mass_pipim':[0.0,3.0],
         # 'z_pim':[0.0,1.0],
         # 'xF_pim':[-1.0,1.0],
         # 'zeta_pim':[0.0,1.0],
@@ -678,8 +678,7 @@ if __name__=="__main__":
         'phperp_pipim':'$P^{\perp}_{\pi^{+}\pi^{-}}$',
     }
     ytitles = {
-        'A0':'$\mathcal{A}_{UT}^{\sin{\phi_{R_{T}}}\sin{\theta}}$',
-        'A1':'$\mathcal{A}_{UT}^{\sin{\phi_{R_{T}}}}$',
+        'A0':'$\mathcal{A}_{UT}$',
     }
 
     def get_outpath(base_dir,aggregate_keys,asym_name,**config):
@@ -718,7 +717,7 @@ if __name__=="__main__":
             rgh_mc_counts   = n_inject_seeds*get_data_from_tgrapherror(inpath_rgh_mc)[1] #NOTE: DOUBLE CHECK THIS..........................................................................................................
             print("DEBUGGING: rgh_mc_counts = ",rgh_mc_counts)
             binvar = config['binvar'] #NOTE: VARIABLE IN WHICH THE BINNING IS DONE
-            fitvar = 'sin_dphi_pipim_sin_phi_rt_pipim' #config['fitvar'] #NOTE: VARIABLE FOR COS THETA
+            fitvar = 'sin_phi_h_pi' #config['fitvar'] #NOTE: VARIABLE FOR COS THETA
             print("DEBUGGING: binvar = ",binvar)
             print("DEBUGGING: ylimss = ",ylimss)
             get_plots(

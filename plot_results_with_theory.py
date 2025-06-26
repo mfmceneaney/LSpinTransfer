@@ -36,11 +36,11 @@ def get_plots(
 
     # Set font sizes
     plt.rc('font', size=25) #controls default text size
-    plt.rc('axes', titlesize=50) #fontsize of the title
-    plt.rc('axes', labelsize=50) #fontsize of the x and y labels
+    plt.rc('axes', titlesize=60) #fontsize of the title
+    plt.rc('axes', labelsize=75) #fontsize of the x and y labels
     plt.rc('xtick', labelsize=25) #fontsize of the x tick labels
     plt.rc('ytick', labelsize=25) #fontsize of the y tick labels
-    plt.rc('legend', fontsize=20) #fontsize of the legend
+    plt.rc('legend', fontsize=22) #fontsize of the legend
 
     # Get some nicer plot settings
     plt.rcParams['font.family'] = 'serif'
@@ -87,21 +87,21 @@ def get_plots(
 
     #TODO: DEBUGGING MESSAGE FOR BINS SEE IF SOMETHING GETS MESSED UP THERE AND MAKE SURE YOU ARE SETTING CORRECTLY...
     # s1 = plt.hist(x_mean, weights=yerr_syst, bins=xbins, color='gray', alpha=0.5, label='Systematic Error') #NOTE: THAT HISTOGRAM X DATA SHOULD JUST USE BIN X MEANS SO THAT EACH BIN GETS ONE ENTRY AND THEN YOU CAN SCALE APPROPRIATELY WITH THE WEIGHTS ARGUMENT.
+    plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
+    ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
+    g3 = plt.plot(x_theory_cfr,y_theory_cfr,color='tab:red',linestyle=':',linewidth=5,label='Theory predictions CFR')
+    g4 = plt.plot(x_theory_tfrcfr,y_theory_tfrcfr,color='tab:red',linestyle='-',linewidth=5,label='Theory predictions CFR+TFR')
     g1 = plt.errorbar(x_mean,y_mean,xerr=None,yerr=yerr_syst,
                 ecolor='gray', elinewidth=elinewidth*20, capsize=0,
-                color=color, marker='o', linestyle=linestyle, alpha=0.5,
+                color=color, marker='o', linestyle=linestyle, alpha=1.0,
                 linewidth=0, markersize=0,label='Systematic error of $D_{LL\'}^{\Lambda}$')
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
                         linewidth=linewidth, markersize=markersize,label=ytitle)
-    g3 = plt.plot(x_theory_cfr,y_theory_cfr,color='tab:red',linestyle='--',label='Theory predictions CFR')
-    g4 = plt.plot(x_theory_tfrcfr,y_theory_tfrcfr,color='tab:red',linestyle='-',label='Theory predictions CFR+TFR')
-    plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
-    ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
-    plt.text(0.5, 0.5, 'CLAS12 Preliminary',
-            size=50, rotation=25., color='gray', alpha=0.25,
-            horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
+    # plt.text(0.5, 0.5, 'CLAS12 Preliminary',
+    #         size=50, rotation=25., color='gray', alpha=0.25,
+    #         horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
     plt.legend(loc='best')
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
@@ -114,12 +114,12 @@ if __name__=="__main__":
     xvar = "xF_ppim"
     xtitle = '$x_{F p\pi^{-}}$'
 
-    fitvar = 'costheta1'
+    fitvar = 'costheta2'
     color = 'blue' if fitvar=='costheta1' else 'red'
     title = 'Longitudinal Spin Transfer along $P_{\Lambda}$' if fitvar=='costheta1' else 'Longitudinal Spin Transfer along $P_{\gamma^{*}}$'
 
     # Set data paths and load
-    inpath = "/Users/mfm45/drop/results_and_systematics__9_30_24/results/csv/aggregate___binvar_"+xvar+"__fitvar_"+fitvar+"__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
+    inpath = "/Users/mfm45/drop/results_momc__6_24_25/csv/aggregate___binvar_"+xvar+"__fitvar_"+fitvar+"__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
     arr = np.loadtxt(inpath,delimiter=",",skiprows=1)
     x_mean = arr[:,1]
     y_mean = arr[:,2]
@@ -128,7 +128,7 @@ if __name__=="__main__":
     xerr_syst = arr[:,5]
     yerr_syst = arr[:,6]
 
-    inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results/aggregate___binvar_"+xvar+"__fitvar_costheta1__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
+    inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results__v11_13_24/aggregate___binvar_"+xvar+"__fitvar_costheta1__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
     arr_binned = np.loadtxt(inpath,delimiter=",",skiprows=1)
     # x_mean = arr_binned[:,1]
     # y_mean = arr_binned[:,2]
@@ -148,18 +148,19 @@ if __name__=="__main__":
     print("DEBUGGING: xerr_syst = ",xerr_syst)
     print("DEBUGGING: yerr_syst = ",yerr_syst)
 
-    theory_cfr_inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results/CLAS_"+xvar.replace("_ppim","")+"_CFR.dat"
-    arr_theory_cfr = np.loadtxt(theory_cfr_inpath, delimiter="\t", skiprows=0)
+    theory_cfr_inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results__v11_13_24/CLAS_"+xvar.replace("_ppim","")+"_CFR.dat"
+    print("DEBUGGING: loading theory_cfr_inpath = ",theory_cfr_inpath)#DEBUGGING
+    arr_theory_cfr = np.loadtxt(theory_cfr_inpath, delimiter=",", skiprows=0)
     x_theory_cfr = arr_theory_cfr[:,0]
     y_theory_cfr = arr_theory_cfr[:,1]
 
-    theory_tfrcfr_inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results/CLAS_"+xvar.replace("_ppim","")+"_TFRandCFR.dat"
-    arr_theory_tfrcfr = np.loadtxt(theory_tfrcfr_inpath, delimiter="\t", skiprows=0)
+    theory_tfrcfr_inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results__v11_13_24/CLAS_"+xvar.replace("_ppim","")+"_CFRandTFR.dat"
+    arr_theory_tfrcfr = np.loadtxt(theory_tfrcfr_inpath, delimiter=",", skiprows=0)
     x_theory_tfrcfr = arr_theory_tfrcfr[:,0]
     y_theory_tfrcfr = arr_theory_tfrcfr[:,1]
 
     # Set yaml path and load
-    yaml_path = "/Users/mfm45/drop/results__4_17_24/args.yaml"
+    yaml_path = "/Users/mfm45/drop/results_LSpinTransfer/args.yaml"
     yaml_args = {}
     with open(yaml_path) as f:
         yaml_args = yaml.safe_load(f)

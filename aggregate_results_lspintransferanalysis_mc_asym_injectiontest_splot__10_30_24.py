@@ -65,9 +65,6 @@ def get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_
     # Create map of elements of elements of divisions and combine completely into each other for one list
     data_list = get_list(divisions,aggregate_keys=aggregate_keys)
 
-    print("DEBUGGING: data_list = ",data_list)
-    # sys.exit(0)
-
     # List for each job directory name
     out_file_list = [] # -> {"outdirs":[], "aggregate_keys":{}, "data_list":{}, "file_list":{}}
 
@@ -96,9 +93,10 @@ def get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_
                     data_list_i_val[key] = value
 
                     # Get job directory and output file name
-                    job_dir = os.path.join(base_dir,"__".join(["_".join([key,"_".join([str(ele) for ele in data_list_i_val[key]]) if type(data_list_i_val[key])==list else str(data_list_i_val[key]) ]) for key in sorted(data_list_i_val)]))  #os.path.join(base_dir,"__".join(["_".join([key,str(data_list_i_val[key])]) for key in sorted(data_list_i_val)]))
+                    job_dir = os.path.join(base_dir,"__".join(["_".join([key,"_".join([str(ele) for ele in data_list_i_val[key]]) if type(data_list_i_val[key])==list else str(data_list_i_val[key]) ]) for key in sorted(data_list_i_val)]))  #job_dir = os.path.join(base_dir,"__".join(["_".join([key,str(data_list_i_val[key])]) for key in sorted(data_list_i_val)]))
                     job_dir = os.path.abspath(job_dir) #NOTE: Since dictionary is not copied this should just edit the original entry in data_list.
-                    out_file_name = get_out_file_name(use_mc=use_mc,xvar=xvar,xvar_min=xvar_min,xvar_max=xvar_max,asym_name=asym_name,**data_list_i)
+                    fitvar = data_list_i['fitvar1'] #NOTE: TODO: GET CORRECT FIT VARIABLE NAME
+                    out_file_name = get_out_file_name(fitvar=fitvar,use_mc=use_mc,xvar=xvar,xvar_min=xvar_min,xvar_max=xvar_max,asym_name=asym_name,**data_list_i)
                     out_file_name = os.path.join(job_dir,out_file_name)
                     print("DEBUGGING: job_dir = ",job_dir)#DEBGGING
                     print("DEBUGGING: out_file_name = ",out_file_name)#DEBGGING
@@ -253,6 +251,7 @@ def get_arrs(out_file_list,sgasym):
     yerr_mean = np.sqrt(np.mean(np.square(glist[3]),axis=0))
     y_min      = np.min(glist[1],axis=0)
     y_max      = np.max(glist[1],axis=0)
+    y_std      = np.std(glist[1],axis=0)
     ydiff_mean = np.mean(glist[1]-sgasym,axis=0)
     ydiff_std  = np.std(glist[3]-sgasym,axis=0)
     ydiff_mins = np.min(glist[1]-sgasym,axis=0)
@@ -265,24 +264,12 @@ def get_arrs(out_file_list,sgasym):
             'yerr_mean':yerr_mean,
             'y_min':y_min,
             'y_max':y_max,
+            'y_std':y_std,
             'ydiff_mean':ydiff_mean,
             'ydiff_std':ydiff_std,
             'ydiff_mins':ydiff_mins,
             'ydiff_maxs':ydiff_maxs,
             }
-
-def get_csv_data(filename,delimiter=','):
-
-    # Read column names and data from file
-    colnames = np.loadtxt(filename,delimiter=delimiter,max_rows=1,dtype=str)
-    data = np.loadtxt(filename,delimiter=delimiter,skiprows=1)
-
-    # Create dictionary of column names to binned arrays
-    datadict = {}
-    for i, colname in enumerate(colnames):
-        datadict[colname] = data[:,i]
-
-    return datadict
 
 def get_plots(
     x_mean = [],
@@ -291,6 +278,7 @@ def get_plots(
     yerr_mean = [],
     y_min = [],
     y_max = [],
+    y_std = [],
     ydiff_mean = [],
     ydiff_std = [],
     ydiff_mins = [],
@@ -305,14 +293,9 @@ def get_plots(
     color  = 'blue', #NOTE: COLOR OF DATA POINTS
     bcolor = 'gray', #NOTE:
     outpath = 'out.pdf',
-    csvpath = 'in.csv',
-    rga_data_counts = [],
-    rga_mc_counts = [],
-    rgh_mc_counts = [],
     verbose = True,
     keeper = [],
     config = {},
-    alternate_rg = 'rgc',
     ):
 
     # Set font sizes
@@ -339,7 +322,7 @@ def get_plots(
     gridlinewidth=0.5
     axlinewidth=1
 
-    # Plot
+    # Plot 
     figsize = (16,10)
     f1, ax1 = plt.subplots(figsize=figsize)
     plt.xlim(*xlims)
@@ -348,10 +331,11 @@ def get_plots(
     plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
     #fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
+    fb = plt.fill_between(x_mean, np.add(y_mean,y_std), np.add(y_mean,-y_std), alpha=0.2, label='$\pm1\sigma$ Band', color=bcolor)
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='Mean Asymmetry')
+                        linewidth=linewidth, markersize=markersize,label='Mean $D_{LL\'}^{\Lambda}$')
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     if sgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
     ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth, label='Injected Signal Asymmetry')
@@ -359,69 +343,6 @@ def get_plots(
     plt.legend(loc='best')
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
-
-    # Compute and plot ratio to csvpath data #TODO.....................................................................................................................................
-    data_csv = get_csv_data(csvpath)
-    x_ratio = x_mean #NOTE: KEEP ORIGINAL X
-    x_ratio_err = xerr_mean #NOTE: KEEP ORIGINAL X
-    y_ratio = np.divide(y_mean,data_csv['y'])
-    y_ratio_err = np.abs(np.divide(y_mean,data_csv['y'])) * np.sqrt(np.square(yerr_mean/data_csv['y'])+np.square(y_mean*data_csv['yerr']/np.square(data_csv['y']))) #NOTE: THESE ARE JUST HERE FOR CONVENIENCE, THEY ARE NOT ACTUALLY THE CORRECT UNCERTAINTIES FOR THESE POINTS.
-    figsize = (16,10)
-    f1, ax1 = plt.subplots(figsize=figsize)
-    plt.xlim(*xlims)
-    # plt.ylim(*(0.0,2.5))
-    plt.title(title,usetex=True)
-    plt.xlabel(xtitle,usetex=True)
-    plt.ylabel(ytitle,usetex=True)
-    #fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
-    g2 = plt.errorbar(x_ratio,y_ratio,xerr=x_ratio_err,yerr=y_ratio_err,
-                        ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
-                        color=color, marker='o', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='Mean Asymmetry')
-    plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
-    if sgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
-    ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth, label='Injected Signal Asymmetry')
-    if bgasym!=0: ax1.axhline(bgasym, color='blue',linestyle='--',linewidth=axlinewidth, label='Injected Background Asymmetry')
-    plt.legend(loc='best')
-    print("DEBUGGING: plt.savefig(outpath) -> ",outpath.replace('.pdf','_ratio.pdf'))
-    f1.savefig(outpath.replace('.pdf','_ratio.pdf'))
-
-    # Compute and plot rescaled uncertainties data #TODO.....................................................................................................................................
-    # rga_data_counts  #TODO: LOAD THIS FROM ROOT!!! get_data_from_tgrapherror(rga_data_path)
-    # n_inject_seeds  = 16
-    # rga_mc_counts   *= n_inject_seeds #TODO: LOAD THIS FROM ROOT!!! get_data_from_tgrapherror(rga_mc_path)
-    y_ratio_v2_err = np.divide(yerr_mean,data_csv['yerr'])
-    #TODO: ADD IN RGC CONVERSION FACTOR FROM RGC PROPOSAL
-    rgh_data_counts = rga_data_counts * 1/np.square(y_ratio_v2_err) * 100/16* 5/80 * 3/17#NOTE: IMPORTANT!!! THIS IS ONLY A VALID CONVERSIONN FACTOR FOR RGA NOT RGC!!!  #NOTE: UNCERTAINTIES SCALE LIKE 1/SQRT(N) SO y_ratio_err \propto SQRT(N_ACC_RGA/N_ACC_RGH) = data_counts * acceptance_ratio * 100days/16days * (5x10^33 cm^-2/s) /(0.8x10^35 cm^-2/s) * dilution_factor
-    #alternate_rg = 'rga' #NOTE: NOW DEFINED ABOVE AS FUNCTION PARAMETER
-    print("-------------------------------------------------------------------> ALTERNATE RG = ",alternate_rg,"<-------------------------------------------------------")#DEBUGGING
-    if alternate_rg == 'rgc':
-        rgh_data_counts = rga_data_counts * 1/np.square(y_ratio_v2_err) * 25/16.3 * 5/17 * np.square(3/20) #NOTE: COMMENTED OUT:  * (0.20) within np.square()  #NOTE: IMPORTANT!!! THIS IS ONLY  A VALID CONVERSION FACTOR FOR RGC!
-        rgh_data_counts /= (12.112/9.818) # */ (integrated_xs_rgh_mc/integrated_xs_rgc_mc) #NOTE: THE /= is important because the acceptance is N_events per unit AREA #NOTE: OLD AS OF 10/21/24: /= (1.48/1.09)
-    # rgh_mc_counts   *= n_inject_seeds #TODO: LOAD THIS FROM ROOT!!! get_data_from_tgrapherror(rgh_mc_path)
-    x_rescaled      = x_mean #NOTE: KEEP ORIGINAL X
-    x_rescaled_err  = xerr_mean #NOTE: KEEP ORIGINAL X
-    y_rescaled      = y_mean
-    y_rescaled_err  = yerr_mean * np.sqrt(rgh_mc_counts/rgh_data_counts)
-    figsize = (16,10)
-    f1, ax1 = plt.subplots(figsize=figsize)
-    plt.xlim(*xlims)
-    plt.ylim(*ylims)
-    plt.title(title,usetex=True)
-    plt.xlabel(xtitle,usetex=True)
-    plt.ylabel(ytitle,usetex=True)
-    #fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
-    g2 = plt.errorbar(x_rescaled,y_rescaled,xerr=x_rescaled_err,yerr=y_rescaled_err,
-                        ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
-                        color=color, marker='o', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='Mean Asymmetry')
-    plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
-    if sgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
-    ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth, label='Injected Signal Asymmetry')
-    if bgasym!=0: ax1.axhline(bgasym, color='blue',linestyle='--',linewidth=axlinewidth, label='Injected Background Asymmetry')
-    plt.legend(loc='best')
-    print("DEBUGGING: plt.savefig(outpath) -> ",outpath.replace('.pdf','_rescaled.pdf'))
-    f1.savefig(outpath.replace('.pdf','_rescaled.pdf'))
 
     # Compute group values
     y_mean_overall = np.mean(y_mean)
@@ -450,63 +371,6 @@ def get_plots(
         comments=comments
         )
 
-    # Save ratios to csv
-    convert_graph_to_csv(
-        outpath+'_ratio.csv',
-        x_ratio,
-        y_ratio,
-        xerr=x_ratio_err,
-        yerr=y_ratio_err,
-        mins=y_min,
-        maxs=y_max,
-        delimiter=delimiter,
-        header=header,
-        fmt=fmt,
-        comments=comments
-        )
-
-    # Save rescaled to csv
-    convert_graph_to_csv(
-        outpath+'_rescaled.csv',
-        x_rescaled,
-        y_rescaled,
-        xerr=x_rescaled_err,
-        yerr=y_rescaled_err,
-        mins=y_min,
-        maxs=y_max,
-        delimiter=delimiter,
-        header=header,
-        fmt=fmt,
-        comments=comments
-        )
-
-    # Save rescaling info to csv
-    acceptance_ratio_rgh_over_rga = 1/np.square(y_ratio_v2_err)
-    scale_factor = 1/np.square(y_ratio_v2_err) * 100/16 * 5/80 * 3/17 #NOTE: FOR RGA
-    if alternate_rg == 'rgc':
-        acceptance_ratio_rgh_over_rga /= (12.112/9.818) #NOTE: OLD AS OF 10/21/24: /= (1.48/1.09) #NOTE: SCALE BY CROSS SECTION RATIO FOR RGC
-        scale_factor = 1/np.square(y_ratio_v2_err) * 25/16.3 * 5/17 * np.square(3/20) #NOTE: COMMENTED OUT:  * (0.20) within np.square() #NOTE: FOR RGC #NOTE: AS OF 10/21/24 NO DILUTION FACTOR HERE SINCE RGC ALSO HAS NH3 TARGET
-        print("DEBUGGING: scale_factor BEFORE = ",scale_factor)
-        scale_factor /= (12.112/9.818) #NOTE: OLD AS OF 10/22/24: /= (1.48/1.09) # /= (integrated_xs_rgh_mc/integrated_xs_rgc_mc)
-    print("DEBUGGING: acceptance_ratio_rgh_over_rga = ",acceptance_ratio_rgh_over_rga)
-    print("DEBUGGING: scale_factor = ",scale_factor)
-    header2 = delimiter.join(["bin","acceptanceratio","statisticsscalefactor","rghstatistics","rgcstatistics","x","xerr"])
-    fmt2    = ["%d","%.3g","%.3g","%.3g","%.3g","%.3g","%.3g"]
-    print("DEBUGGING: saving file to: ",outpath+'_rescaling_info.csv')#DEBUGGING
-    convert_graph_to_csv(
-        outpath+'_rescaling_info.csv',
-        acceptance_ratio_rgh_over_rga,
-        scale_factor,
-        xerr=rgh_data_counts,
-        yerr=np.array([rga_data_counts for i in range(len(scale_factor))],dtype=float) if type(rga_data_counts)==int else rga_data_counts,
-        mins=x_mean,
-        maxs=xerr_mean,
-        delimiter=delimiter,
-        header=header2,
-        fmt=fmt2,
-        comments=comments
-        )
-
     # Save systematics info to csv
     print("DEBUGGING: sanity check: y_mean-sgasym = ",y_mean-sgasym)
     print("DEBUGGING: sanity check: ydiff_mean    = ",ydiff_mean)
@@ -528,13 +392,28 @@ def get_plots(
 if __name__=="__main__":
 
     # Create job submission structure
-    methods = {"method":["BSA"]} #"BSA2D"
-    fitvars = {"fitvar":["sin_phi_rt_pipim_sin_theta_p1_pipim"]}  #"sin_dphi_pipim_sin_phi_rt_pipim"
-    asyms   = [0.00, 0.01]  #[-0.1, -0.01, 0.00, 0.01, 0.1] #NOTE: ONLY USE ZERO ASYMMETRY TO START AND SO YOU DON'T HAVE TO WORRY ABOUT SELECTING CORRECT SGASYM/BGASYM COMBO [-0.1, -0.01, 0.00, 0.01, 0.1]
-    sgasym  = [0.10]
-    bgasym  = [0.00]
-    sgasyms = {"sgasyms":[[a] for a in sgasym]}
-    bgasyms = {"bgasyms":[[a] for a in bgasym]}
+    #methods = {"method":["HB","LF"]}
+    #fitvars = {"fitvar":["costhetaT"]}
+    #sgasyms = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
+    #bgasyms = {"bgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
+    """
+    methods = {"method":["HB","LF"]}
+    fitvars = {"fitvar":["costhetaTy"]}
+    sgasyms = {"sgasym":[0.0, 0.01, 0.1]}
+    sgasyms2 = {"sgasym2":[0.0]}
+    sgasyms3 = {"sgasym3":[0.0, 0.01, 0.1]}
+    bgasyms = {"bgasym":[0.0]}
+    bgasyms2 = {"bgasym2":[0.0]}
+    bgasyms3 = {"bgasym3":[0.0]}
+    """
+    methods = {"method":["BSA1D"]}
+    fitvars = {"fitvar1":["costheta1","costheta2"]}
+    sgasym  = {"sgasym":[-0.2, -0.1, -0.01, 0.00, 0.01, 0.1, 0.2]}
+    sgasyms = {"sgasyms":[[s1] for s1 in sgasym["sgasym"] ]}
+    print("DEBUGGING: sgasyms = ",sgasyms)
+    bgasym  = {"bgasym":[0.00]}
+    bgasyms = {"bgasyms":[[b1] for b1 in bgasym["bgasym"] ]}
+    print("DEEBUGGING: bgasyms = ",bgasyms)
     seeds   = {"inject_seed":[2**i for i in range(16)]}
     use_mc  = False #NOTE: WHETHER TO APPEND '_mc' to fitvar in get_out_file_name
 
@@ -543,23 +422,17 @@ if __name__=="__main__":
     # -> e.g., loop keys if key is aggregate run aggregation otherwise you're creating a new file each time...
 
     # Results file paths and config
-    base_dir    = "results_pippimdihadronbsaanalysis_mc_asym_injection_rgh_neutron_target__4_19_24/" #NOTE: DON'T FORGET ABOUT NOSECTOR4 SCENARIO
-    alternate_rg = 'rgc'
-    base_dir_csv_input = base_dir.replace('rgh',alternate_rg).replace('_noSector4','')#NOTE: ADDED 4/29/24
-    output_dir_rga_data = base_dir.replace('_noSector4','').replace('mc_asym_injection','counts_mc').replace('rgh',alternate_rg).replace('mc','data')+"method_BSA/"
-    output_dir_rga_mc   = base_dir.replace('_noSector4','').replace('mc_asym_injection','counts_mc').replace('rgh',alternate_rg)+"method_BSA/"
-    output_dir_rgh_mc   = base_dir.replace('mc_asym_injection','counts_mc')+"method_BSA/"
+    base_dir    = "results_lspintransferanalysis_mc_asym_injectiontest_splot__11_11_24/"
     submit_path = base_dir+"submit.sh"
     yaml_path   = base_dir+"args.yaml"
     out_path    = base_dir+"jobs.txt"
     divisions = dict(
-        # methods,
-        # **fitvars,
-        sgasyms,
-        #**bgasyms,
+        methods,
+        **fitvars,
+        **sgasyms,
+        **bgasyms,
         **seeds,
     )
-    print("DEBUGGING: divisions = ",divisions)
 
     xlims = (0.0,1.0)
     xvar_name = "\\Delta\\phi"
@@ -577,12 +450,14 @@ if __name__=="__main__":
                         xvar='xvar',
                         xvar_min=0.000,
                         xvar_max=1.000,
-                        asym_name="A0",
+                        sgasym=0.10,
+                        bgasym=0.00,
+                        asym_name='A0',
                         use_mc=False,
                         **kwargs
                         ):
-        method = 'BSA' #'BSA2D'
-        fitvar='sin_phi_rt_pipim_sin_theta_p1_pipim' #'sin_dphi_pipim_sin_phi_rt_pipim' 
+        #fitvar = "costheta1" #NOTE: DEBUGGING: 7/25/24 CHANGED THIS BACK FOR 1D CASE 10/11/24
+        print("DEBUGGING: fitvar = ",fitvar)
         return method+'_'+fitvar+('_mc' if use_mc else '')+'_'+xvar+f'_{xvar_min:.3f}_{xvar_max:.3f}_'+asym_name+'.root'
 
     # NOW AGGREGATE RESULTS FOR DIFFERENT SEEDS...
@@ -593,28 +468,19 @@ if __name__=="__main__":
     # -> Plot and output to csv
 
     # Get list of directories across which to aggregate
-    aggregate_keys = ["inject_seed"] #NOTE: COMMENTED OUT FOR TESTING
+    aggregate_keys = ["inject_seed"]
     var_lims = {
-        #'Q2':[1.0,11.0], #[1.3,11.0],
-        #'W':[2.0,5.0],
-        #'y':[0.0,0.8],
-        'x':[0.0,1.0], #[0.090,0.7],
-        'z_pipim':[0.0,1.0],#[0.150,0.7],
-        #'xF_pipim':[0.0,1.0],
-        #'phperp_pipim':[0.0,1.0],
-        #'xF_pi':[-1.0,1.0],
-        #'zeta_pi':[0.0,1.0],
-        # 'phperp_pi':[0.0,1.0],
-        'mass_pipim':[0.0,3.0],
-        # 'z_pim':[0.0,1.0],
-        # 'xF_pim':[-1.0,1.0],
-        # 'zeta_pim':[0.0,1.0],
-        # 'phperp_pim':[0.0,1.0],
+        #'mass_ppim':[1.08,1.24],
+        'Q2':[1.0,11.0],
+        'W':[2.0,5.0],
+        'x':[0.0,1.0],
+        'xF_ppim':[0.0,1.0],
+        'y':[0.0,0.8],
+        'z_ppim':[0.0,1.0],
     }
     asym_name = "A0"
+    sgasym_idx = 0 #NOTE: CHANGE THESE TOGETHER!!!
     out_file_list = get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_file_name,use_mc,aggregate_keys,asym_name)
-    print("DEBUGGING: out_file_list = ",out_file_list)
-
     # return [[filename for values in aggregate_keys] for combinations in divisions[~aggregate_keys]+var_lims]
     #NOTE: THAT var_lims keys will be added to divisions
     # 2 get list calls one with aggregate keys and then the rest of the keys as aggregate keys
@@ -629,57 +495,40 @@ if __name__=="__main__":
     #DEBUGGING: END
 
     xlimss = {
+        'mass_ppim':[1.08,1.24],
         'Q2':[1.0,11.0],
-        'W':[2.0,4.5],
-        'y':[0.0,0.8],
+        'W':[2.0,5.0],
         'x':[0.0,1.0],
-        'z_pi':[0.0,1.0],
-        'xF_pi':[-1.0,1.0],
-        'zeta_pi':[0.0,1.0],
-        'phperp_pi':[0,1.0],
-        'z_pim':[0.0,1.0],
-        'xF_pim':[-1.0,1.0],
-        'zeta_pim':[0.0,1.0],
-        'phperp_pim':[0,1.0],
-        'z_pipim':[0,1.0],
-        'xF_pipim':[0,1.0],
-        'phperp_pipim':[0,1.0],
-        'mass_pipim':[0,1.0],
+        'xF_ppim':[0.0,1.0],
+        'y':[0.0,1.0],
+        'z_ppim':[0.0,1.1],
     }
-    ylimss = [-0.10,0.30]
+    ylimss = [-0.5,0.5]
     titles = {
-        'sin_phi_rt_pipim_sin_theta_p1_pipim':'$\pi^{+}\pi^{-}$ TSSA',
-        'sin_dphi_pipim_sin_phi_rt_pipim':'$\pi^{+}\pi^{-}$ TSSA',
-        'sin_phi_h_pi':'$\pi^{+}$ TSSA',
-        'sin_phi_h_pim':'$\pi^{-}$ TSSA',
+        'costheta1':'Spin Transfer along $P_{\Lambda}$',
+        'costheta2':'Spin Transfer along $P_{\gamma^{*}}$',
+        'costhetaT':'Transverse $\Lambda$ Polarization',
+        'costhetaTy':'Transverse $\Lambda$ Polarization $\hat{y}$',
     }
     colors = {
-        'sin_phi_rt_pipim_sin_theta_p1_pipim':'blue',
-        'sin_dphi_pipim_sin_phi_rt_pipim':'blue',
-        'sin_phi_h_pi':'blue', #TODO
-        'sin_phi_h_pim':'red', #TODO
+        'costheta1':'blue',
+        'costheta2':'red',
+        'costhetaT':'blue',
+        'costhetaTy':'blue',
     }
     xtitles = {
-        'Q2':'$Q^{2}$ (GeV$^{2}$)',
-        'W':'$W$ (GeV)',
-        'y':'$y$',
+        'mass_ppim':'$M_{p\pi^{-}}$ (GeV)',
+        'Q2':'$Q^{2}$',
+        'W':'$W$',
         'x':'$x$',
-        'z_pi':'$z_{\pi^{+}}$',
-        'xF_pi':'$x_{F p\pi^{+}}$',
-        'zeta_pi':'$\zeta_{\pi^{+}}$',
-        'phperp_pi':'$P^{\perp}_{\pi^{-}}$',  #TODO: UPDATE THESE TO BE FORMED DYNAMICALLY FROM CHOSEN SUBSCRIPTS AND PARTICLE LABELS.
-        'z_pim':'$z_{\pi^{-}}$',
-        'xF_pim':'$x_{F p\pi^{-}}$',
-        'zeta_pim':'$\zeta_{\pi^{-}}$',
-        'phperp_pim':'$P^{\perp}_{\pi^{-}}$',
-        'z_pipim':'$z_{\pi^{+}\pi^{-}}$',
-        'xF_pipim':'$x_{F \pi^{+}\pi^{-}}$',
-        'mass_pipim':'$M_{\pi^{+}\pi^{-}}$',
-        'phperp_pipim':'$P^{\perp}_{\pi^{+}\pi^{-}}$',
+        'xF_ppim':'$x_{F p\pi^{-}}$',
+        'y':'$y$',
+        'z_ppim':'$z_{p\pi^{-}}$',
     }
     ytitles = {
-        'A0':'$\mathcal{A}_{UT}^{\sin{\phi_{R_{T}}}\sin{\theta}}$',
-        'A1':'$\mathcal{A}_{UT}^{\sin{\phi_{R_{T}}}}$',
+        'A0':'$\mathcal{A}_{LUT}^{\cos{\phi_{\Lambda}-\phi_{S_{\Lambda}}}}$',
+        'A1':'$\mathcal{A}_{LUT}^{\cos{\phi_{S_{\Lambda}}}}$',
+        'A2':'$\mathcal{A}_{LUT}^{\cos{2\phi_{\Lambda}-\phi_{S_{\Lambda}}}}$',
     }
 
     def get_outpath(base_dir,aggregate_keys,asym_name,**config):
@@ -690,8 +539,8 @@ if __name__=="__main__":
         outpath = os.path.abspath(os.path.join(base_dir,job_config_name))
 
         return outpath
-    sgasym_idx = 0
-    def apply_get_plots(out_file_list,get_outpath,get_plots,base_dir='',base_dir_csv_input='',output_dir_rga_data='',output_dir_rga_mc='',output_dir_rgh_mc='',xlimss={},ylims=[0.0,1.0],titles={},xtitles={},ytitle='',verbose=True,aggregate_keys={},colors={},sgasyms=sgasyms,asym_name=asym_name,alternate_rg=alternate_rg): 
+    #sgasym_idx = 1 #NOTE: UPDATED: CHANGE THIS ABOVE!!! #NOTE: THIS IS DIFFERENT FOR ALUT AND LSPINTRANSFER
+    def apply_get_plots(out_file_list,get_outpath,get_plots,base_dir='',xlimss={},ylims=[0.0,1.0],titles={},xtitles={},ytitle='',verbose=True,aggregate_keys={},colors={},sgasyms=sgasyms,asym_name=asym_name): 
         #TODO: PREPROCESSOR: GET STRUCTURE OF DICTIONARY TO MODIFY
         keeper = [] #NOTE: JUST PUT IN {'config':config, 'chi2':chi2, 'data':[x,y,xerr,yerr,xerr_syst,yerr_syst]}
         for el in out_file_list:
@@ -701,24 +550,9 @@ if __name__=="__main__":
             print("DEBUGGING: file_list = ",el["file_list"])#DEBUGGING
             arrs = get_arrs(file_list,config['sgasyms'][sgasym_idx])
             outpath = get_outpath(base_dir,aggregate_keys,asym_name,**config)
-            csvpath = get_outpath(base_dir_csv_input,aggregate_keys,asym_name,**config)+'.csv'
             print("DEBUGGING: outpath = ",outpath)
-            print("DEBUGGING: csvpath = ",csvpath)
-            n_inject_seeds = 16 #NOTE: SET THIS MANUALLY DEBUGGING 4/29/24
-            inpath_rga_data = os.path.join(output_dir_rga_data,os.path.basename(file_list[0])).replace('_A1','_A0')
-            print("DEBUGGING: inpath_rga_data -> ",inpath_rga_data)
-            rga_data_counts = get_data_from_tgrapherror(inpath_rga_data)[1] #NOTE: DOUBLE CHECK THIS..........................................................................................................
-            print("DEBUGGING: rga_data_counts = ",rga_data_counts)
-            inpath_rga_mc   = os.path.join(output_dir_rga_mc,os.path.basename(file_list[0])).replace('_A1','_A0')
-            print("DEBUGGING: inpath_rga_mc -> ",inpath_rga_mc)
-            rga_mc_counts   = n_inject_seeds*get_data_from_tgrapherror(inpath_rga_mc)[1] #NOTE: DOUBLE CHECK THIS..........................................................................................................
-            print("DEBUGGING: rga_mc_counts = ",rga_mc_counts)
-            inpath_rgh_mc   = os.path.join(output_dir_rgh_mc,os.path.basename(file_list[0])).replace('_A1','_A0')
-            print("DEBUGGING: inpath_rgh_mc -> ",inpath_rgh_mc)
-            rgh_mc_counts   = n_inject_seeds*get_data_from_tgrapherror(inpath_rgh_mc)[1] #NOTE: DOUBLE CHECK THIS..........................................................................................................
-            print("DEBUGGING: rgh_mc_counts = ",rgh_mc_counts)
             binvar = config['binvar'] #NOTE: VARIABLE IN WHICH THE BINNING IS DONE
-            fitvar = 'sin_dphi_pipim_sin_phi_rt_pipim' #config['fitvar'] #NOTE: VARIABLE FOR COS THETA
+            fitvar = config['fitvar1'] #NOTE: VARIABLE FOR COS THETA
             print("DEBUGGING: binvar = ",binvar)
             print("DEBUGGING: ylimss = ",ylimss)
             get_plots(
@@ -733,15 +567,10 @@ if __name__=="__main__":
                 color   = colors[fitvar],
                 outpath = outpath,
                 verbose = verbose,
-                csvpath = csvpath,
-                rga_data_counts = rga_data_counts,
-                rga_mc_counts = rga_mc_counts,
-                rgh_mc_counts = rgh_mc_counts,
                 keeper  = keeper,
                 config  = config, #NOTE: FOR ADDING ENTRIES TO KEEPER
-                alternate_rg = alternate_rg,
             )
-        return #DEBUGGING FOR NOW
+        return #NOTE: DEBUGGING FOR NOW
         def get_tables(_keeper,_config_keys,_row_key,_col_key,_row_map,_col_map,_table_shape,row_header_key=''):
             offset = 0
             if row_header_key != '':
@@ -766,13 +595,13 @@ if __name__=="__main__":
             tables = [[key,tables[key]] for key in tables]
             return tables
 
-        config_keys = ['method','fitvar','bgasyms']
-        col_key, row_key  = ['binvar','sgasyms']
+        config_keys = ['method','fitvar','bgasym']
+        col_key, row_key  = ['binvar','sgasym']
         col_map = {el:i for i, el in enumerate(xtitles.keys())}
-        row_map = {el:i for i, el in enumerate(sgasyms['sgasym'][sgasym_idx])}
+        row_map = {el:i for i, el in enumerate(sgasyms['sgasym'])}
         nitems = 4 # y, yerr, chi, systematic
-        table_shape = [len(sgasyms['sgasyms']),len(xtitles.keys()),nitems] #NOTE: DIM = (NROWS,NCOLUMNS,NITEMS) #NOTE: ALSO THIS NEEDS TO BE A LIST NOT A TUPLE.
-        row_header_key = 'sgasyms'
+        table_shape = [len(sgasyms['sgasym']),len(xtitles.keys()),nitems] #NOTE: DIM = (NROWS,NCOLUMNS,NITEMS) #NOTE: ALSO THIS NEEDS TO BE A LIST NOT A TUPLE.
+        row_header_key = 'sgasym'
         tables = get_tables(keeper,config_keys,row_key,col_key,row_map,col_map,table_shape,row_header_key=row_header_key)
 
         #TODO: PREPROCESSOR: GET STRUCTURE OF DICTIONARY TO MODIFY
@@ -897,31 +726,31 @@ if __name__=="__main__":
 
         return
 
-    apply_get_plots(out_file_list,get_outpath,get_plots,base_dir=base_dir,base_dir_csv_input=base_dir_csv_input,output_dir_rga_data=output_dir_rga_data,output_dir_rga_mc=output_dir_rga_mc,output_dir_rgh_mc=output_dir_rgh_mc,xlimss=xlimss,ylims=ylims,titles=titles,xtitles=xtitles,ytitle=ytitles[asym_name],verbose=True,aggregate_keys=aggregate_keys,colors=colors,asym_name=asym_name,alternate_rg=alternate_rg)
+    apply_get_plots(out_file_list,get_outpath,get_plots,base_dir=base_dir,xlimss=xlimss,ylims=ylims,titles=titles,xtitles=xtitles,ytitle=ytitles[asym_name],verbose=True,aggregate_keys=aggregate_keys,colors=colors,asym_name=asym_name)
 
     #TODO: POSTPROCESSOR: GET CSV FILES FROM MODIFIED DICTIONARY
 
 
-    # # NOW YOU CAN LOOP OUTPUT FILE ABSOLUTE PATHS AND CREATE YOUR DATASET
-    # # Loop ROOT files and read graphs from TGraphErrors appending to graph_list
-    # # Now have (nGraphs,4->x,y,ex,ey,nbins (not necessarily all the same...)) dimensional list
-    # # Convert to numpy and do your operations
+    # NOW YOU CAN LOOP OUTPUT FILE ABSOLUTE PATHS AND CREATE YOUR DATASET
+    # Loop ROOT files and read graphs from TGraphErrors appending to graph_list
+    # Now have (nGraphs,4->x,y,ex,ey,nbins (not necessarily all the same...)) dimensional list
+    # Convert to numpy and do your operations
+    """
+    my_args = {
+        'method':'HB',
+        'fitvar':'costheta1',
+        'xvar':'Q2',
+        'xvar_min': 1.0,
+        'xvar_max':11.0,
+        'sgasym':0.10,
+        'bgasym':0.00
+    }
+    my_name = get_out_file_name(**my_args)
+    print()
+    print("DEBUGGING: my_args = ",my_args)
+    print("DEBUGGING: my_name = ",my_name)
+    sys.exit(0)
 
-    # my_args = {
-    #     'method':'HB',
-    #     'fitvar':'costheta1',
-    #     'xvar':'Q2',
-    #     'xvar_min': 1.0,
-    #     'xvar_max':11.0,
-    #     'sgasym':0.10,
-    #     'bgasym':0.00
-    # }
-    # my_name = get_out_file_name(**my_args)
-    # print()
-    # print("DEBUGGING: my_args = ",my_args)
-    # print("DEBUGGING: my_name = ",my_name)
-    # sys.exit(0)
-
-    # get_plots(out_file_list,xbins,ybins,xvar_name,yvar_name,outpath)
-
-    # if verbose: plt.show()
+    get_plots(out_file_list,xbins,ybins,xvar_name,yvar_name,outpath)
+    """
+    #if verbose: plt.show()

@@ -16,26 +16,25 @@ print('infiles = ',infiles)
 
 # Set input scaling info files
 asymname = 'A0' #'A1'
+particle_name = 'pi' #'pim'
+version = '11_20_24'
+run_group = 'rgc'
+neutron_target_name = '_neutron_target'
+noSector4_name = '_noSector4'
+use22GeV_name = ''#'_22GeV'
+
+
 inscalingfiles = [
-    'aggregate_inject_seed__binvar_mass_pipim__mass_pipim_0.0_3.0__sgasyms_0.1'+asymname+'.pdf_rescaling_info.csv', #NOTE: DON'T FORGET TO UPDATE SGASYM VALUE HERE
+    'aggregate_inject_seed__binvar_phperp_'+particle_name+'__phperp_'+particle_name+'_0.0_1.0__sgasyms_0.1'+asymname+'.pdf_rescaling_info.csv', #NOTE: DON'T FORGET TO UPDATE SGASYM VALUE HERE
     #'aggregate_inject_seed__binvar_z_pipim__sgasyms_0.0__z_pipim_0.15_0.7'+asymname+'.pdf_rescaling_info.csv',
-    'aggregate_inject_seed__binvar_z_pipim__sgasyms_0.1__z_pipim_0.0_1.0'+asymname+'.pdf_rescaling_info.csv',
+    'aggregate_inject_seed__binvar_z_'+particle_name+'__sgasyms_0.1__z_'+particle_name+'_0.0_1.0'+asymname+'.pdf_rescaling_info.csv',
     'aggregate_inject_seed__binvar_x__sgasyms_0.1__x_0.0_1.0'+asymname+'.pdf_rescaling_info.csv',
     # 'aggregate_inject_seed__binvar_x__sgasyms_0.0__x_0.09_0.7'+asymname+'.pdf_rescaling_info.csv',
     # 'aggregate_inject_seed__binvar_x__sgasyms_0.0__x_0.09_0.7'+asymname+'.pdf_rescaling_info.csv',
 ]
-#RGA
-version = '10_22_24' #'7_16_24' #'7_15_24' #'7_3_24' #'6_18_24' #'5_13_24'#'5_10_24'#'5_3_24'#'5_2_24' #'4_30_24'
-# # inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh__4_19_24__PLOTS_AND_TABLES_'+version+'/csv/'
-# inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh_noSector4__4_19_24__PLOTS_AND_TABLES_'+version+'/csv/'
 
 #RGC
-run_group = 'rgc'
-neutron_target_name = ''#'_neutron_target'
-noSector4_name = '_noSector4'
-# inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh__4_19_24__PLOTS_AND_TABLES_RGC_'+version+'/csv/'
-# inscalingdir = '/Users/mfm45/drop/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh_noSector4__4_19_24__PLOTS_AND_TABLES_'+run_group+'_'+version+'/csv/'
-inscalingdir = '/Users/mfm45/drop/rgh_projections_10_22_24/results_pippimdihadronbsaanalysis_mc_asym_injection_rgh'+neutron_target_name+noSector4_name+'__4_19_24__PLOTS_AND_TABLES__'+version+'/csv/'
+inscalingdir = '/Users/mfm45/drop/rgh_projections_pipm_'+version+'/results_'+particle_name+('p' if particle_name=='pi' else  '')+'bsaanalysis_mc_asym_injection_rgh'+use22GeV_name+neutron_target_name+noSector4_name+'__4_19_24__PLOTS_AND_TABLES__'+version+'/csv/'
 
 # Check input directories for Sector4 and RGC/RGA designations
 useRGC = 'rgc' in inscalingdir
@@ -46,12 +45,12 @@ inscalingfiles = [os.path.join(inscalingdir,f) for f in inscalingfiles]
 print('inscalingfiles = ',inscalingfiles)
 
 # Load yaml file with bins
-input_yaml = '/Users/mfm45/drop/args_scaling_10_22_24.yaml'
+input_yaml = '/Users/mfm45/drop/rgh_projections_pipm_'+version+'/args_'+particle_name+'.yaml'
 yaml_path = os.path.abspath(input_yaml) #NOTE: THIS ASSUMES BINNING SAME FOR BOTH CT1/CT2
 yaml_args = {}
 with open(yaml_path) as yf:
     yaml_args = yaml.safe_load(yf)
-
+print("DEBUGGING: yaml_path = ",yaml_path)
 print("DEBUGGING: yaml_args = ",yaml_args)
 # sys.exit(0)
 
@@ -63,32 +62,39 @@ fracs_old = {}
 fracs = {}
 
 xvar_labels = {
-    'mass_pipim': '$M_{\pi^{+}\pi^{-}}$ (GeV)',
-    'z_pipim': '$z_{\pi^{+}\pi^{-}}$',
+    'phperp_pi': '$P^{\perp}_{\pi^{+}}$ (GeV)',
+    'z_pi': '$z_{\pi^{+}}$',
+    'phperp_pim': '$P^{\perp}_{\pi^{-}}$ (GeV)',
+    'z_pim': '$z_{\pi^{-}}$',
     'x': '$x$',
 }
 
 ylabels = {
-    'A0':'$\mathcal{A}_{UT}^{\sin{\phi_{R_{T}}}\sin{\\theta}}$',
-	'A1':'$\mathcal{A}_{UT}^{\sin{\phi_{R_{T}}}}$',
+    'A0':'$\mathcal{A}_{UT}^{\sin{\phi_{h}}}$',
 }
+
+acolss = [
+    ['phperp_'+particle_name,'error'],
+    ['z_'+particle_name,'error'],
+    ['x','error']
+]
 
 # Loop files and scale
 skiprows = 1
 delimiter = ','
 scale_factor_index = 3 #NOTE: SHOULD BE BIN,ACCEPTANCERATIO,STATISTICSSCALEFACTOR,RGHSTATISTICS,RGCSTATISTICS,X,XERR
-for i, name in enumerate(infiles):
+for i, name in enumerate(inscalingfiles):
     
     # Load input file
-    acols = np.loadtxt(name,max_rows=1,delimiter=delimiter,dtype=str)
-    a     = np.loadtxt(name,skiprows=skiprows,delimiter=delimiter)
-    print('name    = ',name)
-    print('i       = ',i)
-    print('acols   = ',acols)
-    print('a       = ',a)
-    print('a.shape = ',a.shape)
-    a1 = a[:,1]
-    a_old = a.copy()
+    acols = acolss[i]#np.loadtxt(name,max_rows=1,delimiter=delimiter,dtype=str)
+    # a     = np.loadtxt(name,skiprows=skiprows,delimiter=delimiter)
+    # print('name    = ',name)
+    # print('i       = ',i)
+    # print('acols   = ',acols)
+    # print('a       = ',a)
+    # print('a.shape = ',a.shape)
+    # a1 = a[:,1]
+    # a_old = a.copy()
 
     # Load scaling file
     name2 = inscalingfiles[i] #NOTE: THESE MUST MATCH UP EXACTLY
@@ -128,11 +134,11 @@ for i, name in enumerate(infiles):
     print("DEBUGGING: b1_   = ",b1_)
     print("DEBUGGING: b1    = ",b1)
     print("DEBUGGING: 1/np.sqrt(b1_) = ",1/np.sqrt(b1_))
-    print("DEBUGGING: a     = ",a)
-    print("DEBUGGING: a_old = ",a_old)
+    # print("DEBUGGING: a     = ",a)
+    # print("DEBUGGING: a_old = ",a_old)
 
     # Save scaled data
-    outname = name.replace('.csv','_rescaled_'+run_group+neutron_target_name+noSector4_name+'.csv')
+    outname = os.path.basename(name).replace('.csv','_rescaled_'+run_group+use22GeV_name+neutron_target_name+noSector4_name+'_'+version+'.csv').replace('aggregate',particle_name)
     header  = "REPLACEMENT_HEADER"+delimiter.join(acols)
     print('header = ',delimiter.join(acols))
     fmt     = ["%.3g" for i in range(len(acols))]
@@ -170,11 +176,11 @@ for i, name in enumerate(infiles):
         ax1.set_ylabel(ylabels[asymname],usetex=True) #'$\mathcal{A}^{\sin{\phi_{R_{T}}}}_{UT}$'
         # if acols[0] == 'z_ppim': #NOTE: NOT SURE WHY THIS IS HERE????
         #     a = a[:-1]
-        print("DEBUGGING: a_old = ",a_old)
-        print("DEBUGGING: a     = ",a)
-        g1 = ax1.errorbar(a_old[:,0],[asym for el in a_old[:,0]],a_old[:,1], fmt='rv', linewidth=2, capsize=6, label='Old RGH Projections')
-        yoffset = 0.05
-        g2 = ax1.errorbar(a[:,0],[asym-yoffset for el in a[:,0]],a[:,1], fmt='bv', linewidth=2, capsize=6,label='Updated RGH $NH_{3}$ projections' if len(neutron_target_name)<=0 else 'Updated RGH $ND_{3}$ projections')
+        # print("DEBUGGING: a_old = ",a_old)
+        # print("DEBUGGING: a     = ",a)
+        # g1 = ax1.errorbar(a_old[:,0],[asym for el in a_old[:,0]],a_old[:,1], fmt='rv', linewidth=2, capsize=6, label='Old RGH Projections')
+        yoffset = 0.00
+        g2 = ax1.errorbar(a[:,0],[asym-yoffset for el in a[:,0]],a[:,1], fmt='bv', linewidth=2, capsize=6,label='RGH $NH_{3}$ projections' if len(neutron_target_name)<=0 else 'Updated RGH $ND_{3}$ projections')
         ax1.set_xlabel(xvar_labels[acols[0]],usetex=True)
         plt.legend(loc='upper left') #NOTE: CALL BEFORE TWINNING AXIS
 
@@ -186,7 +192,7 @@ for i, name in enumerate(infiles):
 
 
         # Load ROOT histogram of RGH MC distribution
-        h_root_path = '/Users/mfm45/drop/getStatistics__10_22_24/getStatistics'+neutron_target_name+'/' #root_files_5_1_24/'
+        h_root_path = '/Users/mfm45/drop/rgh_projections_pipm_'+version+'/getStatistics_pippim'+use22GeV_name+neutron_target_name+'/' #root_files_5_1_24/'
         h_path = h_root_path+'h1_rgh_mc'+neutron_target_name+'_'+acols[0]+'.root'
         print("DEBUGGING: RGH MC: h_path = ",h_path)
         h_file = ur.open(h_path)
@@ -195,7 +201,7 @@ for i, name in enumerate(infiles):
         h_y, h_bins    = h_file[h_key].to_numpy() #NOTE: THIS SHOULD GIVE TUPLE (Y,X)
         h_x = [(h_bins[i]+h_bins[i+1])/2 for i in range(len(h_bins)-1)]
         ax2.set_ylim(*(0.0,0.05)) #NOTE: MAY NEED TO ADJUST...DYNAMIC WAY TO SET???
-        h_rgh_mc = ax2.hist(h_x,bins=h_bins,weights=h_y/np.sum(h_y),histtype='step',color='tab:orange',alpha=0.5,linewidth=2,label='RGH MC',density=False)
+        h_rgh_mc = ax2.hist(h_x,bins=h_bins,weights=h_y/np.sum(h_y),histtype='step',color='tab:orange',alpha=0.5,linewidth=2,label='RGH MC   ('+('22.0' if len(use22GeV_name)>0 else '10.6')+'GeV)',density=False)
 
         # Load ROOT histogram of RGH MC distribution
         h_path = h_root_path+'h1_rgc_mc'+neutron_target_name+'_'+acols[0]+'.root'
@@ -205,7 +211,7 @@ for i, name in enumerate(infiles):
         h_y, h_bins    = h_file[h_key].to_numpy() #NOTE: THIS SHOULD GIVE TUPLE (Y,X)
         h_x = [(h_bins[i]+h_bins[i+1])/2 for i in range(len(h_bins)-1)]
         ax2.set_ylim(*(0.0,0.05)) #NOTE: MAY NEED TO ADJUST...DYNAMIC WAY TO SET???
-        h_rgc_mc = ax2.hist(h_x,bins=h_bins,weights=h_y/np.sum(h_y),histtype='step',color='tab:pink',alpha=0.5,linewidth=2,label='RGC MC',density=False)
+        h_rgc_mc = ax2.hist(h_x,bins=h_bins,weights=h_y/np.sum(h_y),histtype='step',color='tab:pink',alpha=0.5,linewidth=2,label='RGC MC   ('+('22.0' if len(use22GeV_name)>0 else '10.6')+'GeV)',density=False)
 
         # Load ROOT histogram of RGA Data distribution
         h_path = h_root_path+'h1_rgc_dt'+neutron_target_name+'_'+acols[0]+'.root'
@@ -215,7 +221,7 @@ for i, name in enumerate(infiles):
         h_y, h_bins    = h_file[h_key].to_numpy() #NOTE: THIS SHOULD GIVE TUPLE (Y,X)
         h_x = [(h_bins[i]+h_bins[i+1])/2 for i in range(len(h_bins)-1)]
         ax2.set_ylim(*(0.0,0.05)) #NOTE: MAY NEED TO ADJUST...DYNAMIC WAY TO SET???
-        h_rgc_data = ax2.hist(h_x,bins=h_bins,weights=h_y/np.sum(h_y),histtype='step',color='tab:blue',alpha=0.5,linewidth=2,label='RGC Data',density=False)
+        h_rgc_data = ax2.hist(h_x,bins=h_bins,weights=h_y/np.sum(h_y),histtype='step',color='tab:blue',alpha=0.5,linewidth=2,label='RGC Data (10.6GeV)',density=False)
 
         plt.legend(loc='upper right')
 
@@ -263,7 +269,7 @@ for i, name in enumerate(infiles):
         # ax1.legend(lns, labs, loc='best')
 
 
-    if i!=3 or True: f.savefig(outname.replace('.csv','.pdf').replace('harut','dihadron'))
+    if i!=3 or True: f.savefig(outname.replace('.csv','.pdf').replace('aggregate',particle_name))
 
 
     # #---------- TODO ----------#

@@ -217,6 +217,43 @@ def convert_graph_to_csv(
     with open(filename, 'w') as file:
         file.write(filedata)
 
+def convert_systematics_to_csv(
+    filename,
+    x,
+    xerr=None,
+    yerrs_syst=None, #NOTE: shape = (nBins,nSystematics)
+    delimiter=",",
+    header=None,
+    fmt=None,
+    comments='',
+    ):
+
+    data = []
+    if xerr is None or len(xerr)==0: xerr = [0.0 for el in x]
+    if yerrs_syst is None or len(yerrs_syst)==0: yerrs_syst = [[0.0] for el in x]
+    for i, el in enumerate(x):
+        data.append([i, x[i], xerr[i], *yerrs_syst[i]])
+
+    data = np.array(data)
+
+    print("DEBUGGING: np.shape(data) = ",np.shape(data))
+    print("DEBUGGING: np.shape(fmt) = ",np.shape(fmt))#DEBUGGING
+
+    header = "REPLACEMENT_HEADER"+header
+
+    np.savetxt(filename, data, header=header, delimiter=delimiter, fmt=fmt)
+
+    # Read in the file
+    with open(filename, 'r') as file:
+        filedata = file.read()
+
+    # Replace the target string
+    filedata = filedata.replace('# REPLACEMENT_HEADER', '')
+
+    # Write the file out again
+    with open(filename, 'w') as file:
+        file.write(filedata)
+
 def get_data_from_tgrapherror(
     path = 'HB_costheta1_Q2_1.000_10.000_sgasym_0.00_bgasym_0.00.root',
     name = "Graph",
@@ -380,7 +417,7 @@ def compute_systematics(results,bin_migration_mat=None,bin_migration_order=1,sys
     if bin_migration_mat is not None: #NOTE: ASSUME BINNING IS 1D HERE.
         bin_migration_mat_inv = np.linalg.inv(bin_migration_mat) #NOTE: Make sure that bin_migration_mat is of the form f[i,j] = [# gen in bin i AND rec. in bin j] / [# gen. in bin i], remember that ROOT histogram indexing i,j is opposite (idx_x,idx_y) typical matrix indexing (idx_y,idx_x) and begins at 1 not 0
         new_systematics = np.add(results,-np.matmul(bin_migration_mat_inv,results)) # DeltaA = a - f_inv . a
-        systematics = np.sqrt(np.square(systematics) + np.square(new_systematics))
+        #systematics = np.sqrt(np.square(systematics) + np.square(new_systematics))
         # if results_order==1:
         #     diags = np.ones(np.diag(bin_migration_mat).shape)
         #     neighbors = np.sum(
@@ -487,6 +524,7 @@ def get_plots(
     y_mean = [],
     xerr_mean = [],
     yerr_mean = [],
+    arrs_old = [],
     xerr_syst = [],
     yerr_syst = [],
     y_min  = [],
@@ -505,6 +543,15 @@ def get_plots(
     verbose = True,
     yaml_args = {},
     ):
+
+    x_mean_old    = arrs_old['x']
+    xerr_mean_old = arrs_old['xerr']
+    xerr_syst_old = arrs_old['xerrsyst']
+    y_mean_old    = arrs_old['y']
+    yerr_mean_old = arrs_old['yerr']
+    yerr_syst_old = arrs_old['yerrsyst']
+
+    print("\n\n\n\nDEBUGGING: x_mean_old = ",x_mean_old,"\n\n\n\n")
 
     # Set font sizes
     plt.rc('font', size=25) #controls default text size
@@ -545,23 +592,59 @@ def get_plots(
     plt.ylabel(ytitle,usetex=True)
 
     #TODO: DEBUGGING MESSAGE FOR BINS SEE IF SOMETHING GETS MESSED UP THERE AND MAKE SURE YOU ARE SETTING CORRECTLY...
-    # s1 = plt.hist(x_mean, weights=yerr_syst, bins=xbins, color='gray', alpha=0.5, label='Systematic Error') #NOTE: THAT HISTOGRAM X DATA SHOULD JUST USE BIN X MEANS SO THAT EACH BIN GETS ONE ENTRY AND THEN YOU CAN SCALE APPROPRIATELY WITH THE WEIGHTS ARGUMENT.
-    g1 = plt.errorbar(x_mean,y_mean,xerr=None,yerr=yerr_syst,
+    #s1 = plt.hist(x_mean, weights=yerr_syst, bins=xbins, color='gray', alpha=0.5, label='Systematic Error') #NOTE: THAT HISTOGRAM X DATA SHOULD JUST USE BIN X MEANS SO THAT EACH BIN GETS ONE ENTRY AND THEN YOU CAN SCALE APPROPRIATELY WITH THE WEIGHTS ARGUMENT.
+    
+    # Now plot old results first
+    x_mean_old = x_mean_old + (0.05 * (xlims[1]-xlims[0])) #NOTE: OFFSET X OF OLD RESULTS
+    g1_old = plt.errorbar(x_mean_old,y_mean_old,xerr=None,yerr=yerr_syst_old,
                 ecolor='gray', elinewidth=elinewidth*20, capsize=0,
                 color=color, marker='o', linestyle=linestyle, alpha=0.5,
                 linewidth=0, markersize=0,label='Systematic error of $D_{LL\'}^{\Lambda}$')
+    g2_old = plt.errorbar(x_mean_old,y_mean_old,xerr=xerr_mean_old,yerr=yerr_mean_old,
+                        ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
+                        color='tab:green'if color=='red' else 'tab:orange', marker='v', linestyle=linestyle,
+                        linewidth=linewidth, markersize=markersize,label='$D_{LL\'}^{\Lambda}$')
+    
+    # Now plot new results after
+    g1 = plt.errorbar(x_mean,y_mean,xerr=None,yerr=yerr_syst,
+                ecolor='gray', elinewidth=elinewidth*20, capsize=0,
+                color=color, marker='o', linestyle=linestyle, alpha=0.5,
+                linewidth=0, markersize=0,label='Systematic error of $D_{LL\'}^{\Lambda}$ with bin migration correction')
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='$D_{LL\'}^{\Lambda}$')
+                        linewidth=linewidth, markersize=markersize,label='$D_{LL\'}^{\Lambda}$ with bin Migration correction')
+
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
     plt.text(0.5, 0.5, 'CLAS12 Preliminary',
             size=50, rotation=25., color='gray', alpha=0.25,
             horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
     plt.legend(loc='best')
-    print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
-    f1.savefig(outpath)
+    print("DEBUGGING: plt.savefig(outpath.replace('.pdf','_new_old_comparison.pdf')) -> ",outpath.replace('.pdf','_new_old_comparison.pdf'))
+    f1.savefig(outpath.replace('.pdf','_new_old_comparison.pdf'))
+
+    # Plot pulls
+    figsize = (16,10)
+    f1, ax1 = plt.subplots(figsize=figsize)
+    plt.xlim(*xlims)
+    plt.ylim(*(-0.01,0.01))
+    plt.title(title,usetex=True)
+    plt.xlabel(xtitle,usetex=True)
+    plt.ylabel("$\Delta_{New-Old} D_{LL\'}^{\Lambda} / \sigma$",usetex=True)
+    pulls = (y_mean-y_mean_old)/yerr_mean
+    print("DEBUGGING: pulls = ",pulls)
+    g_results_diffs = plt.errorbar(x_mean,pulls,xerr=None,yerr=None,
+                        ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
+                        color=color, alpha=0.5, marker='v', linestyle=linestyle,
+                        linewidth=linewidth, markersize=markersize,label='(Bin mig. - No bin mig.) $\Delta D_{LL\'}^{\Lambda} / \sigma$')
+    plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
+    ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
+    plt.text(0.5, 0.5, 'CLAS12 Preliminary',
+            size=50, rotation=25., color='gray', alpha=0.25,
+            horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
+    plt.legend(loc='best')
+    f1.savefig(outpath.replace('.pdf','_new_old_comparison_pulls.pdf'))
 
     # Save plot data to csv
     delimiter = ","
@@ -646,13 +729,13 @@ if __name__=="__main__":
     # Get list of directories across which to aggregate
     aggregate_keys = []
     var_lims = {
-        'mass_ppim':[1.08,1.24],
-        #'Q2':[1.0,11.0],
-        #'W':[2.0,5.0],
-        #'x':[0.0,1.0],
-        #'xF_ppim':[0.0,1.0],
-        #'y':[0.0,0.8],
-        #'z_ppim':[0.0,1.0],
+        # 'mass_ppim':[1.08,1.24],
+        'Q2':[1.0,11.0],
+        'W':[2.0,5.0],
+        'x':[0.0,1.0],
+        'xF_ppim':[0.0,1.0],
+        'y':[0.0,0.8],
+        'z_ppim':[0.0,1.0],
     }
     out_file_list = get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_file_name,use_mc,aggregate_keys)
 
@@ -670,13 +753,13 @@ if __name__=="__main__":
     #DEBUGGING: END
 
     xlimss = {
-        'mass_ppim':[1.08,1.24],
-        #'Q2':[1.0,11.0],
-        #'W':[2.0,5.0],
-        #'x':[0.0,1.0],
-        #'xF_ppim':[0.0,1.0],
-        #'y':[0.0,1.0],
-        #'z_ppim':[0.0,1.1],
+        # 'mass_ppim':[1.08,1.24],
+        'Q2':[1.0,11.0],
+        'W':[2.0,5.0],
+        'x':[0.0,1.0],
+        'xF_ppim':[0.0,1.0],
+        'y':[0.0,1.0],
+        'z_ppim':[0.0,1.1],
     }
     ylimss = [-0.5,0.5]
     titles = {
@@ -688,13 +771,13 @@ if __name__=="__main__":
         'costheta2':'red',
     }
     xtitles = {
-        'mass_ppim':'$M_{p\pi^{-}}$ (GeV)',
-        #'Q2':'$Q^{2}$',
-        #'W':'$W$',
-        #'x':'$x$',
-        #'xF_ppim':'$x_{F p\pi^{-}}$',
-        #'y':'$y$',
-        #'z_ppim':'$z_{p\pi^{-}}$',
+        # 'mass_ppim':'$M_{p\pi^{-}}$ (GeV)',
+        'Q2':'$Q^{2}$',
+        'W':'$W$',
+        'x':'$x$',
+        'xF_ppim':'$x_{F p\pi^{-}}$',
+        'y':'$y$',
+        'z_ppim':'$z_{p\pi^{-}}$',
     }
     ytitle = '$D_{LL\'}^{\Lambda}$'
 
@@ -732,7 +815,7 @@ if __name__=="__main__":
             # Load systematics tables
             bin_migration_mat = load_TH2(path='h_bin_migration_2D_final_bins.root',name='h2d_bin_migration_'+binvar)
             fmt = ["%d","%.3g","%.3g","%.3g","%.3g","%.3g"]
-            #NOTE: COMMENTED OUT FOR OVERALL RESULTS: save_matrix_to_csv(bin_migration_mat,base_dir='systematics/bin_migration/',binvar=binvar,fmt=fmt) #NOTE: SAVE BIN MIGRATION MATRIX TO CSV, MUST BE A SQUARE MATRIX!
+            save_matrix_to_csv(bin_migration_mat,base_dir='systematics/bin_migration/',binvar=binvar,fmt=fmt) #NOTE: SAVE BIN MIGRATION MATRIX TO CSV, MUST BE A SQUARE MATRIX!
             mc_asym_injection_aggregate_keys = ['inject_seed']
             outpath_mc = get_outpath(base_dir,mc_asym_injection_aggregate_keys,bgasym=0.0,sgasym=0.1,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
             mc_asym_injection_outpath = outpath_mc+'_systematics.csv'
@@ -801,8 +884,8 @@ if __name__=="__main__":
             print("\n\nDEBUGGING: cos_phi_h_ppim_systematic = ",cos_phi_h_ppim_systematic,"\n\n") #TODO: ADD THIS TO THE SYSTEMATIC ERROR ADDITIVE MAT BELOW AND THE SUMMARY PLOTS.
             #----------------------------------------------------------------------------------------------------#
 
-            # # Apply MC corrections
-            # arrs['y_mean'] += y_corrections_mc_asym_injection
+            # Apply MC corrections
+            arrs['y_mean'] += y_corrections_mc_asym_injection
 
             # Compute systematics
             alpha_lambda_systematic = 0.0120
@@ -811,9 +894,20 @@ if __name__=="__main__":
             systematic_scales_mat = yerr_syst_mc_asym_injection / sgasym
             systematic_scales_mat = np.sqrt(np.square(systematic_scales_mat) + np.square(alpha_lambda_systematic) + np.square(beam_polarization_systematic) + np.square(yerr_syst_cb_gauss_diff) + np.square(cos_phi_h_ppim_systematic))
             print("DEBUGGING: BEFORE: systematic_scales_mat = ",systematic_scales_mat)
+
+            # APPLY BIN MIGRATION CORRECTION
+            bin_migration_mat_inv = np.linalg.inv(bin_migration_mat) #NOTE: Make sure that bin_migration_mat is of the form f[i,j] = [# gen in bin i AND rec. in bin j] / [# gen. in bin i], remember that ROOT histogram indexing i,j is opposite (idx_x,idx_y) typical matrix indexing (idx_y,idx_x) and begins at 1 not 0
+            arrs['y_mean'] = np.matmul(bin_migration_mat_inv,arrs['y_mean']) # DeltaA = a - f_inv . a
+
+            #TODO: Correct uncertainties for bin migration as well?
+            print("DEBUGGING: bin_migration_mat = ",bin_migration_mat)
+            print("DEBUGGING: bin_migration_mat_inv = ",bin_migration_mat_inv)
+            print("DEBUGGING: bin_migration_mat * bin_migration_mat_inv = ",np.matmul(bin_migration_mat,bin_migration_mat_inv))
+            arrs['yerr_mean'] = np.sqrt(np.matmul(bin_migration_mat_inv,np.square(arrs['yerr_mean'])))
+
             yerr_syst = compute_systematics(
                 arrs['y_mean'],
-                bin_migration_mat=None, #NOTE: DO NOT USE THIS FOR OVERALL RESULTS: bin_migration_mat,
+                bin_migration_mat=None,#bin_migration_mat,
                 bin_migration_order=1,
                 systematic_scales_mat=systematic_scales_mat,
                 systematics_additive_mat=None,
@@ -830,15 +924,13 @@ if __name__=="__main__":
                 systematic_scales_mat=yerr_syst_mc_asym_injection / sgasym,
                 # systematics_additive_mat=yerr_syst_cb_gauss_diff,
             )
-            """
             bin_migration_systematics = compute_systematics(
                 arrs['y_mean'],
-                bin_migration_mat=bin_migration_mat,
+                bin_migration_mat=None,#bin_migration_mat,
                 bin_migration_order=1,
                 systematic_scales_mat=None,
                 # systematics_additive_mat=yerr_syst_cb_gauss_diff,
             )
-            """
             mass_fit_systematics = compute_systematics(
                 arrs['y_mean'],
                 bin_migration_mat=None,
@@ -871,7 +963,7 @@ if __name__=="__main__":
                 stacked = False,
                 label   = labels,
                 xlims   = xlimss[binvar],
-                ylims   = (-0.05,0.05),
+                ylims   = (-0.01,0.1),
                 xvar    = binvar,
                 title   = titles[fitvar],
                 xtitle  = xtitles[binvar],
@@ -880,8 +972,32 @@ if __name__=="__main__":
                 # yaml_args = yaml_args,
             )
 
+            # Save systematics to csv file
+            delimiter = ","
+            header = delimiter.join(["bin","x","xerr","alpha","beam","inj","fit","cosphi"])
+            fmt    = ["%d","%.3g","%.3g", "%.3g","%.3g","%.3g","%.3g","%.3g"]
+            convert_systematics_to_csv(
+                outpath.replace('.pdf','__systematics.pdf.csv'),
+                arrs['x_mean'],
+                xerr=arrs['xerr_mean'],
+                yerrs_syst=all_systematics, #NOTE: shape = (nBins,nSystematics)
+                delimiter=",",
+                header=header,
+                fmt=fmt,
+                comments='',
+                )
+
+            # Get old arrs
+            old_dir = "results/"
+            new_dir = "results_ORIGINAL__from_local__12_19_24/"
+            inpath_csv = outpath.replace(new_dir,old_dir)+'.csv'
+            arrs_old = pd.read_csv(inpath_csv)
+            print("DEBUGGING: inpath_csv = ",inpath_csv)
+            print("\n\n\n\n\nDEBUGGING: arrs_old = ",arrs_old,"\n\n\n\n\n")
+
             get_plots(
                 **arrs,
+                arrs_old  = arrs_old,
                 xerr_syst = xerr_syst,
                 yerr_syst = yerr_syst,
                 xlims   = xlimss[binvar],

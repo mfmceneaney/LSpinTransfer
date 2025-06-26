@@ -32,6 +32,21 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 #----------------------------------------------------------------------#
 # ADD EXECUTABLES
+add_executable(test_splot test_splot.cpp)
+target_link_libraries(test_splot PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+
+add_executable(test_splot_lk test_splot_lk.cpp)
+target_link_libraries(test_splot_lk PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+
+add_executable(test_splot2d test_splot2d.cpp)
+target_link_libraries(test_splot2d PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+
+add_executable(test_splot_inject2d test_splot_inject2d.cpp)
+target_link_libraries(test_splot_inject2d PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+
+add_executable(test_getKinBinnedAsym2D test_getKinBinnedAsym2D.cpp)
+target_link_libraries(test_getKinBinnedAsym2D PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+
 add_executable(massdistr massdistr.cpp)
 target_link_libraries(massdistr PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
 add_executable(massdistrmc massdistrmc.cpp)
@@ -68,6 +83,17 @@ add_executable(analysismcfullinjectionv2 analysismcfullinjectionv2.cpp)
 target_link_libraries(analysismcfullinjectionv2 PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
 add_executable(analysisgausscbdiff analysisgausscbdiff.cpp)
 target_link_libraries(analysisgausscbdiff PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+add_executable(analysisgenericdiff analysisgenericdiff.cpp)
+target_link_libraries(analysisgenericdiff PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+
+
+add_executable(massfitlandau massfitlandau.cpp)
+target_link_libraries(massfitlandau PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+add_executable(massfitmclandau massfitmclandau.cpp)
+target_link_libraries(massfitmclandau PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+add_executable(analysislandaucbdiff analysislandaucbdiff.cpp)
+target_link_libraries(analysislandaucbdiff PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
+
 add_executable(transverseanalysis transverseanalysis.cpp)
 target_link_libraries(transverseanalysis PUBLIC ROOT::RIO ROOT::Net ROOT::RooFit ROOT::RooStats ROOT::ROOTDataFrame yaml-cpp)
 add_executable(bsaanalysis bsaanalysis.cpp)

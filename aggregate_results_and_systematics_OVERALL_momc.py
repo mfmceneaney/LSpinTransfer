@@ -508,11 +508,11 @@ def get_plots(
 
     # Set font sizes
     plt.rc('font', size=25) #controls default text size
-    plt.rc('axes', titlesize=50) #fontsize of the title
-    plt.rc('axes', labelsize=50) #fontsize of the x and y labels
+    plt.rc('axes', titlesize=60) #fontsize of the title
+    plt.rc('axes', labelsize=75) #fontsize of the x and y labels
     plt.rc('xtick', labelsize=25) #fontsize of the x tick labels
     plt.rc('ytick', labelsize=25) #fontsize of the y tick labels
-    plt.rc('legend', fontsize=20) #fontsize of the legend
+    plt.rc('legend', fontsize=25) #fontsize of the legend
 
     # Get some nicer plot settings
     plt.rcParams['font.family'] = 'serif'
@@ -548,7 +548,7 @@ def get_plots(
     # s1 = plt.hist(x_mean, weights=yerr_syst, bins=xbins, color='gray', alpha=0.5, label='Systematic Error') #NOTE: THAT HISTOGRAM X DATA SHOULD JUST USE BIN X MEANS SO THAT EACH BIN GETS ONE ENTRY AND THEN YOU CAN SCALE APPROPRIATELY WITH THE WEIGHTS ARGUMENT.
     g1 = plt.errorbar(x_mean,y_mean,xerr=None,yerr=yerr_syst,
                 ecolor='gray', elinewidth=elinewidth*20, capsize=0,
-                color=color, marker='o', linestyle=linestyle, alpha=0.5,
+                color=color, marker='o', linestyle=linestyle, alpha=1.0,
                 linewidth=0, markersize=0,label='Systematic error of $D_{LL\'}^{\Lambda}$')
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
@@ -556,9 +556,9 @@ def get_plots(
                         linewidth=linewidth, markersize=markersize,label='$D_{LL\'}^{\Lambda}$')
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
-    plt.text(0.5, 0.5, 'CLAS12 Preliminary',
-            size=50, rotation=25., color='gray', alpha=0.25,
-            horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
+    # plt.text(0.5, 0.5, 'CLAS12 Preliminary',
+    #         size=50, rotation=25., color='gray', alpha=0.25,
+    #         horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
     plt.legend(loc='best')
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
@@ -599,7 +599,7 @@ if __name__=="__main__":
     # -> e.g., loop keys if key is aggregate run aggregation otherwise you're creating a new file each time...
 
     # Results file paths and config
-    base_dir    = "results/"
+    base_dir    = "results_momc/"
     submit_path = base_dir+"submit.sh"
     yaml_path   = base_dir+"args.yaml"
     out_path    = base_dir+"jobs.txt"
@@ -730,7 +730,7 @@ if __name__=="__main__":
             print("DEBUGGING: ylimss = ",ylimss)
 
             # Load systematics tables
-            bin_migration_mat = load_TH2(path='h_bin_migration_2D_final_bins.root',name='h2d_bin_migration_'+binvar)
+            bin_migration_mat = load_TH2(path='GetBinMigration2D__Inverse__5_14_25/sg/h_bin_migration_2D_final_bins.root',name='h2d_bin_migration_'+binvar)
             fmt = ["%d","%.3g","%.3g","%.3g","%.3g","%.3g"]
             #NOTE: COMMENTED OUT FOR OVERALL RESULTS: save_matrix_to_csv(bin_migration_mat,base_dir='systematics/bin_migration/',binvar=binvar,fmt=fmt) #NOTE: SAVE BIN MIGRATION MATRIX TO CSV, MUST BE A SQUARE MATRIX!
             mc_asym_injection_aggregate_keys = ['inject_seed']
@@ -741,7 +741,7 @@ if __name__=="__main__":
             y_corrections_mc_asym_injection = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection/',outpath=mc_asym_injection_outpath)['y'].to_numpy()
 
             #TODO: GET CB/GAUS DIFF SYSTEMATICS
-            yerr_syst_cb_gauss_diff = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mass_fit/',outpath=outpath+'.csv')['y'].to_numpy()
+            yerr_syst_cb_gauss_diff = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics_momc/mass_fit/',outpath=outpath+'.csv')['y'].to_numpy()
 
             #----------------------------------------------------------------------------------------------------#
             #NOTE: BEGIN ADDED 6/4/24
@@ -786,10 +786,10 @@ if __name__=="__main__":
             y_corrections_mc_asym_injection__cos_phi_h_ppim = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection_cos_phi_h_ppim/',outpath=mc_asym_injection_cos_phi_h_ppim_outpath)['y'].to_numpy()
 
             # Load DATA cos_phi_h_ppim and compute difference
-            yerr_syst_results__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim_min/',outpath=results_outpath_cos_phi_h_ppim)['yerr'].to_numpy()
-            y_corrections_results__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim_min/',outpath=results_outpath_cos_phi_h_ppim)['y'].to_numpy()
-            yerr_syst_results__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim_max/',outpath=results_outpath_cos_phi_h_ppim)['yerr'].to_numpy()
-            y_corrections_results__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results/results_phi_h_ppim_max/',outpath=results_outpath_cos_phi_h_ppim)['y'].to_numpy()
+            yerr_syst_results__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results_momc/results_phi_h_ppim_min/',outpath=results_outpath_cos_phi_h_ppim)['yerr'].to_numpy()
+            y_corrections_results__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results_momc/results_phi_h_ppim_min/',outpath=results_outpath_cos_phi_h_ppim)['y'].to_numpy()
+            yerr_syst_results__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results_momc/results_phi_h_ppim_max/',outpath=results_outpath_cos_phi_h_ppim)['yerr'].to_numpy()
+            y_corrections_results__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results_momc/results_phi_h_ppim_max/',outpath=results_outpath_cos_phi_h_ppim)['y'].to_numpy()
             delta_y_corrections_results__cos_phi_h_ppim = np.abs(y_corrections_results__cos_phi_h_ppim__max-y_corrections_results__cos_phi_h_ppim__min)
 
             # Compute cos_phi_h_ppim systematic # D_LL_syst/D_LL = (Delta D_LL MC / Injected D_LL MC) * (Delta D_LL Data / Delta D_LL MC)
@@ -801,8 +801,9 @@ if __name__=="__main__":
             print("\n\nDEBUGGING: cos_phi_h_ppim_systematic = ",cos_phi_h_ppim_systematic,"\n\n") #TODO: ADD THIS TO THE SYSTEMATIC ERROR ADDITIVE MAT BELOW AND THE SUMMARY PLOTS.
             #----------------------------------------------------------------------------------------------------#
 
-            # # Apply MC corrections
-            # arrs['y_mean'] += y_corrections_mc_asym_injection
+            # Apply MC corrections
+            y_corrections_mc_asym_injection = np.multiply(y_corrections_mc_asym_injection/sgasym,arrs['y_mean'])
+            arrs['y_mean'] -= y_corrections_mc_asym_injection
 
             # Compute systematics
             alpha_lambda_systematic = 0.0120
