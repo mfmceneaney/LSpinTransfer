@@ -12,7 +12,7 @@ for file in $LSPINTRANSFER_HOME/config/*.C; do
 done
 
 # Set paths in ROOT scripts for saga
-for file in $LSPINTRANSFER_HOME/config/systematics_momc_vz_e_cuts/bin_migration/*/*/*.C; do
+for file in $LSPINTRANSFER_HOME/config/systematics/bin_migration/*/*/*.C; do
     sed -i.bak "s;/RGA_DT_DIR;$RGA_DT_DIR;g" $file
     sed -i.bak "s;/RGA_MC_DIR;$RGA_MC_DIR;g" $file
 done
