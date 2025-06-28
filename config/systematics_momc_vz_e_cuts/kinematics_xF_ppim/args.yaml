@@ -1,0 +1,28 @@
+outdir: "outdir"
+outpath: "outfile.root"
+inpath: "/RGA_DT_DIR/skim_*.root"
+tree: "t"
+nthreads: 8
+cuts: "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && z_ppim<1.0 && detector_p==6 && detector_pim==6 && vz_e>-10 && vz_e<2.5" #NOTE: xF_ppim>0 cut removed
+sgcuts: "mass_ppim>1.1104 && mass_ppim<1.12959" #NOTE: CHOSE SO THAT THESE COINCIDE WITH THE RIGHT BINS IN YOUR INVARIANT MASS HISTOGRAM.
+bgcuts: "(mass_ppim>1.08 && mass_ppim<1.11) || (mass_ppim>1.15 && mass_ppim<1.18)"
+method: "HB"
+fitvar: "costheta1"
+binvars:
+  xF_ppim:
+    bins: [-1.0, -0.2775, -0.1784, -0.1082, -0.0504, 0.0000, 0.0504, 0.1082, 0.1784, 0.2775, 1.0]
+bgfraction: 1.0
+use_bgfraction: true #NOTE: NO SIDEBAND SUBTRACTION
+inject_asym: false
+sgasym: 0.00
+bgasym: 0.00
+beam_polarization: 0.8922 # Average Polarization for Fall 2018 Outbending data runs >= 5331
+mass_name: "mass_ppim"
+n_mass_bins: 100
+mass_min: 1.08
+mass_max: 1.24
+mass_draw_opt: ""
+graph_title: ""
+marker_color: 4
+marker_style: 20
+logpath: "out.txt"
