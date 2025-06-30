@@ -151,14 +151,14 @@ clas12_files = {
 }
 
 # Set CLAS12 input directory
-clas12_dir = '/Users/mfm45/drop/results_momc__6_24_25/csv/'
+clas12_dir = 'results/'
 
 # Create list of full paths for CLAS12
 clas12_files = {key:os.path.join(clas12_dir,clas12_files[key]) for key in clas12_files}
 print('clas12_files = ',clas12_files)
 
 # Load yaml file with bins
-input_yaml = '/Users/mfm45/drop/results_LSpinTransfer/args.yaml'
+input_yaml = 'results/args.yaml'
 yaml_path = os.path.abspath(input_yaml) #NOTE: THIS ASSUMES BINNING SAME FOR BOTH CT1/CT2
 yaml_args = {}
 with open(yaml_path) as yf:

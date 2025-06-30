@@ -17,7 +17,7 @@ def get_out_file_path(basedir,basename,oldfitvar,newfitvar,oldbinvar,newbinvar):
     return os.path.join(basedir,out_file_path)
 
 # Set variables for CSV paths and keys
-basedir = "/Users/mfm45/drop/results_momc__6_24_25/csv/"
+basedir = "results/"
 basename = "aggregate___binvar_z_ppim__fitvar_costheta2__method_LF__z_ppim_0.0_1.0__mc_asym_injection_corrections.pdf.csv"
 oldfitvar = "costheta2"
 oldbinvar = "z_ppim"
