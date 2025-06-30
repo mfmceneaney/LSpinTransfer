@@ -1,6 +1,6 @@
 outdir: "outdir"
 outpath: "outfile.root"
-inpath: "/RGA_RGA_DT_DIR/skim_*.root"
+inpath: "/RGA_DT_DIR/skim_*.root"
 tree: "t"
 nthreads: 8
 cuts: "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0 && detector_p==6 && detector_pim==6 && vz_e>-10 && vz_e<2.5"
