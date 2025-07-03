@@ -263,3 +263,48 @@ if __name__=="__main__":
     )
     create_jobs(divisions,base_dir,submit_path,yaml_path)
     submit_jobs(divisions,base_dir,submit_path,out_path)
+
+    # MC asymmetry injection file paths and config
+    base_dir    = "systematics/mc_asym_injection_cos_phi_h_ppim/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = dict(
+        methods,
+        **fitvars,
+        **sgasyms,
+        **bgasyms,
+        **seeds,
+    )
+    create_jobs(divisions,base_dir,submit_path,yaml_path)
+    submit_jobs(divisions,base_dir,submit_path,out_path)
+
+    # MC asymmetry injection file paths and config
+    base_dir    = "systematics/mc_asym_injection_cos_phi_h_ppim__max/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = dict(
+        methods,
+        **fitvars,
+        **sgasyms,
+        **bgasyms,
+        **seeds,
+    )
+    create_jobs(divisions,base_dir,submit_path,yaml_path)
+    submit_jobs(divisions,base_dir,submit_path,out_path)
+
+    # MC asymmetry injection file paths and config
+    base_dir    = "systematics/mc_asym_injection_cos_phi_h_ppim__min/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = dict(
+        methods,
+        **fitvars,
+        **sgasyms,
+        **bgasyms,
+        **seeds,
+    )
+    create_jobs(divisions,base_dir,submit_path,yaml_path)
+    submit_jobs(divisions,base_dir,submit_path,out_path)
