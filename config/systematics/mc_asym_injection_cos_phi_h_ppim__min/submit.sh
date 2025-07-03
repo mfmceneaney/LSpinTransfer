@@ -3,7 +3,7 @@
 #SBATCH --job-name=clas12Lambdas
 #SBATCH --output=/farm_out/%u/%x-%j-%N.out
 #SBATCH --error=/farm_out/%u/%x-%j-%N.err
-#SBATCH --partition=production
+#SBATCH --partition=gpu
 #SBATCH --account=clas12
 #SBATCH -c 1
 #SBATCH --mem-per-cpu=2000
