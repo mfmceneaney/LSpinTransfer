@@ -25,4 +25,7 @@ root $file
 echo
 done
 
+# And run python scripts
+python3 get_kinematic_means.py
+
 echo DONE
