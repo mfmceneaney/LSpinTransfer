@@ -3,7 +3,7 @@ void LMassFit__5_23_25__z_bin() {
 
     std::string tree = "t";
     std::string path = "/RGA_DT_DIR/skim_*.root";
-    std::string cuts = "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0 && detector_p==6 && detector_pim==6 && z_ppim>=0.6856 && z_ppim<0.7698";//Q2>=2.663 && Q2<11.0  z_ppim>=0.0 && z_ppim<0.6 
+    std::string cuts = "mass_ppim<1.24 && Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0 && detector_p==6 && detector_pim==6 && vz_e>-10 && vz_e<2.5 && z_ppim>=0.6856 && z_ppim<0.7698";//Q2>=2.663 && Q2<11.0  z_ppim>=0.0 && z_ppim<0.6 
     std::string name = "LMassFit__5_23_25__z_bin";
     
     // Mass fit options

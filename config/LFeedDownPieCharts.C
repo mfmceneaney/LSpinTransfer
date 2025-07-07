@@ -5,7 +5,7 @@ void LFeedDownPieCharts() {
     const char * opt  = "RECREATE";
     // const char * path = "/volatile/clas12/users/mfmce/rgc-noemi-pplus-22gev-outb_jobs_lambda_MC_ONLY_7_11_22/*.root";
     const char * path = "/RGA_MC_DIR/skim_*.root";
-    const char * cuts = "Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0 && detector_p==6 && detector_pim==6 && pidx_p_mc==pidx_pim_mc && pidx_p_mc>=0 && ppid_p_mc==3122 && mass_ppim>1.11 && mass_ppim<1.13";
+    const char * cuts = "Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0 && detector_p==6 && detector_pim==6 && vz_e>-10 && vz_e<2.5 && pidx_p_mc==pidx_pim_mc && pidx_p_mc>=0 && ppid_p_mc==3122 && mass_ppim>1.11 && mass_ppim<1.13";
 
     int nvals = 6; //NOTE: Change as needed
     Int_t pids[] = {/*91,*/92,/*3222,*/3212,/*3112,*/3224,3214,3114,3322,3312/*,3324,3314,3334*/};
