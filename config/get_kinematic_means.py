@@ -102,7 +102,7 @@ if __name__=='__main__':
 
     # Set arguments here
     nthreads    = 16
-    path        = '/RGA_DT_DIR/*.root'
+    path        = os.path.join(os.environ['RGA_DT_DIR'],'*.root')
     tree        = 't'
     cuts        = 'Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0 && mass_ppim>1.1104 && mass_ppim<1.12959 && detector_p==6 && detector_pim==6 && vz_e>-10 && vz_e<2.5' #NOTE: IMPORTANT! Only look at the signal region here.
     yaml_path   = 'results/args.yaml'
