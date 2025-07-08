@@ -108,12 +108,11 @@ if __name__=="__main__":
     methods = {"method":["HB","LF"]}
     fitvars = {"fitvar":["costheta1","costheta2"]}
     sgasyms = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
+    sgasyms2 = {"sgasym2":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     bgasyms = {"bgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     seeds   = {"inject_seed":[2**i for i in range(16)]}
     sgmins  = {"sg_min":[round(1.14+0.0004*i,4) for i in range(50)]}
     sgmaxs  = {"sg_max":[1.18]}
-
-    #TODO: Add argumeents for outdir and random seed in analysis.cpp
 
     # Results file paths and config
     base_dir    = "results/"
@@ -273,7 +272,7 @@ if __name__=="__main__":
         methods,
         **fitvars,
         **sgasyms,
-        **bgasyms,
+        **sgasyms2,
         **seeds,
     )
     create_jobs(divisions,base_dir,submit_path,yaml_path)
@@ -288,7 +287,7 @@ if __name__=="__main__":
         methods,
         **fitvars,
         **sgasyms,
-        **bgasyms,
+        **sgasyms2,
         **seeds,
     )
     create_jobs(divisions,base_dir,submit_path,yaml_path)
@@ -303,7 +302,7 @@ if __name__=="__main__":
         methods,
         **fitvars,
         **sgasyms,
-        **bgasyms,
+        **sgasyms2,
         **seeds,
     )
     create_jobs(divisions,base_dir,submit_path,yaml_path)
