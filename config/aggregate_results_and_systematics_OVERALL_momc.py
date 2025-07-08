@@ -741,7 +741,7 @@ if __name__=="__main__":
             y_corrections_mc_asym_injection = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection/',outpath=mc_asym_injection_outpath)['y'].to_numpy()
 
             #TODO: GET CB/GAUS DIFF SYSTEMATICS
-            yerr_syst_cb_gauss_diff = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematis/mass_fit/',outpath=outpath+'.csv')['y'].to_numpy()
+            yerr_syst_cb_gauss_diff = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mass_fit/',outpath=outpath+'.csv')['y'].to_numpy()
 
             #----------------------------------------------------------------------------------------------------#
             #NOTE: BEGIN ADDED 6/4/24

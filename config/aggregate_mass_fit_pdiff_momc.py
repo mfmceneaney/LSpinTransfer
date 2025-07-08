@@ -393,7 +393,7 @@ if __name__=="__main__":
     # -> e.g., loop keys if key is aggregate run aggregation otherwise you're creating a new file each time...
 
     # Results file paths and config
-    base_dir    = "systematis/mass_fit/"
+    base_dir    = "systematics/mass_fit/"
     submit_path = base_dir+"submit.sh"
     yaml_path   = base_dir+"args.yaml"
     out_path    = base_dir+"jobs.txt"
@@ -521,7 +521,7 @@ if __name__=="__main__":
             fitvar = config['fitvar'] #NOTE: VARIABLE FOR COS THETA
             print("DEBUGGING: binvar = ",binvar)
             print("DEBUGGING: ylimss = ",ylimss)
-            mydir = 'systematis/mass_fit/'
+            mydir = 'systematics/mass_fit/'
             results_dir = 'results/'
             resultspath = outpath.replace(mydir,results_dir)+'.csv'
             print("DEBUGGING: resultspath = ",resultspath)
