@@ -730,7 +730,7 @@ if __name__=="__main__":
             print("DEBUGGING: ylimss = ",ylimss)
 
             # Load systematics tables
-            bin_migration_mat = load_TH2(path='GetBinMigration2D__Inverse__5_14_25/sg/h_bin_migration_2D_final_bins.root',name='h2d_bin_migration_'+binvar)
+            bin_migration_mat = load_TH2(path='systematics/bin_migration/GetBinMigration2D__Inverse__5_14_25/sg/h_bin_migration_2D_final_bins.root',name='h2d_bin_migration_'+binvar)
             fmt = ["%d","%.3g","%.3g","%.3g","%.3g","%.3g"]
             #NOTE: COMMENTED OUT FOR OVERALL RESULTS: save_matrix_to_csv(bin_migration_mat,base_dir='systematics/bin_migration/',binvar=binvar,fmt=fmt) #NOTE: SAVE BIN MIGRATION MATRIX TO CSV, MUST BE A SQUARE MATRIX!
             mc_asym_injection_aggregate_keys = ['inject_seed']
