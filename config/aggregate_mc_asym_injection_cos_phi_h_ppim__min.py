@@ -447,12 +447,12 @@ if __name__=="__main__":
     aggregate_keys = ["inject_seed"]
     var_lims = {
         'mass_ppim':[1.08,1.24],
-        'Q2':[1.0,11.0],
-        'W':[2.0,5.0],
-        'x':[0.0,1.0],
-        'xF_ppim':[0.0,1.0],
-        'y':[0.0,0.8],
-        'z_ppim':[0.0,1.0],
+        # 'Q2':[1.0,11.0],
+        # 'W':[2.0,5.0],
+        # 'x':[0.0,1.0],
+        # 'xF_ppim':[0.0,1.0],
+        # 'y':[0.0,0.8],
+        # 'z_ppim':[0.0,1.0],
     }
     out_file_list = get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_file_name,use_mc,aggregate_keys)
     # return [[filename for values in aggregate_keys] for combinations in divisions[~aggregate_keys]+var_lims]
