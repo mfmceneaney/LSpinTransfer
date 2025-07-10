@@ -14,7 +14,7 @@ col_name_latex_labels = [
 ]
 
 # Set paths
-base_dir = "/Users/mfm45/Downloads/LSpinTransfer_PRD_2024-11/tables/systematics/breakdown/"
+base_dir = "results/"
 paths1 = [
     "aggregate___binvar_z_ppim__fitvar_costheta1__method_HB__z_ppim_0.0_1.0__systematics.pdf.csv",
     # "aggregate___binvar_z_ppim__fitvar_costheta2__method_HB__z_ppim_0.0_1.0__systematics.pdf.csv",
