@@ -108,89 +108,99 @@ def get_plots(
 
 
 if __name__=="__main__":
+
+    fitvars = ["costheta1","costheta2"]
+    xvars   = ["z_ppim","xF_ppim"]
     
-    xvar = "z_ppim"
-    xtitle = "$z_{p\pi^{-}}$"
-    xvar = "xF_ppim"
-    xtitle = '$x_{F p\pi^{-}}$'
+    configs = [
+        [fitvar,xvar] for fitvar in fitvars for xvar in xvars
+    ]
 
-    fitvar = 'costheta2'
-    color = 'blue' if fitvar=='costheta1' else 'red'
-    title = 'Longitudinal Spin Transfer along $P_{\Lambda}$' if fitvar=='costheta1' else 'Longitudinal Spin Transfer along $P_{\gamma^{*}}$'
+    xtitles = {
+        "z_ppim":"$z_{p\pi^{-}}$",
+        "xF_ppim":'$x_{F p\pi^{-}}$',
+    }
 
-    # Set data paths and load
-    inpath = "results/aggregate___binvar_"+xvar+"__fitvar_"+fitvar+"__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
-    arr = np.loadtxt(inpath,delimiter=",",skiprows=1)
-    x_mean = arr[:,1]
-    y_mean = arr[:,2]
-    xerr_mean = arr[:,3]
-    yerr_mean = arr[:,4]
-    xerr_syst = arr[:,5]
-    yerr_syst = arr[:,6]
+    for fitvar, xvar in configs:
 
-    inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results__v11_13_24/aggregate___binvar_"+xvar+"__fitvar_costheta1__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
-    arr_binned = np.loadtxt(inpath,delimiter=",",skiprows=1)
-    # x_mean = arr_binned[:,1]
-    # y_mean = arr_binned[:,2]
-    # xerr_mean = arr_binned[:,3]
-    # yerr_mean = arr_binned[:,4]
-    # xerr_syst = arr_binned[:,5]
-    # yerr_syst = arr_binned[:,6]
-    x_theory_binned = arr_binned[:,7]
-    y_theory_binned = arr_binned[:,8]
+        xtitle = xtitles[xvar]
 
-    print("DEBUGGING: arr_binned = ",arr_binned)
-    print("DEBUGGING: arr_binned.shape = ",arr_binned.shape)
-    print("DEBUGGING: x_mean    = ",x_mean)
-    print("DEBUGGING: y_mean    = ",y_mean)
-    print("DEBUGGING: xerr_mean = ",xerr_mean)
-    print("DEBUGGING: yerr_mean = ",yerr_mean)
-    print("DEBUGGING: xerr_syst = ",xerr_syst)
-    print("DEBUGGING: yerr_syst = ",yerr_syst)
+        color = 'blue' if fitvar=='costheta1' else 'red'
+        title = 'Longitudinal Spin Transfer along $P_{\Lambda}$' if fitvar=='costheta1' else 'Longitudinal Spin Transfer along $P_{\gamma^{*}}$'
 
-    theory_cfr_inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results__v11_13_24/CLAS_"+xvar.replace("_ppim","")+"_CFR.dat"
-    print("DEBUGGING: loading theory_cfr_inpath = ",theory_cfr_inpath)#DEBUGGING
-    arr_theory_cfr = np.loadtxt(theory_cfr_inpath, delimiter=",", skiprows=0)
-    x_theory_cfr = arr_theory_cfr[:,0]
-    y_theory_cfr = arr_theory_cfr[:,1]
+        # Set data paths and load
+        inpath = "results/aggregate___binvar_"+xvar+"__fitvar_"+fitvar+"__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
+        arr = np.loadtxt(inpath,delimiter=",",skiprows=1)
+        x_mean = arr[:,1]
+        y_mean = arr[:,2]
+        xerr_mean = arr[:,3]
+        yerr_mean = arr[:,4]
+        xerr_syst = arr[:,5]
+        yerr_syst = arr[:,6]
 
-    theory_tfrcfr_inpath = "/Users/mfm45/Downloads/xiaoyan_theory_results__v11_13_24/CLAS_"+xvar.replace("_ppim","")+"_CFRandTFR.dat"
-    arr_theory_tfrcfr = np.loadtxt(theory_tfrcfr_inpath, delimiter=",", skiprows=0)
-    x_theory_tfrcfr = arr_theory_tfrcfr[:,0]
-    y_theory_tfrcfr = arr_theory_tfrcfr[:,1]
+        inpath = "xiaoyan_theory_results__v11_13_24/aggregate___binvar_"+xvar+"__fitvar_costheta1__method_HB__"+xvar+"_0.0_1.0.pdf.csv"
+        arr_binned = np.loadtxt(inpath,delimiter=",",skiprows=1)
+        # x_mean = arr_binned[:,1]
+        # y_mean = arr_binned[:,2]
+        # xerr_mean = arr_binned[:,3]
+        # yerr_mean = arr_binned[:,4]
+        # xerr_syst = arr_binned[:,5]
+        # yerr_syst = arr_binned[:,6]
+        x_theory_binned = arr_binned[:,7]
+        y_theory_binned = arr_binned[:,8]
 
-    # Set yaml path and load
-    yaml_path = "/Users/mfm45/drop/results_LSpinTransfer/args.yaml"
-    yaml_args = {}
-    with open(yaml_path) as f:
-        yaml_args = yaml.safe_load(f)
-    
-    # Get plots...
-    get_plots(
-        x_mean = x_mean,
-        y_mean = y_mean,
-        xerr_mean = xerr_mean,
-        yerr_mean = yerr_mean,
-        xerr_syst = xerr_syst,
-        yerr_syst = yerr_syst,
-        x_theory_binned = x_theory_binned,
-        y_theory_binned = y_theory_binned,
-        x_theory_cfr = x_theory_cfr,
-        y_theory_cfr = y_theory_cfr,
-        x_theory_tfrcfr = x_theory_tfrcfr,
-        y_theory_tfrcfr = y_theory_tfrcfr,
-        xlims = [0.0,1.0],
-        ylims = [-0.20,1.0],
-        title = title,
-        xvar  = xvar,
-        xtitle = xtitle, #NOTE: CCHANGE FOR XVARS AAND PATH
-        ytitle = '$D_{LL\'}^{\Lambda}$',
-        sgasym = 0.00,
-        bgasym = 0.00,
-        color  = color, #NOTE: COLOR OF DATA POINTS
-        bcolor = 'gray', #NOTE:
-        outpath = 'results_with_theory___binvar_'+xvar+'__fitvar_'+fitvar+'.pdf',
-        verbose = True,
-        yaml_args = yaml_args,
-    )
-    print("DONE")
+        print("DEBUGGING: arr_binned = ",arr_binned)
+        print("DEBUGGING: arr_binned.shape = ",arr_binned.shape)
+        print("DEBUGGING: x_mean    = ",x_mean)
+        print("DEBUGGING: y_mean    = ",y_mean)
+        print("DEBUGGING: xerr_mean = ",xerr_mean)
+        print("DEBUGGING: yerr_mean = ",yerr_mean)
+        print("DEBUGGING: xerr_syst = ",xerr_syst)
+        print("DEBUGGING: yerr_syst = ",yerr_syst)
+
+        theory_cfr_inpath = "xiaoyan_theory_results__v11_13_24/CLAS_"+xvar.replace("_ppim","")+"_CFR.dat"
+        print("DEBUGGING: loading theory_cfr_inpath = ",theory_cfr_inpath)#DEBUGGING
+        arr_theory_cfr = np.loadtxt(theory_cfr_inpath, delimiter=",", skiprows=0)
+        x_theory_cfr = arr_theory_cfr[:,0]
+        y_theory_cfr = arr_theory_cfr[:,1]
+
+        theory_tfrcfr_inpath = "xiaoyan_theory_results__v11_13_24/CLAS_"+xvar.replace("_ppim","")+"_CFRandTFR.dat"
+        arr_theory_tfrcfr = np.loadtxt(theory_tfrcfr_inpath, delimiter=",", skiprows=0)
+        x_theory_tfrcfr = arr_theory_tfrcfr[:,0]
+        y_theory_tfrcfr = arr_theory_tfrcfr[:,1]
+
+        # Set yaml path and load
+        yaml_path = "results/args.yaml"
+        yaml_args = {}
+        with open(yaml_path) as f:
+            yaml_args = yaml.safe_load(f)
+        
+        # Get plots...
+        get_plots(
+            x_mean = x_mean,
+            y_mean = y_mean,
+            xerr_mean = xerr_mean,
+            yerr_mean = yerr_mean,
+            xerr_syst = xerr_syst,
+            yerr_syst = yerr_syst,
+            x_theory_binned = x_theory_binned,
+            y_theory_binned = y_theory_binned,
+            x_theory_cfr = x_theory_cfr,
+            y_theory_cfr = y_theory_cfr,
+            x_theory_tfrcfr = x_theory_tfrcfr,
+            y_theory_tfrcfr = y_theory_tfrcfr,
+            xlims = [0.0,1.0],
+            ylims = [-0.20,1.0],
+            title = title,
+            xvar  = xvar,
+            xtitle = xtitle, #NOTE: CCHANGE FOR XVARS AAND PATH
+            ytitle = '$D_{LL\'}^{\Lambda}$',
+            sgasym = 0.00,
+            bgasym = 0.00,
+            color  = color, #NOTE: COLOR OF DATA POINTS
+            bcolor = 'gray', #NOTE:
+            outpath = 'results_with_theory___binvar_'+xvar+'__fitvar_'+fitvar+'.pdf',
+            verbose = True,
+            yaml_args = yaml_args,
+        )
+        print("DONE")
