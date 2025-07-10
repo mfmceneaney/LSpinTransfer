@@ -402,21 +402,7 @@ if __name__=="__main__":
         #**bgasyms,
         #**seeds,
     )
-    """
-    # Results file paths and config
-    base_dir    = "results/results_phi_h_ppim_max/"
-    submit_path = base_dir+"submit.sh"
-    yaml_path   = base_dir+"args.yaml"
-    out_path    = base_dir+"jobs.txt"
-    input_yaml  = "args.yaml"
-    divisions = dict(
-        methods,
-        **fitvars,
-        #**sgasyms,
-        #**bgasyms,
-        #**seeds,
-    )
-    """
+
     xlims = (0.0,1.0)
     xvar_name = "\\Delta\\phi"
     yvar_name = "\\Delta\\theta"
