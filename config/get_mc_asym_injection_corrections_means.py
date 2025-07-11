@@ -18,7 +18,7 @@ def get_out_file_path(basedir,basename,oldfitvar,newfitvar,oldbinvar,newbinvar):
 
 # Set variables for CSV paths and keys
 basedir = "results/"
-basename = "aggregate___binvar_z_ppim__fitvar_costheta2__method_LF__z_ppim_0.0_1.0__mc_asym_injection_corrections.pdf.csv"
+basename = "aggregate___binvar_z_ppim__fitvar_costheta2__method_LF__z_ppim_0.0_1.0___inj_correction.pdf.csv"
 oldfitvar = "costheta2"
 oldbinvar = "z_ppim"
 ykey = "y"
