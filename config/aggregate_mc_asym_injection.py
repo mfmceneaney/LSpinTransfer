@@ -229,6 +229,7 @@ def get_arrs(out_file_list,sgasym):
             'y_mean':[],
             'xerr_mean':[],
             'yerr_mean':[],
+            'y_std':[],
             'y_min':[],
             'y_max':[],
             'ydiff_mean':[],
@@ -248,6 +249,7 @@ def get_arrs(out_file_list,sgasym):
     y_mean     = np.mean(glist[1],axis=0)
     xerr_mean = np.sqrt(np.mean(np.square(glist[2]),axis=0))
     yerr_mean = np.sqrt(np.mean(np.square(glist[3]),axis=0))
+    y_std      = np.std(glist[1],axis=0)
     y_min      = np.min(glist[1],axis=0)
     y_max      = np.max(glist[1],axis=0)
     ydiff_mean = np.mean(glist[1]-sgasym,axis=0)
@@ -260,6 +262,7 @@ def get_arrs(out_file_list,sgasym):
             'y_mean':y_mean,
             'xerr_mean':xerr_mean,
             'yerr_mean':yerr_mean,
+            'y_std':y_std,
             'y_min':y_min,
             'y_max':y_max,
             'ydiff_mean':ydiff_mean,
@@ -275,6 +278,7 @@ def get_plots(
     yerr_mean = [],
     y_min = [],
     y_max = [],
+    y_std = [],
     ydiff_mean = [],
     ydiff_std = [],
     ydiff_mins = [],
@@ -326,7 +330,15 @@ def get_plots(
     plt.title(title,usetex=True)
     plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
-    fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
+    fbb = plt.fill_between(
+            x_mean,
+            np.add(y_mean, y_std),
+            np.add(y_mean, -y_std),
+            alpha=0.2,
+            label="$\\pm1\\sigma$ Band",
+            color=bcolor,
+        )
+    # fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
