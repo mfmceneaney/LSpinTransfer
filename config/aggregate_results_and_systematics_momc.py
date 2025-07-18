@@ -508,7 +508,7 @@ def plot_systematics(
     xbins = x_means
     nbins = len(xbins)
     xbins = np.moveaxis(np.array([xbins for el in range(np.shape(yerr_syst)[1])]),(0,1),(1,0))
-    s1 = plt.hist(xbins, weights=yerr_syst, alpha=0.5, label=label, stacked=stacked, log=True) #NOTE: THAT HISTOGRAM X D #NOTE: DO NOT USE bins=... argument!!! Otherwise some bins might not show.
+    s1 = plt.hist(xbins, weights=yerr_syst, label=label, stacked=stacked, log=True) #NOTE: THAT HISTOGRAM X D #NOTE: DO NOT USE bins=... argument!!! Otherwise some bins might not show.
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
     # plt.text(0.5, 0.5, 'CLAS12 Preliminary',
