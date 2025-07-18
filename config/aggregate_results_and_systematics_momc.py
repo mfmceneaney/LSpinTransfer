@@ -449,7 +449,7 @@ def compute_systematics(results,bin_migration_mat=None,bin_migration_order=1,sys
 def plot_systematics(
                 x_means,
                 yerr_syst,
-                palette = 'Dark2',
+                palette = 'colorblind',
                 stacked = False,
                 label   = None,
                 xlims   = (0.0,1.0),
@@ -508,7 +508,7 @@ def plot_systematics(
     xbins = x_means
     nbins = len(xbins)
     xbins = np.moveaxis(np.array([xbins for el in range(np.shape(yerr_syst)[1])]),(0,1),(1,0))
-    s1 = plt.hist(xbins, weights=yerr_syst, bins=nbins, alpha=0.5, label=label, stacked=stacked) #NOTE: THAT HISTOGRAM X D
+    s1 = plt.hist(xbins, weights=yerr_syst, alpha=0.5, label=label, stacked=stacked, log=True) #NOTE: THAT HISTOGRAM X D #NOTE: DO NOT USE bins=... argument!!! Otherwise some bins might not show.
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
     # plt.text(0.5, 0.5, 'CLAS12 Preliminary',
@@ -908,11 +908,11 @@ if __name__=="__main__":
             plot_systematics(
                 arrs['x_mean'],
                 all_systematics,
-                palette = 'Dark2',
+                palette = 'colorblind',
                 stacked = False,
                 label   = labels,
                 xlims   = xlimss[binvar],
-                ylims   = (-0.01,0.05),
+                ylims   = (1e-7,0.05),
                 xvar    = binvar,
                 title   = titles[fitvar],
                 xtitle  = xtitles[binvar],
