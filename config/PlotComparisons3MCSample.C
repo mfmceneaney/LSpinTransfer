@@ -227,6 +227,9 @@ void PlotComparisons3MCSample() {
       .Define("v_pim", [](float vx_pim, float vy_pim, float vz_pim) { return TMath::Sqrt(vx_pim*vx_pim+vy_pim*vy_pim+vz_pim*vz_pim); }, {"vx_pim","vy_pim","vz_pim"})
       .Filter(cuts2); // NEEDED FOR CALCULATIONS LATER
 
+    // Create RDataFrame for statistics capabilities and reading tree and set branch names to use
+    ROOT::RDataFrame d3(tree3, path3);
+
     // Open MC files 40nA
     auto frame3 = d3//.Filter(cuts2)
       .Define("heli", "helicity") // TO ACCOUNT FOR WRONG HELICITY ASSIGNMENT IN HIPO BANKS, RGA FALL2018 DATA
@@ -246,6 +249,9 @@ void PlotComparisons3MCSample() {
       .Define("v_p", [](float vx_p, float vy_p, float vz_p) { return TMath::Sqrt(vx_p*vx_p+vy_p*vy_p+vz_p*vz_p); }, {"vx_p","vy_p","vz_p"})
       .Define("v_pim", [](float vx_pim, float vy_pim, float vz_pim) { return TMath::Sqrt(vx_pim*vx_pim+vy_pim*vy_pim+vz_pim*vz_pim); }, {"vx_pim","vy_pim","vz_pim"})
       .Filter(cuts4); // NEEDED FOR CALCULATIONS LATER
+
+    // Create RDataFrame for statistics capabilities and reading tree and set branch names to use
+    ROOT::RDataFrame d4(tree4, path4);
 
     // Open MC files nobkg
     auto frame4 = d4//.Filter(cuts2)
