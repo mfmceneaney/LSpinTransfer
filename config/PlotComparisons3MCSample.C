@@ -17,7 +17,7 @@ void plot(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> d1,
   h_data->GetXaxis()->SetTitle(varTitle);
   h_data->GetXaxis()->SetTitleSize(0.06);
   h_data->GetXaxis()->SetTitleOffset(0.75);
-  h_data->GetYaxis()->SetTitle("Counts");
+  h_data->GetYaxis()->SetTitle("Density");
   h_data->GetYaxis()->SetTitleSize(0.06);
   h_data->GetYaxis()->SetTitleOffset(0.87);
   h_data->SetMarkerStyle(20); // 20 is full circle
@@ -34,7 +34,7 @@ void plot(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> d1,
   h_mc->GetXaxis()->SetTitle(varTitle);
   h_mc->GetXaxis()->SetTitleSize(0.06);
   h_mc->GetXaxis()->SetTitleOffset(0.75);
-  h_mc->GetYaxis()->SetTitle("Counts");
+  h_mc->GetYaxis()->SetTitle("Density");
   h_mc->GetYaxis()->SetTitleSize(0.06);
   h_mc->GetYaxis()->SetTitleOffset(0.87);
   h_mc->SetMarkerStyle(21); // 21 is full square
@@ -50,7 +50,7 @@ void plot(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> d1,
   h_mc_40nA->GetXaxis()->SetTitle(varTitle);
   h_mc_40nA->GetXaxis()->SetTitleSize(0.06);
   h_mc_40nA->GetXaxis()->SetTitleOffset(0.75);
-  h_mc_40nA->GetYaxis()->SetTitle("Counts");
+  h_mc_40nA->GetYaxis()->SetTitle("Density");
   h_mc_40nA->GetYaxis()->SetTitleSize(0.06);
   h_mc_40nA->GetYaxis()->SetTitleOffset(0.87);
   h_mc_40nA->SetMarkerStyle(21); // 21 is full square
@@ -66,7 +66,7 @@ void plot(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> d1,
   h_mc_nobkg->GetXaxis()->SetTitle(varTitle);
   h_mc_nobkg->GetXaxis()->SetTitleSize(0.06);
   h_mc_nobkg->GetXaxis()->SetTitleOffset(0.75);
-  h_mc_nobkg->GetYaxis()->SetTitle("Counts");
+  h_mc_nobkg->GetYaxis()->SetTitle("Density");
   h_mc_nobkg->GetYaxis()->SetTitleSize(0.06);
   h_mc_nobkg->GetYaxis()->SetTitleOffset(0.87);
   h_mc_nobkg->SetMarkerStyle(21); // 21 is full square
@@ -96,7 +96,7 @@ void plot(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> d1,
   h_stack->GetXaxis()->SetTitle(h_data->GetXaxis()->GetTitle()); //NOTE: ALL THIS HAS TO HAPPEN AFTER ADDING HISTOGRAMS.
   h_stack->GetXaxis()->SetTitleSize(0.06);
   h_stack->GetXaxis()->SetTitleOffset(0.75);
-  h_stack->GetYaxis()->SetTitle("Counts");
+  h_stack->GetYaxis()->SetTitle("Density");
   h_stack->GetYaxis()->SetTitleSize(0.06);
   h_stack->GetYaxis()->SetTitleOffset(0.87);
   h_stack->Draw("NOSTACK");
