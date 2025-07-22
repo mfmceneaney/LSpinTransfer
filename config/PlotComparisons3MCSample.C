@@ -44,7 +44,7 @@ void plot(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> d1,
   h_mc->SetLineWidth(1);
 
   // Create histogram MC 40nA -> d3
-  auto h2_40nA = (TH1D) *d2.Histo1D({Form("h_mc_40nA_%s",varName),varName,nbins,varMin,varMax},varName);
+  auto h2_40nA = (TH1D) *d3.Histo1D({Form("h_mc_40nA_%s",varName),varName,nbins,varMin,varMax},varName);
   TH1D *h_mc_40nA = (TH1D*)h2_40nA.Clone(Form("h_mc_40nA_%s",varName));
   h_mc_40nA->Scale(1/h_mc_40nA->GetEntries());//NOTE: NORMALIZE FOR COMPARISON
   h_mc_40nA->GetXaxis()->SetTitle(varTitle);
@@ -60,7 +60,7 @@ void plot(ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> d1,
   h_mc_40nA->SetLineWidth(1);
 
   // Create histogram MC nobkg -> d4
-  auto h2_nobkg = (TH1D) *d2.Histo1D({Form("h_mc_nobkg_%s",varName),varName,nbins,varMin,varMax},varName);
+  auto h2_nobkg = (TH1D) *d4.Histo1D({Form("h_mc_nobkg_%s",varName),varName,nbins,varMin,varMax},varName);
   TH1D *h_mc_nobkg = (TH1D*)h2_nobkg.Clone(Form("h_mc_nobkg_%s",varName));
   h_mc_nobkg->Scale(1/h_mc_nobkg->GetEntries());//NOTE: NORMALIZE FOR COMPARISON
   h_mc_nobkg->GetXaxis()->SetTitle(varTitle);
