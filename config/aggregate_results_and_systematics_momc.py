@@ -494,9 +494,6 @@ def plot_systematics(
     # # yerr_syst = None #[0.1  for x in range(len(xbins)-1)] #NOTE: ADD IF STATMENT HERE #TODO #DEBUGGING !!!!!!!!!!!!!!!!!
     # #yerr_syst = np.multiply(yerr_syst,y_mean)#NOTE: THIS DOES NOT GET THE DIMENSIONS CORRECTLY, THINK CAREFULLY BEFORE UNCOMMENTING
 
-    #NOTE: ADDED 7/23/25
-    if xvar=="W": ylims = (-0.5,0.6)
-
     # Plot 
     figsize = (16,10)
     f1, ax1 = plt.subplots(figsize=figsize)
@@ -574,6 +571,9 @@ def get_plots(
     # xerr_syst = None #[0.00 for x in range(len(xbins)-1)]
     # yerr_syst = None #[0.1  for x in range(len(xbins)-1)] #NOTE: ADD IF STATMENT HERE #TODO #DEBUGGING !!!!!!!!!!!!!!!!!
     #yerr_syst = np.multiply(yerr_syst,y_mean)#NOTE: THIS DOES NOT GET THE DIMENSIONS CORRECTLY, THINK CAREFULLY BEFORE UNCOMMENTING
+
+    #NOTE: ADDED 7/23/25
+    if xvar=="W": ylims = (-0.5,0.6)
 
     # Plot 
     figsize = (16,10)
@@ -915,7 +915,7 @@ if __name__=="__main__":
                 stacked = False,
                 label   = labels,
                 xlims   = xlimss[binvar],
-                ylims   = (1e-7,0.05),
+                ylims   = (1e-7,0.07),
                 xvar    = binvar,
                 title   = titles[fitvar],
                 xtitle  = xtitles[binvar],
