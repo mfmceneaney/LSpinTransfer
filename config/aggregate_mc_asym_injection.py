@@ -323,13 +323,13 @@ def get_plots(
     axlinewidth=1
 
     # Plot 
-    # figsize = (16,10)
-    # f1, ax1 = plt.subplots(figsize=figsize)
-    # plt.xlim(*xlims)
-    # plt.ylim(*ylims)
-    # plt.title(title,usetex=True)
-    # plt.xlabel(xtitle,usetex=True)
-    # plt.ylabel(ytitle,usetex=True)
+    figsize = (16,10)
+    f1, ax1 = plt.subplots(figsize=figsize)
+    plt.xlim(*xlims)
+    plt.ylim(*ylims)
+    plt.title(title,usetex=True)
+    plt.xlabel(xtitle,usetex=True)
+    plt.ylabel(ytitle,usetex=True)
     # fbb = plt.fill_between(
     #         x_mean,
     #         np.add(y_mean, y_std),
