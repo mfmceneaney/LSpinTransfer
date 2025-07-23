@@ -350,9 +350,9 @@ def get_plots(
                         linewidth=linewidth, markersize=markersize,label='$D_{LL\'}^{\Lambda}$')
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
-    # plt.text(0.5, 0.5, 'CLAS12 Preliminary',
-    #         size=50, rotation=25., color='gray', alpha=0.25,
-    #         horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
+    plt.text(0.5, 0.5, 'CLAS12 Preliminary',
+            size=50, rotation=25., color='gray', alpha=0.25,
+            horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
     plt.legend(loc='best')
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
