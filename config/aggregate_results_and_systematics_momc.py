@@ -573,7 +573,7 @@ def get_plots(
     #yerr_syst = np.multiply(yerr_syst,y_mean)#NOTE: THIS DOES NOT GET THE DIMENSIONS CORRECTLY, THINK CAREFULLY BEFORE UNCOMMENTING
 
     #NOTE: ADDED 7/23/25
-    if xvar=="W": ylims = (-0.5,0.6)
+    if xvar=="W": ylims = (-0.5,0.7)
 
     # Plot 
     figsize = (16,10)
