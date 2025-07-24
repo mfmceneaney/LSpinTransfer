@@ -146,7 +146,7 @@ void LMassFitMC__5_13_25__full_bin__decomposition() {
 
     // Add Legend
     TLegend *legend2=new TLegend(0.15,0.78,0.65,0.89); //NOTE: FOR WITH MC DECOMP below
-    legend2->SetTextSize(0.04);
+    legend2->SetTextSize(0.03);
     legend2->SetNColumns(2);
     legend2->SetMargin(0.10);
     legend2->AddEntry(h_true,"True #Lambda #rightarrow p #pi^{-}","f");
