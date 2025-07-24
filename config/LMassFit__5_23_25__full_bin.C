@@ -63,7 +63,7 @@ void LMassFit__5_23_25__full_bin() {
     lt->SetTextColorAlpha(18,0.5);
     lt->SetTextSize(0.1);
     lt->SetNDC();
-    // lt->Draw();
+    lt->Draw();
 
     // Set Fitting fn
     TF1 *func = new TF1("fit","[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*(1 - [6]*(x-[7])*(x-[7]))",varMin,varMax);
