@@ -68,7 +68,7 @@ void LMassFitMC__5_13_25__full_bin__decomposition() {
     h->GetYaxis()->SetTitleOffset(0.87);
 
     // Set y axes limits
-    h->GetYaxis()->SetRangeUser(0.0,1.05*h->GetMaximum());
+    h->GetYaxis()->SetRangeUser(0.0,1.20*h->GetMaximum());
 
     // Create MC Truth histogram
     auto h1_true = (TH1D) *frame.Filter(mccuts.c_str()).Histo1D({"h1_true",varName.c_str(),nbins,varMin,varMax},varName.c_str());
@@ -119,7 +119,7 @@ void LMassFitMC__5_13_25__full_bin__decomposition() {
     h->SetLineColor(1);
     h_true->SetLineColor(kOrange-3);
     h_true_proton->SetLineColor(8);
-    h_true_pion->SetLineColor(kYellow-7);
+    h_true_pion->SetLineColor(kRed);
     h_true_bg->SetLineColor(kAzure+10);
 
     // Set line widths
@@ -145,9 +145,9 @@ void LMassFitMC__5_13_25__full_bin__decomposition() {
     h_true_bg->Write(h_true_bg->GetName());
 
     // Add Legend
-    TLegend *legend2=new TLegend(0.325,0.78,0.60,0.89); //NOTE: FOR WITH MC DECOMP below
-    legend2->SetTextSize(0.03);
-    // legend2->SetNColumns(2);
+    TLegend *legend2=new TLegend(0.15,0.78,0.65,0.89); //NOTE: FOR WITH MC DECOMP below
+    legend2->SetTextSize(0.04);
+    legend2->SetNColumns(2);
     legend2->SetMargin(0.10);
     legend2->AddEntry(h_true,"True #Lambda #rightarrow p #pi^{-}","f");
     legend2->AddEntry(h_true_proton,"True p false #pi^{-}","f");
