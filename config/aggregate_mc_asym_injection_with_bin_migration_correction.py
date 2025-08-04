@@ -212,6 +212,74 @@ def get_data_from_tgrapherror(
         print("\t Returning empty list")
         return []
 
+def load_TH2(
+    path='h_bin_migration_2D_final_bins.root',
+    name='h2d_bin_migration_Q2',
+    ):
+    """
+    :param: path
+    :param: name
+
+    :returns: TH2 values as np.array
+    """
+
+    # Get TH2D from ROOT file
+    try:
+        f = ur.open(path)
+        g = f[name].values()
+
+        return g
+    except FileNotFoundError:
+        print("DEBUGGING: FileNotFoundError: ",path)
+        print("\t Returning empty list")
+        return []
+
+def save_matrix_to_csv(
+    bin_migration_mat,
+    base_dir='systematics/bin_migration/',
+    binvar='Q2',
+    delimiter=",",
+    header=None,
+    fmt=None,
+    comments='',
+    ):
+
+    if np.shape(bin_migration_mat)[0]!=np.shape(bin_migration_mat)[1] or len(np.shape(bin_migration_mat))!=2:
+        raise TypeError("Bin migration matrix must be square but has shape "+str(np.shape(bin_migration_mat)))
+
+    # Set output filename
+    filename = 'bin_migration_mat_'+binvar+'.csv'
+    filename = os.path.join(base_dir,filename)
+    print("DEBUGGING: output filename = ",filename)
+
+    # Create new table with int bin labels
+    nbins = np.shape(bin_migration_mat)[0]
+    new_shape = list(np.shape(bin_migration_mat)) #NOTE: LIST IS IMPORTANT HERE!
+    new_shape[1] += 1 #NOTE: INCREASE NUMBER OF COLUMNS TO ACCOMODATE BIN NUMBERS ON LEFT
+    data = np.zeros(new_shape)
+    data[:,0] = [i for i in range(1,nbins+1)]
+    data[0:,1:] = bin_migration_mat
+
+    print("DEBUGGING: np.shape(data) = ",np.shape(data))
+    print("DEBUGGING: np.shape(fmt) = ",np.shape(fmt))#DEBUGGING
+
+    if header is None: header = ' '+delimiter+delimiter.join([str(i) for i in range(1,nbins+1)])
+
+    header = "REPLACEMENT_HEADER"+header
+
+    np.savetxt(filename, data, header=header, delimiter=delimiter, fmt=fmt)
+
+    # Read in the file
+    with open(filename, 'r') as file:
+        filedata = file.read()
+
+    # Replace the target string
+    filedata = filedata.replace('# REPLACEMENT_HEADER', '')
+
+    # Write the file out again
+    with open(filename, 'w') as file:
+        file.write(filedata)
+
 def get_arrs(out_file_list,sgasym):
 
     # Initialize output list
