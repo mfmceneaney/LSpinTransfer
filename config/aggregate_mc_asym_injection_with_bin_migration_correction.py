@@ -601,14 +601,17 @@ if __name__=="__main__":
             print("DEBUGGING: binvar = ",binvar)
             print("DEBUGGING: ylimss = ",ylimss)
 
-            # Load systematics tables
-            bin_migration_mat = load_TH2(path='systematics/bin_migration/GetBinMigration2D__Inverse__5_14_25/sg/h_bin_migration_2D_final_bins.root',name='h2d_bin_migration_'+binvar)
-            fmt = ["%d","%.3g","%.3g","%.3g","%.3g","%.3g"]
-            save_matrix_to_csv(bin_migration_mat,base_dir='systematics/bin_migration/',binvar=binvar,fmt=fmt) #NOTE: SAVE BIN MIGRATION MATRIX TO CSV, MUST BE A SQUARE MATRIX!
+            # Check that this is not the overall bin
+            if binvar!="mass_ppim":
 
-            # APPLY BIN MIGRATION CORRECTION
-            bin_migration_mat_inv = np.linalg.inv(bin_migration_mat) #NOTE: Make sure that bin_migration_mat is of the form f[i,j] = [# gen in bin i AND rec. in bin j] / [# gen. in bin i], remember that ROOT histogram indexing i,j is opposite (idx_x,idx_y) typical matrix indexing (idx_y,idx_x) and begins at 1 not 0
-            arrs['y_mean'] = np.matmul(bin_migration_mat_inv,arrs['y_mean']) # DeltaA = a - f_inv . a
+                # Load systematics tables
+                bin_migration_mat = load_TH2(path='systematics/bin_migration/GetBinMigration2D__Inverse__5_14_25/sg/h_bin_migration_2D_final_bins.root',name='h2d_bin_migration_'+binvar)
+                fmt = ["%d","%.3g","%.3g","%.3g","%.3g","%.3g"]
+                save_matrix_to_csv(bin_migration_mat,base_dir='systematics/bin_migration/',binvar=binvar,fmt=fmt) #NOTE: SAVE BIN MIGRATION MATRIX TO CSV, MUST BE A SQUARE MATRIX!
+
+                # APPLY BIN MIGRATION CORRECTION
+                bin_migration_mat_inv = np.linalg.inv(bin_migration_mat) #NOTE: Make sure that bin_migration_mat is of the form f[i,j] = [# gen in bin i AND rec. in bin j] / [# gen. in bin i], remember that ROOT histogram indexing i,j is opposite (idx_x,idx_y) typical matrix indexing (idx_y,idx_x) and begins at 1 not 0
+                arrs['y_mean'] = np.matmul(bin_migration_mat_inv,arrs['y_mean']) # DeltaA = a - f_inv . a
 
             # Get plots
             get_plots(
