@@ -344,7 +344,7 @@ def get_plots(
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='$D_{LL\'}^{\Lambda}$')
+                        linewidth=linewidth, markersize=markersize,label='$D_{LL\',sig}^{\Lambda}$')
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
     # plt.text(0.5, 0.5, 'CLAS12 Preliminary',
@@ -481,7 +481,7 @@ if __name__=="__main__":
         'y':'$y$',
         'z_ppim':'$z_{p\pi^{-}}$',
     }
-    ytitle = '$D_{LL\'}^{\Lambda}$'
+    ytitle = '$D_{LL\',sig}^{\Lambda}$'
 
     def get_outpath(base_dir,aggregate_keys,**config):
 
