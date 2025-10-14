@@ -354,7 +354,7 @@ def get_plots(
     plt.text(0.5, 0.5, 'CLAS12 Preliminary',
             size=50, rotation=25., color='gray', alpha=0.25,
             horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
-    plt.legend(loc='best')
+    plt.legend(loc='best',frameon=False)
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
 
