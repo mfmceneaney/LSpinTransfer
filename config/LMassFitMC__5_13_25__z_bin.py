@@ -214,7 +214,7 @@ def run(path='/RGA_MC_DIR/skim_*.root', tree='t', outname='LMassFitMC__5_13_25__
              f"$\\alpha = {alpha:.3f} \pm {Ealpha:.3f}$",
              f"$n = {n:.2f} \pm {En:.2f}$",
              f"$\sigma = {sigma:.5f} \pm {Esigma:.5f}$",
-             f"$\mu = {mu:.4f} \pm {Emu:.4f}$"]
+             f"$\mu = {mu:.2f} \pm {Emu:.2f}$"]
 
     # Draw a text box in axes coordinates
     param_text = '\n'.join(lines)
@@ -230,7 +230,7 @@ def run(path='/RGA_MC_DIR/skim_*.root', tree='t', outname='LMassFitMC__5_13_25__
                    + fr"\alpha &= {alpha:.3f} \pm {Ealpha:.3f} \\"
                    + fr"n &= {n:.2f} \pm {En:.2f} \\"
                    + fr"\sigma &= {sigma:.5f} \pm {Esigma:.5f} \\"
-                   + fr"\mu &= {mu:.4f} \pm {Emu:.4f} \\"
+                   + fr"\mu &= {mu:.2f} \pm {Emu:.2f} \\"
                    + r"\end{align*}")
     ax.text(0.875, 0.50, latex_block, transform=ax.transAxes, fontsize=plt.rcParams['font.size'],
             verticalalignment='top', horizontalalignment='right', bbox=bbox_props,
