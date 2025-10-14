@@ -29,7 +29,7 @@ plt.rcParams['figure.autolayout'] = True
 fig, ax = plt.subplots(figsize=(10,10))
 ax.set_prop_cycle(custom_cycler)
 
-plt.title('$\Lambda$ parent $x_{F}>0$',usetex=True)
+plt.title('$\Lambda$ parent $x_{F}>0$',usetex=True,pad=20)
 ax.pie(sizes, labels=labels, autopct='%1.1f%%',radius=1.0,pctdistance=0.8,labeldistance=1.1)
 fig.savefig('pieplot.pdf')
 plt.show()

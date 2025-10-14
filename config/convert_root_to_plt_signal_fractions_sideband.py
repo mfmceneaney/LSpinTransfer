@@ -79,7 +79,7 @@ def get_plots(
     # Cos theta 1
     figsize = (16,10)
     f1, ax1 = plt.subplots(figsize=figsize)
-    plt.title("True Signal Fraction vs. Sideband Limits",usetex=True)
+    plt.title("True Signal Fraction vs. Sideband Limits",usetex=True,pad=20)
     plt.xlabel(xvar_name,usetex=True)
     plt.ylabel("True Signal Fraction",usetex=True)
     plt.xlim(*xlims)
