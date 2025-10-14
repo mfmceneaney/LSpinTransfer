@@ -133,6 +133,15 @@ def run(path='/RGA_MC_DIR/skim_*.root', tree='t', outname='LMassFitMC__5_13_25__
 
     hist = h.Clone('hist')
     hist.Add(bghist, -1.0)
+    # Zero bins below fit_min (match the macro behaviour where bins below fit_min are ignored)
+    try:
+        if 'fit_min' in locals() and fit_min > varMin:
+            h_min_bin = hist.FindBin(fit_min)
+            for ib in range(1, h_min_bin):
+                hist.SetBinContent(ib, 0.0)
+                hist.SetBinError(ib, 0.0)
+    except Exception:
+        pass
 
     # Define integration bounds (macro used fixed bounds)
     LBInt = 1.1104
@@ -184,6 +193,21 @@ def run(path='/RGA_MC_DIR/skim_*.root', tree='t', outname='LMassFitMC__5_13_25__
     ax.step(bins[:-1], counts_true, where='post', label='MC SG', color='tab:orange', linewidth=lw, linestyle='dashed')
     ax.step(bins[:-1], counts_true_bg, where='post', label='MC BG', color='tab:blue', linewidth=lw, linestyle='dotted')
 
+    # Compute bg integral error from covariance where possible
+    try:
+        cov = fit_result.GetCovarianceMatrix()
+        covMat = ROOT.TMatrixDSym(cov)
+        bgMat = ROOT.TMatrixDSym(cov.GetSub(5,7,5,7))
+        try:
+            i_bg_err = bg.IntegralError(LBInt, UBInt, bg.GetParameters(), bgMat.GetMatrixArray()) / BinWidth
+        except Exception:
+            i_bg_err = 0.0
+    except Exception:
+        i_bg_err = 0.0
+
+    # Final signal from fit minus bg (as in macro)
+    i_sig_final = float(i_fitf) - float(i_bg)
+    i_sig_final_err = math.sqrt((i_fitf_err if i_fitf_err is not None else 0.0)**2 + (i_bg_err if i_bg_err is not None else 0.0)**2)
     # Overlay fit and components by evaluating functions on x grid
     xs = np.linspace(varMin, varMax, 1000)
     ys_fit = np.array([func.Eval(x) for x in xs])
@@ -225,13 +249,34 @@ def run(path='/RGA_MC_DIR/skim_*.root', tree='t', outname='LMassFitMC__5_13_25__
     # Align by equals sign using monospaced font; render as plain text (disable usetex behavior here)
     # Create LaTeX aligned block for parameters (align on equals sign)
     # Requires plt.rcParams['text.usetex'] = True and a working TeX installation
-    latex_block = (r"\begin{align*}"
-                   + fr"\chi^2&/\mathrm{{NDF}} = {chi2/ndf:.2f} \\"
-                   + fr"\alpha &= {alpha:.3f} \pm {Ealpha:.3f} \\"
-                   + fr"n &= {n:.2f} \pm {En:.2f} \\"
-                   + fr"\sigma &= {sigma:.5f} \pm {Esigma:.5f} \\"
-                   + fr"\mu &= {mu:.2f} \pm {Emu:.2f} \\"
-                   + r"\end{align*}")
+    # helper to format numbers as (mantissa \pm errmantissa) \times 10^{exp} for LaTeX
+    def sci_to_tex(val, err, sig_digits=2):
+        try:
+            if val == 0 or (not np.isfinite(val)):
+                return r"0"
+            aval = abs(val)
+            exp = int(math.floor(math.log10(aval)))
+            mant = aval / (10 ** exp)
+            err_mant = (err / (10 ** exp)) if err is not None else 0.0
+            sign = '-' if val < 0 else ''
+            return rf"({sign}{mant:.{sig_digits}f} \pm {err_mant:.{sig_digits}f}) \times 10^{{{exp}}}"
+        except Exception:
+            return fr"{val:.2e}"
+
+    n_sig_tex = sci_to_tex(i_sig_final, i_sig_final_err, sig_digits=2)
+    n_bg_tex = sci_to_tex(i_bg, i_bg_err, sig_digits=2)
+
+    latex_block = (
+        r"\begin{align*}"
+        + fr"\chi^2&/\mathrm{{NDF}} = {chi2/ndf:.2f} \\"
+        + fr"\alpha &= {alpha:.3f} \pm {Ealpha:.3f} \\"
+        + fr"n &= {n:.2f} \pm {En:.2f} \\"
+        + fr"\sigma &= {sigma:.5f} \pm {Esigma:.5f}\ \mathrm{{GeV}} \\"
+        + fr"\mu &= {mu:.2f} \pm {Emu:.2f}\ \mathrm{{GeV}} \\"
+        + fr"N_{{sig}} &= {n_sig_tex} \\"
+        + fr"N_{{bg}} &= {n_bg_tex} \\"
+        + r"\end{align*}"
+    )
     ax.text(0.875, 0.50, latex_block, transform=ax.transAxes, fontsize=plt.rcParams['font.size'],
             verticalalignment='top', horizontalalignment='right', bbox=bbox_props,
             usetex=True)
