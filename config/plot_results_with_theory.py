@@ -1,6 +1,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+plt.rcParams['text.usetex'] = True #NOTE: Force use of LaTeX in text rendering
 
 import os
 import yaml

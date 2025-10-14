@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from cycler import cycler
+plt.rcParams['text.usetex'] = True #NOTE: Force use of LaTeX in text rendering
 
 labels = ['String', '$\Sigma^{0}$', '$\Sigma^{* 0}$', '$\Sigma^{* +}$', '$\Sigma^{-}$']#, 'Other'] #NOTE: LAST ENTRY IS TOO SMALL AND TOO CLOSE TO PREVIOUS AND MAKES THE PLOT TOO CLUTTERED SO OMIT FOR NOW.
 sizes = [66.7, 19.0, 7.2, 5.6, 1.3]#, 0.2]

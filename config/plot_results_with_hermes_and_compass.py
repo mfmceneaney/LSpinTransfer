@@ -4,6 +4,7 @@ import os
 import matplotlib.pyplot as plt
 import yaml
 import sys
+plt.rcParams['text.usetex'] = True #NOTE: Force use of LaTeX in text rendering
 
 # Set Lambda decay asymmetry parameter values so you can scale old results and errors computed with a different value
 alpha_lambda = 0.747

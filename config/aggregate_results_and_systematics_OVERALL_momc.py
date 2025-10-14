@@ -7,6 +7,7 @@ import uproot as ur
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+plt.rcParams['text.usetex'] = True #NOTE: Force use of LaTeX in text rendering
 import seaborn as sbn
 
 import subprocess

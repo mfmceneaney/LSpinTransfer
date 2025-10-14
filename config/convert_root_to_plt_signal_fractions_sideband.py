@@ -6,6 +6,7 @@
 import uproot as ur
 import numpy as np
 import matplotlib.pyplot as plt
+plt.rcParams['text.usetex'] = True #NOTE: Force use of LaTeX in text rendering
 
 def offset_graph_x(g, offset):
     npoints = len(g[0])
