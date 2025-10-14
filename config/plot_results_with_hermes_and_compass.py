@@ -79,8 +79,8 @@ def get_plots(
 
     # Set font sizes
     plt.rc('font', size=25) #controls default text size
-    plt.rc('axes', titlesize=60) #fontsize of the title
-    plt.rc('axes', labelsize=75) #fontsize of the x and y labels
+    plt.rc('axes', titlesize=50) #fontsize of the title
+    plt.rc('axes', labelsize=50) #fontsize of the x and y labels
     plt.rc('xtick', labelsize=25) #fontsize of the x tick labels
     plt.rc('ytick', labelsize=25) #fontsize of the y tick labels
     plt.rc('legend', fontsize=25) #fontsize of the legend
