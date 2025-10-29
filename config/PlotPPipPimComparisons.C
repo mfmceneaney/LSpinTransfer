@@ -83,13 +83,13 @@ void PlotPPipPimComparisons() {
     // Parameters for MC P+PI- tree
     const char *path1    = "/RGA_MC_DIR/skim_*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
     const char *tree1    = "t";
-    const char *cuts1    = "mass_ppim<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-10 && vz_e<2.5 && detector_p==6 && detector_pim==6";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
+    const char *cuts1    = "mass_ppim<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-10 && vz_e<2.5 && detector_p==6 && detector_pim==6 && !(ppid_p_mc==3122 && pidx_p_mc==pidx_pim_mc && abs(theta_p-theta_p_mc)<6.0*TMath::Pi()/180.0 && abs(theta_pim-theta_pim_mc)<6.0*TMath::Pi()/180.0)";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
     const char *drawopt  = "";//"PE1";
 
     // Parameters for MC P+PI+ tree
     const char *path2    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppi_10_13_25/*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
     const char *tree2    = "t";
-    const char *cuts2    = "mass_ppi<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-10 && vz_e<2.5 && detector_p==6 && detector_pi==6";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
+    const char *cuts2    = "mass_ppi<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-10 && vz_e<2.5 && detector_p==6 && detector_pi==6 && ()";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
     // const char *drawopt  = "";//"PE1";
 
     gStyle->SetOptStat(0);
@@ -157,20 +157,20 @@ void PlotPPipPimComparisons() {
     plot(frame1,frame2,"mass_ppim","mass_ppi",100,1.08,1.24,"M_{p#pi^{#pm}}",drawopt,f);
     plot(frame1,frame2,"z_ppim","z_ppi",100,0.0,1.0,"z_{p#pi^{#pm}}",drawopt,f);
     plot(frame1,frame2,"xF_ppim","xF_ppi",100,-1.0,1.0,"x_{F p#pi^{#pm}}",drawopt,f);
-    plot(frame1,frame2,"costheta1","costheta1",100,-1.0,1.0,"cos(#theta) along P_{#Lambda}",drawopt,f);
-    plot(frame1,frame2,"costheta2","costheta2",100,-1.0,1.0,"cos(#theta) along P_{#gamma *}",drawopt,f);
+    // plot(frame1,frame2,"costheta1","costheta1",100,-1.0,1.0,"cos(#theta) along P_{#Lambda}",drawopt,f);
+    // plot(frame1,frame2,"costheta2","costheta2",100,-1.0,1.0,"cos(#theta) along P_{#gamma *}",drawopt,f);
 
-    plot(frame1,frame2,"pt_e","pt_e",100,0.0,2.0,"p_{T e^{#pm}} (GeV)",drawopt,f);
-    plot(frame1,frame2,"pt_p","pt_p",100,0.0,2.0,"p_{T p} (GeV)",drawopt,f);
-    plot(frame1,frame2,"pt_pim","pt_pi",100,0.0,2.0,"p_{T #pi^{#pm}} (GeV)",drawopt,f);
+    // plot(frame1,frame2,"pt_e","pt_e",100,0.0,2.0,"p_{T e^{#pm}} (GeV)",drawopt,f);
+    // plot(frame1,frame2,"pt_p","pt_p",100,0.0,2.0,"p_{T p} (GeV)",drawopt,f);
+    // plot(frame1,frame2,"pt_pim","pt_pi",100,0.0,2.0,"p_{T #pi^{#pm}} (GeV)",drawopt,f);
 
     plot(frame1,frame2,"p_e","p_e",100,0.0,10.0,"p_{e^{#pm}} (GeV)",drawopt,f);
     plot(frame1,frame2,"p_p","p_p",100,0.0,10.0,"p_{p} (GeV)",drawopt,f);
     plot(frame1,frame2,"p_pim","p_pi",100,0.0,10.0,"p_{#pi^{#pm}} (GeV)",drawopt,f);
 
-    plot(frame1,frame2,"pz_e","pz_e",100,0.0,10.0,"p_{z e^{#pm}} (GeV)",drawopt,f);
-    plot(frame1,frame2,"pz_p","pz_p",100,0.0,10.0,"p_{z p} (GeV)",drawopt,f);
-    plot(frame1,frame2,"pz_pim","pz_pi",100,0.0,10.0,"p_{z #pi^{#pm}} (GeV)",drawopt,f);
+    // plot(frame1,frame2,"pz_e","pz_e",100,0.0,10.0,"p_{z e^{#pm}} (GeV)",drawopt,f);
+    // plot(frame1,frame2,"pz_p","pz_p",100,0.0,10.0,"p_{z p} (GeV)",drawopt,f);
+    // plot(frame1,frame2,"pz_pim","pz_pi",100,0.0,10.0,"p_{z #pi^{#pm}} (GeV)",drawopt,f);
 
     plot(frame1,frame2,"theta_e","theta_e",100,0.0,TMath::Pi(),"#theta_{e^{#pm}}",drawopt,f);
     plot(frame1,frame2,"theta_p","theta_p",100,0.0,TMath::Pi(),"#theta_{p}",drawopt,f);
@@ -180,25 +180,25 @@ void PlotPPipPimComparisons() {
     plot(frame1,frame2,"phi_p_2","phi_p_2",100,0.0,2*TMath::Pi(),"#phi_{p}",drawopt,f);
     plot(frame1,frame2,"phi_pim_2","phi_pi_2",100,0.0,2*TMath::Pi(),"#phi_{#pi^{#pm}}",drawopt,f);
 
-    plot(frame1,frame2,"beta_e","beta_e",100,0.0,1.2,"#beta_{e^{#pm}} (GeV)",drawopt,f);
-    plot(frame1,frame2,"beta_p","beta_p",100,0.0,1.2,"#beta_{p} (GeV)",drawopt,f);
-    plot(frame1,frame2,"beta_pim","beta_pi",100,0.0,1.2,"#beta_{#pi^{#pm}} (GeV)",drawopt,f);
+    // plot(frame1,frame2,"beta_e","beta_e",100,0.0,1.2,"#beta_{e^{#pm}} (GeV)",drawopt,f);
+    // plot(frame1,frame2,"beta_p","beta_p",100,0.0,1.2,"#beta_{p} (GeV)",drawopt,f);
+    // plot(frame1,frame2,"beta_pim","beta_pi",100,0.0,1.2,"#beta_{#pi^{#pm}} (GeV)",drawopt,f);
 
-    plot(frame1,frame2,"chi2pid_e","chi2pid_e",100,-10.0,10.0,"#chi^{2}_{PID e^{#pm}} (GeV)",drawopt,f);
-    plot(frame1,frame2,"chi2pid_p","chi2pid_p",100,-10.0,10.0,"#chi^{2}_{PID p} (GeV)",drawopt,f);
-    plot(frame1,frame2,"chi2pid_pim","chi2pid_pi",100,-10.0,10.0,"#chi^{2}_{PID #pi^{#pm}} (GeV)",drawopt,f);
+    // plot(frame1,frame2,"chi2pid_e","chi2pid_e",100,-10.0,10.0,"#chi^{2}_{PID e^{#pm}} (GeV)",drawopt,f);
+    // plot(frame1,frame2,"chi2pid_p","chi2pid_p",100,-10.0,10.0,"#chi^{2}_{PID p} (GeV)",drawopt,f);
+    // plot(frame1,frame2,"chi2pid_pim","chi2pid_pi",100,-10.0,10.0,"#chi^{2}_{PID #pi^{#pm}} (GeV)",drawopt,f);
 
-    plot(frame1,frame2,"vT_e","vT_e",100,0.0,5.0,"v_{T e^{#pm}} (cm)",drawopt,f);
-    plot(frame1,frame2,"vT_p","vT_p",100,0.0,5.0,"v_{T p} (cm)",drawopt,f);
-    plot(frame1,frame2,"vT_pim","vT_pi",100,0.0,5.0,"v_{T #pi^{#pm}} (cm)",drawopt,f);
+    // plot(frame1,frame2,"vT_e","vT_e",100,0.0,5.0,"v_{T e^{#pm}} (cm)",drawopt,f);
+    // plot(frame1,frame2,"vT_p","vT_p",100,0.0,5.0,"v_{T p} (cm)",drawopt,f);
+    // plot(frame1,frame2,"vT_pim","vT_pi",100,0.0,5.0,"v_{T #pi^{#pm}} (cm)",drawopt,f);
 
-    plot(frame1,frame2,"v_e","v_e",100,0.0,30.0,"v_{e^{#pm}} (cm)",drawopt,f);
-    plot(frame1,frame2,"v_p","v_p",100,0.0,30.0,"v_{p} (cm)",drawopt,f);
-    plot(frame1,frame2,"v_pim","v_pi",100,0.0,30.0,"v_{#pi^{#pm}} (cm)",drawopt,f);
+    // plot(frame1,frame2,"v_e","v_e",100,0.0,30.0,"v_{e^{#pm}} (cm)",drawopt,f);
+    // plot(frame1,frame2,"v_p","v_p",100,0.0,30.0,"v_{p} (cm)",drawopt,f);
+    // plot(frame1,frame2,"v_pim","v_pi",100,0.0,30.0,"v_{#pi^{#pm}} (cm)",drawopt,f);
 
-    plot(frame1,frame2,"vz_e","vz_e",100,-25.0,25.0,"v_{z e^{#pm}} (cm)",drawopt,f);
-    plot(frame1,frame2,"vz_p","vz_p",100,-25.0,25.0,"v_{z p} (cm)",drawopt,f);
-    plot(frame1,frame2,"vz_pim","vz_pi",100,-25.0,25.0,"v_{z #pi^{#pm}} (cm)",drawopt,f);
+    // plot(frame1,frame2,"vz_e","vz_e",100,-25.0,25.0,"v_{z e^{#pm}} (cm)",drawopt,f);
+    // plot(frame1,frame2,"vz_p","vz_p",100,-25.0,25.0,"v_{z p} (cm)",drawopt,f);
+    // plot(frame1,frame2,"vz_pim","vz_pi",100,-25.0,25.0,"v_{z #pi^{#pm}} (cm)",drawopt,f);
 
     // Close output file
     f->Close();
