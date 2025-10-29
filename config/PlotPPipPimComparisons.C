@@ -89,7 +89,7 @@ void PlotPPipPimComparisons() {
     // Parameters for MC P+PI+ tree
     const char *path2    = "/volatile/clas12/users/mfmce/mc_jobs_rga_ppi_10_13_25/*.root";//"~/clas12work/skim_Lambda_ROOT_12_9_20/*.root";
     const char *tree2    = "t";
-    const char *cuts2    = "mass_ppi<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-10 && vz_e<2.5 && detector_p==6 && detector_pim==6";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
+    const char *cuts2    = "mass_ppi<1.24 && Q2>1 && W>2 && p_e>2.0 && vz_e>-10 && vz_e<2.5 && detector_p==6 && detector_pi==6";//"Q2>1 && W>2 && y<0.8 && xF_ppim>0.0 && z_ppim<1.0";
     // const char *drawopt  = "";//"PE1";
 
     gStyle->SetOptStat(0);
