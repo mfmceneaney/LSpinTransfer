@@ -141,12 +141,7 @@ def get_plots(
     plt.legend(loc='best',frameon=False)
 
     # Plot subplot labels for paper
-    colors = {
-        'costheta1':'blue',
-        'costheta2':'red',
-    }
-    fitvars = {colors[fitvar]:fitvar for fitvar in colors}
-    ax1.text(0.95, 0.15, '(a)' if fitvars[color]=='costheta1' else '(b)', transform=ax1.transAxes,
+    ax1.text(0.95, 0.15, '(a)' if xvar=='z_ppim' else '(b)', transform=ax1.transAxes,
             fontsize=plt.rcParams['axes.titlesize'], fontweight='bold', va='top', ha='right')
 
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
