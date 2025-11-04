@@ -352,6 +352,14 @@ def get_plots(
     #         size=50, rotation=25., color='gray', alpha=0.25,
     #         horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
     plt.legend(loc='best',frameon=False)
+
+    colors = {
+        'costheta1':'blue',
+        'costheta2':'red',
+    }
+    fitvars = {colors[fitvar]:fitvar for fitvar in colors}
+    ax1.text(-0.1, 1.05, '(a)' if fitvars[color]=='costheta1' else '(b)', transform=axs1.transAxes,
+            fontweight='bold', va='top', ha='right')
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
 
