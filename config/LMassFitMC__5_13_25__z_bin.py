@@ -297,6 +297,10 @@ def run(path='/RGA_MC_DIR/skim_*.root', tree='t', outname='LMassFitMC__5_13_25__
     # Draw legend with two columns so it doesn't overlap the plot
     ax.legend(loc='upper left', bbox_to_anchor=(0.0, 1.0), frameon=False, ncol=2)
 
+    # Plot subplot labels for paper
+    ax.text(0.95, 0.15, '(b)', transform=ax.transAxes,
+            fontsize=plt.rcParams['axes.titlesize'], fontweight='bold', va='top', ha='right')
+
     out_pdf = f'c1_{outname}.pdf'
     fig.tight_layout()
     fig.savefig(out_pdf)
