@@ -358,7 +358,7 @@ def get_plots(
         'costheta2':'red',
     }
     fitvars = {colors[fitvar]:fitvar for fitvar in colors}
-    ax1.text(-0.1, 1.05, '(a)' if fitvars[color]=='costheta1' else '(b)', transform=axs1.transAxes,
+    ax1.text(-0.1, 1.05, '(a)' if fitvars[color]=='costheta1' else '(b)', transform=ax1.transAxes,
             fontweight='bold', va='top', ha='right')
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
