@@ -6,8 +6,58 @@ from particle import Particle
 import hipopy.hipopy as hp
 import argparse
 import awkward as ak
+import numpy as np
+import vector
 
-def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0):
+import vector
+import numpy as np
+
+def boost_event_dict_to_gammaN(event_dict, beam_lepton, scattered_lepton, target_mass=0.938):
+    """
+    Boost all particles in event_dict to the gamma*-N CM frame using vector package.
+    
+    Inputs:
+        event_dict: dict with keys 'E','px','py','pz'
+        beam_lepton: 4-vector [E, px, py, pz] of incoming electron
+        scattered_lepton: 4-vector [E, px, py, pz] of scattered electron
+        target_mass: proton mass in GeV
+    Returns:
+        boosted_event_dict: same keys but in gamma*N CM frame
+        boost_vector: vector object for the boost
+    """
+    # --- Create 4-vectors ---
+    particles = vector.arr({
+        "E": event_dict["E"],
+        "px": event_dict["px"],
+        "py": event_dict["py"],
+        "pz": event_dict["pz"]
+    })
+
+    k = vector.obj(E=beam_lepton[0], px=beam_lepton[1], py=beam_lepton[2], pz=beam_lepton[3])
+    kprime = vector.obj(E=scattered_lepton[0], px=scattered_lepton[1], py=scattered_lepton[2], pz=scattered_lepton[3])
+    q = k - kprime
+
+    # Target nucleon
+    pN = vector.obj(E=target_mass, px=0, py=0, pz=0)
+
+    # Gamma*-N system 4-vector
+    P_sys = q + pN
+
+    # Boost all particles to CM frame
+    boosted_particles = particles.boostCM_of_p4(P_sys)  # minus because we want CM frame
+
+    # Build boosted_event_dict
+    boosted_event_dict = {
+        "E": boosted_particles.E,
+        "px": boosted_particles.px,
+        "py": boosted_particles.py,
+        "pz": boosted_particles.pz,
+    }
+
+    return boosted_event_dict, P_sys
+
+
+def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0,layout="rapidity"):
     """
     Plots the decay chain of a particle physics event with PID-based node styles.
 
@@ -15,14 +65,16 @@ def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0):
     ----------
     event_dict : dict
         Must contain:
-            - bank_prefix+'pid'    : list or array of particle IDs
-            - bank_prefix+'index'  : list or array of 1-based indices (1..nparticles)
-            - bank_prefix+'parent' : list or array of parent indices (1..nparticles)
+            - bank_prefix+'pid'      : list or array of particle IDs
+            - bank_prefix+'index'    : list or array of 1-based indices (1..nparticles)
+            - bank_prefix+'parent'   : list or array of parent indices (1..nparticles)
+            - bank_prefix+'daughter' : list or array of daughter indices (1..nparticles)
                           or 0 / None / -1 for root particle.
     """
     pids = event_dict[bank_prefix+'pid']
     indices = event_dict[bank_prefix+'index']
     parents = event_dict[bank_prefix+'parent']
+    daughters = event_dict[bank_prefix+'daughter']
 
     G = nx.DiGraph()
 
@@ -33,52 +85,118 @@ def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0):
         if parent_idx not in [None, 0, -1]:
             G.add_edge(parent_idx, idx)
 
-    # ---- Hierarchical layout ----
-    def hierarchy_pos(G, root=None, width=1., vert_gap=0.3, vert_loc=0, xcenter=0.5):
-        if not nx.is_tree(G):
-            raise TypeError("Cannot use hierarchy_pos on a graph that is not a tree")
+    for idx, daughter_idx in zip(indices, daughters):
+        if daughter_idx not in [None, 0, -1]:
+            G.add_edge(idx, daughter_idx)
 
-        if root is None:
-            roots = [n for n, d in G.in_degree() if d == 0]
-            if not roots:
-                raise ValueError("No root found (no node with in_degree=0)")
-            root = roots[0]
+    # # ---- Hierarchical layout ----
+    # def hierarchy_pos(G, root=None, width=1., vert_gap=0.3, vert_loc=0, xcenter=0.5):
+    #     if not nx.is_tree(G):
+    #         raise TypeError("Cannot use hierarchy_pos on a graph that is not a tree")
 
-        def _hierarchy_pos(G, root, left, right, vert_loc, vert_gap, pos):
-            children = list(G.successors(root))
-            pos[root] = ((left + right) / 2, vert_loc)
-            if children:
-                dx = (right - left) / len(children)
-                nextx = left
-                for child in children:
-                    nextx += dx
-                    pos = _hierarchy_pos(G, child, nextx - dx, nextx,
-                                         vert_loc - vert_gap, vert_gap, pos)
-            return pos
+    #     if root is None:
+    #         roots = [n for n, d in G.in_degree() if d == 0]
+    #         if not roots:
+    #             raise ValueError("No root found (no node with in_degree=0)")
+    #         root = roots[0]
 
-        return _hierarchy_pos(G, root, 0, width, vert_loc, vert_gap, {})
+    #     def _hierarchy_pos(G, root, left, right, vert_loc, vert_gap, pos):
+    #         children = list(G.successors(root))
+    #         pos[root] = ((left + right) / 2, vert_loc)
+    #         if children:
+    #             dx = (right - left) / len(children)
+    #             nextx = left
+    #             for child in children:
+    #                 nextx += dx
+    #                 pos = _hierarchy_pos(G, child, nextx - dx, nextx,
+    #                                      vert_loc - vert_gap, vert_gap, pos)
+    #         return pos
 
-    # try:
-    #     pos = hierarchy_pos(G)
-    # except Exception:
-    #     pos = nx.spring_layout(G, seed=42)
+    #     return _hierarchy_pos(G, root, 0, width, vert_loc, vert_gap, {})
 
-    # For directed decay chain
-    components = list(nx.weakly_connected_components(G))
+    # # try:
+    # #     pos = hierarchy_pos(G)
+    # # except Exception:
+    # #     pos = nx.spring_layout(G, seed=42)
 
-    subgraph_positions = {}
-    x_offset = 0.0  # horizontal offset for placing components
+    # # For directed decay chain
+    # components = list(nx.weakly_connected_components(G))
 
-    for comp in components:
-        H = G.subgraph(comp)
-        pos = hierarchy_pos(H, width=2.5)
-        # Get max x-coordinate in this component
-        max_x = max(x for x, y in pos.values())
-        # Shift component
-        pos = {n: (x + x_offset, y) for n, (x, y) in pos.items()}
-        subgraph_positions.update(pos)
-        # Add spacing for next component
-        x_offset += max_x + 1.0  # 1.0 unit gap
+    # subgraph_positions = {}
+    # x_offset = 0.0  # horizontal offset for placing components
+
+    # for comp in components:
+    #     H = G.subgraph(comp)
+    #     pos = hierarchy_pos(H, width=2.5)
+    #     # Get max x-coordinate in this component
+    #     max_x = max(x for x, y in pos.values())
+    #     # Shift component
+    #     pos = {n: (x + x_offset, y) for n, (x, y) in pos.items()}
+    #     subgraph_positions.update(pos)
+    #     # Add spacing for next component
+    #     x_offset += max_x + 1.0  # 1.0 unit gap
+
+    # pos = subgraph_positions
+
+    # --- Regions ---
+    q_dir = 1.0  # assume +z if not provided
+
+    rapidities = []
+    for i in range(len(event_dict["pid"])):
+        E = event_dict["E"][i]
+        pz = event_dict["pz"][i]
+        try:
+            y = 0.5 * np.log((E + pz*q_dir) / (E - pz*q_dir))
+        except ZeroDivisionError:
+            y = np.nan
+        rapidities.append(y)
+
+    # Classify CFR / TFR
+    regions = np.array(["CFR" if y > 0 else "TFR" for y in rapidities])
+
+    # --- Layout ---
+
+    if layout == "rapidity":
+
+        # --- Assign positions: x = rapidity, y = layer index or parent depth ---
+        # Compute "depth" from the number of ancestors
+        depth = {}
+        for node in G.nodes:
+            d = 0
+            current = node
+            while True:
+                parents = [p for p in event_dict["parent"] if p == current]
+                if not parents:
+                    break
+                d += 1
+                current = parents[0]
+            depth[node] = d
+
+        # Now create position dict
+        pos = {}
+        for i, idx in enumerate(event_dict["index"]):
+            x = rapidities[i]
+            y = -depth.get(idx, 0)  # vertical spacing by depth
+            pos[idx] = (x, y)
+
+    elif layout == "hierarchy":
+
+        # Compute layers by parent relationships
+        layers = {}
+        for i, parent in zip(event_dict["index"], event_dict["parent"]):
+            if parent == 0:
+                layers[i] = 0  # root
+            else:
+                layers[i] = layers.get(parent, 0) + 1
+
+        # Assign to graph
+        nx.set_node_attributes(G, layers, "subset")
+
+        # Hierarchical layout (for near-trees)
+        pos = nx.multipartite_layout(G, subset_key="subset", scale=1.)
+    else:
+        # Spring layout handles general DAGs well
+        pos = nx.spring_layout(G, k=0.8, iterations=100, seed=42)
 
     # ---- Define PID-based styles ----
     def get_style(pid):
@@ -117,11 +235,11 @@ def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0):
             except Exception:
                 label = f"{pid}"  # fallback if unknown PID
             labels[n] = label
-        nx.draw_networkx_nodes(G, subgraph_positions, nodelist=nodes, node_color=colors, node_shape=shape, node_size=900)
-        nx.draw_networkx_labels(G, subgraph_positions, labels=labels, font_size=9)
+        nx.draw_networkx_nodes(G, pos, nodelist=nodes, node_color=colors, node_shape=shape, node_size=900)
+        nx.draw_networkx_labels(G, pos, labels=labels, font_size=9)
 
     nx.draw_networkx_edges(
-        G, subgraph_positions,
+        G, pos,
         arrows=True,
         arrowstyle='-|>',
         arrowsize=15,
@@ -129,6 +247,17 @@ def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0):
         min_source_margin=20,
         min_target_margin=20
     )
+
+    if layout == "rapidity":
+        # --- CFR/TFR boundary line ---
+        ax = plt.gca()
+        ax.axvline(x=0, color='k', linestyle='--', linewidth=1.5)
+
+        # --- Label axes and legend ---
+        ax.set_xlabel("Rapidity y (γ*-p frame)", fontsize=12)
+        ax.set_ylabel("Decay depth", fontsize=12)
+        ax.set_title(f"Event {event_idx}: Decay Graph with CFR/TFR Rapidity Separation", fontsize=13)
+
 
     # ---- Legend ----
     legend_elements = [
@@ -140,10 +269,15 @@ def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0):
         mlines.Line2D([], [], color='none', marker='p', markerfacecolor='#FF6F61', markersize=12, label='Baryon'),   # coral red pentagon
         mlines.Line2D([], [], color='none', marker='o', markerfacecolor='gray', label='Other', markersize=12)
     ]
+    if layout == "rapidity":
+        legend_elements.append(
+            Line2D([], [], color='k', linestyle='--', label='Rapidity boundary (y=0)')
+        )
     plt.legend(handles=legend_elements, title="Particle Types", loc="lower left", fontsize=10)
 
-    plt.title("Decay Chain (PID-colored)")
-    plt.axis('off')
+    if layout != "rapidity":
+        plt.title("Decay Chain (PID-colored)")
+        plt.axis('off')
     plt.tight_layout()
     f.savefig(f'event_{event_idx}.pdf')
 
@@ -166,8 +300,34 @@ def plot_batch_decay_chains(batch_dict,bank_prefix="MC::Lund_",batch_idx=0):
         event_dict = {
             bank_prefix+'pid': batch_dict[bank_prefix+'pid'][i],
             bank_prefix+'index': batch_dict[bank_prefix+'index'][i],
-            bank_prefix+'parent': batch_dict[bank_prefix+'parent'][i]
+            bank_prefix+'parent': batch_dict[bank_prefix+'parent'][i],
+            bank_prefix+'daughter': batch_dict[bank_prefix+'daughter'][i],
+            bank_prefix+'px': batch_dict[bank_prefix+'px'][i],
+            bank_prefix+'py': batch_dict[bank_prefix+'py'][i],
+            bank_prefix+'pz': batch_dict[bank_prefix+'pz'][i],
+            bank_prefix+'E': batch_dict[bank_prefix+'E'][i],
+
         }
+
+        # Boost event dictionary
+        beam_lepton_idx = 0 #NOTE: This is a raw python index not the lund index.
+        scattered_lepton_idx = 3 #NOTE: This is a raw python index not the lund index.
+        beam_lepton = (
+            event_dict["E"][beam_lepton_idx],
+            event_dict["px"][beam_lepton_idx],
+            event_dict["py"][beam_lepton_idx],
+            event_dict["pz"][beam_lepton_idx],
+        )
+        scattered_lepton = (
+            event_dict["E"][scattered_lepton_idx],
+            event_dict["px"][scattered_lepton_idx],
+            event_dict["py"][scattered_lepton_idx],
+            event_dict["pz"][scattered_lepton_idx],
+        )
+        boosted_event_dict, _ = boost_event_dict_to_gammaN(
+            event_dict, beam_lepton, scattered_lepton, target_mass=Particle.from_pdgid(2212).mass/1000.0
+        )
+        event_dict.update(boosted_event_dict)
 
         # Set the event index
         event_idx = n_events * batch_idx + i
@@ -219,11 +379,17 @@ def main():
         print(batch.keys())
 
         # Convert awkward arrays to normal Python lists
-        if f"{args.bank}_pid" in batch and f"{args.bank}_index" in batch and f"{args.bank}_parent" in batch:
+        if f"{args.bank}_pid" in batch and f"{args.bank}_index" in batch and \
+        f"{args.bank}_parent" in batch and f"{args.bank}_daughter" in batch:
             batch_dict = {
                 "pid": ak.to_list(batch[f"{args.bank}_pid"]),
                 "index": ak.to_list(batch[f"{args.bank}_index"]),
                 "parent": ak.to_list(batch[f"{args.bank}_parent"]),
+                "daughter": ak.to_list(batch[f"{args.bank}_daughter"]),
+                "px": ak.to_list(batch[f"{args.bank}_px"]),
+                "py": ak.to_list(batch[f"{args.bank}_py"]),
+                "pz": ak.to_list(batch[f"{args.bank}_pz"]),
+                "E": ak.to_list(batch[f"{args.bank}_energy"]),
             }
             plot_batch_decay_chains(batch_dict,bank_prefix="",batch_idx=batch_idx)
         else:
