@@ -164,12 +164,20 @@ def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0,layout="rapi
         for node in G.nodes:
             d = 0
             current = node
+            visited = set()  # prevent cycles
             while True:
-                parents = [p for p in event_dict["parent"] if p == current]
-                if not parents:
+                # convert node index to array index (assuming nodes go 1..n)
+                array_idx = current - 1  
+                current_parent = event_dict["parent"][array_idx]
+                if current_parent == 0 or current_parent is None:
                     break
+                if current in visited:
+                    # cycle detected, stop to avoid infinite loop
+                    print(f"Warning: cycle detected at node {current}")
+                    break
+                visited.add(current)
                 d += 1
-                current = parents[0]
+                current = current_parent
             depth[node] = d
 
         # Now create position dict
@@ -271,7 +279,7 @@ def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0,layout="rapi
     ]
     if layout == "rapidity":
         legend_elements.append(
-            Line2D([], [], color='k', linestyle='--', label='Rapidity boundary (y=0)')
+            mlines.Line2D([], [], color='k', linestyle='--', label='Rapidity boundary (y=0)')
         )
     plt.legend(handles=legend_elements, title="Particle Types", loc="lower left", fontsize=10)
 
