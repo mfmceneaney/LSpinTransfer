@@ -87,7 +87,7 @@ def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0):
             part = Particle.from_pdgid(pid)
             if len(part.quarks) == 2:
                 return {'color': '#FF8C00', 'shape': 'D', 'category': 'Meson'}    # orange diamond
-            if len(part.quarks) == 3:
+            if len(part.quarks) == 3 or part.is_unflavoured_meson:
                 return {'color': '#FF6F61', 'shape': 'p', 'category': 'Baryon'}   # coral red pentagon
         except Exception:
             pass
