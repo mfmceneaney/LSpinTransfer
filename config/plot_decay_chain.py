@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+plt.rcParams['text.usetex'] = True #NOTE: Force use of LaTeX in text rendering
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 import networkx as nx
@@ -11,6 +12,18 @@ import vector
 
 import vector
 import numpy as np
+
+# Set font sizes
+plt.rc('font', size=25) #controls default text size
+plt.rc('axes', titlesize=50) #fontsize of the title
+plt.rc('axes', labelsize=50) #fontsize of the x and y labels
+plt.rc('xtick', labelsize=25) #fontsize of the x tick labels
+plt.rc('ytick', labelsize=25) #fontsize of the y tick labels
+plt.rc('legend', fontsize=25) #fontsize of the legend
+
+# Get some nicer plot settings
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['figure.autolayout'] = True
 
 def boost_event_dict_to_gammaN(event_dict, beam_lepton, scattered_lepton, target_mass=0.938):
     """
@@ -93,7 +106,7 @@ def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0,layout="hier
     # --- Layout ---
     if layout == "mothers_only":
         # ---- Hierarchical layout ----
-        def hierarchy_pos(G, root=None, width=1., vert_gap=0.3, vert_loc=0, xcenter=0.5):
+        def hierarchy_pos(G, root=None, width=0.6, vert_gap=0.3, vert_loc=0, xcenter=0.5):
             if not nx.is_tree(G):
                 raise TypeError("Cannot use hierarchy_pos on a graph that is not a tree")
 
@@ -260,9 +273,9 @@ def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0,layout="hier
         ax.axvline(x=0, color='k', linestyle='--', linewidth=1.5)
 
         # --- Label axes and legend ---
-        ax.set_xlabel("Rapidity y (γ*-p frame)", fontsize=12)
-        ax.set_ylabel("Decay depth", fontsize=12)
-        ax.set_title(f"Event {event_idx}: Decay Graph with CFR/TFR Rapidity Separation", fontsize=13)
+        ax.set_xlabel("Rapidity $y$ ($\gamma^*N$ frame)",usetex=True)
+        ax.set_ylabel("Decay depth",usetex=True)
+        ax.set_title(f"Event {event_idx}: Decay Graph with CFR/TFR Rapidity Separation",usetex=True)
 
 
     # ---- Legend ----
@@ -279,10 +292,10 @@ def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0,layout="hier
         legend_elements.append(
             mlines.Line2D([], [], color='k', linestyle='--', label='Rapidity boundary (y=0)')
         )
-    plt.legend(handles=legend_elements, title="Particle Types", loc="lower left", fontsize=10)
+    plt.legend(handles=legend_elements, title="Particle Types", loc="lower left", usetex=True, frameon=False)
 
     if layout != "rapidities":
-        plt.title("Decay Chain (PID-colored)")
+        plt.title("Decay Chain (PID-colored)",usetex=True)
         plt.axis('off')
     plt.tight_layout()
     f.savefig(f'event_{layout}_{event_idx}.pdf')
