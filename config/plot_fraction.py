@@ -125,6 +125,7 @@ f1, ax1 = plt.subplots(figsize=(16,10))
 plt.step(bin_centers, fraction, where='mid', color='blue', label="CLAS12 MC")
 
 # Plot theory
+axlinewidth=1
 plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
 ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
 g3 = plt.plot(x_theory_cfr,np.ones_like(y_theory_tfrcfr) - np.divide(y_theory_tfrcfr,y_theory_cfr),color='tab:red',linestyle=':',linewidth=5,label='Zhao $et al.$')
