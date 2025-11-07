@@ -135,7 +135,7 @@ g3 = plt.plot(x_theory_cfr,g3_yvalues,color='tab:red',linestyle=':',linewidth=5,
 plt.title("CFR Fractions",usetex=True,pad=20)
 plt.xlabel(args.kinvar_label, usetex=True)
 plt.ylabel("Fraction of CFR $\Lambda$s", usetex=True)
-plt.ylim(0,1)
+plt.ylim(0,1.05)
 plt.xlim(args.xmin, args.xmax)
 plt.legend(loc='best',frameon=False)
 plt.tight_layout()
