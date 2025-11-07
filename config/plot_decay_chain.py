@@ -241,7 +241,7 @@ def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0,layout="hier
             return {'color': 'gray', 'shape': 'o'}
 
     # ---- Draw each group separately ----
-    f, ax = plt.subplots(figsize=(16, 12))
+    f, ax = plt.subplots(figsize=(16, 16))
     for shape in ['o', 's', '^', 'h', 'D', 'p']:
         nodes = [n for n, d in G.nodes(data=True) if get_style(d[bank_prefix+'pid'])['shape'] == shape]
         colors = [get_style(G.nodes[n][bank_prefix+'pid'])['color'] for n in nodes]
@@ -254,8 +254,8 @@ def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0,layout="hier
             except Exception:
                 label = f"{pid}"  # fallback if unknown PID
             labels[n] = label
-        nx.draw_networkx_nodes(G, pos, nodelist=nodes, node_color=colors, node_shape=shape, node_size=900)
-        nx.draw_networkx_labels(G, pos, labels=labels, font_size=9)
+        nx.draw_networkx_nodes(G, pos, nodelist=nodes, node_color=colors, node_shape=shape, node_size=1200)
+        nx.draw_networkx_labels(G, pos, labels=labels, font_size=12)
 
     nx.draw_networkx_edges(
         G, pos,
@@ -275,7 +275,7 @@ def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0,layout="hier
         # --- Label axes and legend ---
         ax.set_xlabel("Rapidity $y$ ($\gamma^*N$ frame)",usetex=True)
         ax.set_ylabel("Decay depth",usetex=True)
-        ax.set_title(f"Event {event_idx}: Decay Graph with CFR/TFR Rapidity Separation",usetex=True)
+        ax.set_title(f"Event {event_idx}: Decay Graph",usetex=True)
 
 
     # ---- Legend ----
@@ -292,7 +292,7 @@ def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0,layout="hier
         legend_elements.append(
             mlines.Line2D([], [], color='k', linestyle='--', label='Rapidity boundary (y=0)')
         )
-    plt.legend(handles=legend_elements, title="Particle Types", loc="lower left", frameon=False)
+    plt.legend(handles=legend_elements, title="Particle Types", loc="best", fontsize=10, frameone=False)
 
     if layout != "rapidities":
         plt.title("Decay Chain (PID-colored)",usetex=True)
