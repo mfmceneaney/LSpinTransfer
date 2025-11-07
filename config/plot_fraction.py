@@ -128,7 +128,7 @@ plt.step(bin_centers, fraction, where='mid', color='blue', label="CLAS12 MC")
 axlinewidth=1
 plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
 ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
-g3 = plt.plot(x_theory_cfr,np.ones_like(y_theory_tfrcfr) - np.divide(y_theory_tfrcfr,y_theory_cfr),color='tab:red',linestyle=':',linewidth=5,label='Zhao $et al.$')
+g3 = plt.plot(x_theory_cfr,np.divide(y_theory_tfrcfr,y_theory_cfr),color='tab:red',linestyle=':',linewidth=5,label='Zhao $et$ $al.$')
 
 plt.title("CFR Fractions",usetex=True,pad=20)
 plt.xlabel(args.kinvar_label, usetex=True)
