@@ -292,7 +292,7 @@ def plot_decay_chain(event_dict,bank_prefix="MC::Lund_",event_idx=0,layout="hier
         legend_elements.append(
             mlines.Line2D([], [], color='k', linestyle='--', label='Rapidity boundary (y=0)')
         )
-    plt.legend(handles=legend_elements, title="Particle Types", loc="best", fontsize=10, frameone=False)
+    plt.legend(handles=legend_elements, title="Particle Types", loc="best", fontsize=10, frameon=False)
 
     if layout != "rapidities":
         plt.title("Decay Chain (PID-colored)",usetex=True)
