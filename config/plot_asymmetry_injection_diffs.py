@@ -64,7 +64,7 @@ def plot_asymmetry_injection_diffs(
     nbins = len(xbins)
     xbins = np.moveaxis(
             np.array(
-                [xbins for el in range(np.shape(yerr_syst)[1])]
+                [xbins for el in range(np.shape(yvalues)[1])]
             ),
             (0,1),
             (1,0)
