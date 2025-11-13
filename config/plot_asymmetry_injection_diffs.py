@@ -114,7 +114,7 @@ xtitle = '$z_{p\\pi^{-}}$'
 ytitle = '$\\Delta D_{LL\'}^{\\Lambda}$'
 title = 'Asymmetry Injection Differences'
 xlims = (0.0,1.0)
-ylims = (-0.15,0.15)
+ylims = (-0.05,0.05)
 outpath = os.path.abspath("asymmetry_injection_diffs_z_ppim.pdf")
 
 # Set plot settings
