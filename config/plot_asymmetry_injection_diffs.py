@@ -87,11 +87,11 @@ def plot_asymmetry_injection_diffs(
 # Set input data
 indir = os.path.abspath("systematics/mc_asym_injection")
 file_names = [
-    "aggregate_inject_seed__bgasym_0.0__binvar_z_ppim__fitvar_costheta1__method_HB__sgasym_-0.01__z_ppim_0.0_1.0_systematics.pdf.csv",
-    "aggregate_inject_seed__bgasym_0.0__binvar_z_ppim__fitvar_costheta1__method_HB__sgasym_-0.1__z_ppim_0.0_1.0_systematics.pdf.csv",
-    "aggregate_inject_seed__bgasym_0.0__binvar_z_ppim__fitvar_costheta1__method_HB__sgasym_0.01__z_ppim_0.0_1.0_systematics.pdf.csv",
-    "aggregate_inject_seed__bgasym_0.0__binvar_z_ppim__fitvar_costheta1__method_HB__sgasym_0.0__z_ppim_0.0_1.0_systematics.pdf.csv",
-    "aggregate_inject_seed__bgasym_0.0__binvar_z_ppim__fitvar_costheta1__method_HB__sgasym_0.1__z_ppim_0.0_1.0_systematics.pdf.csv",
+    "aggregate_inject_seed__bgasym_0.0__binvar_z_ppim__fitvar_costheta1__method_HB__sgasym_-0.01__z_ppim_0.0_1.0.pdf_systematics.csv",
+    "aggregate_inject_seed__bgasym_0.0__binvar_z_ppim__fitvar_costheta1__method_HB__sgasym_-0.1__z_ppim_0.0_1.0.pdf_systematics.csv",
+    "aggregate_inject_seed__bgasym_0.0__binvar_z_ppim__fitvar_costheta1__method_HB__sgasym_0.01__z_ppim_0.0_1.0.pdf_systematics.csv",
+    "aggregate_inject_seed__bgasym_0.0__binvar_z_ppim__fitvar_costheta1__method_HB__sgasym_0.0__z_ppim_0.0_1.0.pdf_systematics.csv",
+    "aggregate_inject_seed__bgasym_0.0__binvar_z_ppim__fitvar_costheta1__method_HB__sgasym_0.1__z_ppim_0.0_1.0.pdf_systematics.csv",
 ]
 infiles = [os.path.join(indir,fn) for fn in file_names]
 csvs = [pd.read_csv(f) for f in infiles]
