@@ -104,14 +104,14 @@ yvalues = [csv[y_key].to_numpy() for csv in csvs]
 
 # Set plot parameters
 labels = [
-    r'$A_{Inj} = -0.01$',
-    r'$A_{Inj} = -0.10$',
-    r'$A_{Inj} = +0.01$',
-    r'$A_{Inj} =  0.00$',
-    r'$A_{Inj} = +0.10$',
+    '$A_{Inj} = -0.01$',
+    '$A_{Inj} = -0.10$',
+    '$A_{Inj} = +0.01$',
+    '$A_{Inj} =  0.00$',
+    '$A_{Inj} = +0.10$',
 ]
-xtitle = r'$z_{p\pi^{-}}$'
-ytitle = r'$\Delta D_{LL\'}^{\Lambda}$'
+xtitle = '$z_{p\\pi^{-}}$'
+ytitle = '$\\Delta D_{LL\'}^{\\Lambda}$'
 title = 'Asymmetry Injection Differences'
 xlims = (0.0,1.0)
 ylims = (-0.15,0.15)
