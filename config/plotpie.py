@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from cycler import cycler
+plt.rcParams['text.usetex'] = True #NOTE: Force use of LaTeX in text rendering
 
 labels = ['String', '$\Sigma^{0}$', '$\Sigma^{* 0}$', '$\Sigma^{* +}$', '$\Sigma^{-}$']#, 'Other'] #NOTE: LAST ENTRY IS TOO SMALL AND TOO CLOSE TO PREVIOUS AND MAKES THE PLOT TOO CLUTTERED SO OMIT FOR NOW.
 sizes = [66.7, 19.0, 7.2, 5.6, 1.3]#, 0.2]
@@ -12,7 +13,11 @@ plt.rc('axes', titlesize=50) #fontsize of the title
 plt.rc('axes', labelsize=50) #fontsize of the x and y labels
 plt.rc('xtick', labelsize=25) #fontsize of the x tick labels
 plt.rc('ytick', labelsize=25) #fontsize of the y tick labels
-plt.rc('legend', fontsize=20) #fontsize of the legend
+plt.rc('legend', fontsize=25) #fontsize of the legend
+
+# Get some nicer plot settings
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['figure.autolayout'] = True
 
 
 # Create custom cycler
@@ -28,7 +33,5 @@ plt.rcParams['figure.autolayout'] = True
 fig, ax = plt.subplots(figsize=(10,10))
 ax.set_prop_cycle(custom_cycler)
 
-plt.title('$\Lambda$ parent $x_{F}>0$',usetex=True)
 ax.pie(sizes, labels=labels, autopct='%1.1f%%',radius=1.0,pctdistance=0.8,labeldistance=1.1)
 fig.savefig('pieplot.pdf')
-plt.show()

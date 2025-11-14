@@ -1,6 +1,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+plt.rcParams['text.usetex'] = True #NOTE: Force use of LaTeX in text rendering
 
 import os
 import yaml
@@ -36,11 +37,11 @@ def get_plots(
 
     # Set font sizes
     plt.rc('font', size=25) #controls default text size
-    plt.rc('axes', titlesize=60) #fontsize of the title
-    plt.rc('axes', labelsize=75) #fontsize of the x and y labels
+    plt.rc('axes', titlesize=50) #fontsize of the title
+    plt.rc('axes', labelsize=50) #fontsize of the x and y labels
     plt.rc('xtick', labelsize=25) #fontsize of the x tick labels
     plt.rc('ytick', labelsize=25) #fontsize of the y tick labels
-    plt.rc('legend', fontsize=22) #fontsize of the legend
+    plt.rc('legend', fontsize=25) #fontsize of the legend
 
     # Get some nicer plot settings
     plt.rcParams['font.family'] = 'serif'
@@ -78,7 +79,7 @@ def get_plots(
     f1, ax1 = plt.subplots(figsize=figsize)
     plt.xlim(*xlims)
     plt.ylim(*ylims)
-    plt.title(title,usetex=True)
+    plt.title(title,usetex=True,pad=20)
     plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
 
@@ -102,7 +103,17 @@ def get_plots(
     # plt.text(0.5, 0.5, 'CLAS12 Preliminary',
     #         size=50, rotation=25., color='gray', alpha=0.25,
     #         horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
-    plt.legend(loc='best')
+    plt.legend(loc='best',frameon=False)
+
+    # Plot subplot labels for paper
+    colors = {
+        'costheta1':'blue',
+        'costheta2':'red',
+    }
+    fitvars = {colors[fitvar]:fitvar for fitvar in colors}
+    ax1.text(0.95, 0.15, '(a)' if fitvars[color]=='costheta1' else '(b)', transform=ax1.transAxes,
+            fontsize=plt.rcParams['axes.titlesize'], fontweight='bold', va='top', ha='right')
+
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
 

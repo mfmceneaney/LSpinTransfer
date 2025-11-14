@@ -6,6 +6,7 @@
 import uproot as ur
 import numpy as np
 import matplotlib.pyplot as plt
+plt.rcParams['text.usetex'] = True #NOTE: Force use of LaTeX in text rendering
 
 import subprocess
 import os
@@ -304,7 +305,7 @@ def get_plots(
     plt.rc('axes', labelsize=50) #fontsize of the x and y labels
     plt.rc('xtick', labelsize=25) #fontsize of the x tick labels
     plt.rc('ytick', labelsize=25) #fontsize of the y tick labels
-    plt.rc('legend', fontsize=20) #fontsize of the legend
+    plt.rc('legend', fontsize=25) #fontsize of the legend
 
     # Get some nicer plot settings
     plt.rcParams['font.family'] = 'serif'
@@ -327,7 +328,7 @@ def get_plots(
     f1, ax1 = plt.subplots(figsize=figsize)
     plt.xlim(*xlims)
     plt.ylim(*ylims)
-    plt.title(title,usetex=True)
+    plt.title(title,usetex=True,pad=20)
     plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
     # fbb = plt.fill_between(
@@ -347,7 +348,7 @@ def get_plots(
     if sgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
     ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth, label='Injected Signal Asymmetry')
     if bgasym!=0: ax1.axhline(bgasym, color='blue',linestyle='--',linewidth=axlinewidth, label='Injected Background Asymmetry')
-    plt.legend(loc='best')
+    plt.legend(loc='best',frameon=False)
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
 

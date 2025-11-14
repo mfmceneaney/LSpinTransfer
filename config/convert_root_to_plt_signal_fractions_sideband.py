@@ -6,6 +6,7 @@
 import uproot as ur
 import numpy as np
 import matplotlib.pyplot as plt
+plt.rcParams['text.usetex'] = True #NOTE: Force use of LaTeX in text rendering
 
 def offset_graph_x(g, offset):
     npoints = len(g[0])
@@ -55,7 +56,7 @@ def get_plots(
     plt.rc('axes', labelsize=50) #fontsize of the x and y labels
     plt.rc('xtick', labelsize=25) #fontsize of the x tick labels
     plt.rc('ytick', labelsize=25) #fontsize of the y tick labels
-    plt.rc('legend', fontsize=20) #fontsize of the legend
+    plt.rc('legend', fontsize=25) #fontsize of the legend
 
     # Get some nicer plot settings
     plt.rcParams['font.family'] = 'serif'
@@ -78,7 +79,7 @@ def get_plots(
     # Cos theta 1
     figsize = (16,10)
     f1, ax1 = plt.subplots(figsize=figsize)
-    plt.title("True Signal Fraction vs. Sideband Limits",usetex=True)
+    plt.title("True Signal Fraction vs. Sideband Limits",usetex=True,pad=20)
     plt.xlabel(xvar_name,usetex=True)
     plt.ylabel("True Signal Fraction",usetex=True)
     plt.xlim(*xlims)
@@ -93,7 +94,7 @@ def get_plots(
     # plt.text(0.5, 0.5, 'CLAS12 Preliminary',
     #         size=50, rotation=25., color='gray', alpha=0.25,
     #         horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
-    # plt.legend(loc='best')
+    # plt.legend(loc='best',frameon=False)
     f1.savefig(filename1)
 
 

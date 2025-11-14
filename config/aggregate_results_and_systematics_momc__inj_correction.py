@@ -7,6 +7,7 @@ import uproot as ur
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+plt.rcParams['text.usetex'] = True #NOTE: Force use of LaTeX in text rendering
 import seaborn as sbn
 
 import subprocess
@@ -471,7 +472,7 @@ def plot_systematics(
     plt.rc('axes', labelsize=50) #fontsize of the x and y labels
     plt.rc('xtick', labelsize=25) #fontsize of the x tick labels
     plt.rc('ytick', labelsize=25) #fontsize of the y tick labels
-    plt.rc('legend', fontsize=20) #fontsize of the legend
+    plt.rc('legend', fontsize=25) #fontsize of the legend
 
     # Get some nicer plot settings
     plt.rcParams['font.family'] = 'serif'
@@ -499,7 +500,7 @@ def plot_systematics(
     f1, ax1 = plt.subplots(figsize=figsize)
     plt.xlim(*xlims)
     plt.ylim(*ylims)
-    plt.title(title,usetex=True)
+    plt.title(title,usetex=True,pad=20)
     plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
 
@@ -514,7 +515,7 @@ def plot_systematics(
     # plt.text(0.5, 0.5, 'CLAS12 Preliminary',
     #         size=50, rotation=25., color='gray', alpha=0.25,
     #         horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
-    plt.legend(loc='best')
+    plt.legend(loc='best',frameon=False)
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
 
@@ -545,8 +546,8 @@ def get_plots(
 
     # Set font sizes
     plt.rc('font', size=25) #controls default text size
-    plt.rc('axes', titlesize=60) #fontsize of the title
-    plt.rc('axes', labelsize=75) #fontsize of the x and y labels
+    plt.rc('axes', titlesize=50) #fontsize of the title
+    plt.rc('axes', labelsize=50) #fontsize of the x and y labels
     plt.rc('xtick', labelsize=25) #fontsize of the x tick labels
     plt.rc('ytick', labelsize=25) #fontsize of the y tick labels
     plt.rc('legend', fontsize=25) #fontsize of the legend
@@ -577,7 +578,7 @@ def get_plots(
     f1, ax1 = plt.subplots(figsize=figsize)
     plt.xlim(*xlims)
     plt.ylim(*ylims)
-    plt.title(title,usetex=True)
+    plt.title(title,usetex=True,pad=20)
     plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
 
@@ -596,7 +597,7 @@ def get_plots(
     # plt.text(0.5, 0.5, 'CLAS12 Preliminary',
     #         size=50, rotation=25., color='gray', alpha=0.25,
     #         horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
-    plt.legend(loc='best')
+    plt.legend(loc='best',frameon=False)
     outpath = outpath.replace('.pdf','___inj_correction.pdf')
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
