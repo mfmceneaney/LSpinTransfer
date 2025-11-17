@@ -259,6 +259,7 @@ def run(path='/RGA_DT_DIR/skim_*.root', tree='t', outname='LMassFit__5_23_25__z_
     if pol == 4:
         a3 = func.GetParameter(8)
         a4 = func.GetParameter(9)
+        a5 = func.GetParameter(10)
 
     # Build signal and background functions
     sig = TF1("sig", "[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3])", varMin, varMax)
@@ -270,8 +271,8 @@ def run(path='/RGA_DT_DIR/skim_*.root', tree='t', outname='LMassFit__5_23_25__z_
         bg.SetParameters(a0, a1, a2)
         bg.SetLineColor(4)
     if pol == 4:
-        bg = TF1("bg", "[0]*(1 - [1]*(x-[2])*(x-[2]) + [3]*(x-[2])*(x-[2])*(x-[2])*(x-[2]))", varMin, varMax)
-        bg.SetParameters(a0, a1, a2, a3)
+        bg = TF1("bg", "[0]*([1] + [2]*x + [3]*x*x + [4]*x*x*x + [5]*x*x*x*x)", varMin, varMax)
+        bg.SetParameters(a0, a1, a2, a3, a4, a5)
         bg.SetLineColor(4)
 
     # Create binned background histogram from function for subtraction
