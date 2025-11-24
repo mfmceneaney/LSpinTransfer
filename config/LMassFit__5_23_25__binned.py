@@ -86,14 +86,7 @@ def run(path='/RGA_DT_DIR/skim_*.root', tree='t', outname='LMassFit__5_23_25__z_
 
     bins, counts, errs = hist_to_numpy(h)
 
-    # Choose fit function based on requested polynomial order for BG
-    if pol == 4:
-        # poly4 form: signal (crystalball) + [5]*(a0 + a1*x + a2*x^2 + a3*x^3 + a4*x^4)
-        func = TF1("fit", "[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*([6] + [7]*x + [8]*x*x + [9]*x*x*x + [10]*x*x*x*x)", varMin, varMax)
-    else:
-        # default: simple pol2-like background used previously
-        func = TF1("fit", "[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*(1 - [6]*(x-[7])*(x-[7]))", varMin, varMax)
-
+    # Initialize fit function parameters based on polynomial order
     if pol == 2:
         # initial tuning copied directly from the C macro logic
         alpha_init = 0.5
@@ -169,6 +162,9 @@ def run(path='/RGA_DT_DIR/skim_*.root', tree='t', outname='LMassFit__5_23_25__z_
         alpha_init = 0.5
         n_init = 3.0
 
+        # default: simple pol2-like background used previously
+        func = TF1("fit", "[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*(1 - [6]*(x-[7])*(x-[7]))", fit_min, fit_max)
+
         # Set TF1 parameters exactly as macro (pol2)
         func.SetParameters(alpha_init, n_init, sigma_init, mu_init, sig_max_init, hmax, beta, m0)
         func.SetParNames('alpha','n','sigma','Mu','C1','Pol2 a0','Pol2 beta','Pol2 M0')
@@ -176,7 +172,7 @@ def run(path='/RGA_DT_DIR/skim_*.root', tree='t', outname='LMassFit__5_23_25__z_
         func.SetParLimits(5,h.GetBinContent(nbins)*0.98,h.GetBinContent(nbins)*10.0)
         func.SetParLimits(1,2.0,10.0)
 
-    if pol == 4:
+    elif pol == 4:
         # Translate the C++ poly4 heuristic into Python
         # DEBUGGING: BEGIN (poly4)
         mid_bin = int(nbins/2)
@@ -236,13 +232,18 @@ def run(path='/RGA_DT_DIR/skim_*.root', tree='t', outname='LMassFit__5_23_25__z_
         # mu initial value used in the macro
         mu_init = 1.1157
 
+        # poly4 form: signal (crystalball) + [5]*(a0 + a1*x + a2*x^2 + a3*x^3 + a4*x^4)
+        func = TF1("fit", "[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*([6] + [7]*x + [8]*x*x + [9]*x*x*x + [10]*x*x*x*x)", fit_min, varMax)
+
         # Set TF1 parameters for poly4 form
         func.SetParameters(alpha_init, n_init, sigma_init, mu_init, sig_max_init, hmax, par6, par7, par8, par9, par10)
         func.SetParNames('alpha','n','sigma','Mu','C1','Pol4 a0','Pol4 a1','Pol4 a2','Pol4 a3','Pol4 a4','Pol4 a5')
         func.SetParLimits(0,0.0,3.0)
-        func.SetParLimits(5,h.GetBinContent(nbins)*0.98,h.GetBinContent(nbins)*10.0)
         func.SetParLimits(1,2.0,10.0)
         # DEBUGGING: END (poly4)
+
+    else:
+        raise ValueError(f"Unsupported polynomial order: {pol}")
 
     # Perform fit (S = return TFitResult)
     fit_result = h.Fit(func, "S", "S", fit_min, varMax)
@@ -310,7 +311,8 @@ def run(path='/RGA_DT_DIR/skim_*.root', tree='t', outname='LMassFit__5_23_25__z_
     try:
         cov = fit_result.GetCovarianceMatrix()
         covMat = ROOT.TMatrixDSym(cov)
-        bgMat = ROOT.TMatrixDSym(cov.GetSub(5,7,5,7))
+        bgMat = ROOT.TMatrixDSym(cov.GetSub(5,7,5,7)) if pol==2 \
+        else ROOT.TMatrixDSym(cov.GetSub(5,10,5,10))
         try:
             i_bg_err = bg.IntegralError(LBInt, UBInt, bg.GetParameters(), bgMat.GetMatrixArray()) / BinWidth
         except Exception:
@@ -352,7 +354,7 @@ def run(path='/RGA_DT_DIR/skim_*.root', tree='t', outname='LMassFit__5_23_25__z_
 
     def sci_to_tex(val, err, sig_digits=2):
         try:
-            if val == 0 or (not np.isfinite(val)):
+            if val == 0 or (not np.isfinite(val)) or not val<10**6:
                 return r"0"
             aval = abs(val)
             exp = int(math.floor(math.log10(aval)))
