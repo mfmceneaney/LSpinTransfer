@@ -116,79 +116,15 @@ def run(path='/RGA_MC_DIR/skim_*.root', tree='t', outname='LMassFit__5_23_25__bi
 
     # Initialize fit function parameters based on polynomial order
     if pol == 2:
-        # initial tuning copied directly from the C macro logic
+
         alpha_init = 0.5
-        n_init = 3.0
+        n_init = 2.0
         sigma_init = 0.006
         mu_init = 1.1157
-
-        # Start with a conservative signal amplitude guess
         sig_max_init = h.GetMaximum() / 4.0
-
-        # Background initialization and heuristic adjustments (mirror C macro)
+        hmax = h.GetBinContent(nbins)
+        beta = 37
         m0 = varMax
-        # mid and end bin contents for heuristic
-        mid_bin = int(nbins / 2)
-        midVal = h.GetBinContent(mid_bin) if mid_bin >= 1 else 0.0
-        endVal = h.GetBinContent(nbins)
-        # avoid division by zero
-        if endVal != 0.0:
-            delVal = (endVal - midVal) / endVal
-        else:
-            delVal = 0.0
-        if delVal > 0.25:
-            m0 = varMax * 1.0
-        if delVal < 0.1:
-            m0 = varMax * 0.96
-
-        true_prod_min = 1.078
-        # avoid zero division in beta
-        denom = (true_prod_min - m0)
-        beta = 1.0 / (denom * denom) if denom != 0.0 else 1.0
-        # estimate hmax based on last bin and beta
-        hmax = h.GetBinContent(nbins) / (1.0 - beta * (varMax - m0) * (varMax - m0)) if (1.0 - beta * (varMax - m0) * (varMax - m0)) != 0.0 else h.GetBinContent(nbins)
-
-        # For xF-like binning heuristics (use first, 10%, 15% bins)
-        bin1 = 1
-        bin2 = int(0.10 * nbins)
-        bin3 = int(0.15 * nbins)
-        # ensure bins are in valid range
-        x1 = h.GetBinCenter(bin1) if bin1 >= 1 else varMin
-        x2 = h.GetBinCenter(bin2) if bin2 >= 1 else varMin
-        x3 = h.GetBinCenter(bin3) if bin3 >= 1 else varMin
-        y1 = h.GetBinContent(bin1)
-        y2 = h.GetBinContent(bin2)
-        y3 = h.GetBinContent(bin3)
-        # avoid division by zero
-        maxval = h.GetMaximum() if h.GetMaximum() != 0.0 else 1.0
-        myratio = ((y2 - y1) / maxval) / ((x2 - x1) / (varMax - varMin)) if (x2 - x1) != 0.0 else 0.0
-        myratio2 = ((y3 - y2) / (x3 - x2)) / ((y2 - y1) / (x2 - x1)) if (x3 - x2) != 0.0 and (x2 - x1) != 0.0 and (y2 - y1) != 0.0 else 0.0
-
-        # Set initial signal parameters and fit window
-        fit_min = varMin
-        sigma_init = 0.006
-        firstVal = h.GetBinContent(1)
-        hfmidVal = h.GetBinContent(int(0.10 * nbins))
-        lwdelVal = (firstVal) / hfmidVal if hfmidVal != 0.0 else 0.0
-        sig_max_init = h.GetMaximum() / 4.0
-        if myratio < 1.8:
-            sig_max_init = h.GetMaximum() / 10.0
-            if myratio < 1.5:
-                prod_min = varMin + (varMax - varMin) * 0.0625
-                denom2 = (prod_min - m0)
-                if denom2 != 0.0:
-                    beta = 1.0 / (denom2 * denom2)
-                hmax = h.GetBinContent(nbins) / (1.0 - beta * (varMax - m0) * (varMax - m0)) if (1.0 - beta * (varMax - m0) * (varMax - m0)) != 0.0 else h.GetBinContent(nbins)
-            fit_min = varMin + (varMax - varMin) * 0.10
-        fit_max = varMax
-        if delVal < 0.15:
-            fit_min = varMin + (varMax - varMin) * 0.00
-            fit_max = varMax - (varMax - varMin) * 0.00
-            sigma_init = 0.009
-            sig_max_init = h.GetMaximum() / 3.0
-
-        alpha_init = 0.5
-        n_init = 3.0
 
         # default: simple pol2-like background used previously
         func = TF1("fit", "[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*(1 - [6]*(x-[7])*(x-[7]))", fit_min, fit_max)
@@ -196,9 +132,8 @@ def run(path='/RGA_MC_DIR/skim_*.root', tree='t', outname='LMassFit__5_23_25__bi
         # Set TF1 parameters exactly as macro (pol2)
         func.SetParameters(alpha_init, n_init, sigma_init, mu_init, sig_max_init, hmax, beta, m0)
         func.SetParNames('alpha','n','sigma','Mu','C1','Pol2 a0','Pol2 beta','Pol2 M0')
-        func.SetParLimits(0,0.0,3.0)
         func.SetParLimits(5,h.GetBinContent(nbins)*0.98,h.GetBinContent(nbins)*10.0)
-        func.SetParLimits(1,2.0,10.0)
+        func.SetParLimits(1,2.0,100.0)
 
     elif pol == 4:
         # Translate the C++ poly4 heuristic into Python
@@ -234,21 +169,12 @@ def run(path='/RGA_MC_DIR/skim_*.root', tree='t', outname='LMassFit__5_23_25__bi
             hmax = h.GetBinContent(nbins) / denom_h2 if denom_h2 != 0.0 else h.GetBinContent(nbins)
 
         # Initial signal params
+        fit_min = varMin
         fit_max = varMax
         sigma_init = 0.006
         sig_max_init = h.GetMaximum() / 4.0
         alpha_init = 0.5
         n_init = 3.0
-
-        # Special-case narrow sigma for certain delVal window
-        if delVal > 0.20 and delVal < 0.22:
-            m0 = varMax * 1.0
-            prod_min = true_prod_min
-            denom3 = (prod_min - m0)
-            beta = 1.0 / (denom3 * denom3 * denom3 * denom3) if denom3 != 0.0 else beta
-            denom_h3 = (1.0 - beta * (varMax - m0) * (varMax - m0) * (varMax - m0) * (varMax - m0))
-            hmax = h.GetBinContent(nbins) / denom_h3 if denom_h3 != 0.0 else h.GetBinContent(nbins)
-            sigma_init = 0.003
 
         # polynomial coefficients encoded as par6..par10 in the original C++
         par6  = 1.0 - beta * (m0**4)
@@ -266,8 +192,8 @@ def run(path='/RGA_MC_DIR/skim_*.root', tree='t', outname='LMassFit__5_23_25__bi
         # Set TF1 parameters for poly4 form
         func.SetParameters(alpha_init, n_init, sigma_init, mu_init, sig_max_init, hmax, par6, par7, par8, par9, par10)
         func.SetParNames('alpha','n','sigma','Mu','C1','Pol4 a0','Pol4 a1','Pol4 a2','Pol4 a3','Pol4 a4','Pol4 a5')
-        func.SetParLimits(0,0.0,3.0)
-        func.SetParLimits(1,2.0,10.0)
+        func.SetParLimits(0,0.0,1000.0)
+        func.SetParLimits(1,2.0,100.0)
         # DEBUGGING: END (poly4)
 
     else:
