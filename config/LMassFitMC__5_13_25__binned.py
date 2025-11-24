@@ -115,6 +115,7 @@ def run(path='/RGA_MC_DIR/skim_*.root', tree='t', outname='LMassFit__5_23_25__bi
     _, counts_true_bg, _ = hist_to_numpy(h_true_bg)
 
     # Initialize fit function parameters based on polynomial order
+    fit_min = varMin
     if pol == 2:
 
         alpha_init = 0.5
