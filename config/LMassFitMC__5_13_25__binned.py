@@ -127,7 +127,7 @@ def run(path='/RGA_MC_DIR/skim_*.root', tree='t', outname='LMassFit__5_23_25__bi
         m0 = varMax
 
         # default: simple pol2-like background used previously
-        func = TF1("fit", "[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*(1 - [6]*(x-[7])*(x-[7]))", varMin, fit_max)
+        func = TF1("fit", "[4]*ROOT::Math::crystalball_function(-x,[0],[1],[2],-[3]) + [5]*(1 - [6]*(x-[7])*(x-[7]))", varMin, varMax)
 
         # Set TF1 parameters exactly as macro (pol2)
         func.SetParameters(alpha_init, n_init, sigma_init, mu_init, sig_max_init, hmax, beta, m0)
