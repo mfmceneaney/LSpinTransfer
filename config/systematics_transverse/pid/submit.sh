@@ -8,7 +8,7 @@
 #SBATCH -c 8
 #SBATCH --mem-per-cpu=250
 #SBATCH --gres=disk:1000
-#SBATCH --time=48:00:00
+#SBATCH --time=24:00:00
 #SBATCH --mail-user=matthew.mceneaney@duke.edu
 
 export MYEXECUTABLE=$LSPINTRANSFER_HOME/build/analysistransverse
