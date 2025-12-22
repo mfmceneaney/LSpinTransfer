@@ -391,7 +391,7 @@ if __name__=="__main__":
     methods = {"method":["HB"]}
     fitvars = {"fitvar":["costhetaT","costhetaTy"]}
     sgasyms = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
-    sgasyms2 = {"sgasym2":[-0.01, 0.00, 0.01]}
+    sgasyms2 = {"sgasym2":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     sgasyms3 = {"sgasym3":[0.00]} #NOTE: Just leave this at 0.00 for now
     bgasyms = {"bgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     seeds   = {"inject_seed":[2**i for i in range(16)]}
