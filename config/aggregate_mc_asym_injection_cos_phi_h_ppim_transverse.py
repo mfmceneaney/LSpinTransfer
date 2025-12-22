@@ -411,7 +411,7 @@ if __name__=="__main__":
         **fitvars,
         **sgasyms,
         **sgasyms2,
-        **sgasysm3,
+        **sgasyms3,
         **seeds,
     )
 
