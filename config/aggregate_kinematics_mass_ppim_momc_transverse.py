@@ -354,11 +354,11 @@ def get_plots(
     plt.legend(loc='best',frameon=False)
 
     colors = {
-        'costheta1':'blue',
-        'costheta2':'red',
+        'costhetaT':'tab:orange',
+        'costhetaTy':'tab:green',
     }
     fitvars = {colors[fitvar]:fitvar for fitvar in colors}
-    ax1.text(0.95, 0.15, '(a)' if fitvars[color]=='costheta1' else '(b)', transform=ax1.transAxes,
+    ax1.text(0.95, 0.15, '(a)' if fitvars[color]=='costhetaT' else '(b)', transform=ax1.transAxes,
             fontsize=plt.rcParams['axes.titlesize'], fontweight='bold', va='top', ha='right')
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
@@ -387,8 +387,8 @@ def get_plots(
 if __name__=="__main__":
 
     # Create job submission structure
-    methods = {"method":["HB","LF"]}
-    fitvars = {"fitvar":["costheta1","costheta2"]}
+    methods = {"method":["HB"]}
+    fitvars = {"fitvar":["costhetaT","costhetaTy"]}
     sgasyms = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     bgasyms = {"bgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     seeds   = {"inject_seed":[2**i for i in range(16)]}
@@ -474,12 +474,12 @@ if __name__=="__main__":
     }
     ylimss = [-0.1,0.1]
     titles = {
-        'costheta1':'Spin Transfer along $P_{\Lambda}$',
-        'costheta2':'Spin Transfer along $P_{\gamma^{*}}$',
+        'costhetaT':'$\Lambda$ Polarization along $\hat{x}$',
+        'costhetaTy':'$\Lambda$ Polarization along $\hat{y}$',
     }
     colors = {
-        'costheta1':'blue',
-        'costheta2':'red',
+        'costhetaT':'tab:orange',
+        'costhetaTy':'tab:green',
     }
     xtitles = {
         'mass_ppim':'$M_{p\pi^{-}}$ (GeV)',
@@ -551,7 +551,7 @@ if __name__=="__main__":
 
     my_args = {
         'method':'HB',
-        'fitvar':'costheta1',
+        'fitvar':'costhetaT',
         'xvar':'Q2',
         'xvar_min': 1.0,
         'xvar_max':11.0,

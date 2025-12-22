@@ -16,19 +16,19 @@ col_name_latex_labels = [
 # Set paths
 base_dir = "results_transverse/"
 paths1 = [
-    "aggregate___binvar_z_ppim__fitvar_costheta1__method_HB__z_ppim_0.0_1.0__systematics.pdf.csv",
-    # "aggregate___binvar_z_ppim__fitvar_costheta2__method_HB__z_ppim_0.0_1.0__systematics.pdf.csv",
-    "aggregate___binvar_xF_ppim__fitvar_costheta1__method_HB__xF_ppim_0.0_1.0__systematics.pdf.csv",
-    # "aggregate___binvar_xF_ppim__fitvar_costheta2__method_HB__xF_ppim_0.0_1.0__systematics.pdf.csv",
+    "aggregate___binvar_z_ppim__fitvar_costhetaT__method_HB__z_ppim_0.0_1.0__systematics.pdf.csv",
+    # "aggregate___binvar_z_ppim__fitvar_costhetaTy__method_HB__z_ppim_0.0_1.0__systematics.pdf.csv",
+    "aggregate___binvar_xF_ppim__fitvar_costhetaT__method_HB__xF_ppim_0.0_1.0__systematics.pdf.csv",
+    # "aggregate___binvar_xF_ppim__fitvar_costhetaTy__method_HB__xF_ppim_0.0_1.0__systematics.pdf.csv",
 ]
 paths2 = [
-    # "aggregate___binvar_z_ppim__fitvar_costheta1__method_HB__z_ppim_0.0_1.0__systematics.pdf.csv",
-    "aggregate___binvar_z_ppim__fitvar_costheta2__method_HB__z_ppim_0.0_1.0__systematics.pdf.csv",
-    # "aggregate___binvar_xF_ppim__fitvar_costheta1__method_HB__xF_ppim_0.0_1.0__systematics.pdf.csv",
-    "aggregate___binvar_xF_ppim__fitvar_costheta2__method_HB__xF_ppim_0.0_1.0__systematics.pdf.csv",
+    # "aggregate___binvar_z_ppim__fitvar_costhetaT__method_HB__z_ppim_0.0_1.0__systematics.pdf.csv",
+    "aggregate___binvar_z_ppim__fitvar_costhetaTy__method_HB__z_ppim_0.0_1.0__systematics.pdf.csv",
+    # "aggregate___binvar_xF_ppim__fitvar_costhetaT__method_HB__xF_ppim_0.0_1.0__systematics.pdf.csv",
+    "aggregate___binvar_xF_ppim__fitvar_costhetaTy__method_HB__xF_ppim_0.0_1.0__systematics.pdf.csv",
 ]
 
-def save_paths(_paths,name='costheta1'):
+def save_paths(_paths,name='costhetaT'):
     paths = [os.path.abspath(os.path.join(base_dir,path)) for path in _paths]
 
     # Read CSVs
@@ -53,6 +53,6 @@ def save_paths(_paths,name='costheta1'):
     averages_df.to_csv("systematics_averages"+name+".csv", float_format='%.3g')
 
 # Loop paths and save systematics to CSV
-save_paths(paths1,name='costheta1')
-save_paths(paths2,name='costheta2')
+save_paths(paths1,name='costhetaT')
+save_paths(paths2,name='costhetaTy')
 

@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 
-fitvars = ["costheta1", "costheta2"]
+fitvars = ["costhetaT", "costhetaTy"]
 binvars = ["z_ppim","xF_ppim"]
 binvarlims = {
     "z_ppim":[0.0,1.0],
@@ -18,8 +18,8 @@ def get_out_file_path(basedir,basename,oldfitvar,newfitvar,oldbinvar,newbinvar):
 
 # Set variables for CSV paths and keys
 basedir = "results_transverse/"
-basename = "aggregate___binvar_z_ppim__fitvar_costheta2__method_LF__z_ppim_0.0_1.0___inj_correction.pdf.csv"
-oldfitvar = "costheta2"
+basename = "aggregate___binvar_z_ppim__fitvar_costhetaT__method_HB__z_ppim_0.0_1.0___inj_correction.pdf.csv"
+oldfitvar = "costhetaT"
 oldbinvar = "z_ppim"
 ykey = "y"
 
