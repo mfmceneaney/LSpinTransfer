@@ -165,7 +165,8 @@ def plot_distribution(path, tree, var, edges, outpath, cuts=None, nbins=100, vmi
     ax.step(bins[:-1], vals, where='post', color='k', linewidth=lw)
     ax.set_xlabel(xlabel if xlabel is not None else var)
     ax.set_ylabel('Counts')
-    ax.set_xlim(0.0, np.max(vals)*1.05)
+    ax.set_xlim(vmin, vmax)
+    ax.set_ylim(0.0, np.max(vals)*1.05)
 
     # Draw dashed vertical bin lines
     hist = (vals, bins)
