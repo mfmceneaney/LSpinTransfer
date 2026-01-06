@@ -168,7 +168,7 @@ def plot_distribution(path, tree, var, edges, outpath, cuts=None, nbins=100, vmi
     ax.set_xlim(vmin, vmax)
 
     # Draw dashed vertical bin lines
-    hist = (len(bins), bins, vals)
+    hist = (vals, bins)
     plot_vlines(hist, edges)
     # Save
     fig.tight_layout()
