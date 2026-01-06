@@ -154,7 +154,7 @@ def hist_to_numpy(hist):
     return bins, vals, errs
 
 
-def plot_distribution(path, tree, var, edges, outpath, cuts=None, nbins=100, vmin=None, vmax=None):
+def plot_distribution(path, tree, var, edges, outpath, cuts=None, nbins=100, vmin=None, vmax=None, xlabel=None):
     vmin = vmin if vmin is not None else min(edges)
     vmax = vmax if vmax is not None else max(edges)
     h = hist_from_rdf(path, tree, var, nbins, vmin, vmax, cuts=cuts)
@@ -163,7 +163,7 @@ def plot_distribution(path, tree, var, edges, outpath, cuts=None, nbins=100, vmi
     fig, ax = plt.subplots(figsize=(10,6))
     lw = 1.5
     ax.step(bins[:-1], vals, where='post', color='k', linewidth=lw)
-    ax.set_xlabel(xlabel)
+    ax.set_xlabel(xlabel if xlabel is not None else var)
     ax.set_ylabel('Counts')
     ax.set_xlim(vmin, vmax)
 
@@ -202,7 +202,7 @@ def main():
             continue
         edges = data[var]['bins']
         outpath = os.path.join(args.outdir, f"{var}_binnings.pdf")
-        plot_distribution(args.path, args.tree, var, edges, outpath, cuts=cuts)
+        plot_distribution(args.path, args.tree, var, edges, outpath, cuts=cuts, xlabel=xlabels[var])
 
 
 if __name__ == '__main__':
