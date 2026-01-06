@@ -160,7 +160,7 @@ def plot_distribution(path, tree, var, edges, outpath, cuts=None, nbins=100, vmi
     h = hist_from_rdf(path, tree, var, nbins, vmin, vmax, cuts=cuts)
     bins, vals, errs = hist_to_numpy(h)
     set_default_plt_settings()
-    fig, ax = plt.subplots(figsize=(10,6))
+    fig, ax = plt.subplots(figsize=(16,10))
     lw = 1.5
     ax.step(bins[:-1], vals, where='post', color='k', linewidth=lw)
     ax.set_xlabel(xlabel if xlabel is not None else var)
