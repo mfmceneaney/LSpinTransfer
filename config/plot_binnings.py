@@ -192,8 +192,8 @@ def main():
     os.makedirs(args.outdir, exist_ok=True)
 
     xlabels = {
-        'z_ppim':'$z_{p\pi^{-}}',
-        'xF_ppim':'$x_{Fp\pi^{-}}',
+        'z_ppim':'$z_{p\pi^{-}}$',
+        'xF_ppim':'$x_{Fp\pi^{-}}$',
     }
 
     for var in ['z_ppim', 'xF_ppim']:
