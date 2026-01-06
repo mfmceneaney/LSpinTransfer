@@ -17,11 +17,77 @@ import yaml
 
 import ROOT
 
-try:
-    import yaml
-    _have_yaml = True
-except Exception:
-    _have_yaml = False
+def set_default_plt_settings():
+    """
+    Description
+    -----------
+    Set plt.rc parameters for font sizes and family and tick font size and tick length and direction
+    in a nice format.
+    """
+
+    # Use LaTeX for text rendering
+    plt.rcParams["text.usetex"] = True
+
+    # Set font sizes
+    plt.rc("font", size=25)  # controls default text size
+    plt.rc("axes", titlesize=50)  # fontsize of the title
+    plt.rc("axes", labelsize=50)  # fontsize of the x and y labels
+    plt.rc("xtick", labelsize=25)  # fontsize of the x tick labels
+    plt.rc("ytick", labelsize=25)  # fontsize of the y tick labels
+    plt.rc("legend", fontsize=25)  # fontsize of the legend
+
+    # Get some nicer plot settings
+    plt.rcParams["font.family"] = "serif"
+    plt.rcParams["figure.autolayout"] = True
+
+    # Set tick parameters
+    plt.tick_params(
+        direction="out",
+        bottom=True,
+        top=True,
+        left=True,
+        right=True,
+        length=10,
+        width=1,
+    )
+
+def plot_vlines(
+    hist,
+    binlims=None,
+    linestyle="dotted",
+):
+    """
+    Parameters
+    ----------
+    hist : tuple, required
+        Matplotlib.pyplot histogram of y and x values (np.ndarray, np.ndarray, ...)
+    binlims : list, required
+        List of bin limits in a 1D binning scheme
+    linestyle : str, optional
+        Line style
+
+    Description
+    -----------
+    Draw vertical bin limit lines on a histogram
+    """
+
+    # Check arguments
+    if binlims is None:
+        binlims = []
+
+    # Loop middle bin limits
+    for xval in binlims[1:-1]:
+
+        # Loop histogram x values
+        for idx in range(len(hist[1]) - 1):
+
+            # Check if bin limit is in bin
+            binx_low, binx_high = hist[1][idx], hist[1][idx + 1]
+            if binx_low <= xval < binx_high:
+
+                # Plot lower bin limit
+                ymax = hist[0][idx]
+                plt.vlines(xval, 0.0, ymax, linestyle=linestyle)
 
 
 def load_yaml_bins(yaml_path):
@@ -50,6 +116,26 @@ def load_yaml_bins(yaml_path):
         data = raw
     return data
 
+def load_yaml_cuts(yaml_path):
+    """Load analysis cuts from YAML.
+
+    Expected structure:
+    cuts: 'some cuts...'
+    Returns a string for the cuts
+    """
+    if not os.path.exists(yaml_path):
+        raise FileNotFoundError(f"YAML file not found: {yaml_path}")
+
+    with open(yaml_path, 'r') as f:
+        raw = yaml.safe_load(f)
+    # Accept both top-level binvars or flat mapping
+    if isinstance(raw, dict) and 'cuts' in raw:
+        data = raw['cuts']
+    else:
+        # compatibility: if file already has xF_ppim / z_ppim at top-level
+        data = raw
+    return data
+
 
 def hist_from_rdf(path, tree, var, nbins, vmin, vmax, cuts=None):
     ROOT.ROOT.EnableImplicitMT(8)
@@ -73,18 +159,17 @@ def plot_distribution(path, tree, var, edges, outpath, cuts=None, nbins=100, vmi
     vmax = vmax if vmax is not None else max(edges)
     h = hist_from_rdf(path, tree, var, nbins, vmin, vmax, cuts=cuts)
     bins, vals, errs = hist_to_numpy(h)
-
+    set_default_plt_settings()
     fig, ax = plt.subplots(figsize=(10,6))
     lw = 1.5
     ax.step(bins[:-1], vals, where='post', color='k', linewidth=lw)
-    ax.set_xlabel(var)
+    ax.set_xlabel(xlabel)
     ax.set_ylabel('Counts')
     ax.set_xlim(vmin, vmax)
 
     # Draw dashed vertical bin lines
-    for e in edges:
-        ax.axvline(e, color='tab:orange', linestyle='--', linewidth=1.2)
-
+    hist = (len(bins), bins, vals)
+    plot_vlines(hist, edges)
     # Save
     fig.tight_layout()
     fig.savefig(outpath)
@@ -101,7 +186,15 @@ def main():
     args = parser.parse_args()
 
     data = load_yaml_bins(args.yaml)
+    cuts = load_yaml_cuts(args.yaml)
+    if cuts is not None:
+        cuts = ' && '.join([args.cuts, cuts])
     os.makedirs(args.outdir, exist_ok=True)
+
+    xlabels = {
+        'z_ppim':'$z_{p\pi^{-}}',
+        'xF_ppim':'$x_{Fp\pi^{-}}',
+    }
 
     for var in ['z_ppim', 'xF_ppim']:
         if var not in data or 'bins' not in data[var]:
@@ -109,7 +202,7 @@ def main():
             continue
         edges = data[var]['bins']
         outpath = os.path.join(args.outdir, f"{var}_binnings.pdf")
-        plot_distribution(args.path, args.tree, var, edges, outpath, cuts=args.cuts)
+        plot_distribution(args.path, args.tree, var, edges, outpath, cuts=cuts)
 
 
 if __name__ == '__main__':
