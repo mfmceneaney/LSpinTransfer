@@ -187,7 +187,7 @@ def main():
 
     data = load_yaml_bins(args.yaml)
     cuts = load_yaml_cuts(args.yaml)
-    if cuts is not None:
+    if args.cuts is not None:
         cuts = ' && '.join([args.cuts, cuts])
     os.makedirs(args.outdir, exist_ok=True)
 
