@@ -26,34 +26,67 @@ except Exception:
 def load_yaml_bins(yaml_path):
     """Load bin edges for z_ppim and xF_ppim from YAML.
 
-    Expected format (example):
-    z_ppim:
-      edges: [0.0, 0.1, 0.2, ...]
-    xF_ppim:
-      edges: [0.0, 0.05, ...]
+    Expected structure:
+    binvars:
+      xF_ppim:
+        bins: [ ... ]
+        poly4bins: [ ... ]
+      z_ppim:
+        bins: [ ... ]
+        poly4bins: [ ... ]
+    Returns a dict like: {'z_ppim': {'bins': [...], 'poly4bins': [...]}, ...}
     """
     if not os.path.exists(yaml_path):
         raise FileNotFoundError(f"YAML file not found: {yaml_path}")
     if _have_yaml:
         with open(yaml_path, 'r') as f:
-            data = yaml.safe_load(f)
+            raw = yaml.safe_load(f)
+        # Accept both top-level binvars or flat mapping
+        if isinstance(raw, dict) and 'binvars' in raw:
+            data = raw['binvars']
+        else:
+            # compatibility: if file already has xF_ppim / z_ppim at top-level
+            data = raw
     else:
-        # Minimal fallback parser for simple key: edges: [..] lines
+        # Minimal fallback parser for the requested structure
         data = {}
+        current = None
         with open(yaml_path, 'r') as f:
             for line in f:
-                line = line.strip()
-                if line.startswith('z_ppim:'):
-                    key = 'z_ppim'
-                    data[key] = {}
-                if line.startswith('xF_ppim:'):
-                    key = 'xF_ppim'
-                    data[key] = {}
-                if 'edges:' in line and '[' in line and ']' in line:
-                    edges_txt = line.split('edges:')[-1].strip()
+                s = line.strip()
+                if s.startswith('binvars:'):
+                    current = None
+                    continue
+                # detect variable block
+                if s.endswith(':') and not s.startswith('-'):
+                    key = s.rstrip(':')
+                    if key in ('z_ppim', 'xF_ppim'):
+                        data[key] = {}
+                        current = key
+                        continue
+                if current and 'bins:' in s and '[' in s and ']' in s:
+                    edges_txt = s.split('bins:')[-1].strip()
                     edges_txt = edges_txt.strip('[]')
                     edges = [float(x) for x in edges_txt.split(',') if x.strip()!='']
-                    data[key]['edges'] = edges
+                    data[current]['bins'] = edges
+                if current and 'poly4bins:' in s and '[' in s and ']' in s:
+                    ptxt = s.split('poly4bins:')[-1].strip()
+                    ptxt = ptxt.strip('[]')
+                    pvals = [int(x) for x in ptxt.split(',') if x.strip()!='']
+                    data[current]['poly4bins'] = pvals
+    # Ensure both keys present with defaults
+    for key in ('z_ppim', 'xF_ppim'):
+        if key not in data:
+            data[key] = {'bins': [], 'poly4bins': []}
+        else:
+            if 'bins' not in data[key]:
+                # accept older 'edges' naming
+                if 'edges' in data[key]:
+                    data[key]['bins'] = data[key].pop('edges')
+                else:
+                    data[key]['bins'] = []
+            if 'poly4bins' not in data[key]:
+                data[key]['poly4bins'] = []
     return data
 
 
