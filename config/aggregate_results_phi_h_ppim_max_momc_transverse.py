@@ -379,8 +379,8 @@ def get_plots(
 if __name__=="__main__":
 
     # Create job submission structure
-    methods = {"method":["HB","LF"]}
-    fitvars = {"fitvar":["costheta1","costheta2"]}
+    methods = {"method":["HB"]}
+    fitvars = {"fitvar":["costhetaT","costhetaTy"]}
     sgasyms = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     bgasyms = {"bgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     seeds   = {"inject_seed":[2**i for i in range(16)]}
