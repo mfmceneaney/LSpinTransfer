@@ -575,6 +575,7 @@ def get_plots(
 
     #NOTE: ADDED 7/23/25
     if xvar=="W": ylims = (-0.5,0.7)
+    if xvar=="y" and color=='tab:green': ylims = (-0.25,1.0)
 
     # Plot 
     figsize = (16,10)
