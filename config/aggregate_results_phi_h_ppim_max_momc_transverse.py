@@ -472,12 +472,12 @@ if __name__=="__main__":
     }
     ylimss = [-0.5,0.5]
     titles = {
-        'costheta1':'Spin Transfer along $P_{\Lambda}$',
-        'costheta2':'Spin Transfer along $P_{\gamma^{*}}$',
+        'costhetaT':'$\Lambda$ Polarization along $\hat{x}$',
+        'costhetaTy':'$\Lambda$ Polarization along $\hat{y}$',
     }
     colors = {
-        'costheta1':'blue',
-        'costheta2':'red',
+        'costhetaT':'tab:orange',
+        'costhetaTy':'tab:green',
     }
     xtitles = {
         'mass_ppim':'$M_{p\pi^{-}}$ (GeV)',
@@ -547,21 +547,21 @@ if __name__=="__main__":
     # Now have (nGraphs,4->x,y,ex,ey,nbins (not necessarily all the same...)) dimensional list
     # Convert to numpy and do your operations
 
-    my_args = {
-        'method':'HB',
-        'fitvar':'costheta1',
-        'xvar':'Q2',
-        'xvar_min': 1.0,
-        'xvar_max':11.0,
-        'sgasym':0.10,
-        'bgasym':0.00
-    }
-    my_name = get_out_file_name(**my_args)
-    print()
-    print("DEBUGGING: my_args = ",my_args)
-    print("DEBUGGING: my_name = ",my_name)
-    sys.exit(0)
+    # my_args = {
+    #     'method':'HB',
+    #     'fitvar':'costheta1',
+    #     'xvar':'Q2',
+    #     'xvar_min': 1.0,
+    #     'xvar_max':11.0,
+    #     'sgasym':0.10,
+    #     'bgasym':0.00
+    # }
+    # my_name = get_out_file_name(**my_args)
+    # print()
+    # print("DEBUGGING: my_args = ",my_args)
+    # print("DEBUGGING: my_name = ",my_name)
+    # sys.exit(0)
 
-    get_plots(out_file_list,xbins,ybins,xvar_name,yvar_name,outpath)
+    # get_plots(out_file_list,xbins,ybins,xvar_name,yvar_name,outpath)
 
-    if verbose: plt.show()
+    # if verbose: plt.show()
