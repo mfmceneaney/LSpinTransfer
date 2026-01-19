@@ -819,11 +819,11 @@ if __name__=="__main__":
             averages = np.average(yerr_syst_mc_asym_injection,axis=0)
 
             yerr_syst_mc_asym_injection = [
-                np.abs(np.subtract(el,averages)) for el in yerr_syst_mc_asym_injection
+                np.abs(np.subtract(el,y_corrections_mc_asym_injection)) for el in yerr_syst_mc_asym_injection
             ]
 
             # Now get max diff
-            yerr_syst_mc_asym_injection = np.max(yerr_syst_mc_asym_injection,axis=0)
+            yerr_syst_mc_asym_injection = np.stddev(yerr_syst_mc_asym_injection,axis=0)
 
             #TODO: GET CB/GAUS DIFF SYSTEMATICS
             yerr_syst_cb_gauss_diff = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mass_fit/',outpath=outpath+'.csv')['y'].to_numpy()
