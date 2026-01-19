@@ -789,8 +789,24 @@ if __name__=="__main__":
             outpath_mc = get_outpath(base_dir,mc_asym_injection_aggregate_keys,bgasym=0.0,sgasym=0.1,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
             mc_asym_injection_outpath = outpath_mc+'_systematics.csv'
             print("DEBUGGING: Loading mc_asym_injection systematics from ",mc_asym_injection_outpath)
-            yerr_syst_mc_asym_injection = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection/',outpath=mc_asym_injection_outpath)['yerr'].to_numpy()
+            # yerr_syst_mc_asym_injection = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection/',outpath=mc_asym_injection_outpath)['yerr'].to_numpy()
             y_corrections_mc_asym_injection = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection/',outpath=mc_asym_injection_outpath)['y'].to_numpy()
+
+            # Loop all injected values to get MC injection systematic from max diff
+            sgasyms = [-0.1,-0.01,0.0,0.01,0.1]
+            yerr_syst_mc_asym_injection = []
+            for sgasym in sgasyms:
+                outpath_mc = get_outpath(base_dir,mc_asym_injection_aggregate_keys,bgasym=0.0,sgasym=sgasym,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
+                mc_asym_injection_outpath = outpath_mc+'_systematics.csv'
+                print("DEBUGGING: Loading mc_asym_injection systematics from ",mc_asym_injection_outpath)
+                # yerr_syst_mc_asym_injection.append(load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection/',outpath=mc_asym_injection_outpath)['yerr'].to_numpy().tolist())
+                y_corrections_mc_asym_injection_syst = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection/',outpath=mc_asym_injection_outpath)['y'].to_numpy()
+                yerr_syst_mc_asym_injection.append(np.abs(np.subtract(y_corrections_mc_asym_injection_syst,y_corrections_mc_asym_injection)))
+                print("DEBUGGING: type(yerr_syst_mc_asym_injection[-1]) = ",type(yerr_syst_mc_asym_injection[-1]))
+                print("DEBUGGING: yerr_syst_mc_asym_injection[-1]       = ",yerr_syst_mc_asym_injection[-1])
+
+            # Now get max diff
+            yerr_syst_mc_asym_injection = np.max(yerr_syst_mc_asym_injection,axis=0)
 
             #TODO: GET CB/GAUS DIFF SYSTEMATICS
             yerr_syst_cb_gauss_diff = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mass_fit/',outpath=outpath+'.csv')['y'].to_numpy()
