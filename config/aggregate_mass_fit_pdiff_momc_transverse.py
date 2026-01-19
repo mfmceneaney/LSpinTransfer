@@ -358,6 +358,16 @@ def get_plots(
             size=50, rotation=25., color='gray', alpha=0.25,
             horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
     plt.legend(loc='best',frameon=False)
+
+    # Plot subplot labels for paper
+    colors = {
+        'costhetaT':'tab:orange',
+        'costhetaTy':'tab:green',
+    }
+    fitvars = {colors[fitvar]:fitvar for fitvar in colors}
+    ax1.text(0.95, 0.15, '(a)' if fitvars[color]=='costhetaT' else '(b)', transform=ax1.transAxes,
+            fontsize=plt.rcParams['axes.titlesize'], fontweight='bold', va='top', ha='right')
+
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
 
