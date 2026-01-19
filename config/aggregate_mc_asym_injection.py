@@ -413,7 +413,8 @@ if __name__=="__main__":
     # Create job submission structure
     methods = {"method":["HB","LF"]}
     fitvars = {"fitvar":["costheta1","costheta2"]}
-    sgasyms = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
+    # sgasyms = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
+    sgasyms = {"sgasym":[0.00, 0.05, 0.1, 0.15, 0.2]}
     bgasyms = {"bgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     seeds   = {"inject_seed":[2**i for i in range(16)]}
     use_mc  = False #NOTE: WHETHER TO APPEND '_mc' to fitvar in get_out_file_name

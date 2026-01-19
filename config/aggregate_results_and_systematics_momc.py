@@ -802,7 +802,7 @@ if __name__=="__main__":
             y_corrections_mc_asym_injection = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection/',outpath=mc_asym_injection_outpath)['y'].to_numpy()
 
             # Loop all injected values to get MC injection systematic from max diff
-            sgasyms = [-0.1,-0.01,0.0,0.01,0.1]
+            sgasyms = [0.00, 0.05, 0.1, 0.15, 0.2]
             yerr_syst_mc_asym_injection = []
             for sgasym in sgasyms:
                 outpath_mc = get_outpath(base_dir,mc_asym_injection_aggregate_keys,bgasym=0.0,sgasym=sgasym,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
