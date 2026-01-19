@@ -495,19 +495,28 @@ def plot_systematics(
     # # yerr_syst = None #[0.1  for x in range(len(xbins)-1)] #NOTE: ADD IF STATMENT HERE #TODO #DEBUGGING !!!!!!!!!!!!!!!!!
     # #yerr_syst = np.multiply(yerr_syst,y_mean)#NOTE: THIS DOES NOT GET THE DIMENSIONS CORRECTLY, THINK CAREFULLY BEFORE UNCOMMENTING
 
+    xbins = x_means
+    nbins = len(xbins)
+
+    # Reset x bins to bin numbers
+    xbins = np.array([i+1 for i in range(nbins)],dtype=float)
+    xlims_new = (0,nbins+1)
+
     # Plot 
     figsize = (16,10)
     f1, ax1 = plt.subplots(figsize=figsize)
-    plt.xlim(*xlims)
+    plt.xlim(*xlims_new)
+    # plt.xlim(*xlims)
     plt.ylim(*ylims)
     plt.title(title,usetex=True,pad=20)
-    plt.xlabel(xtitle,usetex=True)
+    plt.xlabel("Bin",usetex=True)
+    # plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
 
     #TODO: DEBUGGING MESSAGE FOR BINS SEE IF SOMETHING GETS MESSED UP THERE AND MAKE SURE YOU ARE SETTING CORRECTLY...
 
-    xbins = x_means
-    nbins = len(xbins)
+    # xbins = x_means
+    # nbins = len(xbins)
     xbins = np.moveaxis(np.array([xbins for el in range(np.shape(yerr_syst)[1])]),(0,1),(1,0))
     s1 = plt.hist(xbins, weights=yerr_syst, label=label, stacked=stacked, log=True) #NOTE: THAT HISTOGRAM X D #NOTE: DO NOT USE bins=... argument!!! Otherwise some bins might not show.
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
@@ -515,7 +524,7 @@ def plot_systematics(
     plt.text(0.5, 0.5, 'CLAS12 Preliminary',
             size=50, rotation=25., color='gray', alpha=0.25,
             horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
-    plt.legend(loc='best',frameon=False)
+    plt.legend(loc="upper right", bbox_to_anchor=(1.05, 1),frameon=False)
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
 
