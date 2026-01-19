@@ -786,15 +786,14 @@ if __name__=="__main__":
             fmt = ["%d","%.3g","%.3g","%.3g","%.3g","%.3g"]
             save_matrix_to_csv(bin_migration_mat,base_dir='systematics/bin_migration/',binvar=binvar,fmt=fmt) #NOTE: SAVE BIN MIGRATION MATRIX TO CSV, MUST BE A SQUARE MATRIX!
             mc_asym_injection_aggregate_keys = ['inject_seed']
-            sgasym_base = 0.1
-            outpath_mc = get_outpath(base_dir,mc_asym_injection_aggregate_keys,bgasym=0.0,sgasym=sgasym_base,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
+            outpath_mc = get_outpath(base_dir,mc_asym_injection_aggregate_keys,bgasym=0.0,sgasym=0.1,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
             mc_asym_injection_outpath = outpath_mc+'_systematics.csv'
             print("DEBUGGING: Loading mc_asym_injection systematics from ",mc_asym_injection_outpath)
             # yerr_syst_mc_asym_injection = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection/',outpath=mc_asym_injection_outpath)['yerr'].to_numpy()
             y_corrections_mc_asym_injection = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection/',outpath=mc_asym_injection_outpath)['y'].to_numpy()
 
             # Loop all injected values to get MC injection systematic from max diff
-            sgasyms = [-0.1,-0.01,0.01,0.1]
+            sgasyms = [-0.1,-0.01,0.0,0.01,0.1]
             yerr_syst_mc_asym_injection = []
             for sgasym in sgasyms:
                 outpath_mc = get_outpath(base_dir,mc_asym_injection_aggregate_keys,bgasym=0.0,sgasym=sgasym,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
@@ -802,7 +801,7 @@ if __name__=="__main__":
                 print("DEBUGGING: Loading mc_asym_injection systematics from ",mc_asym_injection_outpath)
                 # yerr_syst_mc_asym_injection.append(load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection/',outpath=mc_asym_injection_outpath)['yerr'].to_numpy().tolist())
                 y_corrections_mc_asym_injection_syst = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics/mc_asym_injection/',outpath=mc_asym_injection_outpath)['y'].to_numpy()
-                yerr_syst_mc_asym_injection.append(np.abs(np.subtract(y_corrections_mc_asym_injection_syst/sgasym,y_corrections_mc_asym_injection/sgasym_base)))
+                yerr_syst_mc_asym_injection.append(np.abs(np.subtract(y_corrections_mc_asym_injection_syst,y_corrections_mc_asym_injection)))
                 print("DEBUGGING: type(yerr_syst_mc_asym_injection[-1]) = ",type(yerr_syst_mc_asym_injection[-1]))
                 print("DEBUGGING: yerr_syst_mc_asym_injection[-1]       = ",yerr_syst_mc_asym_injection[-1])
 
@@ -878,7 +877,7 @@ if __name__=="__main__":
             alpha_lambda_systematic = 0.0120
             beam_polarization_systematic = 0.0360
             sgasym = 0.1
-            systematic_scales_mat = yerr_syst_mc_asym_injection #/ sgasym
+            systematic_scales_mat = yerr_syst_mc_asym_injection / sgasym
             systematic_scales_mat = np.sqrt(np.square(systematic_scales_mat) + np.square(alpha_lambda_systematic) + np.square(beam_polarization_systematic) + np.square(yerr_syst_cb_gauss_diff) + np.square(cos_phi_h_ppim_systematic))
             print("DEBUGGING: BEFORE: systematic_scales_mat = ",systematic_scales_mat)
 
@@ -902,7 +901,7 @@ if __name__=="__main__":
                 arrs['y_mean'],
                 bin_migration_mat=None,
                 bin_migration_order=1,
-                systematic_scales_mat=yerr_syst_mc_asym_injection #/ sgasym,
+                systematic_scales_mat=yerr_syst_mc_asym_injection / sgasym,
                 # systematics_additive_mat=yerr_syst_cb_gauss_diff,
             )
             bin_migration_systematics = compute_systematics(
