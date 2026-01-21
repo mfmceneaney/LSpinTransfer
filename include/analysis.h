@@ -45,27 +45,22 @@
 
 namespace analysis {
 
-
-
 ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> bootstrap_poisson(
     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> df,
 	int seed,
     std::string weight_name
 ) {
-			    return df.Define(
-			        weight_name.c_str(),
-			        [seed](ULong64_t iEntry) {
-                        UInt_t seed_iEntry = seed + static_cast<UInt_t>(iEntry);
-			            TRandom * rng = new TRandom3(seed_iEntry);
-			            return rng->Poisson(1.0);
-			        },
-			        {"rdfentry_"}
-			    )
-			    .Filter(Form("%s > 0",weight_name.c_str()));
-			}
-
-
-}
+        return df.Define(
+            weight_name.c_str(),
+            [seed](ULong64_t iEntry) {
+                UInt_t seed_iEntry = seed + static_cast<UInt_t>(iEntry);
+                TRandom3 * rng = new TRandom3(seed_iEntry);
+                return rng->Poisson(1.0);
+            },
+            {"rdfentry_"}
+        )
+        .Filter(Form("%s > 0",weight_name.c_str()));
+    }
 
 ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> bootstrap_classical(
     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> df,
@@ -91,7 +86,7 @@ ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> bootstrap_classica
 			
 			    // Step 3: define multiplicity column
 			    auto df_boot = df.Define(
-			        "__boot_mult",
+			        weight_name.c_str(),
 			        [selected](ULong64_t entry) {
 			            return selected.count(entry);
 			        },
@@ -100,11 +95,10 @@ ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> bootstrap_classica
 			
 			    // Step 4: expand rows according to multiplicity
 			    return df_boot
-			        .Filter("__boot_mult > 0")
-			        .Define("__boot_idx", "rdfentry_")
-			        .Range(0, n)  // safety
-			        .DropColumns({"__boot_mult", "__boot_idx"});
+			        .Filter(Form("%s > 0",weight_name.c_str()));
 }
+
+} // namespace analysis {
 
 void test() { std::cout<<"TEST"<<std::endl; } //DEBUGGING
 
@@ -6416,6 +6410,7 @@ void getKinBinnedMassDistributions(
                     double       mass_min,   // mass variable max for signal fit
                     double       mass_max,   // mass variable min for signal fit
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "",
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
                     std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
@@ -6509,6 +6504,7 @@ void getKinBinnedMassFits(
                     double       mass_min,   // mass variable max for signal fit
                     double       mass_max,   // mass variable min for signal fit
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "",
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
                     std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
@@ -6778,6 +6774,7 @@ void getKinBinnedLKMassFits(
                     double       mass_min,   // mass variable max for signal fit
                     double       mass_max,   // mass variable min for signal fit
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "",
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
                     std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
@@ -7048,6 +7045,7 @@ void getKinBinnedMassDistributionsMC(
                     double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
                     double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "",
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
                     std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
@@ -7142,6 +7140,7 @@ void getKinBinnedMassFitsMC(
                     double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
                     double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "",
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
                     std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
@@ -7445,6 +7444,7 @@ void getKinBinnedLKMassFitsMC(
                     double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     double       dtheta_k_max, // maximum cut on delta theta for kaon MC matching
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "",
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
                     std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
@@ -7749,6 +7749,7 @@ void getKinBinnedMassFitsMCFIXPARAMS(
                     double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
                     double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "",
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
                     std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
@@ -7948,6 +7949,7 @@ void getKinBinnedMassFitsGauss(
                     double       mass_min,   // mass variable max for signal fit
                     double       mass_max,   // mass variable min for signal fit
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "",
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
                     std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
@@ -8140,6 +8142,7 @@ void getKinBinnedMassFitsMCGauss(
                     double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
                     double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "",
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
                     std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
@@ -8809,6 +8812,7 @@ void getKinBinnedMassFitsLandau(
                     double       mass_min,   // mass variable max for signal fit
                     double       mass_max,   // mass variable min for signal fit
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "",
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
                     std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
@@ -9001,6 +9005,7 @@ void getKinBinnedMassFitsMCLandau(
                     double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
                     double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "",
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
                     std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
