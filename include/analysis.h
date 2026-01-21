@@ -54,7 +54,7 @@ ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> bootstrap_poisson(
             weight_name.c_str(),
             [seed](ULong64_t iEntry) {
                 UInt_t seed_iEntry = seed + static_cast<UInt_t>(iEntry);
-                TRandom3 * rng = new TRandom3(seed_iEntry);
+                TRandom * rng = new TRandom(seed_iEntry);
                 return rng->Poisson(1.0);
             },
             {"rdfentry_"}
@@ -73,11 +73,11 @@ ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> bootstrap_classica
 			    auto entries = *df.Take<ULong64_t>("rdfentry_");
 			
 			    const ULong64_t N = entries.size();
-			    if (N == 0 || n == 0)
-			        return df.Range(0, 0); // empty dataframe
-			
+			    if (N == 0 || n == 0) {
+			        return df; // return data frame after throwing error
+                }
 			    // Step 2: generate bootstrap indices
-			    TRandom3 rng(seed);
+			    TRandom rng(seed);
 			    std::unordered_multiset<ULong64_t> selected;
 			
 			    for (ULong64_t i = 0; i < n; ++i) {
