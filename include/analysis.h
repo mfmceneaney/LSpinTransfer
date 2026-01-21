@@ -43,8 +43,6 @@
 *              binning in given kinematic variables.
 */
 
-namespace analysis {
-
 ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> bootstrap_poisson(
     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> df,
 	int seed,
@@ -97,8 +95,6 @@ ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> bootstrap_classica
 			    return df_boot
 			        .Filter(Form("%s > 0",weight_name.c_str()));
 }
-
-} // namespace analysis {
 
 void test() { std::cout<<"TEST"<<std::endl; } //DEBUGGING
 
@@ -1788,8 +1784,8 @@ void getKinBinnedGraphBSA2DGenericMCV2(
             bin_min,
             bin_max,
             pol,
-            bootstrap_weight_name,
             depolvars,
+            bootstrap_weight_name,
             helicity_name,
             fitformula,
             nparams,
@@ -1839,8 +1835,8 @@ void getKinBinnedGraphBSA2DGenericMCV2(
                 bin_min,
                 bin_max,
                 pol,
-                bootstrap_weight_name,
                 depolvars,
+                bootstrap_weight_name,
                 helicity_name,
                 fitformula,
                 nparams,
@@ -2743,8 +2739,8 @@ void getKinBinnedGraphBSA2DGenericV2(
             bin_min,
             bin_max,
             pol,
-            bootstrap_weight_name,
             depolvars,
+            bootstrap_weight_name,
             helicity_name,
             fitformula,
             nparams,
@@ -2794,8 +2790,8 @@ void getKinBinnedGraphBSA2DGenericV2(
                 bin_min,
                 bin_max,
                 pol,
-                bootstrap_weight_name,
                 depolvars,
+                bootstrap_weight_name,
                 helicity_name,
                 fitformula,
                 nparams,

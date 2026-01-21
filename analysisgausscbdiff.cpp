@@ -354,9 +354,9 @@ void analysis(const YAML::Node& node) {
     
     // Bootstrap dataframe if requested
     if (bootstrap_n>0 && !bootstrap_poisson) {
-        frame = analysis::bootstrap_classical(frame, bootstrap_n, bootstrap_seed, bootstrap_wr, bootstrap_weight_name);
+        frame = bootstrap_classical(frame, bootstrap_n, bootstrap_seed, bootstrap_wr, bootstrap_weight_name);
     } else if (bootstrap_n>0 && bootstrap_poisson) {
-        frame = analysis::bootstrap_poisson(frame, bootstrap_seed, bootstrap_weight_name);
+        frame = bootstrap_poisson(frame, bootstrap_seed, bootstrap_weight_name);
     }
 
     // Create output log
