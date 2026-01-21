@@ -450,11 +450,11 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "bootstrap_wr: " << bootstrap_wr << std::endl;
 
-    bool bootstrap_poisson = false;
-    if (node["bootstrap_poisson"]) {
-        bootstrap_poisson = node["bootstrap_poisson"].as<bool>();
+    bool bootstrap_use_poisson = false;
+    if (node["bootstrap_use_poisson"]) {
+        bootstrap_use_poisson = node["bootstrap_use_poisson"].as<bool>();
     }
-    std::cout << "bootstrap_poisson: " << bootstrap_poisson << std::endl;
+    std::cout << "bootstrap_use_poisson: " << bootstrap_use_poisson << std::endl;
 
     std::string bootstrap_weight_name = "boot_weight";
     if (node["bootstrap_weight_name"]) {
@@ -561,9 +561,9 @@ void analysis(const YAML::Node& node) {
     }
 
     // Apply bootstrapping to the frame if requested
-    if (bootstrap_n>0 && !bootstrap_poisson) {
+    if (bootstrap_n>0 && !bootstrap_use_poisson) {
         frame = bootstrap_classical(frame, bootstrap_n, bootstrap_seed, bootstrap_wr, bootstrap_weight_name);
-    } else if (bootstrap_n>0 && bootstrap_poisson) {
+    } else if (bootstrap_n>0 && bootstrap_use_poisson) {
         frame = bootstrap_poisson(frame, bootstrap_seed, bootstrap_weight_name);
     }
 
