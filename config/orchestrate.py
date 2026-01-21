@@ -114,6 +114,13 @@ if __name__=="__main__":
     sgmins  = {"sg_min":[round(1.14+0.0004*i,4) for i in range(50)]}
     sgmaxs  = {"sg_max":[1.18]}
 
+    # Boot strapping parameters
+    bootstrap_sgasyms = {"sgasym":[0.1]}
+    bootstrap_bgasyms = {"bgasym":[0.00]}
+    bootstrap_seeds   = {"bootstrap_seed":[i for i in range(100)]}
+    bootstrap_n       = {"bootstrap_n":[100000]}
+    bootstrap_use_poisson       = {"bootstrap_use_poisson":[True,False]}
+
     # Results file paths and config
     base_dir    = "results/"
     submit_path = base_dir+"submit.sh"
@@ -259,6 +266,23 @@ if __name__=="__main__":
         **sgasyms,
         **bgasyms,
         **seeds,
+    )
+    create_jobs(divisions,base_dir,submit_path,yaml_path)
+    submit_jobs(divisions,base_dir,submit_path,out_path)
+
+    # MC asymmetry injection bootstrapping file paths and config
+    base_dir    = "systematics/mc_asym_injection/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = dict(
+        methods,
+        **fitvars,
+        **bootstrap_sgasyms,
+        **bootstrap_bgasyms,
+        **bootstrap_seeds,
+        **bootstrap_n,
+        **bootstrap_use_poisson,
     )
     create_jobs(divisions,base_dir,submit_path,yaml_path)
     submit_jobs(divisions,base_dir,submit_path,out_path)
