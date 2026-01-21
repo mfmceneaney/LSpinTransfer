@@ -4237,8 +4237,8 @@ void getKinBinnedGraphBSA2DGenericMC(
             bin_min,
             bin_max,
             pol,
-            getKinBinBSA2DGeneric
             depolvar,
+            bootstrap_weight_name,
             helicity_name,
             fitformula,
             nparams,
@@ -4286,8 +4286,8 @@ void getKinBinnedGraphBSA2DGenericMC(
                 bin_min,
                 bin_max,
                 pol,
-                getKinBinBSA2DGeneric
                 depolvar,
+                bootstrap_weight_name,
                 helicity_name,
                 fitformula,
                 nparams,
