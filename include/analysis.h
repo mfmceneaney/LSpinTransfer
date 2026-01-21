@@ -1,6 +1,8 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <unordered_set>
+#include <vector>
 
 // ROOT Includes
 #include <TFile.h>
@@ -41,6 +43,69 @@
 *              binning in given kinematic variables.
 */
 
+namespace analysis {
+
+
+
+ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> bootstrap_poisson(
+    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> df,
+	int seed,
+    std::string weight_name
+) {
+			    return df.Define(
+			        weight_name.c_str(),
+			        [seed](ULong64_t iEntry) {
+                        UInt_t seed_iEntry = seed + static_cast<UInt_t>(iEntry);
+			            TRandom * rng = new TRandom3(seed_iEntry);
+			            return rng->Poisson(1.0);
+			        },
+			        {"rdfentry_"}
+			    )
+			    .Filter(Form("%s > 0",weight_name.c_str()));
+			}
+
+
+}
+
+ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> bootstrap_classical(
+    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> df,
+    int n,
+	int seed,
+    bool with_replacement,
+    std::string weight_name
+) {
+			    // Step 1: materialize entry indices
+			    auto entries = *df.Take<ULong64_t>("rdfentry_");
+			
+			    const ULong64_t N = entries.size();
+			    if (N == 0 || n == 0)
+			        return df.Range(0, 0); // empty dataframe
+			
+			    // Step 2: generate bootstrap indices
+			    TRandom3 rng(seed);
+			    std::unordered_multiset<ULong64_t> selected;
+			
+			    for (ULong64_t i = 0; i < n; ++i) {
+			        selected.insert(rng.Integer(N));
+			    }
+			
+			    // Step 3: define multiplicity column
+			    auto df_boot = df.Define(
+			        "__boot_mult",
+			        [selected](ULong64_t entry) {
+			            return selected.count(entry);
+			        },
+			        {"rdfentry_"}
+			    );
+			
+			    // Step 4: expand rows according to multiplicity
+			    return df_boot
+			        .Filter("__boot_mult > 0")
+			        .Define("__boot_idx", "rdfentry_")
+			        .Range(0, n)  // safety
+			        .DropColumns({"__boot_mult", "__boot_idx"});
+}
+
 void test() { std::cout<<"TEST"<<std::endl; } //DEBUGGING
 
 /** 
@@ -57,6 +122,7 @@ TArrayF* getKinBinLF(
                     double       bin_max,
                     double       alpha,
                     double       pol,
+                    std::string  bootstrap_weight_name = "",
                     std::string  helicity_name       = "heli",
                     std::string  fitvar              = "costheta1",
                     std::string  depol_name          = "",
@@ -91,11 +157,13 @@ TArrayF* getKinBinLF(
 
     // Get data
     out << "Getting " << bin_cut << " bin\n";
-    auto count    = (double)*f.Count();
-    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto count    = bootstrap_weight_name=="" ? (double)*f.Count() : (double)*f.Sum(bootstrap_weight_name.c_str());
+    auto mean     = (double)*f.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
     auto stddev   = (double)*f.StdDev(binvar.c_str());
-    auto histP_   = (TH1D)  *f.Filter(Form("%s>0",helicity_name.c_str())).Histo1D({"histP", "Positive/Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str());
-    auto histN_   = (TH1D)  *f.Filter(Form("%s<0",helicity_name.c_str())).Histo1D({"histN", "Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str());
+    auto histP_   = bootstrap_weight_name=="" ? (TH1D)  *f.Filter(Form("%s>0",helicity_name.c_str())).Histo1D({"histP", "Positive/Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str()) :
+                                                (TH1D)  *f.Filter(Form("%s>0",helicity_name.c_str())).Histo1D({"histP", "Positive/Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str(), bootstrap_weight_name.c_str());
+    auto histN_   = bootstrap_weight_name=="" ? (TH1D)  *f.Filter(Form("%s<0",helicity_name.c_str())).Histo1D({"histN", "Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str()) : 
+                                                (TH1D)  *f.Filter(Form("%s<0",helicity_name.c_str())).Histo1D({"histN", "Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str(), bootstrap_weight_name.c_str());
     auto histP    = &histP_;
     auto histN    = &histN_;
     auto histPaux = (TH1D*)histP->Clone("histPaux");
@@ -225,6 +293,7 @@ TArrayF* getKinBinHB(
                     double       bin_max,
                     double       alpha,
                     double       pol,
+                    std::string  bootstrap_weight_name = "",
                     std::string  depolarization_name = "Dy",
                     std::string  helicity_name       = "heli",
                     std::string  fitvar              = "costheta1",
@@ -239,8 +308,8 @@ TArrayF* getKinBinHB(
     auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
 
     // Get data
-    auto count    = (int)   *f.Count();
-    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto count    = bootstrap_weight_name=="" ? (int)*f.Count() : (int)*f.Sum(bootstrap_weight_name.c_str());
+    auto mean     = (double)*f.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
     auto stddev   = (double)*f.StdDev(binvar.c_str());
     auto sumPbDCT = (double)*f.Define("tosum", [&pol](float Dy, float heli, float costheta) { return heli*Dy*costheta; } , {depolarization_name.c_str(),helicity_name.c_str(),fitvar.c_str()}).Sum("tosum");
     auto sumDCT   = (double)*f.Define("tosum", [&pol](float Dy, float heli, float costheta) { return Dy*Dy*costheta*costheta; } , {depolarization_name.c_str(),helicity_name.c_str(),fitvar.c_str()}).Sum("tosum");
@@ -295,6 +364,7 @@ TArrayF* getKinBinTransverse(
                     double       bin_min,
                     double       bin_max,
                     double       alpha,
+                    std::string  bootstrap_weight_name = "",
                     std::string  fitvar              = "costheta1",
                     std::string  topcut              = "",
                     std::string  botcut              = "",
@@ -311,8 +381,8 @@ TArrayF* getKinBinTransverse(
     auto f                   = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str())).Define(cos2_name.c_str(),cos2_formula.c_str());
 
     // Get data
-    auto count      = (int)   *f.Count();
-    auto binvar_ave = (double)*f.Mean(binvar.c_str());
+    auto count      = bootstrap_weight_name=="" ? (int)*f.Count() : (int)*f.Sum(bootstrap_weight_name.c_str());
+    auto binvar_ave = (double)*f.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
     auto binvar_err = (double)*f.StdDev(binvar.c_str());
     auto cos_ave    = (double)*f.Mean(fitvar.c_str());
     auto cos_err    = (double)*f.StdDev(fitvar.c_str());
@@ -396,6 +466,7 @@ TArrayF* getKinBinBSA(
     double       bin_min,
     double       bin_max,
     double       pol,
+    std::string  bootstrap_weight_name = "",
     std::string  helicity_name = "heli",
     std::string  fitvar        = "phi_h",
     // std::string  fitvartitle   = "#phi_{h p#pi^{-}}",
@@ -414,8 +485,8 @@ TArrayF* getKinBinBSA(
     auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
 
     // Get data
-    auto count    = (int)   *f.Count();
-    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto count    = bootstrap_weight_name=="" ? (int)*f.Count() : (int)*f.Sum(bootstrap_weight_name.c_str());
+    auto mean     = (double)*f.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
     auto stddev   = (double)*f.StdDev(binvar.c_str());
 
     // Make subdirectory
@@ -426,9 +497,11 @@ TArrayF* getKinBinBSA(
     gStyle->SetOptStat(0);
 
     // Create histograms
-    TH1D hplus_ = (TH1D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo1D({"hplus_",title.c_str(),nbinsx,xmin,xmax},fitvar.c_str());
+    TH1D hplus_ = bootstrap_weight_name=="" ? (TH1D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo1D({"hplus_",title.c_str(),nbinsx,xmin,xmax},fitvar.c_str()) : 
+                                              (TH1D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo1D({"hplus_",title.c_str(),nbinsx,xmin,xmax},fitvar.c_str(), bootstrap_weight_name.c_str());
     TH1D *hplus = (TH1D*)hplus_.Clone("hplus");
-    TH1D hminus_ = (TH1D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo1D({"hminus_",title.c_str(),nbinsx,xmin,xmax},fitvar.c_str());
+    TH1D hminus_ = bootstrap_weight_name=="" ? (TH1D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo1D({"hminus_",title.c_str(),nbinsx,xmin,xmax},fitvar.c_str()) : 
+                                               (TH1D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo1D({"hminus_",title.c_str(),nbinsx,xmin,xmax},fitvar.c_str(), bootstrap_weight_name.c_str());
     TH1D *hminus = (TH1D*)hminus_.Clone("hminus");
 
     // Get asymmetry histogram
@@ -517,6 +590,7 @@ TArrayF* getKinBinBSAGeneric(
     double       bin_min,
     double       bin_max,
     double       pol,
+    std::string  bootstrap_weight_name = "",
     std::string  depolvar      = "depol",
     std::string  helicity_name = "heli",
     std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
@@ -537,8 +611,8 @@ TArrayF* getKinBinBSAGeneric(
     auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
 
     // Get data
-    auto count    = (int)   *f.Count();
-    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto count    = bootstrap_weight_name=="" ? (int)*f.Count() : (int)*f.Sum(bootstrap_weight_name.c_str());
+    auto mean     = (double)*f.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
     auto stddev   = (double)*f.StdDev(binvar.c_str());
 
     // Compute depolarization factor
@@ -553,9 +627,11 @@ TArrayF* getKinBinBSAGeneric(
     gStyle->SetOptStat(0);
 
     // Create histograms
-    TH1D hplus_ = (TH1D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo1D({"hplus_",title.c_str(),nbinsx,xmin,xmax},fitvar.c_str());
+    TH1D hplus_ = bootstrap_weight_name=="" ? (TH1D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo1D({"hplus_",title.c_str(),nbinsx,xmin,xmax},fitvar.c_str()) : 
+                                              (TH1D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo1D({"hplus_",title.c_str(),nbinsx,xmin,xmax},fitvar.c_str(), bootstrap_weight_name.c_str());
     TH1D *hplus = (TH1D*)hplus_.Clone("hplus");
-    TH1D hminus_ = (TH1D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo1D({"hminus_",title.c_str(),nbinsx,xmin,xmax},fitvar.c_str());
+    TH1D hminus_ = bootstrap_weight_name=="" ? (TH1D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo1D({"hminus_",title.c_str(),nbinsx,xmin,xmax},fitvar.c_str()) : 
+                                               (TH1D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo1D({"hminus_",title.c_str(),nbinsx,xmin,xmax},fitvar.c_str(), bootstrap_weight_name.c_str());
     TH1D *hminus = (TH1D*)hminus_.Clone("hminus");
 
     // Get asymmetry histogram
@@ -657,6 +733,7 @@ TArrayF* getKinBinBSA2DGeneric(
     double       bin_min,
     double       bin_max,
     double       pol,
+    std::string  bootstrap_weight_name = "",
     std::string  depolvar      = "depol",
     std::string  helicity_name = "heli",
     std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
@@ -682,8 +759,8 @@ TArrayF* getKinBinBSA2DGeneric(
     auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
 
     // Get data
-    auto count    = (int)   *f.Count();
-    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto count    = bootstrap_weight_name=="" ? (int)*f.Count() : (int)*f.Sum(bootstrap_weight_name.c_str());
+    auto mean     = (double)*f.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
     auto stddev   = (double)*f.StdDev(binvar.c_str());
 
     // Compute depolarization factor
@@ -698,9 +775,11 @@ TArrayF* getKinBinBSA2DGeneric(
     gStyle->SetOptStat(0);
 
     // Create histograms
-    TH2D hplus_ = (TH2D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo2D({"hplus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str());
+    TH2D hplus_ = bootstrap_weight_name=="" ? (TH2D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo2D({"hplus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str()) : 
+                                              (TH2D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo2D({"hplus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str(), bootstrap_weight_name.c_str());
     TH2D *hplus = (TH2D*)hplus_.Clone("hplus");
-    TH2D hminus_ = (TH2D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo2D({"hminus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str());
+    TH2D hminus_ = bootstrap_weight_name=="" ? (TH2D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo2D({"hminus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str()) : 
+                                               (TH2D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo2D({"hminus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str(), bootstrap_weight_name.c_str());
     TH2D *hminus = (TH2D*)hminus_.Clone("hminus");
 
     // Get asymmetry histogram
@@ -803,6 +882,7 @@ TArrayF* getKinBinBSA2DGenericV2(
     double       bin_max,
     double       pol,
     std::vector<std::string>   depolvars,
+    std::string  bootstrap_weight_name = "",
     std::string  helicity_name = "heli",
     std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
     int          nparams       = 2,
@@ -829,8 +909,8 @@ TArrayF* getKinBinBSA2DGenericV2(
     auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
 
     // Get data
-    auto count    = (int)   *f.Count();
-    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto count    = bootstrap_weight_name=="" ? (int)*f.Count() : (int)*f.Sum(bootstrap_weight_name.c_str());
+    auto mean     = (double)*f.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
     auto stddev   = (double)*f.StdDev(binvar.c_str());
 
     // Compute depolarization factor
@@ -850,9 +930,11 @@ TArrayF* getKinBinBSA2DGenericV2(
     gStyle->SetOptStat(0);
 
     // Create histograms
-    TH2D hplus_ = (TH2D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo2D({"hplus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str());
+    TH2D hplus_ = bootstrap_weight_name=="" ? (TH2D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo2D({"hplus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str()) : 
+                                              (TH2D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo2D({"hplus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str(), bootstrap_weight_name.c_str());
     TH2D *hplus = (TH2D*)hplus_.Clone("hplus");
-    TH2D hminus_ = (TH2D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo2D({"hminus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str());
+    TH2D hminus_ = bootstrap_weight_name=="" ? (TH2D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo2D({"hminus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str()) : 
+                                               (TH2D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo2D({"hminus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str(), bootstrap_weight_name.c_str());
     TH2D *hminus = (TH2D*)hminus_.Clone("hminus");
 
     // Get asymmetry histogram
@@ -975,6 +1057,7 @@ TArrayF* getKinBinBSA2DGenericRooFitML(
     double       bin_max,
     double       pol,
     std::vector<std::string>   depolvars,
+    std::string  bootstrap_weight_name = "",
     std::string  helicity_name = "heli",
     std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
     int          nparams       = 2,
@@ -1001,8 +1084,8 @@ TArrayF* getKinBinBSA2DGenericRooFitML(
     auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
 
     // Get data
-    auto count    = (int)   *f.Count();
-    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto count    = bootstrap_weight_name=="" ? (int)*f.Count() : (int)*f.Sum(bootstrap_weight_name.c_str());
+    auto mean     = (double)*f.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
     auto stddev   = (double)*f.StdDev(binvar.c_str());
 
     // Compute depolarization factor
@@ -1142,6 +1225,7 @@ TArrayF* getKinBinBSA1DGenericRooFitML(
     double       bin_max,
     double       pol,
     std::vector<std::string>   depolvars,
+    std::string  bootstrap_weight_name = "",
     std::string  helicity_name = "heli",
     std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
     int          nparams       = 2,
@@ -1163,8 +1247,8 @@ TArrayF* getKinBinBSA1DGenericRooFitML(
     auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
 
     // Get data
-    auto count    = (int)   *f.Count();
-    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto count    = bootstrap_weight_name=="" ? (int)*f.Count() : (int)*f.Sum(bootstrap_weight_name.c_str());
+    auto mean     = (double)*f.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
     auto stddev   = (double)*f.StdDev(binvar.c_str());
 
     // Compute depolarization factor
@@ -1304,6 +1388,7 @@ TArrayF* getKinBinBSA2DGenericRooFit(
     double       bin_max,
     double       pol,
     std::vector<std::string>   depolvars,
+    std::string  bootstrap_weight_name = "",
     std::string  helicity_name = "heli",
     std::string  fitformula    = "[0]*sin(x)+[1]*sin(2*x)",
     int          nparams       = 2,
@@ -1330,8 +1415,8 @@ TArrayF* getKinBinBSA2DGenericRooFit(
     auto f = frame.Filter(Form("(%s) && (%s)",cuts.c_str(),bin_cut.c_str()));
 
     // Get data
-    auto count    = (int)   *f.Count();
-    auto mean     = (double)*f.Mean(binvar.c_str());
+    auto count    = bootstrap_weight_name=="" ? (int)*f.Count() : (int)*f.Sum(bootstrap_weight_name.c_str());
+    auto mean     = (double)*f.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
     auto stddev   = (double)*f.StdDev(binvar.c_str());
 
     // Compute depolarization factor
@@ -1351,9 +1436,11 @@ TArrayF* getKinBinBSA2DGenericRooFit(
     gStyle->SetOptStat(0);
 
     // Create histograms
-    TH2D hplus_ = (TH2D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo2D({"hplus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str());
+    TH2D hplus_ = bootstrap_weight_name=="" ? (TH2D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo2D({"hplus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str()) : 
+                                              (TH2D)*f.Filter(Form("%s>0",helicity_name.c_str())).Histo2D({"hplus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str(), bootstrap_weight_name.c_str());
     TH2D *hplus = (TH2D*)hplus_.Clone("hplus");
-    TH2D hminus_ = (TH2D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo2D({"hminus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str());
+    TH2D hminus_ = bootstrap_weight_name=="" ? (TH2D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo2D({"hminus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str()) : 
+                                               (TH2D)*f.Filter(Form("%s<0",helicity_name.c_str())).Histo2D({"hminus_",title.c_str(),nbinsx,xmin,xmax,nbinsy,ymin,ymax},fitvarx.c_str(),fitvary.c_str(), bootstrap_weight_name.c_str());
     TH2D *hminus = (TH2D*)hminus_.Clone("hminus");
 
     // Get asymmetry histogram
@@ -1574,6 +1661,7 @@ void getKinBinnedGraphBSA2DGenericMCV2(
                     double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
                     double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "", // bootstrap weight variable name
                     std::string  helicity_name = "heli", // Branch name for helicity
                     std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
                     int          nparams = 2, // number of parameters in fit formula above
@@ -1706,6 +1794,7 @@ void getKinBinnedGraphBSA2DGenericMCV2(
             bin_min,
             bin_max,
             pol,
+            bootstrap_weight_name,
             depolvars,
             helicity_name,
             fitformula,
@@ -1756,6 +1845,7 @@ void getKinBinnedGraphBSA2DGenericMCV2(
                 bin_min,
                 bin_max,
                 pol,
+                bootstrap_weight_name,
                 depolvars,
                 helicity_name,
                 fitformula,
@@ -1894,6 +1984,8 @@ void getKinBinnedGraphBSA2DGenericMCRooFit(
                     double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
                     double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "", // bootstrap weight variable name
+                    std::string  bootstrap_weight_name = "", // bootstrap weight variable name
                     std::string  helicity_name = "heli", // Branch name for helicity
                     std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
                     int          nparams = 2, // number of parameters in fit formula above
@@ -2026,6 +2118,7 @@ void getKinBinnedGraphBSA2DGenericMCRooFit(
             bin_min,
             bin_max,
             pol,
+            bootstrap_weight_name,
             depolvars,
             helicity_name,
             fitformula,
@@ -2076,6 +2169,7 @@ void getKinBinnedGraphBSA2DGenericMCRooFit(
                 bin_min,
                 bin_max,
                 pol,
+                bootstrap_weight_name,
                 depolvars,
                 helicity_name,
                 fitformula,
@@ -2214,6 +2308,7 @@ void getKinBinnedGraphBSA1DGenericMCRooFit(
                     double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
                     double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "", // bootstrap weight variable name
                     std::string  helicity_name = "heli", // Branch name for helicity
                     std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
                     int          nparams = 2, // number of parameters in fit formula above
@@ -2341,6 +2436,7 @@ void getKinBinnedGraphBSA1DGenericMCRooFit(
             bin_min,
             bin_max,
             pol,
+            bootstrap_weight_name,
             depolvars,
             helicity_name,
             fitformula,
@@ -2386,6 +2482,7 @@ void getKinBinnedGraphBSA1DGenericMCRooFit(
                 bin_min,
                 bin_max,
                 pol,
+                bootstrap_weight_name,
                 depolvars,
                 helicity_name,
                 fitformula,
@@ -2519,6 +2616,7 @@ void getKinBinnedGraphBSA2DGenericV2(
                     // double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
                     // double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "", // bootstrap weight variable name
                     std::string  helicity_name = "heli", // Branch name for helicity
                     std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
                     int          nparams = 2, // number of parameters in fit formula above
@@ -2651,6 +2749,7 @@ void getKinBinnedGraphBSA2DGenericV2(
             bin_min,
             bin_max,
             pol,
+            bootstrap_weight_name,
             depolvars,
             helicity_name,
             fitformula,
@@ -2701,6 +2800,7 @@ void getKinBinnedGraphBSA2DGenericV2(
                 bin_min,
                 bin_max,
                 pol,
+                bootstrap_weight_name,
                 depolvars,
                 helicity_name,
                 fitformula,
@@ -2837,6 +2937,7 @@ void getKinBinnedGraphCounts(
                     double       mass_min, // mass variable max for signal fit
                     double       mass_max, // mass variable min for signal fit
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "", // bootstrap weight variable name
                     std::string  helicity_name = "heli", // Branch name for helicity
                     std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
                     int          nparams = 2, // number of parameters in fit formula above
@@ -2885,9 +2986,9 @@ void getKinBinnedGraphCounts(
 
         // Get bin data
         int idx = 0;
-        xs[binidx]       = (double)*bin_frame.Mean(binvar.c_str());
+        xs[binidx]       = (double)*bin_frame.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
         exs[binidx]      = (double)*bin_frame.StdDev(binvar.c_str());
-        ys[idx][binidx]  = (double)*bin_frame.Count();
+        ys[idx][binidx]  = bootstrap_weight_name=="" ? (double)*bin_frame.Count() : (double)*bin_frame.Sum(bootstrap_weight_name.c_str());
         eys[idx][binidx] = TMath::Sqrt(ys[idx][binidx]);
 
     }
@@ -2978,6 +3079,7 @@ void getKinBinnedGraph(
                     double       mass_min,   // mass variable max for signal fit
                     double       mass_max,   // mass variable min for signal fit
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "", // bootstrap weight variable name
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
                     std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
@@ -3098,6 +3200,7 @@ void getKinBinnedGraph(
                 bin_max,
                 alpha,
                 pol,
+                bootstrap_weight_name,
                 depolarization_name,
                 helicity_name,
                 fitvar,
@@ -3115,6 +3218,7 @@ void getKinBinnedGraph(
                 bin_max,
                 alpha,
                 pol,
+                bootstrap_weight_name,
                 helicity_name,
                 fitvar,
                 depolarization_name,
@@ -3134,6 +3238,7 @@ void getKinBinnedGraph(
                 bin_min,
                 bin_max,
                 pol,
+                bootstrap_weight_name,
                 helicity_name,
                 fitvar,
                 n_fitvar_bins,
@@ -3154,6 +3259,7 @@ void getKinBinnedGraph(
                 bin_min,
                 bin_max,
                 alpha,
+                bootstrap_weight_name,
                 fitvar,
                 topcut,
                 botcut,
@@ -3184,6 +3290,7 @@ void getKinBinnedGraph(
                     bin_max,
                     alpha,
                     pol,
+                    bootstrap_weight_name,
                     depolarization_name,
                     helicity_name,
                     fitvar,
@@ -3201,6 +3308,7 @@ void getKinBinnedGraph(
                     bin_max,
                     alpha,
                     pol,
+                    bootstrap_weight_name,
                     helicity_name,
                     fitvar,
                     depolarization_name,
@@ -3220,6 +3328,7 @@ void getKinBinnedGraph(
                     bin_min,
                     bin_max,
                     pol,
+                    bootstrap_weight_name,
                     helicity_name,
                     fitvar,
                     n_fitvar_bins,
@@ -3238,6 +3347,7 @@ void getKinBinnedGraph(
                     bin_min,
                     bin_max,
                     alpha,
+                    bootstrap_weight_name,
                     fitvar,
                     topcut,
                     botcut,
@@ -3407,6 +3517,7 @@ void getKinBinnedGraphBSAGeneric(
                     double       mass_min, // mass variable max for signal fit
                     double       mass_max, // mass variable min for signal fit
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "", // bootstrap weight variable name
                     std::string  helicity_name = "heli", // Branch name for helicity
                     std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
                     int          nparams = 2, // number of parameters in fit formula above
@@ -3528,6 +3639,7 @@ void getKinBinnedGraphBSAGeneric(
             bin_min,
             bin_max,
             pol,
+            bootstrap_weight_name,
             depolvar,
             helicity_name,
             fitformula,
@@ -3571,6 +3683,7 @@ void getKinBinnedGraphBSAGeneric(
                 bin_min,
                 bin_max,
                 pol,
+                bootstrap_weight_name,
                 depolvar,
                 helicity_name,
                 fitformula,
@@ -3702,6 +3815,7 @@ void getKinBinnedGraphBSAGenericMC(
                     double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
                     double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "", // bootstrap weight variable name
                     std::string  helicity_name = "heli", // Branch name for helicity
                     std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
                     int          nparams = 2, // number of parameters in fit formula above
@@ -3827,6 +3941,7 @@ void getKinBinnedGraphBSAGenericMC(
             bin_min,
             bin_max,
             pol,
+            bootstrap_weight_name,
             depolvar,
             helicity_name,
             fitformula,
@@ -3870,6 +3985,7 @@ void getKinBinnedGraphBSAGenericMC(
                 bin_min,
                 bin_max,
                 pol,
+                bootstrap_weight_name,
                 depolvar,
                 helicity_name,
                 fitformula,
@@ -4001,6 +4117,7 @@ void getKinBinnedGraphBSA2DGenericMC(
                     double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
                     double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "", // bootstrap weight variable name
                     std::string  helicity_name = "heli", // Branch name for helicity
                     std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
                     int          nparams = 2, // number of parameters in fit formula above
@@ -4131,6 +4248,7 @@ void getKinBinnedGraphBSA2DGenericMC(
             bin_min,
             bin_max,
             pol,
+            getKinBinBSA2DGeneric
             depolvar,
             helicity_name,
             fitformula,
@@ -4179,6 +4297,7 @@ void getKinBinnedGraphBSA2DGenericMC(
                 bin_min,
                 bin_max,
                 pol,
+                getKinBinBSA2DGeneric
                 depolvar,
                 helicity_name,
                 fitformula,
@@ -4313,6 +4432,7 @@ void getKinBinnedGraphBSAGenericLambdaKaon(
                     double       mass_min, // mass variable max for signal fit
                     double       mass_max, // mass variable min for signal fit
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "", // bootstrap weight variable name
                     std::string  helicity_name = "heli", // Branch name for helicity
                     std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
                     int          nparams = 2, // number of parameters in fit formula above
@@ -4434,6 +4554,7 @@ void getKinBinnedGraphBSAGenericLambdaKaon(
             bin_min,
             bin_max,
             pol,
+            bootstrap_weight_name,
             depolvar,
             helicity_name,
             fitformula,
@@ -4477,6 +4598,7 @@ void getKinBinnedGraphBSAGenericLambdaKaon(
                 bin_min,
                 bin_max,
                 pol,
+                bootstrap_weight_name,
                 depolvar,
                 helicity_name,
                 fitformula,
@@ -4609,6 +4731,7 @@ void getKinBinnedGraphBSAGenericLambdaKaonMC(
                     double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     double       dtheta_k_max, // maximum cut on delta theta for kaon MC matching
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "", // bootstrap weight variable name
                     std::string  helicity_name = "heli", // Branch name for helicity
                     std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
                     int          nparams = 2, // number of parameters in fit formula above
@@ -4736,6 +4859,7 @@ void getKinBinnedGraphBSAGenericLambdaKaonMC(
             bin_min,
             bin_max,
             pol,
+            bootstrap_weight_name,
             depolvar,
             helicity_name,
             fitformula,
@@ -4779,6 +4903,7 @@ void getKinBinnedGraphBSAGenericLambdaKaonMC(
                 bin_min,
                 bin_max,
                 pol,
+                bootstrap_weight_name,
                 depolvar,
                 helicity_name,
                 fitformula,
@@ -4911,6 +5036,7 @@ void getKinBinnedGraphMC(
                     double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
                     double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "", // bootstrap weight variable name
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
                     std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
@@ -5041,6 +5167,7 @@ void getKinBinnedGraphMC(
                 bin_max,
                 alpha,
                 pol,
+                bootstrap_weight_name,
                 depolarization_name,
                 helicity_name,
                 fitvar,
@@ -5058,6 +5185,7 @@ void getKinBinnedGraphMC(
                 bin_max,
                 alpha,
                 pol,
+                bootstrap_weight_name,
                 helicity_name,
                 fitvar,
                 depolarization_name,
@@ -5091,6 +5219,7 @@ void getKinBinnedGraphMC(
                     bin_max,
                     alpha,
                     pol,
+                    bootstrap_weight_name,
                     depolarization_name,
                     helicity_name,
                     fitvar,
@@ -5108,6 +5237,7 @@ void getKinBinnedGraphMC(
                     bin_max,
                     alpha,
                     pol,
+                    bootstrap_weight_name,
                     helicity_name,
                     fitvar,
                     depolarization_name,
@@ -5289,6 +5419,7 @@ void getKinBinnedGraphGausCBDiff(
                     double       mass_min,   // mass variable max for signal fit
                     double       mass_max,   // mass variable min for signal fit
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "", // bootstrap weight variable name
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
                     std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
@@ -5461,6 +5592,7 @@ void getKinBinnedGraphGausCBDiff(
                 bin_max,
                 alpha,
                 pol,
+                bootstrap_weight_name,
                 depolarization_name,
                 helicity_name,
                 fitvar,
@@ -5478,6 +5610,7 @@ void getKinBinnedGraphGausCBDiff(
                 bin_max,
                 alpha,
                 pol,
+                bootstrap_weight_name,
                 helicity_name,
                 fitvar,
                 depolarization_name,
@@ -5515,6 +5648,7 @@ void getKinBinnedGraphGausCBDiff(
                     bin_max,
                     alpha,
                     pol,
+                    bootstrap_weight_name,
                     depolarization_name,
                     helicity_name,
                     fitvar,
@@ -5532,6 +5666,7 @@ void getKinBinnedGraphGausCBDiff(
                     bin_max,
                     alpha,
                     pol,
+                    bootstrap_weight_name,
                     helicity_name,
                     fitvar,
                     depolarization_name,
@@ -5731,6 +5866,7 @@ void getKinBinnedGraphGenericDiff(
                     double       mass_min,   // mass variable max for signal fit
                     double       mass_max,   // mass variable min for signal fit
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "", // bootstrap weight variable name
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
                     std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
@@ -6011,6 +6147,7 @@ void getKinBinnedGraphGenericDiff(
                 bin_max,
                 alpha,
                 pol,
+                bootstrap_weight_name,
                 depolarization_name,
                 helicity_name,
                 fitvar,
@@ -6028,6 +6165,7 @@ void getKinBinnedGraphGenericDiff(
                 bin_max,
                 alpha,
                 pol,
+                bootstrap_weight_name,
                 helicity_name,
                 fitvar,
                 depolarization_name,
@@ -6065,6 +6203,7 @@ void getKinBinnedGraphGenericDiff(
                     bin_max,
                     alpha,
                     pol,
+                    bootstrap_weight_name,
                     depolarization_name,
                     helicity_name,
                     fitvar,
@@ -6082,6 +6221,7 @@ void getKinBinnedGraphGenericDiff(
                     bin_max,
                     alpha,
                     pol,
+                    bootstrap_weight_name,
                     helicity_name,
                     fitvar,
                     depolarization_name,
@@ -6477,8 +6617,8 @@ void getKinBinnedMassFits(
             }
         }
         
-        auto mean  = (double)*bin_frame.Mean(binvar.c_str());
-        auto count = (int)   *bin_frame.Count();
+        auto mean  = (double)*bin_frame.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
+        auto count = bootstrap_weight_name=="" ? (int)*bin_frame.Count() : (int)*bin_frame.Sum(bootstrap_weight_name.c_str());
 
         // Add data to arrays
         errx[i-1]   = 0;
@@ -6746,8 +6886,8 @@ void getKinBinnedLKMassFits(
             }
         }
         
-        auto mean  = (double)*bin_frame.Mean(binvar.c_str());
-        auto count = (int)   *bin_frame.Count();
+        auto mean  = (double)*bin_frame.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
+        auto count = bootstrap_weight_name=="" ? (int)*bin_frame.Count() : (int)*bin_frame.Sum(bootstrap_weight_name.c_str());
 
         // Add data to arrays
         errx[i-1]   = 0;
@@ -7139,8 +7279,8 @@ void getKinBinnedMassFitsMC(
             }
         }
         
-        auto mean  = (double)*bin_frame.Mean(binvar.c_str());
-        auto count = (int)   *bin_frame.Count();
+        auto mean  = (double)*bin_frame.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
+        auto count = bootstrap_weight_name=="" ? (int)*bin_frame.Count() : (int)*bin_frame.Sum(bootstrap_weight_name.c_str());
 
         // Add data to arrays
         errx[i-1]   = 0;
@@ -7445,8 +7585,8 @@ void getKinBinnedLKMassFitsMC(
             }
         }
         
-        auto mean  = (double)*bin_frame.Mean(binvar.c_str());
-        auto count = (int)   *bin_frame.Count();
+        auto mean  = (double)*bin_frame.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
+        auto count = bootstrap_weight_name=="" ? (int)*bin_frame.Count() : (int)*bin_frame.Sum(bootstrap_weight_name.c_str());
 
         // Add data to arrays
         errx[i-1]   = 0;
@@ -7707,8 +7847,8 @@ void getKinBinnedMassFitsMCFIXPARAMS(
             bgfraction_true_err = massFitData->GetAt(3);
         }
         
-        auto mean  = (double)*bin_frame.Mean(binvar.c_str());
-        auto count = (int)   *bin_frame.Count();
+        auto mean  = (double)*bin_frame.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
+        auto count = bootstrap_weight_name=="" ? (int)*bin_frame.Count() : (int)*bin_frame.Sum(bootstrap_weight_name.c_str());
 
         // Add data to arrays
         errx[i-1]   = 0;
@@ -7899,8 +8039,8 @@ void getKinBinnedMassFitsGauss(
             bgfraction_err = massFitData->GetAt(1);
         }
         
-        auto mean  = (double)*bin_frame.Mean(binvar.c_str());
-        auto count = (int)   *bin_frame.Count();
+        auto mean  = (double)*bin_frame.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
+        auto count = bootstrap_weight_name=="" ? (int)*bin_frame.Count() : (int)*bin_frame.Sum(bootstrap_weight_name.c_str());
 
         // Add data to arrays
         errx[i-1]   = 0;
@@ -8119,8 +8259,8 @@ void getKinBinnedMassFitsMCGauss(
             bgfraction_true_err = massFitData->GetAt(3);
         }
         
-        auto mean  = (double)*bin_frame.Mean(binvar.c_str());
-        auto count = (int)   *bin_frame.Count();
+        auto mean  = (double)*bin_frame.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
+        auto count = bootstrap_weight_name=="" ? (int)*bin_frame.Count() : (int)*bin_frame.Sum(bootstrap_weight_name.c_str());
 
         // Add data to arrays
         errx[i-1]   = 0;
@@ -8227,6 +8367,7 @@ void getKinBinnedGraphLandauCBDiff(
                     double       mass_min,   // mass variable max for signal fit
                     double       mass_max,   // mass variable min for signal fit
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    std::string  bootstrap_weight_name = "", // bootstrap weight variable name
                     double       sgasym              = 0.00,        // Asymmetry to inject to signal in MC
                     double       bgasym              = 0.00,        // Asymmetry to inject to background in MC
                     std::string  depolarization_name = "Dy",        // Branch name for depolarization factor
@@ -8399,6 +8540,7 @@ void getKinBinnedGraphLandauCBDiff(
                 bin_max,
                 alpha,
                 pol,
+                bootstrap_weight_name,
                 depolarization_name,
                 helicity_name,
                 fitvar,
@@ -8416,6 +8558,7 @@ void getKinBinnedGraphLandauCBDiff(
                 bin_max,
                 alpha,
                 pol,
+                bootstrap_weight_name,
                 helicity_name,
                 fitvar,
                 depolarization_name,
@@ -8453,6 +8596,7 @@ void getKinBinnedGraphLandauCBDiff(
                     bin_max,
                     alpha,
                     pol,
+                    bootstrap_weight_name,
                     depolarization_name,
                     helicity_name,
                     fitvar,
@@ -8470,6 +8614,7 @@ void getKinBinnedGraphLandauCBDiff(
                     bin_max,
                     alpha,
                     pol,
+                    bootstrap_weight_name,
                     helicity_name,
                     fitvar,
                     depolarization_name,
@@ -8755,8 +8900,8 @@ void getKinBinnedMassFitsLandau(
             bgfraction_err = massFitData->GetAt(1);
         }
         
-        auto mean  = (double)*bin_frame.Mean(binvar.c_str());
-        auto count = (int)   *bin_frame.Count();
+        auto mean  = (double)*bin_frame.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
+        auto count = bootstrap_weight_name=="" ? (int)*bin_frame.Count() : (int)*bin_frame.Sum(bootstrap_weight_name.c_str());
 
         // Add data to arrays
         errx[i-1]   = 0;
@@ -8975,8 +9120,8 @@ void getKinBinnedMassFitsMCLandau(
             bgfraction_true_err = massFitData->GetAt(3);
         }
         
-        auto mean  = (double)*bin_frame.Mean(binvar.c_str());
-        auto count = (int)   *bin_frame.Count();
+        auto mean  = (double)*bin_frame.Mean(bootstrap_weight_name=="" ? binvar.c_str() : Form("%s*%s",binvar.c_str(),bootstrap_weight_name.c_str()));
+        auto count = bootstrap_weight_name=="" ? (int)*bin_frame.Count() : (int)*bin_frame.Sum(bootstrap_weight_name.c_str());
 
         // Add data to arrays
         errx[i-1]   = 0;
