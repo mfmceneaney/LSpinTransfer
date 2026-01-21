@@ -477,6 +477,7 @@ void analysis(const YAML::Node& node) {
                     mass_min,// double       mass_min,   // mass variable max for signal fit
                     mass_max,// double       mass_max,   // mass variable min for signal fit
                     mass_draw_opt,// std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    bootstrap_weight_name,// std::string  bootstrap_weight_name = "", // Name of bootstrap weight variable
                     sgasym,// double       sgasym   = 0.00,        // Asymmetry to inject to signal in MC
                     bgasym,// double       bgasym   = 0.00,        // Asymmetry to inject to background in MC
                     depolarization_name,// std::string  depol    = "Dy",        // Branch name for depolarization factor

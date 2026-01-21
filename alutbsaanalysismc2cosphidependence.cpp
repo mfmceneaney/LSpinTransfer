@@ -513,6 +513,7 @@ void analysis(const YAML::Node& node) {
                     dtheta_p_max,// double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
                     dtheta_pim_max,// double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     mass_draw_opt,// std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    bootstrap_weight_name,// std::string  bootstrap_weight_name = "", // Name of bootstrap weight variable
                     sgasym,// double       sgasym   = 0.00,        // Asymmetry to inject to signal in MC
                     bgasym,// double       bgasym   = 0.00,        // Asymmetry to inject to background in MC
                     depolarization_name,// std::string  depol    = "Dy",        // Branch name for depolarization factor
