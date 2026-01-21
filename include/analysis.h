@@ -1975,7 +1975,6 @@ void getKinBinnedGraphBSA2DGenericMCRooFit(
                     double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     std::string  mass_draw_opt, // mass variable hist draw option for fit
                     std::string  bootstrap_weight_name = "", // bootstrap weight variable name
-                    std::string  bootstrap_weight_name = "", // bootstrap weight variable name
                     std::string  helicity_name = "heli", // Branch name for helicity
                     std::string  fitformula = "[0]*sin(x)+[1]*sin(2*x)", // text formula for fitting function
                     int          nparams = 2, // number of parameters in fit formula above
@@ -2108,8 +2107,8 @@ void getKinBinnedGraphBSA2DGenericMCRooFit(
             bin_min,
             bin_max,
             pol,
-            bootstrap_weight_name,
             depolvars,
+            bootstrap_weight_name,
             helicity_name,
             fitformula,
             nparams,
@@ -2159,8 +2158,8 @@ void getKinBinnedGraphBSA2DGenericMCRooFit(
                 bin_min,
                 bin_max,
                 pol,
-                bootstrap_weight_name,
                 depolvars,
+                bootstrap_weight_name,
                 helicity_name,
                 fitformula,
                 nparams,
@@ -2426,8 +2425,8 @@ void getKinBinnedGraphBSA1DGenericMCRooFit(
             bin_min,
             bin_max,
             pol,
-            bootstrap_weight_name,
             depolvars,
+            bootstrap_weight_name,
             helicity_name,
             fitformula,
             nparams,
@@ -2472,8 +2471,8 @@ void getKinBinnedGraphBSA1DGenericMCRooFit(
                 bin_min,
                 bin_max,
                 pol,
-                bootstrap_weight_name,
                 depolvars,
+                bootstrap_weight_name,
                 helicity_name,
                 fitformula,
                 nparams,
