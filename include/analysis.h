@@ -134,7 +134,7 @@ double get_weighted_stddev(
             }, {var_name.c_str(),weight_name.c_str()})
         .Sum(wdx2_name.c_str());
 
-    double var_w = *sum_wdx2 / (*sum_w);  // population variance
+    double var_w = sum_wdx2 / sum_w;  // population variance
     double std_w = std::sqrt(var_w);
     return mean_w;
 }
@@ -343,7 +343,7 @@ TArrayF* getKinBinHB(
     // Get data
     auto count    = bootstrap_weight_name=="" ? (int)*f.Count() : (int)*f.Sum(bootstrap_weight_name.c_str());
     auto mean     = bootstrap_weight_name=="" ? (double)*f.Mean(binvar.c_str()) : get_weighted_mean(f,binvar,bootstrap_weight_name);
-    auto stddev   = bootstrap_weight_name=="" ? (double)*f.StdDev(binvar.c_str()) :  : get_weighted_stddev(f,binvar,bootstrap_weight_name,mean);
+    auto stddev   = bootstrap_weight_name=="" ? (double)*f.StdDev(binvar.c_str()) : get_weighted_stddev(f,binvar,bootstrap_weight_name,mean);
     auto f_new    = f.Define(
         "__PbDCT",
         [&pol](float Dy, float heli, float costheta) { return heli*Dy*costheta; },
