@@ -103,7 +103,7 @@ double get_weighted_mean(
     std::string weight_name
 ) {
     double sum_w  = (double)*df.Sum(weight_name.c_str()); // sum_i: w_i
-    string wx_name = Form("__%s_X_%s",var_name.c_str(),weight_name.c_str());
+    std::string wx_name = Form("__%s_X_%s",var_name.c_str(),weight_name.c_str());
     double sum_wx = (double)*df.Define(
             wx_name.c_str(),
             [](double x, double w){ return x*w; },
@@ -118,14 +118,14 @@ double get_weighted_stddev(
     ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> df,
     std::string var_name,
     std::string weight_name,
-    double mean = 0.0;
+    double mean = 0.0
 ) {
 
     // Compute mean only if not provided
     double mean_w = (mean!=0.0) ? mean : get_weighted_mean(df,var_name,weight_name);
 
     // Step 2: weighted variance
-    string wdx2_name = Form("__d%s_X_%s_2",var_name.c_str(),weight_name.c_str());
+    std::string wdx2_name = Form("__d%s_X_%s_2",var_name.c_str(),weight_name.c_str());
     double sum_wdx2 = (double)*df.Define(
             wdx2_name.c_str(),
             [mean_w](double x, double w){ 
@@ -191,8 +191,8 @@ TArrayF* getKinBinLF(
     // Get data
     out << "Getting " << bin_cut << " bin\n";
     auto count    = bootstrap_weight_name=="" ? (double)*f.Count() : (double)*f.Sum(bootstrap_weight_name.c_str());
-    auto mean     = bootstrap_weight_name=="" ? (double)*f.Mean(binvar.c_str()) : get_weighted_mean(f,binvar,boostrap_weight_name);
-    auto stddev   = bootstrap_weight_name=="" ? (double)*f.StdDev(binvar.c_str()) :  : get_weighted_stddev(f,binvar,boostrap_weight_name,mean);
+    auto mean     = bootstrap_weight_name=="" ? (double)*f.Mean(binvar.c_str()) : get_weighted_mean(f,binvar,bootstrap_weight_name);
+    auto stddev   = bootstrap_weight_name=="" ? (double)*f.StdDev(binvar.c_str()) : get_weighted_stddev(f,binvar,bootstrap_weight_name,mean);
     auto histP_   = bootstrap_weight_name=="" ? (TH1D)  *f.Filter(Form("%s>0",helicity_name.c_str())).Histo1D({"histP", "Positive/Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str()) :
                                                 (TH1D)  *f.Filter(Form("%s>0",helicity_name.c_str())).Histo1D({"histP", "Positive/Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str(), bootstrap_weight_name.c_str());
     auto histN_   = bootstrap_weight_name=="" ? (TH1D)  *f.Filter(Form("%s<0",helicity_name.c_str())).Histo1D({"histN", "Negative Helicity", n_fitvar_bins, fitvar_min, fitvar_max}, fitvar.c_str()) : 
@@ -342,8 +342,8 @@ TArrayF* getKinBinHB(
 
     // Get data
     auto count    = bootstrap_weight_name=="" ? (int)*f.Count() : (int)*f.Sum(bootstrap_weight_name.c_str());
-    auto mean     = bootstrap_weight_name=="" ? (double)*f.Mean(binvar.c_str()) : get_weighted_mean(f,binvar,boostrap_weight_name);
-    auto stddev   = bootstrap_weight_name=="" ? (double)*f.StdDev(binvar.c_str()) :  : get_weighted_stddev(f,binvar,boostrap_weight_name,mean);
+    auto mean     = bootstrap_weight_name=="" ? (double)*f.Mean(binvar.c_str()) : get_weighted_mean(f,binvar,bootstrap_weight_name);
+    auto stddev   = bootstrap_weight_name=="" ? (double)*f.StdDev(binvar.c_str()) :  : get_weighted_stddev(f,binvar,bootstrap_weight_name,mean);
     auto f_new    = f.Define(
         "__PbDCT",
         [&pol](float Dy, float heli, float costheta) { return heli*Dy*costheta; },
@@ -354,10 +354,10 @@ TArrayF* getKinBinHB(
         [&pol](float Dy, float heli, float costheta) { return Dy*Dy*costheta*costheta; },
         {depolarization_name.c_str(),helicity_name.c_str(),fitvar.c_str()}
     );
-    auto avePbDCT = bootstrap_weight_name=="" ? (double)*f_new.Mean("__PbDCT") : get_weighted_mean(f_new,"__PbDCT",boostrap_weight_name);
-    auto aveDCT   = bootstrap_weight_name=="" ? (double)*f_new.Mean("__DCT") : get_weighted_mean(f_new,"__DCT",boostrap_weight_name);
-    auto stdPbDCT = bootstrap_weight_name=="" ? (double)*f_new.StdDev("__PbDCT") : get_weighted_stddev(f_new,"__PbDCT",boostrap_weight_name,avePbDCT);
-    auto stdDCT   = bootstrap_weight_name=="" ? (double)*f_new.StdDev("__DCT") : get_weighted_stddev(f_new,"__DCT",boostrap_weight_name,aveDCT);
+    auto avePbDCT = bootstrap_weight_name=="" ? (double)*f_new.Mean("__PbDCT") : get_weighted_mean(f_new,"__PbDCT",bootstrap_weight_name);
+    auto aveDCT   = bootstrap_weight_name=="" ? (double)*f_new.Mean("__DCT") : get_weighted_mean(f_new,"__DCT",bootstrap_weight_name);
+    auto stdPbDCT = bootstrap_weight_name=="" ? (double)*f_new.StdDev("__PbDCT") : get_weighted_stddev(f_new,"__PbDCT",bootstrap_weight_name,avePbDCT);
+    auto stdDCT   = bootstrap_weight_name=="" ? (double)*f_new.StdDev("__DCT") : get_weighted_stddev(f_new,"__DCT",bootstrap_weight_name,aveDCT);
     
     auto f_covar = f_new.Define(
         "__covar",
@@ -365,12 +365,11 @@ TArrayF* getKinBinHB(
             return (heli*Dy*costheta - avePbDCT)*(Dy*Dy*costheta*costheta - aveDCT);
         },
         {depolarization_name.c_str(),helicity_name.c_str(),fitvar.c_str()}
-    )
-    auto covar = bootstrap_weight_name=="" ? (double)*f_covar.Mean("__covar") : get_weighted_mean(f_covar,"__covar",boostrap_weight_name);
+    );
+    auto covar = bootstrap_weight_name=="" ? (double)*f_covar.Mean("__covar") : get_weighted_mean(f_covar,"__covar",bootstrap_weight_name);
 
     // Compute spin transfers
     if (count==0) {out << " *** WARNING *** Count = 0.  You should rebin.";}
-    if (sumDCT==0) {out << " *** WARNING *** Setting dll = 0. sumDCT = " << sumDCT << "\n"; dll=0;}
     else {dll = avePbDCT / (aveDCT * alpha * pol);}
 
     // Compute errors //NOTE: #sigma^2 = variance / count but #mu^2 = (sum / count)^2 so need extra factor of 1/count if dividing
