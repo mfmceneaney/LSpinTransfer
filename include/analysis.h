@@ -103,10 +103,13 @@ double get_weighted_mean(
     std::string weight_name
 ) {
     double sum_w  = (double)*df.Sum(weight_name.c_str()); // sum_i: w_i
-    double sum_wx = (double)*df.Sum(
-                [](double x, double w){ return x*w; },
-                {var_name.c_str(),weight_name.c_str()}
-            );  // sum_i: w_i * x_i
+    string wx_name = Form("__%s_X_%s",var_name.c_str(),weight_name.c_str());
+    double sum_wx = (double)*df.Define(
+            wx_name.c_str(),
+            [](double x, double w){ return x*w; },
+            {var_name.c_str(),weight_name.c_str()}
+        )
+        .Sum(wx_name.c_str());  // sum_i: w_i * x_i
     double mean_w = sum_wx / sum_w;
     return mean_w;
 }
@@ -122,10 +125,14 @@ double get_weighted_stddev(
     double mean_w = (mean!=0.0) ? mean : get_weighted_mean(df,var_name,weight_name);
 
     // Step 2: weighted variance
-    auto sum_wdx2 = df.Sum([mean_w](double x, double w){ 
-        double dx = x - mean_w;
-        return w * dx*dx;
-    }, {var_name.c_str(),weight_name.c_str()});
+    string wdx2_name = Form("__d%s_X_%s_2",var_name.c_str(),weight_name.c_str());
+    double sum_wdx2 = (double)*df.Define(
+            wdx2_name.c_str(),
+            [mean_w](double x, double w){ 
+                double dx = x - mean_w;
+                return w * dx*dx;
+            }, {var_name.c_str(),weight_name.c_str()})
+        .Sum(wdx2_name.c_str());
 
     double var_w = *sum_wdx2 / (*sum_w);  // population variance
     double std_w = std::sqrt(var_w);
