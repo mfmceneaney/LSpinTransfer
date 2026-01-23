@@ -121,10 +121,13 @@ double get_weighted_stddev(
     double mean = 0.0
 ) {
 
+    // Comupute the weighted count
+    double sum_w  = (double)*df.Sum(weight_name.c_str()); // sum_i: w_i
+
     // Compute mean only if not provided
     double mean_w = (mean!=0.0) ? mean : get_weighted_mean(df,var_name,weight_name);
 
-    // Step 2: weighted variance
+    // Compute the weighted variance
     std::string wdx2_name = Form("__d%s_X_%s_2",var_name.c_str(),weight_name.c_str());
     double sum_wdx2 = (double)*df.Define(
             wdx2_name.c_str(),
