@@ -619,7 +619,7 @@ def get_plots(
         'costhetaTy':'tab:green',
     }
     fitvars = {colors[fitvar]:fitvar for fitvar in colors}
-    ax1.text(0.95, 0.15, '(a)' if fitvars[color]=='costhetaT' else '(b)', transform=ax1.transAxes,
+    ax1.text(0.95, 0.15, '(a)' if 'z_' in xtitle else '(b)', transform=ax1.transAxes,
             fontsize=plt.rcParams['axes.titlesize'], fontweight='bold', va='top', ha='right')
 
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
