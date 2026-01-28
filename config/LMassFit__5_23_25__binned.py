@@ -427,6 +427,7 @@ def main():
     # Example 1D binning schemes: user should customize these to their needs.
     # Each scheme provides variable name and bin edges (len(edges) = nbins+1).
     BIN_SCHEMES = [
+        { 'name': 'x', 'var': 'x', 'pol': [4,2,2,2,2], 'edges': [0.0000, 0.1515, 0.2033, 0.2564, 0.3339, 1.0] },
         { 'name': 'z_ppim',  'var': 'z_ppim', 'pol': [4,2,2,2,2], 'edges': [0.0000, 0.5928, 0.6856, 0.7698, 0.8597, 1.0] },
         { 'name': 'xF_ppim', 'var': 'xF_ppim', 'pol': [2,2,2,2,4], 'edges': [0.0000, 0.0504, 0.1082, 0.1784, 0.2775, 1.0] },
     ]
