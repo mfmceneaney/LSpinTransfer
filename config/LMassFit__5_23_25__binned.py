@@ -33,7 +33,7 @@ from ROOT import TF1, TH1D, TH1F, TCanvas, TLegend, TMatrixDSym
 import ctypes
 
 
-def run(path='/RGA_DT_DIR/skim_*.root', tree='t', outname='LMassFit__5_23_25__z_bin', extra_cut=None, outdir='.', pol=2):
+def run(path='/RGA_DT_DIR/skim_*.root', tree='t', outname='LMassFit__5_23_25__z_bin', extra_cut=None, outdir='.', pol=2, add_watermark=False):
 
     # Set font sizes
     plt.rc('font', size=25) #controls default text size
@@ -330,6 +330,11 @@ def run(path='/RGA_DT_DIR/skim_*.root', tree='t', outname='LMassFit__5_23_25__z_
     lw = base_lw * 1.5
     ax.step(bins[:-1], counts, where='post', label='Data', color='k', linewidth=lw, linestyle='solid')
 
+    if add_watermark:
+        plt.text(0.5, 0.5, 'CLAS12 Preliminary',
+            size=50, rotation=25., color='gray', alpha=0.25,
+            horizontalalignment='center',verticalalignment='center',transform=ax.transAxes)
+
     xs = np.linspace(varMin, varMax, 1000)
     ys_fit = np.array([func.Eval(x) for x in xs])
     ys_sig = np.array([sig.Eval(x) for x in xs])
@@ -416,6 +421,7 @@ def main():
     parser.add_argument('--path', default=f"{os.environ.get('RGA_DT_DIR', '')}/skim_*.root", help='ROOT file glob path')
     parser.add_argument('--tree', default='t', help='Tree name')
     parser.add_argument('--outdir', default='binned_massfits', help='Directory to save PDFs')
+    parser.add_argument('--add_watermark', action='store_true', help='Add the \'CLAS12 Preliminary\' watermark')
     args = parser.parse_args()
 
     # Example 1D binning schemes: user should customize these to their needs.
@@ -433,7 +439,7 @@ def main():
             extra_cut = f"{scheme['var']}>={scheme['edges'][ib]} && {scheme['var']}<{scheme['edges'][ib+1]}"
             outname = f"{scheme['name']}__bin{ib}"
             print(f"Running for {outname} with cut: {extra_cut}")
-            run(path=args.path, tree=args.tree, outname=outname, extra_cut=extra_cut, outdir=args.outdir, pol=scheme['pol'][ib])
+            run(path=args.path, tree=args.tree, outname=outname, extra_cut=extra_cut, outdir=args.outdir, pol=scheme['pol'][ib], add_watermark=args.add_watermark)
 
 if __name__ == '__main__':
     main()
