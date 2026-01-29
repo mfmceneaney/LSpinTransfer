@@ -581,9 +581,9 @@ if __name__=="__main__":
         config_keys = ['method','fitvar','sgasym2']
         col_key, row_key  = ['binvar','sgasym']
         col_map = {el:i for i, el in enumerate(xtitles.keys())}
-        row_map = {el:i for i, el in enumerate(sgasyms2['sgasym'])}
+        row_map = {el:i for i, el in enumerate(sgasyms['sgasym'])}
         nitems = 4 # y, yerr, chi, systematic
-        table_shape = [len(sgasyms2['sgasym']),len(xtitles.keys()),nitems] #NOTE: DIM = (NROWS,NCOLUMNS,NITEMS) #NOTE: ALSO THIS NEEDS TO BE A LIST NOT A TUPLE.
+        table_shape = [len(sgasyms['sgasym']),len(xtitles.keys()),nitems] #NOTE: DIM = (NROWS,NCOLUMNS,NITEMS) #NOTE: ALSO THIS NEEDS TO BE A LIST NOT A TUPLE.
         row_header_key = 'sgasym'
         tables = get_tables(keeper,config_keys,row_key,col_key,row_map,col_map,table_shape,row_header_key=row_header_key)
 
