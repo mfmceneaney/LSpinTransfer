@@ -486,7 +486,7 @@ if __name__=="__main__":
         'y':[0.0,1.0],
         'z_ppim':[0.0,1.1],
     }
-    ylimss = [-1.0,1.0]
+    ylimss = [-0.5,3.0]
     titles = {
         'costhetaT':'$\Lambda$ Polarization along $\hat{x}$',
         'costhetaTy':'$\Lambda$ Polarization along $\hat{y}$',
