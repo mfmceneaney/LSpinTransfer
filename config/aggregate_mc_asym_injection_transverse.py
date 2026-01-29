@@ -288,7 +288,7 @@ def get_plots(
     ylims = [0.0,1.0],
     title = 'Injection Results',
     xtitle = '$Q^{2} (GeV^{2})$',
-    ytitle = '$D_{LL\'}^{\Lambda}$',
+    ytitle = '$D_{LL\'}^{x\Lambda}$',
     sgasym = 0.10,
     bgasym = 0.00,
     color  = 'blue', #NOTE: COLOR OF DATA POINTS
@@ -344,7 +344,7 @@ def get_plots(
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='Mean $D_{LL\'}^{\Lambda}$')
+                        linewidth=linewidth, markersize=markersize,label='Mean $D_{LL\'}^{x\Lambda}$')
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     if sgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
     ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth, label='Injected Signal Asymmetry')
@@ -518,7 +518,7 @@ if __name__=="__main__":
         'y':'$y$',
         'z_ppim':'$z_{p\pi^{-}}$',
     }
-    ytitle = '$D_{LL\'}^{\Lambda}$'
+    ytitle = '$D_{LL\'}^{x\Lambda}$'
 
     def get_outpath(base_dir,aggregate_keys,**config):
 

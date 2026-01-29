@@ -295,7 +295,7 @@ def get_plots(
     title = 'Injection Results',
     xvar  = 'Q2',
     xtitle = '$Q^{2} (GeV^{2})$',
-    ytitle = '$D_{LL\'}^{\Lambda}$',
+    ytitle = '$D_{LL\'}^{x\Lambda}$',
     sgasym = 0.10,
     bgasym = 0.00,
     color  = 'blue', #NOTE: COLOR OF DATA POINTS
@@ -351,7 +351,7 @@ def get_plots(
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='$D_{LL\'}^{\Lambda}$')
+                        linewidth=linewidth, markersize=markersize,label='$D_{LL\'}^{x\Lambda}$')
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
     plt.text(0.5, 0.5, 'CLAS12 Preliminary',
@@ -504,7 +504,7 @@ if __name__=="__main__":
         'y':'$y$',
         'z_ppim':'$z_{p\pi^{-}}$',
     }
-    ytitle = '$\Delta D_{LL\' CB-Gauss}^{\Lambda}/D_{LL\' CB}^{\Lambda}$'
+    ytitle = '$\Delta D_{LL\' CB-Gauss}^{x\Lambda}/D_{LL\' CB}^{x\Lambda}$'
 
     def get_outpath(base_dir,aggregate_keys,**config):
 
