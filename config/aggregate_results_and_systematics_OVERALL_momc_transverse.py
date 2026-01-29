@@ -750,6 +750,7 @@ if __name__=="__main__":
             # Choose sgasym and bgasym (sgasym2) to use
             sgasym  = 0.1
             sgasym2 = 0.1 #NOTE: HOW TO CHOSE COMBO???
+            sgasym3 = 0.0 #NOTE: HOW TO CHOSE COMBO???
 
             # Create new semi-static config
             config_mass_ppim  = config.copy() #NOTE: IMPORTANT TO COPY
@@ -761,12 +762,12 @@ if __name__=="__main__":
             config_mass_ppim[config_mass_ppim['binvar']] = [1.08, 1.24]
 
             # Get cos_phi_h_ppim min max MC injection systematics input file names 
-            outpath_mc_cos_phi_h_ppim = get_outpath(base_dir,mc_asym_injection_aggregate_keys,sgasym2=sgasym2,sgasym=sgasym,**config_mass_ppim) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
+            outpath_mc_cos_phi_h_ppim = get_outpath(base_dir,mc_asym_injection_aggregate_keys,sgasym=sgasym,sgasym2=sgasym2,sgasym3=sgasym3,**config_mass_ppim) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
             mc_asym_injection_cos_phi_h_ppim_minmax_outpath = outpath_mc_cos_phi_h_ppim+'.csv'
             print("DEBBUGGING: mc_asym_injection_cos_phi_h_ppim_minmax_outpath = ",mc_asym_injection_cos_phi_h_ppim_minmax_outpath)
 
             # Get cos_phi_h_ppim MC injection systematics input file names
-            outpath_mc_cos_phi_h_ppim = get_outpath(base_dir,mc_asym_injection_aggregate_keys,sgasym2=sgasym2,sgasym=sgasym,**config_mass_ppim2)
+            outpath_mc_cos_phi_h_ppim = get_outpath(base_dir,mc_asym_injection_aggregate_keys,sgasym=sgasym,sgasym2=sgasym2,sgasym3=sgasym3,**config_mass_ppim2)
             mc_asym_injection_cos_phi_h_ppim_outpath = outpath_mc_cos_phi_h_ppim+'_systematics.csv'
             print("DEBUGGING: mc_asym_injection_cos_phi_h_ppim_outpath = ",mc_asym_injection_cos_phi_h_ppim_outpath)
 
