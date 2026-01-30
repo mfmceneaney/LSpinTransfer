@@ -586,34 +586,6 @@ if __name__=="__main__":
                 config  = config, #NOTE: FOR ADDING ENTRIES TO KEEPER
             )
 
-            return
-
-        # Save aggregated chi to csv
-        delimiter = ","
-        new_xtitles = [re.sub('[0-9]{1}','',re.sub('_','',el)) for el in xtitles.keys()]
-        header    = delimiter.join(["sgasym",*new_xtitles])
-        fmt       = ["%.3f",*["%.3g" for i in range(len(xtitles))]]
-        config_keys = ['method','binvar','bgasym']
-        save_tables(
-            tables,base_dir,header,delimiter,fmt,using_row_header=True
-        )
-
-        # Save aggregated results and errors to csv
-        delimiter = ","
-        new_xtitles = [re.sub('[0-9]{1}','',re.sub('_','',el)) for el in xtitles.keys()]
-        header = new_xtitles
-        new_header = []
-        for el in header:
-            new_header.extend([el,el+'err'])
-        header = new_header #NOTE: HAVE TO ADD ERRORS COLUMN HEADERS HERE
-        header    = ["sgasym",*header]
-        header = delimiter.join(header)
-        fmt       = ["%.3f",*["%.3g" for i in range(2*len(xtitles))]]
-        config_keys = ['method','binvar','bgasym']
-        save_result_tables(
-            tables,base_dir,header,delimiter,fmt,using_row_header=True
-        )
-
         return
 
     apply_get_plots(out_file_list,get_outpath,get_plots,base_dir=base_dir,xlimss=xlimss,ylims=ylims,titles=titles,xtitles=xtitles,ytitle=ytitle,verbose=True,aggregate_keys=aggregate_keys,colors=colors)
