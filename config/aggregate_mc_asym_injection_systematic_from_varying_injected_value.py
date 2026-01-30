@@ -275,7 +275,7 @@ def get_arrs(out_file_list,sgasyms):
             'ydiff_mins':ydiff_mins,
             'ydiff_maxs':ydiff_maxs,
             'ydiffs':np.subtract(glist[1],exp_sgasyms),
-            'sgasyms':exp_sgasyms,
+            'sgasyms':np.array(exp_sgasyms),
             }
 
 def get_plots(
@@ -409,28 +409,29 @@ def get_plots(
         )
 
     # Plot the distribution of ydiffs as a function of the injected asymmetries
-    figsize = (16,10)
-    f1, ax1 = plt.subplots(figsize=figsize)
-    plt.xlim(np.min(sgasyms)-0.05,np.max(sgasyms)+0.05)
-    plt.ylim(np.min(ydiffs)-0.05,np.max(ydiffs)+0.05)
-    plt.title('Difference $\Delta A$ from Injected Signal Asymmetry $A$',usetex=True,pad=20)
-    plt.xlabel('$A$',usetex=True)
-    plt.ylabel('$\Delta A$',usetex=True)
-    hist2d = ax1.hist2d(np.ravel(sgasyms), np.ravel(ydiffs), bins=(20,20), norm=LogNorm())
-    plt.colorbar(hist2d[3], ax=ax1)
-    plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
+    for bin_idx in range(len(ydiff_mean)):
+        figsize = (16,10)
+        f1, ax1 = plt.subplots(figsize=figsize)
+        plt.xlim(np.min(sgasyms)-0.05,np.max(sgasyms)+0.05)
+        plt.ylim(np.min(ydiffs)-0.05,np.max(ydiffs)+0.05)
+        plt.title(f'Bin {bin_idx} : Difference $\Delta A$ from Injected Signal Asymmetry $A$',usetex=True,pad=20)
+        plt.xlabel('$A$',usetex=True)
+        plt.ylabel('$\Delta A$',usetex=True)
+        hist2d = ax1.hist2d(np.ravel(sgasyms[:,bin_idx]), np.ravel(ydiffs[:,bin_idx]), bins=(20,20), norm=LogNorm())
+        plt.colorbar(hist2d[3], ax=ax1)
+        plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
 
-    # Plot subplot labels for paper
-    colors = {
-        'costheta1':'blue',
-        'costheta2':'red',
-    }
-    fitvars = {colors[fitvar]:fitvar for fitvar in colors}
-    ax1.text(0.95, 0.15, '(a)' if fitvars[color]=='costheta1' else '(b)', transform=ax1.transAxes,
-            fontsize=plt.rcParams['axes.titlesize'], fontweight='bold', va='top', ha='right')
+        # Plot subplot labels for paper
+        colors = {
+            'costheta1':'blue',
+            'costheta2':'red',
+        }
+        fitvars = {colors[fitvar]:fitvar for fitvar in colors}
+        ax1.text(0.95, 0.15, '(a)' if fitvars[color]=='costheta1' else '(b)', transform=ax1.transAxes,
+                fontsize=plt.rcParams['axes.titlesize'], fontweight='bold', va='top', ha='right')
 
-    print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
-    f1.savefig(outpath.replace('.pdf','_ydiffs.pdf'))
+        print("DEBUGGING: plt.savefig(outpath) -> ",outpath.replace('.pdf',f'_ydiffs_bin_{bin_idx}.pdf'))
+        f1.savefig(outpath.replace('.pdf',f'_ydiffs_bin_{bin_idx}.pdf'))
 
 #---------- MAIN ----------#
 if __name__=="__main__":
