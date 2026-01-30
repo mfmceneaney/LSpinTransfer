@@ -16,6 +16,60 @@ import yaml
 import sys
 import re
 
+import ROOT
+import uuid
+
+def pyroot_linear_fit(x, y, yerr=None, xmin=None, xmax=None):
+    x = np.asarray(x, dtype="float64")
+    y = np.asarray(y, dtype="float64")
+    n = len(x)
+
+    if xmin is None:
+        xmin = float(x.min())
+    if xmax is None:
+        xmax = float(x.max())
+
+    # Handle errors properly
+    if yerr is None:
+        g = ROOT.TGraph(n, x, y)
+    else:
+        if np.isscalar(yerr):
+            yerr = np.full(n, yerr, dtype="float64")
+        else:
+            yerr = np.asarray(yerr, dtype="float64")
+
+        xerr = np.zeros(n, dtype="float64")
+        g = ROOT.TGraphErrors(n, x, y, xerr, yerr)
+
+    # Unique TF1 name (important!)
+    fname = f"lin_{uuid.uuid4().hex}"
+    f = ROOT.TF1(fname, "[0]*x + [1]", xmin, xmax)
+    f.SetParameters(0.0, 0.0)
+
+    # Fit
+    fit_result = g.Fit(f, "QS")  # Quiet + return result
+
+    # Extract results
+    m = f.GetParameter(0)
+    m_err = f.GetParError(0)
+
+    b = f.GetParameter(1)
+    b_err = f.GetParError(1)
+
+    chi2 = f.GetChisquare()
+    ndf = f.GetNDF()
+
+    return {
+        "m": m,
+        "m_err": m_err,
+        "b": b,
+        "b_err": b_err,
+        "chi2": chi2,
+        "ndf": ndf,
+        "chi2_ndf": chi2 / ndf if ndf > 0 else np.nan,
+    }
+
+
 def get_list(divisions,aggregate_keys=[]):
 
     # Create map of elements of elements of divisions and combine completely into each other for one list
@@ -409,7 +463,16 @@ def get_plots(
         )
 
     # Plot the distribution of ydiffs as a function of the injected asymmetries
+    slopes = []
+    slope_errs = []
+    offsets = []
+    offset_errs = []
+    chi2_ndfs = []
     for bin_idx in range(len(ydiff_mean)):
+
+        x = np.ravel(sgasyms[:,bin_idx])
+        y = np.ravel(ydiffs[:,bin_idx])
+
         figsize = (16,10)
         f1, ax1 = plt.subplots(figsize=figsize)
         plt.xlim(np.min(sgasyms)-0.05,np.max(sgasyms)+0.05)
@@ -417,7 +480,7 @@ def get_plots(
         plt.title(f'Bin {bin_idx} : Difference $\Delta A$ from Injected Signal Asymmetry $A$',usetex=True,pad=20)
         plt.xlabel('$A$',usetex=True)
         plt.ylabel('$\Delta A$',usetex=True)
-        hist2d = ax1.hist2d(np.ravel(sgasyms[:,bin_idx]), np.ravel(ydiffs[:,bin_idx]), bins=(20,20), norm=LogNorm())
+        hist2d = ax1.hist2d(x, y, bins=(20,20), norm=LogNorm())
         plt.colorbar(hist2d[3], ax=ax1)
         plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
 
@@ -432,6 +495,30 @@ def get_plots(
 
         print("DEBUGGING: plt.savefig(outpath) -> ",outpath.replace('.pdf',f'_ydiffs_bin_{bin_idx}.pdf'))
         f1.savefig(outpath.replace('.pdf',f'_ydiffs_bin_{bin_idx}.pdf'))
+
+        # Fit the distribution and record the parameters
+        fit_result = pyroot_linear_fit(x, y)
+        slopes.append(fit_result["m"])
+        slope_errs.append(fit_result["m_err"])
+        offsets.append(fit_result["b"])
+        offset_errs.append(fit_result["b_err"])
+        chi2_ndfs.append(fit_result["chi2_ndf"])
+
+    # Record the fit parameters
+    header    = delimiter.join(["bin","x","slope","slopeerr","offset","offseterr","chisqndf"])
+    convert_graph_to_csv(
+        outpath+'_fitparams.csv',
+        x_mean,
+        slopes,
+        xerr=slope_errs,
+        yerr=offsets,
+        mins=offset_errs,
+        maxs=chi2_ndfs,
+        delimiter=delimiter,
+        header=header,
+        fmt=fmt,
+        comments=comments
+        )
 
 #---------- MAIN ----------#
 if __name__=="__main__":
