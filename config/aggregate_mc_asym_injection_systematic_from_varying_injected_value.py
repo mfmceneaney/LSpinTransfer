@@ -7,6 +7,7 @@ import uproot as ur
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
+import matplotlib.lines as mlines
 plt.rcParams['text.usetex'] = True #NOTE: Force use of LaTeX in text rendering
 
 import subprocess
@@ -473,6 +474,15 @@ def get_plots(
         x = np.ravel(sgasyms[:,bin_idx])
         y = np.ravel(ydiffs[:,bin_idx])
 
+        # Fit the distribution and record the parameters
+        fit_result = pyroot_linear_fit(x, y)
+        slopes.append(fit_result["m"])
+        slope_errs.append(fit_result["m_err"])
+        offsets.append(fit_result["b"])
+        offset_errs.append(fit_result["b_err"])
+        chi2_ndfs.append(fit_result["chi2_ndf"])
+
+        # Plot the distribution and the fit results
         figsize = (16,10)
         f1, ax1 = plt.subplots(figsize=figsize)
         plt.xlim(np.min(sgasyms)-0.05,np.max(sgasyms)+0.05)
@@ -480,9 +490,17 @@ def get_plots(
         plt.title(f'Bin {bin_idx} : Difference $\Delta A$ from Injected Signal Asymmetry $A$',usetex=True,pad=20)
         plt.xlabel('$A$',usetex=True)
         plt.ylabel('$\Delta A$',usetex=True)
-        hist2d = ax1.hist2d(x, y, bins=(20,20), norm=LogNorm())
-        plt.colorbar(hist2d[3], ax=ax1)
+        ax1.scatter(x, y, marker='o', alpha=0.5, color=color)
         plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
+
+        # Plot the fit line
+        x_fit = x
+        y_fit = slopes[-1] * x_fit + offsets[-1]
+        ax1.plt.plot(x_fit, y_fit, color="red", linewidth=2, label="Fit line")
+        ghost1 = mlines.Line2D([], [], color='w', label=f"$\chi^2$/NDF = ${chi2_ndfs[-1]:.2f}$")  # invisible line
+        ghost2 = mlines.Line2D([], [], color='w', label=f"slope  = ${slopes[-1]:.2f} \pm {slope_errs[-1]:.2f}$")  # invisible line
+        ghost3 = mlines.Line2D([], [], color='w', label=f"offset = ${offsets[-1]:.2f} \pm {offset_errs[-1]:.2f}$")  # invisible line
+        plt.legend(handles=[ghost1,ghost2,ghost3],loc='best')
 
         # Plot subplot labels for paper
         colors = {
@@ -495,14 +513,6 @@ def get_plots(
 
         print("DEBUGGING: plt.savefig(outpath) -> ",outpath.replace('.pdf',f'_ydiffs_bin_{bin_idx}.pdf'))
         f1.savefig(outpath.replace('.pdf',f'_ydiffs_bin_{bin_idx}.pdf'))
-
-        # Fit the distribution and record the parameters
-        fit_result = pyroot_linear_fit(x, y)
-        slopes.append(fit_result["m"])
-        slope_errs.append(fit_result["m_err"])
-        offsets.append(fit_result["b"])
-        offset_errs.append(fit_result["b_err"])
-        chi2_ndfs.append(fit_result["chi2_ndf"])
 
     # Record the fit parameters
     header    = delimiter.join(["bin","x","slope","slopeerr","offset","offseterr","chisqndf"])
