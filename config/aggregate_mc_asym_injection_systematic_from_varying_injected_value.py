@@ -354,9 +354,9 @@ def get_plots(
                         color=color, marker='o', linestyle=linestyle,
                         linewidth=linewidth, markersize=markersize,label='Mean $\Delta A$')
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
-    if sgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
+    if bgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
     # ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth, label='Injected Signal Asymmetry')
-    if bgasym!=0: ax1.axhline(bgasym, color='blue',linestyle='--',linewidth=axlinewidth, label='Injected Background Asymmetry')
+    ax1.axhline(bgasym, color='blue',linestyle='--',linewidth=axlinewidth, label='Injected Background Asymmetry')
     plt.legend(loc='best',frameon=False)
 
     # Plot subplot labels for paper
