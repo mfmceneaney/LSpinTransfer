@@ -485,9 +485,9 @@ def get_plots(
         # Plot the distribution and the fit results
         figsize = (16,10)
         f1, ax1 = plt.subplots(figsize=figsize)
-        plt.xlim(np.min(sgasyms)-0.05,np.max(sgasyms)+0.05)
-        plt.ylim(np.min(ydiffs)-0.05,np.max(ydiffs)+0.05)
-        plt.title(f'Bin {bin_idx} : Difference $\Delta A$ from Injected Signal Asymmetry $A$',usetex=True,pad=20)
+        plt.xlim(np.min(x)-0.01,np.max(x)+0.01)
+        plt.ylim(np.min(y)-0.01,np.max(y)+0.01)
+        plt.title(f'${xtitle}$ Bin {bin_idx} : Difference from Injected',usetex=True,pad=20)
         plt.xlabel('$A$',usetex=True)
         plt.ylabel('$\Delta A$',usetex=True)
         ax1.scatter(x, y, marker='o', alpha=0.5, color=color)
@@ -498,9 +498,9 @@ def get_plots(
         y_fit = slopes[-1] * x_fit + offsets[-1]
         ax1.plot(x_fit, y_fit, color="red", linewidth=2, label="Fit line")
         ghost1 = mlines.Line2D([], [], color='w', label=f"$\chi^2$/NDF = ${chi2_ndfs[-1]:.2f}$")  # invisible line
-        ghost2 = mlines.Line2D([], [], color='w', label=f"slope  = ${slopes[-1]:.2f} \pm {slope_errs[-1]:.2f}$")  # invisible line
-        ghost3 = mlines.Line2D([], [], color='w', label=f"offset = ${offsets[-1]:.2f} \pm {offset_errs[-1]:.2f}$")  # invisible line
-        plt.legend(handles=[ghost1,ghost2,ghost3],loc='best')
+        ghost2 = mlines.Line2D([], [], color='w', label=f"slope  = ${slopes[-1]:.4f} \pm {slope_errs[-1]:.4f}$")  # invisible line
+        ghost3 = mlines.Line2D([], [], color='w', label=f"offset = ${offsets[-1]:.4f} \pm {offset_errs[-1]:.4f}$")  # invisible line
+        plt.legend(handles=[ghost1,ghost2,ghost3],loc='best',frameon=False)
 
         # Plot subplot labels for paper
         colors = {
