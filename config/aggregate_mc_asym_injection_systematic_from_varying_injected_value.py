@@ -348,14 +348,14 @@ def get_plots(
     #         color=bcolor,
     #     )
     # fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
-    fb = plt.fill_between(x_mean, y_mean-yerr_mean, y_mean+yerr_mean, alpha=0.2, label='$\pm1\sigma$ Band', color=bcolor)
-    g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
+    fb = plt.fill_between(x_mean, ydiff_mean-yerr_mean, ydiff_mean+yerr_mean, alpha=0.2, label='$\pm1\sigma$ Band', color=bcolor)
+    g2 = plt.errorbar(x_mean,ydiff_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='Mean $D_{LL\'}^{\Lambda}$')
+                        linewidth=linewidth, markersize=markersize,label='Mean $\Delta A$')
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     if sgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
-    ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth, label='Injected Signal Asymmetry')
+    # ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth, label='Injected Signal Asymmetry')
     if bgasym!=0: ax1.axhline(bgasym, color='blue',linestyle='--',linewidth=axlinewidth, label='Injected Background Asymmetry')
     plt.legend(loc='best',frameon=False)
 
@@ -387,7 +387,7 @@ def get_plots(
     convert_graph_to_csv(
         outpath+'.csv',
         x_mean,
-        y_mean,
+        ydiff_mean,
         xerr=xerr_mean,
         yerr=yerr_mean,
         mins=y_min,
@@ -570,7 +570,7 @@ if __name__=="__main__":
             file_list = el["file_list"]
             print("DEBUGGING: config = ",el["data_list"])#DEBUGGING
             print("DEBUGGING: file_list = ",el["file_list"])#DEBUGGING
-            arrs = get_arrs(file_list,config['sgasym'])
+            arrs = get_arrs(file_list,sgasyms['sgasym'])
             outpath = get_outpath(base_dir,aggregate_keys,**config)
             print("DEBUGGING: outpath = ",outpath)
             binvar = config['binvar'] #NOTE: VARIABLE IN WHICH THE BINNING IS DONE
