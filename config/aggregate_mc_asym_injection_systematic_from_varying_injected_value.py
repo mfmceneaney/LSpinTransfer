@@ -97,7 +97,7 @@ def get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_
                     # Get job directory and output file name
                     job_dir = os.path.join(base_dir,"__".join(["_".join([key,str(data_list_i_val[key])]) for key in sorted(data_list_i_val)]))
                     job_dir = os.path.abspath(job_dir) #NOTE: Since dictionary is not copied this should just edit the original entry in data_list.
-                    out_file_name = get_out_file_name(use_mc=use_mc,xvar=xvar,xvar_min=xvar_min,xvar_max=xvar_max,**data_list_i)
+                    out_file_name = get_out_file_name(use_mc=use_mc,xvar=xvar,xvar_min=xvar_min,xvar_max=xvar_max,**data_list_i_val)
                     out_file_name = os.path.join(job_dir,out_file_name)
                     print("DEBUGGING: job_dir = ",job_dir)#DEBGGING
                     print("DEBUGGING: out_file_name = ",out_file_name)#DEBGGING
@@ -370,13 +370,6 @@ def get_plots(
 
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
-
-    # Compute group values
-    y_mean_overall = np.mean(y_mean)
-    yerr_overall   = np.sqrt(np.mean(np.square(yerr_mean)))
-    chi = np.std(np.add(y_mean,-sgasym))
-    systematic = chi/(sgasym if sgasym!=0 else 1.0)
-    keeper.append([config,[y_mean_overall,yerr_overall,chi,systematic]])
     
     # Save plot data to csv
     delimiter = ","
@@ -500,7 +493,7 @@ if __name__=="__main__":
     # -> Plot and output to csv
 
     # Get list of directories across which to aggregate
-    aggregate_keys = ["inject_seed","sgasym"]
+    aggregate_keys = ["sgasym"]
     var_lims = {
         'mass_ppim':[1.08,1.24],
         'Q2':[1.0,11.0],
