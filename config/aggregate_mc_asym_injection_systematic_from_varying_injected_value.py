@@ -447,7 +447,7 @@ if __name__=="__main__":
     fitvars = {"fitvar":["costheta1","costheta2"]}
     # sgasyms = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     sgasyms = {"sgasym":[0.001*i for i in range(201)]}
-    bgasyms = {"bgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
+    bgasyms = {"bgasym":[-0.01, 0.00, 0.01]}
     seeds   = {"inject_seed":[2**i for i in range(1)]}
     use_mc  = False #NOTE: WHETHER TO APPEND '_mc' to fitvar in get_out_file_name
 
