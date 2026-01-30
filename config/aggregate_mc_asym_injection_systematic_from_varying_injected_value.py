@@ -416,8 +416,8 @@ def get_plots(
     plt.title('Difference $\Delta A$ from Injected Signal Asymmetry $A$',usetex=True,pad=20)
     plt.xlabel('$A$',usetex=True)
     plt.ylabel('$\Delta A',usetex=True)
-    hist2d = ax.hist2d(np.flatten(sgasyms), np.flatten(ydiffs), bins=(20,20), norm=LogNorm())
-    plt.colorbar(hist2d[3], ax=ax)
+    hist2d = ax1.hist2d(np.flatten(sgasyms), np.flatten(ydiffs), bins=(20,20), norm=LogNorm())
+    plt.colorbar(hist2d[3], ax=ax1)
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
 
     # Plot subplot labels for paper
