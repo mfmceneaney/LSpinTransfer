@@ -496,7 +496,7 @@ def get_plots(
         # Plot the fit line
         x_fit = x
         y_fit = slopes[-1] * x_fit + offsets[-1]
-        ax1.plt.plot(x_fit, y_fit, color="red", linewidth=2, label="Fit line")
+        ax1.plot(x_fit, y_fit, color="red", linewidth=2, label="Fit line")
         ghost1 = mlines.Line2D([], [], color='w', label=f"$\chi^2$/NDF = ${chi2_ndfs[-1]:.2f}$")  # invisible line
         ghost2 = mlines.Line2D([], [], color='w', label=f"slope  = ${slopes[-1]:.2f} \pm {slope_errs[-1]:.2f}$")  # invisible line
         ghost3 = mlines.Line2D([], [], color='w', label=f"offset = ${offsets[-1]:.2f} \pm {offset_errs[-1]:.2f}$")  # invisible line
