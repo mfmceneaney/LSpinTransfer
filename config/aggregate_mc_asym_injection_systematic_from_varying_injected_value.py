@@ -642,7 +642,7 @@ if __name__=="__main__":
         'y':'$y$',
         'z_ppim':'$z_{p\pi^{-}}$',
     }
-    ytitle = '$D_{LL\'}^{\Lambda}$'
+    ytitle = '$\Delta A$' #'$D_{LL\'}^{\Lambda}$'
 
     def get_outpath(base_dir,aggregate_keys,**config):
 
