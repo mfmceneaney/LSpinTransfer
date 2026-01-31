@@ -844,6 +844,7 @@ if __name__=="__main__":
             if 'bgasym' in config_mass_ppim2: config_mass_ppim2.pop('bgasym')
             config_mass_ppim['binvar'] = 'mass_ppim'
             config_mass_ppim[config_mass_ppim['binvar']] = [1.08, 1.24]
+            mc_asym_injection_aggregate_keys = ["inject_seed"]
 
             # Get cos_phi_h_ppim min max MC injection systematics input file names 
             outpath_mc_cos_phi_h_ppim = get_outpath(base_dir,mc_asym_injection_aggregate_keys,sgasym2=sgasym2,sgasym=sgasym,**config_mass_ppim) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
