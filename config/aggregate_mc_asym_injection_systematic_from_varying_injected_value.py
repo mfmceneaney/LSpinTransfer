@@ -313,7 +313,7 @@ def get_arrs(out_file_list,sgasyms):
     y_max      = np.max(glist[1],axis=0)
     exp_sgasyms = [[sgasyms[idx] for _ in range(len(glist[0][idx]))] for idx in range(len(sgasyms))]
     ydiff_mean = np.mean(np.subtract(glist[1],exp_sgasyms),axis=0)
-    ydiff_std  = np.std(np.subtract(glist[3],exp_sgasyms),axis=0)
+    ydiff_std  = np.std(np.subtract(glist[1],exp_sgasyms),axis=0) #NOTE: Changed index from 3 to 1 1/31/26
     ydiff_mins = np.min(np.subtract(glist[1],exp_sgasyms),axis=0)
     ydiff_maxs = np.max(np.subtract(glist[1],exp_sgasyms),axis=0)
 
