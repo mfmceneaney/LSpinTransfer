@@ -487,7 +487,7 @@ def get_plots(
         f1, ax1 = plt.subplots(figsize=figsize)
         plt.xlim(np.min(x)-0.01,np.max(x)+0.01)
         plt.ylim(np.min(y)-0.01,np.max(y)+0.01)
-        plt.title(f'${xtitle}$ Bin {bin_idx} : Difference from Injected',usetex=True,pad=20)
+        plt.title(f'{xtitle} Bin ${bin_idx}$ : Difference from Injected',usetex=True,pad=20)
         plt.xlabel('$A$',usetex=True)
         plt.ylabel('$\Delta A$',usetex=True)
         ax1.scatter(x, y, marker='o', alpha=0.5, color=color)
