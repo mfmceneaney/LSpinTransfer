@@ -108,9 +108,12 @@ if __name__=="__main__":
     methods = {"method":["HB","LF"]}
     fitvars = {"fitvar":["costheta1","costheta2"]}
     sgasyms = {"sgasym":[0.001*i for i in range(201)]}
+    sgasyms_cosphi = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
+    sgasyms_inj_correction = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     sgasyms2 = {"sgasym2":[-0.01, 0.00, 0.01]}
     bgasyms = {"bgasym":[-0.01, 0.00, 0.01]}
     seeds   = {"inject_seed":[2**i for i in range(1)]}
+    seeds_inj_correction = {"inject_seed":[2**i for i in range(16)]}
     sgmins  = {"sg_min":[round(1.14+0.0004*i,4) for i in range(50)]}
     sgmaxs  = {"sg_max":[1.18]}
 
@@ -263,6 +266,21 @@ if __name__=="__main__":
     divisions = dict(
         methods,
         **fitvars,
+        **sgasyms_inj_correction,
+        **bgasyms,
+        **seeds_inj_correction,
+    )
+    create_jobs(divisions,base_dir,submit_path,yaml_path)
+    submit_jobs(divisions,base_dir,submit_path,out_path)
+
+    # MC asymmetry injection file paths and config for systematic
+    base_dir    = "systematics/mc_asym_injection/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = dict(
+        methods,
+        **fitvars,
         **sgasyms,
         **bgasyms,
         **seeds,
@@ -295,9 +313,9 @@ if __name__=="__main__":
     divisions = dict(
         methods,
         **fitvars,
-        **sgasyms,
+        **sgasyms_cosphi,
         **sgasyms2,
-        **seeds,
+        **seeds_inj_correction,
     )
     create_jobs(divisions,base_dir,submit_path,yaml_path)
     submit_jobs(divisions,base_dir,submit_path,out_path)
@@ -310,9 +328,9 @@ if __name__=="__main__":
     divisions = dict(
         methods,
         **fitvars,
-        **sgasyms,
+        **sgasyms_cosphi,
         **sgasyms2,
-        **seeds,
+        **seeds_inj_correction,
     )
     create_jobs(divisions,base_dir,submit_path,yaml_path)
     submit_jobs(divisions,base_dir,submit_path,out_path)
@@ -325,9 +343,9 @@ if __name__=="__main__":
     divisions = dict(
         methods,
         **fitvars,
-        **sgasyms,
+        **sgasyms_cosphi,
         **sgasyms2,
-        **seeds,
+        **seeds_inj_correction,
     )
     create_jobs(divisions,base_dir,submit_path,yaml_path)
     submit_jobs(divisions,base_dir,submit_path,out_path)
