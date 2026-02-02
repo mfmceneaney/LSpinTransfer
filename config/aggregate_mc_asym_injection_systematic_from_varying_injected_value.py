@@ -312,10 +312,10 @@ def get_arrs(out_file_list,sgasyms):
     y_min      = np.min(glist[1],axis=0)
     y_max      = np.max(glist[1],axis=0)
     exp_sgasyms = [[sgasyms[idx] for _ in range(len(glist[0][idx]))] for idx in range(len(sgasyms))]
-    ydiff_mean = np.mean(np.divide(np.subtract(glist[1],exp_sgasyms),exp_sgasyms),axis=0)
-    ydiff_std  = np.std(np.divide(np.subtract(glist[1],exp_sgasyms),exp_sgasyms),axis=0) #NOTE: Changed index from 3 to 1 1/31/26
-    ydiff_mins = np.min(np.divide(np.subtract(glist[1],exp_sgasyms),exp_sgasyms),axis=0)
-    ydiff_maxs = np.max(np.divide(np.subtract(glist[1],exp_sgasyms),exp_sgasyms),axis=0)
+    ydiff_mean = np.mean(np.subtract(glist[1],exp_sgasyms),axis=0)
+    ydiff_std  = np.std(np.subtract(glist[1],exp_sgasyms),axis=0) #NOTE: Changed index from 3 to 1 1/31/26
+    ydiff_mins = np.min(np.subtract(glist[1],exp_sgasyms),axis=0)
+    ydiff_maxs = np.max(np.subtract(glist[1],exp_sgasyms),axis=0)
 
     return {
             'x_mean':x_mean,
@@ -407,7 +407,7 @@ def get_plots(
     g2 = plt.errorbar(x_mean,ydiff_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='Mean $\Delta A/A$')
+                        linewidth=linewidth, markersize=markersize,label='Mean $\Delta A$')
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     if bgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
     # ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth, label='Injected Signal Asymmetry')
@@ -489,7 +489,7 @@ def get_plots(
         plt.ylim(np.min(y)-0.01,np.max(y)+0.01)
         plt.title(f'{xtitle} Bin ${bin_idx}$ : Difference from Injected',usetex=True,pad=20)
         plt.xlabel('$A$',usetex=True)
-        plt.ylabel('$\Delta A/A$',usetex=True)
+        plt.ylabel('$\Delta A$',usetex=True)
         ax1.scatter(x, y, marker='o', alpha=0.5, color=color)
         plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
 
@@ -642,7 +642,7 @@ if __name__=="__main__":
         'y':'$y$',
         'z_ppim':'$z_{p\pi^{-}}$',
     }
-    ytitle = '$\Delta A/A$' #'$D_{LL\'}^{\Lambda}$'
+    ytitle = '$\Delta A$' #'$D_{LL\'}^{\Lambda}$'
 
     def get_outpath(base_dir,aggregate_keys,**config):
 
