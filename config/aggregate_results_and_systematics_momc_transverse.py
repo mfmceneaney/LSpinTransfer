@@ -884,9 +884,9 @@ if __name__=="__main__":
             y_corrections_results__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results_transverse/results_phi_h_ppim_max/',outpath=results_outpath_cos_phi_h_ppim)['y'].to_numpy()
             delta_y_corrections_results__cos_phi_h_ppim = np.abs(y_corrections_results__cos_phi_h_ppim__max-y_corrections_results__cos_phi_h_ppim__min)
 
-            # Compute cos_phi_h_ppim systematic # D_LL_syst/D_LL = (Delta D_LL MC / Injected D_LL MC) * (Delta D_LL Data / Delta D_LL MC)
+            # Compute cos_phi_h_ppim systematic # D_LL_syst/D_LL = (Delta D_LL MC / XXX 2/2/26 -> Injected D_LL MC) * (Delta D_LL Data / Delta D_LL MC)
             r_conversion_mc_to_dt = delta_y_corrections_results__cos_phi_h_ppim / delta_y_corrections_mc_asym_injection__cos_phi_h_ppim
-            cos_phi_h_ppim_systematic = yerr_syst_mc_asym_injection__cos_phi_h_ppim / sgasym * r_conversion_mc_to_dt
+            cos_phi_h_ppim_systematic = yerr_syst_mc_asym_injection__cos_phi_h_ppim * r_conversion_mc_to_dt
             print("\n\nDEBUGGINIG: yerr_syst_mc_asym_injection__cos_phi_h_ppim     = ",yerr_syst_mc_asym_injection__cos_phi_h_ppim,"\n\n")
             print("\n\nDEBUGGING: y_corrections_mc_asym_injection__cos_phi_h_ppim  = ",y_corrections_mc_asym_injection__cos_phi_h_ppim,"\n\n")
             print("\n\nDEBUGGING: r_conversion_mc_to_dt     = ",r_conversion_mc_to_dt,"\n\n")
