@@ -4,6 +4,104 @@
 * Description: bin migration fraction plots for 1 previous and 1 following bins in kinematics variables.
 */
 
+ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> bootstrap_poisson(
+    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> df,
+	int seed,
+    std::string weight_name
+) {
+        return df.Define(
+            weight_name.c_str(),
+            [seed](ULong64_t iEntry) {
+                UInt_t seed_iEntry = seed + static_cast<UInt_t>(iEntry);
+                TRandom * rng = new TRandom(seed_iEntry);
+                return rng->Poisson(1.0);
+            },
+            {"rdfentry_"}
+        )
+        .Filter(Form("%s > 0",weight_name.c_str()));
+    }
+
+ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> bootstrap_classical(
+    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> df,
+    int n,
+	int seed,
+    bool with_replacement,
+    std::string weight_name
+) {
+			    // Step 1: materialize entry indices
+			    auto entries = *df.Take<ULong64_t>("rdfentry_");
+			
+			    const ULong64_t N = entries.size();
+			    if (N == 0 || n == 0) {
+			        return df; // return data frame after throwing error
+                }
+			    // Step 2: generate bootstrap indices
+			    TRandom rng(seed);
+			    std::unordered_multiset<ULong64_t> selected;
+			
+			    for (ULong64_t i = 0; i < n; ++i) {
+			        selected.insert(rng.Integer(N));
+			    }
+			
+			    // Step 3: define multiplicity column
+			    auto df_boot = df.Define(
+			        weight_name.c_str(),
+			        [selected](ULong64_t entry) {
+			            return selected.count(entry);
+			        },
+			        {"rdfentry_"}
+			    );
+			
+			    // Step 4: expand rows according to multiplicity
+			    return df_boot
+			        .Filter(Form("%s > 0",weight_name.c_str()));
+}
+
+double get_weighted_mean(
+    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> df,
+    std::string var_name,
+    std::string weight_name
+) {
+    double sum_w  = (double)*df.Sum(weight_name.c_str()); // sum_i: w_i
+    std::string wx_name = Form("__%s_X_%s",var_name.c_str(),weight_name.c_str());
+    double sum_wx = (double)*df.Define(
+            wx_name.c_str(),
+            [](double x, double w){ return x*w; },
+            {var_name.c_str(),weight_name.c_str()}
+        )
+        .Sum(wx_name.c_str());  // sum_i: w_i * x_i
+    double mean_w = sum_wx / sum_w;
+    return mean_w;
+}
+
+double get_weighted_stddev(
+    ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> df,
+    std::string var_name,
+    std::string weight_name,
+    double mean = 0.0
+) {
+
+    // Comupute the weighted count
+    double sum_w  = (double)*df.Sum(weight_name.c_str()); // sum_i: w_i
+
+    // Compute mean only if not provided
+    double mean_w = (mean!=0.0) ? mean : get_weighted_mean(df,var_name,weight_name);
+
+    // Compute the weighted variance
+    std::string wdx2_name = Form("__d%s_X_%s_2",var_name.c_str(),weight_name.c_str());
+    double sum_wdx2 = (double)*df.Define(
+            wdx2_name.c_str(),
+            [mean_w](double x, double w){ 
+                double dx = x - mean_w;
+                return w * dx*dx;
+            }, {var_name.c_str(),weight_name.c_str()})
+        .Sum(wdx2_name.c_str());
+
+    double var_w = sum_wdx2 / sum_w;  // population variance
+    double std_w = std::sqrt(var_w);
+    return mean_w;
+}
+
 std::vector<double> getBinLims(const int nbins, double xmax, double xmin) { //NOTE: SOME ISSUE WITH THIS WHERE X BINS FIRST NEGATIVE HALF GETS OVERWRITTEN BELOW...r
     std::vector<double> binlims;
     double step = (xmax-xmin)/nbins;//NOTE: nlims IS THE NUMBER OF LIMITS BUT YOU WANT TO DIVIDE BY THE NUMBER OF BINS.
@@ -23,7 +121,8 @@ void getBinMigrationPlots(
     std::vector<double> xbins_,
     std::vector<double> ybins_,
     const char *drawopt,
-    TFile *f
+    TFile *f,
+    std::string weight_var_name
     ) {
 
     // Convert bin limits arrays
@@ -36,13 +135,13 @@ void getBinMigrationPlots(
     // Create 2d histogram
     std::string name  = Form("h2d_bin_migration_%s",varName.c_str());
     std::string title = Form("Bin Migration in %s",varTitle.c_str());
-    TH1D h1_ = (TH1D)*frame.Histo1D({"h1_",title.c_str(),nbinsx,xbins},varName.c_str());
+    TH1D h1_ = (TH1D)*frame.Histo1D({"h1_",title.c_str(),nbinsx,xbins},varName.c_str(),weight_var_name.c_str());
     TH1D *h1 = (TH1D*)h1_.Clone(Form("h1_%s",name.c_str()));
-    TH1D h1mc_ = (TH1D)*frame.Histo1D({"h1mc_",title.c_str(),nbinsx,xbins},mcvarName.c_str()); //NOTE: x and y bins should be exactly the same
+    TH1D h1mc_ = (TH1D)*frame.Histo1D({"h1mc_",title.c_str(),nbinsx,xbins},mcvarName.c_str(),weight_var_name.c_str()); //NOTE: x and y bins should be exactly the same
     TH1D *h1mc = (TH1D*)h1mc_.Clone(Form("h1mc_%s",name.c_str()));
-    TH2D h2_ = (TH2D)*frame.Histo2D({"h2_original_",title.c_str(),nbinsy,ybins,nbinsx,xbins},mcvarName.c_str(),varName.c_str());
+    TH2D h2_ = (TH2D)*frame.Histo2D({"h2_original_",title.c_str(),nbinsy,ybins,nbinsx,xbins},mcvarName.c_str(),varName.c_str(),weight_var_name.c_str());
     TH2D *h2 = (TH2D*)h2_.Clone(name.c_str());
-    TH2D h2_matrix_format_ = (TH2D)*frame.Histo2D({"h2_",title.c_str(),nbinsy,ybins,nbinsx,xbins},mcvarName.c_str(),varName.c_str()); //NOTE: This matrix 
+    TH2D h2_matrix_format_ = (TH2D)*frame.Histo2D({"h2_",title.c_str(),nbinsy,ybins,nbinsx,xbins},mcvarName.c_str(),varName.c_str(),weight_var_name.c_str()); //NOTE: This matrix 
     TH2D *h2_matrix_format = (TH2D*)h2_matrix_format_.Clone(name.c_str());
     h2->GetXaxis()->SetTitle(varTitle.c_str());
     h2->GetYaxis()->SetTitle(mcvarTitle.c_str());
@@ -75,7 +174,7 @@ void getBinMigrationPlots(
 
 } // void getBinMigrationPlots()
 
-void GetBinMigration2DFinalBins__Inverse() {
+void GetBinMigration2DFinalBins__Inverse(int bootstrap_n = 0, int bootstrap_seed = 0) {
 
     // Parameters for MC tree
     const char *path    = "/RGA_MC_DIR/skim_*.root";
@@ -119,6 +218,17 @@ void GetBinMigration2DFinalBins__Inverse() {
       .Define("v_p", [](float vx_p, float vy_p, float vz_p) { return TMath::Sqrt(vx_p*vx_p+vy_p*vy_p+vz_p*vz_p); }, {"vx_p","vy_p","vz_p"})
       .Define("v_pim", [](float vx_pim, float vy_pim, float vz_pim) { return TMath::Sqrt(vx_pim*vx_pim+vy_pim*vy_pim+vz_pim*vz_pim); }, {"vx_pim","vy_pim","vz_pim"})
       .Filter(cuts); // NEEDED FOR CALCULATIONS LATER
+
+    // Bootstrap dataframe if requested
+    std::string bootstrap_weight_name = "bootstrap_weight";
+    bool bootstrap_wr = true;
+    if (bootstrap_n>0 && bootstrap_seed>=0) {
+        frame = bootstrap_classical(frame, bootstrap_n, bootstrap_seed, bootstrap_wr, bootstrap_weight_name);
+    } else if (bootstrap_n==0 && bootstrap_seed>=0) {
+        frame = bootstrap_poisson(frame, bootstrap_seed, bootstrap_weight_name);
+    } else {
+        frame = frame.Define(bootstrap_weight_var_name.c_str(),"1.0");
+    }
     
     // Open output file
     TFile *f = TFile::Open("h_bin_migration_2D_final_bins.root","RECREATE");
@@ -163,7 +273,7 @@ void GetBinMigration2DFinalBins__Inverse() {
     // Plot bin migrations for kinematics not dependent on lambda
     for (int i=0; i<names.size(); i++) {
         auto frame_ = frame.Filter(cuts_[i].c_str());
-        getBinMigrationPlots(frame_,names[i],titles[i],names_mc[i],titles_mc[i],binlims[i],binlims[i],drawopt,f);
+        getBinMigrationPlots(frame_,names[i],titles[i],names_mc[i],titles_mc[i],binlims[i],binlims[i],drawopt,f,bootstrap_weight_name);
     }
 
     // Close output file
