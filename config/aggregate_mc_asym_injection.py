@@ -254,7 +254,7 @@ def get_arrs(out_file_list,sgasym):
     y_min      = np.min(glist[1],axis=0)
     y_max      = np.max(glist[1],axis=0)
     ydiff_mean = np.mean(glist[1]-sgasym,axis=0)
-    ydiff_std  = np.std(glist[3]-sgasym,axis=0)
+    ydiff_std  = np.std(glist[1]-sgasym,axis=0)
     ydiff_mins = np.min(glist[1]-sgasym,axis=0)
     ydiff_maxs = np.max(glist[1]-sgasym,axis=0)
 
