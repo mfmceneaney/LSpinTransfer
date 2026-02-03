@@ -111,6 +111,8 @@ if __name__=="__main__":
     sgasyms_cosphi = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     sgasyms_inj_correction = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     sgasyms2 = {"sgasym2":[-0.01, 0.00, 0.01]}
+    sgasyms_cosphi_syst = {"sgasym":[0.1]}
+    sgasyms2_cosphi_syst = {"sgasym2":[0.001*i for i in range(201)]}
     bgasyms = {"bgasym":[-0.01, 0.00, 0.01]}
     seeds   = {"inject_seed":[2**i for i in range(1)]}
     seeds_inj_correction = {"inject_seed":[2**i for i in range(16)]}
@@ -305,7 +307,7 @@ if __name__=="__main__":
     create_jobs(divisions,base_dir,submit_path,yaml_path)
     submit_jobs(divisions,base_dir,submit_path,out_path)
 
-    # MC asymmetry injection file paths and config
+    # MC asymmetry injection file paths and config systematic
     base_dir    = "systematics/mc_asym_injection_cos_phi_h_ppim/"
     submit_path = base_dir+"submit.sh"
     yaml_path   = base_dir+"args.yaml"
@@ -313,9 +315,9 @@ if __name__=="__main__":
     divisions = dict(
         methods,
         **fitvars,
-        **sgasyms_cosphi,
-        **sgasyms2,
-        **seeds_inj_correction,
+        **sgasyms_cosphi_syst,
+        **sgasyms2_cosphi_syst,
+        **seeds,
     )
     create_jobs(divisions,base_dir,submit_path,yaml_path)
     submit_jobs(divisions,base_dir,submit_path,out_path)

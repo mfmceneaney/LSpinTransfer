@@ -111,6 +111,8 @@ if __name__=="__main__":
     sgasyms_inj_correction = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     sgasyms2 = {"sgasym2":[0.001*i for i in range(201)]}
     sgasyms_cosphi = {"sgasym":[-0.01, 0.00, 0.01]}
+    sgasyms2_cosphi_syst = {"sgasym2":[0.1]}
+    sgasyms_cosphi_syst = {"sgasym":[0.001*i for i in range(201)]}
     #NOTE: As analysismccosphidependenctransverse.cpp is currently written
     #NOTE: as of 1/29/26, the signal asymmetry that you are extracting is sgasym2
     #NOTE: NOT sgasym!!!
@@ -285,7 +287,7 @@ if __name__=="__main__":
     create_jobs(divisions,base_dir,submit_path,yaml_path)
     submit_jobs(divisions,base_dir,submit_path,out_path)
 
-    # MC asymmetry injection file paths and config
+    # MC asymmetry injection file paths and config systematic
     base_dir    = "systematics_transverse/mc_asym_injection_cos_phi_h_ppim/"
     submit_path = base_dir+"submit.sh"
     yaml_path   = base_dir+"args.yaml"
@@ -293,10 +295,10 @@ if __name__=="__main__":
     divisions = dict(
         methods,
         **fitvars,
-        **sgasyms_cosphi,
-        **sgasyms2,
+        **sgasyms_cosphi_syst,
+        **sgasyms2_cosphi_syst,
         **sgasyms3,
-        **seeds_inj_correction,
+        **seeds,
     )
     create_jobs(divisions,base_dir,submit_path,yaml_path)
     submit_jobs(divisions,base_dir,submit_path,out_path)
