@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set paths in ROOT scripts for saga
-for file in $LST_HOME/config/**/*.C; do
+for file in $(find $LST_HOME/config/ -type f -name "*.C"); do
     sed -i.bak "s;/RGA_DT_DIR;$RGA_DT_DIR;g" $file
     sed -i.bak "s;/RGA_MC_DIR;$RGA_MC_DIR;g" $file
     sed -i.bak "s;/RGA_MC_40nA_DIR;$RGA_MC_40nA_DIR;g" $file
@@ -9,13 +9,13 @@ for file in $LST_HOME/config/**/*.C; do
 done
 
 # Set paths in yaml files for saga
-for file in $LST_HOME/config/**/*.yaml; do
+for file in $(find $LST_HOME/config/ -type f -name "*.yaml"); do
     sed -i.bak "s;/RGA_DT_DIR;$RGA_DT_DIR;g" $file
     sed -i.bak "s;/RGA_MC_DIR;$RGA_MC_DIR;g" $file
 done
 
 # Fix for now so that job output directly can be set by saga python libraries
-for file in $LST_HOME/config/**/submit.sh; do
+for file in $(find $LST_HOME/config/ -type f -name "submit.sh"); do
     sed -i.bak "s;\$LST_HOME;$LST_HOME;g" $file
     sed -i.bak "s;/farm_out/%u;$LST_FARM_OUT;g" $file
     sed -i.bak "s;partition=;partition=$LST_HPC_PARTITION #;g" $file
