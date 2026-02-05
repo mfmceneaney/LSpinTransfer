@@ -969,8 +969,26 @@ if __name__=="__main__":
                 else:
                     systematics_additive_mat = np.sqrt(np.square(systematics_additive_mat) + np.square(corrected_std))
 
-                # also keep a standalone bin-migration systematic vector for plotting/CSV
+                # ALSO: compute an alternate correction using only adjacent bins up to order n
+                # and use the difference between the nominal inverse correction and this
+                # alternate correction as the bin-migration systematic.
+                # Default order
+                bin_migration_alt_order = 1
                 systematics_bin_migration = corrected_std
+                try:
+                    N = len(orig_y_mean)
+                    if bin_migration_mat is not None and np.shape(bin_migration_mat)[0] == N:
+                        inv_nom = np.linalg.inv(bin_migration_mat)
+                        # mask entries beyond diagonal +/- n
+                        idx = np.arange(N)
+                        mask = np.abs(idx[:, None] - idx[None, :]) <= bin_migration_alt_order
+                        masked_inv = inv_nom * mask
+                        corrected_alt = np.matmul(masked_inv, orig_y_mean)
+                        corrected_nom = np.matmul(inv_nom, orig_y_mean)
+                        systematics_bin_migration = np.abs(corrected_nom - corrected_alt)
+                except Exception:
+                    # if anything fails, keep corrected_std as the fallback systematic
+                    systematics_bin_migration = corrected_std
             else:
                 # fallback: use the single matrix already loaded (if any)
                 try:

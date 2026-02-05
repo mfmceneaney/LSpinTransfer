@@ -11,8 +11,8 @@
 #SBATCH --time=24:00:00
 #SBATCH --mail-user=matthew.mceneaney@duke.edu
 
-export MYEXECUTABLE=$LSPINTRANSFER_HOME/build/analysistransverse
-export OUTDIR=$LSPINTRANSFER_HOME/config/systematics_transverse/upper_sideband
+export MYEXECUTABLE=$LST_HOME/build/analysistransverse
+export OUTDIR=$LST_HOME/config/systematics_transverse/upper_sideband
 export YAML=args.yaml
 
 echo $MYEXECUTABLE

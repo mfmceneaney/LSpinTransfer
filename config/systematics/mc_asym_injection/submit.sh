@@ -13,8 +13,8 @@
 #SBATCH --time=24:00:00
 #SBATCH --mail-user=matthew.mceneaney@duke.edu
 
-export MYEXECUTABLE=$LSPINTRANSFER_HOME/build/analysismc
-export OUTDIR=$LSPINTRANSFER_HOME/config/systematics/mc_asym_injection
+export MYEXECUTABLE=$LST_HOME/build/analysismc
+export OUTDIR=$LST_HOME/config/systematics/mc_asym_injection
 export YAML=args.yaml
 
 echo $MYEXECUTABLE

@@ -11,8 +11,8 @@
 #SBATCH --time=24:00:00
 #SBATCH --mail-user=matthew.mceneaney@duke.edu
 
-export MYEXECUTABLE=$LSPINTRANSFER_HOME/build/analysistransverse
-export OUTDIR=$LSPINTRANSFER_HOME/config/systematics_transverse/kinematics_xF_ppim
+export MYEXECUTABLE=$LST_HOME/build/analysistransverse
+export OUTDIR=$LST_HOME/config/systematics_transverse/kinematics_xF_ppim
 export YAML=args.yaml
 
 echo $MYEXECUTABLE

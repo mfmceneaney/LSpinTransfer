@@ -11,8 +11,8 @@
 #SBATCH --time=24:00:00
 #SBATCH --mail-user=matthew.mceneaney@duke.edu
 
-export MYEXECUTABLE=$LSPINTRANSFER_HOME/build/analysislandaucbdiff
-export OUTDIR=$LSPINTRANSFER_HOME/config/systematics/mass_fit_landau
+export MYEXECUTABLE=$LST_HOME/build/analysislandaucbdiff
+export OUTDIR=$LST_HOME/config/systematics/mass_fit_landau
 export YAML=args.yaml
 
 echo $MYEXECUTABLE
