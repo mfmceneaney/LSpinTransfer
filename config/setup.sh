@@ -29,14 +29,18 @@ done
 # Fix for now so that job output directly can be set by saga python libraries
 for file in $LST_HOME/config/*/submit.sh; do
     sed -i.bak "s;\$LST_HOME;$LST_HOME;g" $file
+    sed -i.bak "s;/farm_out/%u;$LST_FARM_OUT;g" $file
+    sed -i.bak "s;partition=;partition=$LST_HPC_PARTITION #;g" $file
+    if [ -z "$LST_HPC_ACCOUNT" ]; then
+        sed -i.bak "s;#SBATCH --account=;##SBATCH --account=;g" $file
+    else
+        sed -i.bak "s;#SBATCH --account=.*;#SBATCH --account=$LST_HPC_ACCOUNT;" $file
+    fi
 done
 
 # Fix for now so that job output directly can be set by saga python libraries
 for file in $LST_HOME/config/*/*/submit.sh; do
     sed -i.bak "s;\$LST_HOME;$LST_HOME;g" $file
-done
-
-for file in $LST_HOME/jobs/*/*/*submit.sh; do
     sed -i.bak "s;/farm_out/%u;$LST_FARM_OUT;g" $file
     sed -i.bak "s;partition=;partition=$LST_HPC_PARTITION #;g" $file
     if [ -z "$LST_HPC_ACCOUNT" ]; then
