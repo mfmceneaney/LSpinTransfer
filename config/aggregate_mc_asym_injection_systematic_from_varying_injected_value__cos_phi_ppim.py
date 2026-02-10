@@ -654,7 +654,7 @@ if __name__=="__main__":
 
         return outpath
 
-    def apply_get_plots(out_file_list,get_outpath,get_plots,base_dir='',xlimss={},ylims=[0.0,1.0],titles={},xtitles={},ytitle='',verbose=True,aggregate_keys={},colors={},sgasyms=sgasyms): 
+    def apply_get_plots(out_file_list,get_outpath,get_plots,base_dir='',xlimss={},ylims=[0.0,1.0],titles={},xtitles={},ytitle='',verbose=True,aggregate_keys={},colors={},sgasyms=sgasyms2): 
         #TODO: PREPROCESSOR: GET STRUCTURE OF DICTIONARY TO MODIFY
         keeper = [] #NOTE: JUST PUT IN {'config':config, 'chi2':chi2, 'data':[x,y,xerr,yerr,xerr_syst,yerr_syst]}
         for el in out_file_list:
@@ -687,7 +687,7 @@ if __name__=="__main__":
 
         return
 
-    apply_get_plots(out_file_list,get_outpath,get_plots,base_dir=base_dir,xlimss=xlimss,ylims=ylims,titles=titles,xtitles=xtitles,ytitle=ytitle,verbose=True,aggregate_keys=aggregate_keys,colors=colors)
+    apply_get_plots(out_file_list,get_outpath,get_plots,base_dir=base_dir,xlimss=xlimss,ylims=ylims,titles=titles,xtitles=xtitles,ytitle=ytitle,verbose=True,aggregate_keys=aggregate_keys,colors=colors,sgasyms=sgasyms2)
 
     #TODO: POSTPROCESSOR: GET CSV FILES FROM MODIFIED DICTIONARY
 
