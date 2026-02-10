@@ -350,7 +350,7 @@ def get_plots(
     ylims = [0.0,1.0],
     title = 'Injection Results',
     xtitle = '$Q^{2} (GeV^{2})$',
-    ytitle = '$D_{LL\'}^{x\Lambda}$',
+    ytitle = '$D_{LL\'}^{x\\Lambda}$',
     sgasym = 0.10,
     bgasym = 0.00,
     color  = 'blue', #NOTE: COLOR OF DATA POINTS
@@ -404,11 +404,11 @@ def get_plots(
     #         color=bcolor,
     #     )
     # fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
-    fb = plt.fill_between(x_mean, ydiff_mean-yerr_mean, ydiff_mean+yerr_mean, alpha=0.2, label='$\pm1\sigma$ Band', color=bcolor)
+    fb = plt.fill_between(x_mean, ydiff_mean-yerr_mean, ydiff_mean+yerr_mean, alpha=0.2, label='$\\pm1\\sigma$ Band', color=bcolor)
     g2 = plt.errorbar(x_mean,ydiff_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='Mean $\Delta A$')
+                        linewidth=linewidth, markersize=markersize,label='Mean $\\Delta A$')
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     if sgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
     # ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth, label='Injected Signal Asymmetry')
@@ -490,7 +490,7 @@ def get_plots(
         plt.ylim(np.min(y)-0.01,np.max(y)+0.01)
         plt.title(f'{xtitle} Bin ${bin_idx}$ : Difference from Injected',usetex=True,pad=20)
         plt.xlabel('$A$',usetex=True)
-        plt.ylabel('$\Delta A$',usetex=True)
+        plt.ylabel('$\\Delta A$',usetex=True)
         ax1.scatter(x, y, marker='o', alpha=0.5, color=color)
         plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
 
@@ -498,9 +498,9 @@ def get_plots(
         x_fit = x
         y_fit = slopes[-1] * x_fit + offsets[-1]
         ax1.plot(x_fit, y_fit, color="red", linewidth=2, label="Fit line")
-        ghost1 = mlines.Line2D([], [], color='w', label=f"$\chi^2$/NDF = ${chi2_ndfs[-1]:.2f}$")  # invisible line
-        ghost2 = mlines.Line2D([], [], color='w', label=f"slope  = ${slopes[-1]:.4f} \pm {slope_errs[-1]:.4f}$")  # invisible line
-        ghost3 = mlines.Line2D([], [], color='w', label=f"offset = ${offsets[-1]:.4f} \pm {offset_errs[-1]:.4f}$")  # invisible line
+        ghost1 = mlines.Line2D([], [], color='w', label=f"$\\chi^2$/NDF = ${chi2_ndfs[-1]:.2f}$")  # invisible line
+        ghost2 = mlines.Line2D([], [], color='w', label=f"slope  = ${slopes[-1]:.4f} \\pm {slope_errs[-1]:.4f}$")  # invisible line
+        ghost3 = mlines.Line2D([], [], color='w', label=f"offset = ${offsets[-1]:.4f} \\pm {offset_errs[-1]:.4f}$")  # invisible line
         plt.legend(handles=[ghost1,ghost2,ghost3],loc='best',frameon=False)
 
         # Plot subplot labels for paper
@@ -632,23 +632,23 @@ if __name__=="__main__":
     }
     ylimss = [-0.5,0.5]
     titles = {
-        'costhetaT':'$\Lambda$ Polarization along $\hat{x}$',
-        'costhetaTy':'$\Lambda$ Polarization along $\hat{y}$',
+        'costhetaT':'$\\Lambda$ Polarization along $\\hat{x}$',
+        'costhetaTy':'$\\Lambda$ Polarization along $\\hat{y}$',
     }
     colors = {
         'costhetaT':'tab:orange',
         'costhetaTy':'tab:green',
     }
     xtitles = {
-        'mass_ppim':'$M_{p\pi^{-}}$ (GeV)',
+        'mass_ppim':'$M_{p\\pi^{-}}$ (GeV)',
         'Q2':'$Q^{2}$',
         'W':'$W$',
         'x':'$x$',
-        'xF_ppim':'$x_{F p\pi^{-}}$',
+        'xF_ppim':'$x_{F p\\pi^{-}}$',
         'y':'$y$',
-        'z_ppim':'$z_{p\pi^{-}}$',
+        'z_ppim':'$z_{p\\pi^{-}}$',
     }
-    ytitle = '$\Delta A$' #'$D_{LL\'}^{x\Lambda}$'
+    ytitle = '$\\Delta A$' #'$D_{LL\'}^{x\\Lambda}$'
 
     def get_outpath(base_dir,aggregate_keys,**config):
 
