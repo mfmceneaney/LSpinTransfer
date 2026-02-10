@@ -592,7 +592,7 @@ if __name__=="__main__":
     # -> Plot and output to csv
 
     # Get list of directories across which to aggregate
-    aggregate_keys = []
+    aggregate_keys = ["sgasym2"]
     var_lims = {
         'mass_ppim':[1.08,1.24],
         'Q2':[1.0,11.0],
