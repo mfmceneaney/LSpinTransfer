@@ -269,7 +269,7 @@ def get_data_from_tgrapherror(
         print("\t Returning empty list")
         return []
 
-def get_arrs(out_file_list,sgasyms):
+def get_arrs(out_file_list,sgasyms,sgasym=0.1):
 
     # Initialize output list
     glist = []
@@ -311,7 +311,8 @@ def get_arrs(out_file_list,sgasyms):
     y_std      = np.std(glist[1],axis=0)
     y_min      = np.min(glist[1],axis=0)
     y_max      = np.max(glist[1],axis=0)
-    exp_sgasyms = [[sgasyms[idx] for _ in range(len(glist[0][idx]))] for idx in range(len(sgasyms))]
+    exp_sgasyms = [[sgasym for _ in range(len(glist[0][idx]))] for idx in range(len(sgasyms))]
+    exp_sgasyms2 = [[sgasyms[idx] for _ in range(len(glist[0][idx]))] for idx in range(len(sgasyms))]
     ydiff_mean = np.mean(np.subtract(glist[1],exp_sgasyms),axis=0)
     ydiff_std  = np.std(np.subtract(glist[1],exp_sgasyms),axis=0) #NOTE: Changed index from 3 to 1 1/31/26
     ydiff_mins = np.min(np.subtract(glist[1],exp_sgasyms),axis=0)
@@ -330,7 +331,7 @@ def get_arrs(out_file_list,sgasyms):
             'ydiff_mins':ydiff_mins,
             'ydiff_maxs':ydiff_maxs,
             'ydiffs':np.subtract(glist[1],exp_sgasyms),
-            'sgasyms':np.array(exp_sgasyms),
+            'sgasyms':np.array(exp_sgasyms2),
             }
 
 def get_plots(
@@ -591,7 +592,7 @@ if __name__=="__main__":
     # -> Plot and output to csv
 
     # Get list of directories across which to aggregate
-    aggregate_keys = ["sgasym2"]
+    aggregate_keys = ["sgasym"]
     var_lims = {
         'mass_ppim':[1.08,1.24],
         'Q2':[1.0,11.0],
@@ -661,7 +662,7 @@ if __name__=="__main__":
             file_list = el["file_list"]
             print("DEBUGGING: config = ",el["data_list"])#DEBUGGING
             print("DEBUGGING: file_list = ",el["file_list"])#DEBUGGING
-            arrs = get_arrs(file_list,sgasyms['sgasym'])
+            arrs = get_arrs(file_list,sgasyms['sgasym2'],sgasym=0.1)
             outpath = get_outpath(base_dir,aggregate_keys,**config)
             print("DEBUGGING: outpath = ",outpath)
             binvar = config['binvar'] #NOTE: VARIABLE IN WHICH THE BINNING IS DONE
@@ -676,7 +677,7 @@ if __name__=="__main__":
                 xtitle  = xtitles[binvar],
                 ytitle  = ytitle,
                 sgasym  = config['sgasym'] if 'sgasym' in config.keys() else 0.00,
-                bgasym  = config['sgasym2'] if 'sgasym2' in config.keys() else 0.00,
+                bgasym  = config['bgasym'] if 'bgasym' in config.keys() else 0.00,
                 color   = colors[fitvar],
                 outpath = outpath,
                 verbose = verbose,
