@@ -270,7 +270,7 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "bootstrap_use_poisson: " << bootstrap_use_poisson << std::endl;
 
-    std::string bootstrap_weight_name = "boot_weight";
+    std::string bootstrap_weight_name = "";
     if (node["bootstrap_weight_name"]) {
         bootstrap_weight_name = node["bootstrap_weight_name"].as<std::string>();
     }
