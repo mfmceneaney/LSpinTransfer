@@ -878,7 +878,7 @@ if __name__=="__main__":
 
             # Get systematics cos phi input file name
             mc_asym_injection_aggregate_keys_syst_cosphi = ['sgasym2']
-            outpath_mc_syst_cosphi = get_outpath(base_dir,mc_asym_injection_aggregate_keys_syst_cosphi,sgasym=sgasym,sgasym3=sgasym3,inject_seed=1,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
+            outpath_mc_syst_cosphi = get_outpath(base_dir,mc_asym_injection_aggregate_keys_syst_cosphi,sgasym=sgasym,inject_seed=1,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
             mc_asym_injection_outpath_syst_cosphi = outpath_mc_syst_cosphi+'_systematics.csv'
 
             # Load MC cos_phi_h_ppim info and compute difference
