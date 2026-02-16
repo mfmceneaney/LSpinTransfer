@@ -760,7 +760,7 @@ if __name__=="__main__":
         'costheta2':'red',
     }
     xtitles = {
-        # 'mass_ppim':'$M_{p\pi^{-}}$ (GeV)',
+        'mass_ppim':'$M_{p\pi^{-}}$ (GeV)',
         'Q2':'$Q^{2}$',
         'W':'$W$',
         'x':'$x$',
