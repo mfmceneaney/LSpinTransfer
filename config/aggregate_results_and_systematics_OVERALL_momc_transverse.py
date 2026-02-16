@@ -973,7 +973,7 @@ if __name__=="__main__":
                 (1,0)
             )
             print("DEBUGGING: all_systematics.shape = ",all_systematics.shape)
-            labels = ['$\\alpha_{\Lambda}$','$P_{B}$','MC', 'Mass Fit','$\cos{\phi_{\Lambda}}$']
+            labels = ['$\\alpha_{\Lambda}$','Pol','MC', 'Mass Fit','$\cos{\phi_{\Lambda}}$']
 
             # Get systematics all plotted stacked without results...
             plot_systematics(
