@@ -510,7 +510,7 @@ def plot_systematics(
     # plt.xlim(*xlims)
     plt.ylim(*ylims)
     plt.title(title,usetex=True,pad=20)
-    plt.xlabel("Bin",usetex=True)
+    plt.xlabel(f"{xtitle} Bin Index",usetex=True)
     # plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
 
@@ -525,7 +525,7 @@ def plot_systematics(
     plt.text(0.5, 0.5, 'CLAS12 Preliminary',
             size=50, rotation=25., color='gray', alpha=0.25,
             horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
-    plt.legend(loc="upper right", bbox_to_anchor=(1.05, 1),frameon=False)
+    plt.legend(loc="upper left", bbox_to_anchor=(1.05, 1),frameon=False)
 
     # Plot subplot labels for paper
     colors = {
@@ -982,7 +982,7 @@ if __name__=="__main__":
                 stacked = False,
                 label   = labels,
                 xlims   = xlimss[binvar],
-                ylims   = (1e-7,0.07),
+                ylims   = (1e-5,0.07),
                 xvar    = binvar,
                 title   = titles[fitvar],
                 xtitle  = xtitles[binvar],
