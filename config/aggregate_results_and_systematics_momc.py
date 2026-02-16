@@ -988,6 +988,7 @@ if __name__=="__main__":
                 # ytitle  = ytitle, #NOTE: LET THIS JUST BE DEFAULT FOR NOW.
                 outpath = outpath.replace('.pdf','__systematics.pdf'),
                 # yaml_args = yaml_args,
+                colors[fitvar],
             )
 
             # Save systematics to csv file
