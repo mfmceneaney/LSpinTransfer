@@ -461,6 +461,7 @@ def plot_systematics(
                 ytitle  = '$\Delta D_{LL\'}^{\Lambda}$',
                 outpath = 'test__systematics.pdf',
                 # yaml_args = {},
+                color = 'tab:red',
                 **kwargs,
             ):
 
