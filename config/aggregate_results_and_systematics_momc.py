@@ -915,8 +915,8 @@ if __name__=="__main__":
             beam_polarization_systematic = 0.0360
             sgasym = 0.1
             # systematic_scales_mat = yerr_syst_mc_asym_injection / sgasym
-            systematics_additive_mat = y_corrections_mc_asym_injection_syst
-            systematic_scales_mat = np.sqrt(np.square(alpha_lambda_systematic) + np.square(beam_polarization_systematic) + np.square(yerr_syst_cb_gauss_diff) + np.square(cos_phi_h_ppim_systematic))
+            systematics_additive_mat = np.sqrt(np.square(y_corrections_mc_asym_injection_syst) + np.square(cos_phi_h_ppim_systematic))
+            systematic_scales_mat = np.sqrt(np.square(alpha_lambda_systematic) + np.square(beam_polarization_systematic) + np.square(yerr_syst_cb_gauss_diff))
             print("DEBUGGING: BEFORE: systematic_scales_mat = ",systematic_scales_mat)
 
             # APPLY BIN MIGRATION CORRECTION
@@ -955,8 +955,8 @@ if __name__=="__main__":
                 arrs['y_mean'],
                 bin_migration_mat=None,
                 bin_migration_order=1,
-                systematic_scales_mat=cos_phi_h_ppim_systematic,
-                systematics_additive_mat=None,
+                systematic_scales_mat=None,
+                systematics_additive_mat=cos_phi_h_ppim_systematic,
             )
             all_systematics = np.moveaxis(
                 np.array(
