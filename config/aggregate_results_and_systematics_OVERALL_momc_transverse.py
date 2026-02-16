@@ -509,7 +509,7 @@ def plot_systematics(
     # plt.xlim(*xlims)
     plt.ylim(*ylims)
     plt.title(title,usetex=True,pad=20)
-    plt.xlabel("Bin",usetex=True)
+    plt.xlabel(f"{xtitle} Bin Index",usetex=True)
     # plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
 
@@ -524,7 +524,7 @@ def plot_systematics(
     plt.text(0.5, 0.5, 'CLAS12 Preliminary',
             size=50, rotation=25., color='gray', alpha=0.25,
             horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
-    plt.legend(loc="upper right", bbox_to_anchor=(1.05, 1),frameon=False)
+    plt.legend(loc="upper left", bbox_to_anchor=(1.05, 1),frameon=False)
 
     # Plot subplot labels for paper
     colors = {
@@ -718,13 +718,13 @@ if __name__=="__main__":
     # Get list of directories across which to aggregate
     aggregate_keys = []
     var_lims = {
-        # 'mass_ppim':[1.08,1.24],
-        'Q2':[1.0,11.0],
-        'W':[2.0,5.0],
-        'x':[0.0,1.0],
-        'xF_ppim':[0.0,1.0],
-        'y':[0.0,0.8],
-        'z_ppim':[0.0,1.0],
+        'mass_ppim':[1.08,1.24],
+        #'Q2':[1.0,11.0],
+        #'W':[2.0,5.0],
+        #'x':[0.0,1.0],
+        #'xF_ppim':[0.0,1.0],
+        #'y':[0.0,0.8],
+        #'z_ppim':[0.0,1.0],
     }
     out_file_list = get_out_file_list(divisions,base_dir,submit_path,yaml_path,var_lims,get_out_file_name,use_mc,aggregate_keys)
 
@@ -743,12 +743,12 @@ if __name__=="__main__":
 
     xlimss = {
         'mass_ppim':[1.08,1.24],
-        # 'Q2':[1.0,11.0],
-        # 'W':[2.0,5.0],
-        # 'x':[0.0,1.0],
-        # 'xF_ppim':[0.0,1.0],
-        # 'y':[0.0,1.0],
-        # 'z_ppim':[0.0,1.1],
+        'Q2':[1.0,11.0],
+        'W':[2.0,5.0],
+        'x':[0.0,1.0],
+        'xF_ppim':[0.0,1.0],
+        'y':[0.0,1.0],
+        'z_ppim':[0.0,1.1],
     }
     ylimss = [-0.5,0.5]
     titles = {
@@ -760,7 +760,7 @@ if __name__=="__main__":
         'costhetaTy':'tab:green',
     }
     xtitles = {
-        # 'mass_ppim':'$M_{p\pi^{-}}$ (GeV)',
+        'mass_ppim':'$M_{p\pi^{-}}$ (GeV)',
         'Q2':'$Q^{2}$',
         'W':'$W$',
         'x':'$x$',
@@ -879,8 +879,8 @@ if __name__=="__main__":
             print("DEBUGGING: base_dir = ",base_dir)
 
             # Get systematics cos phi input file name
-            mc_asym_injection_aggregate_keys_syst_cosphi = ['sgasym2']
-            outpath_mc_syst_cosphi = get_outpath(base_dir,mc_asym_injection_aggregate_keys_syst_cosphi,sgasym=sgasym,sgasym3=sgasym3,inject_seed=1,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
+            mc_asym_injection_aggregate_keys_syst_cosphi = ['sgasym']
+            outpath_mc_syst_cosphi = get_outpath(base_dir,mc_asym_injection_aggregate_keys_syst_cosphi,sgasym2=sgasym2,sgasym3=sgasym3,inject_seed=1,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
             mc_asym_injection_outpath_syst_cosphi = outpath_mc_syst_cosphi+'_systematics.csv'
 
             # Load MC cos_phi_h_ppim info and compute difference
@@ -917,71 +917,13 @@ if __name__=="__main__":
             beam_polarization_systematic = 0.0360
             sgasym = 0.1
             # systematic_scales_mat = yerr_syst_mc_asym_injection / sgasym
-            systematics_additive_mat = y_corrections_mc_asym_injection_syst
-            systematic_scales_mat = np.sqrt(np.square(alpha_lambda_systematic) + np.square(beam_polarization_systematic) + np.square(yerr_syst_cb_gauss_diff) + np.square(cos_phi_h_ppim_systematic))
+            systematics_additive_mat = np.sqrt(np.square(y_corrections_mc_asym_injection_syst) + np.square(cos_phi_h_ppim_systematic))
+            systematic_scales_mat = np.sqrt(np.square(alpha_lambda_systematic) + np.square(beam_polarization_systematic) + np.square(yerr_syst_cb_gauss_diff))
             print("DEBUGGING: BEFORE: systematic_scales_mat = ",systematic_scales_mat)
 
             # # APPLY BIN MIGRATION CORRECTION
-            # # Attempt to load per-seed bin-migration matrices from the seed subdirectories and
-            # # apply each to a copy of arrs['y_mean']. Record all corrected results, take the
-            # # average per-bin and use the per-bin standard deviation as an additional
-            # # additive systematic.
-            # orig_y_mean = arrs['y_mean'].copy()
-
-            # seed_base = 'systematics/bin_migration/GetBinMigration2D__Inverse__5_14_25/sg'
-            # corrected_list = []
-            # if os.path.isdir(seed_base):
-            #     for entry in sorted(os.listdir(seed_base)):
-            #         seed_dir = os.path.join(seed_base, entry)
-            #         if not os.path.isdir(seed_dir):
-            #             continue
-            #         root_path = os.path.join(seed_dir, 'h_bin_migration_2D_final_bins.root')
-            #         if not os.path.isfile(root_path):
-            #             continue
-            #         # load the matrix for this seed
-            #         mat = load_TH2(path=root_path, name='h2d_bin_migration_'+binvar)
-            #         if mat is None or len(mat) == 0:
-            #             continue
-            #         try:
-            #             mat_inv = np.linalg.inv(mat)
-            #         except Exception:
-            #             # skip matrices that cannot be inverted
-            #             continue
-            #         corrected = np.matmul(mat_inv, orig_y_mean)
-            #         corrected_list.append(corrected)
-
-            # if len(corrected_list) > 0:
-            #     corrected_arrs = np.array(corrected_list)
-            #     corrected_std  = np.std(corrected_arrs, axis=0)
-
-            #     # For the central correction use the original single bin-migration matrix
-            #     # (this keeps the nominal correction unchanged). The bootstrap results
-            #     # only feed the uncertainty (spread) in the systematics.
-            #     try:
-            #         bin_migration_mat_inv = np.linalg.inv(bin_migration_mat)
-            #         arrs['y_mean'] = np.matmul(bin_migration_mat_inv, orig_y_mean)
-            #     except Exception:
-            #         print('WARNING: Could not invert nominal bin migration matrix; leaving arrs["y_mean"] unchanged')
-
-            #     # include spread as an additive systematic (in quadrature)
-            #     if systematics_additive_mat is None or len(systematics_additive_mat) == 0:
-            #         systematics_additive_mat = corrected_std
-            #     else:
-            #         systematics_additive_mat = np.sqrt(np.square(systematics_additive_mat) + np.square(corrected_std))
-
-            #     # also keep a standalone bin-migration systematic vector for plotting/CSV
-            #     systematics_bin_migration = corrected_std
-            # else:
-            #     # fallback: use the single matrix already loaded (if any)
-            #     try:
-            #         bin_migration_mat_inv = np.linalg.inv(bin_migration_mat)
-            #         arrs['y_mean'] = np.matmul(bin_migration_mat_inv, orig_y_mean)
-            #         # estimate a bin-migration systematic from the per-bin difference
-            #         systematics_bin_migration = np.abs(orig_y_mean - np.matmul(bin_migration_mat_inv, orig_y_mean))
-            #     except Exception:
-            #         # if even fallback fails, leave arrs['y_mean'] unchanged
-            #         print('WARNING: No valid bin-migration matrices found; leaving arrs["y_mean"] unchanged')
-            #         systematics_bin_migration = np.zeros_like(orig_y_mean)
+            # bin_migration_mat_inv = np.linalg.inv(bin_migration_mat) #NOTE: Make sure that bin_migration_mat is of the form f[i,j] = [# gen in bin i AND rec. in bin j] / [# gen. in bin i], remember that ROOT histogram indexing i,j is opposite (idx_x,idx_y) typical matrix indexing (idx_y,idx_x) and begins at 1 not 0
+            # arrs['y_mean'] = np.matmul(bin_migration_mat_inv,arrs['y_mean']) # DeltaA = a - f_inv . a
 
             yerr_syst = compute_systematics(
                 arrs['y_mean'],
@@ -1002,7 +944,13 @@ if __name__=="__main__":
                 # systematic_scales_mat=yerr_syst_mc_asym_injection / sgasym,
                 systematics_additive_mat=y_corrections_mc_asym_injection_syst,
             )
-            # bin_migration_systematics = systematics_bin_migration
+            # bin_migration_systematics = compute_systematics(
+            #     arrs['y_mean'],
+            #     bin_migration_mat=None,#bin_migration_mat,
+            #     bin_migration_order=1,
+            #     systematic_scales_mat=None,
+            #     # systematics_additive_mat=yerr_syst_cb_gauss_diff,
+            # )
             mass_fit_systematics = compute_systematics(
                 arrs['y_mean'],
                 bin_migration_mat=None,
@@ -1014,8 +962,8 @@ if __name__=="__main__":
                 arrs['y_mean'],
                 bin_migration_mat=None,
                 bin_migration_order=1,
-                systematic_scales_mat=cos_phi_h_ppim_systematic,
-                systematics_additive_mat=None,
+                systematic_scales_mat=None,
+                systematics_additive_mat=cos_phi_h_ppim_systematic,
             )
             all_systematics = np.moveaxis(
                 np.array(
@@ -1035,7 +983,7 @@ if __name__=="__main__":
                 stacked = False,
                 label   = labels,
                 xlims   = xlimss[binvar],
-                ylims   = (1e-7,0.07),
+                ylims   = (1e-5,0.07),
                 xvar    = binvar,
                 title   = titles[fitvar],
                 xtitle  = xtitles[binvar],
