@@ -942,8 +942,13 @@ if __name__=="__main__":
                 # systematic_scales_mat=yerr_syst_mc_asym_injection / sgasym,
                 systematics_additive_mat=y_corrections_mc_asym_injection_syst,
             )
-            bin_migration_systematics = compute_systematics(
-
+            # bin_migration_systematics = compute_systematics(
+            #     arrs['y_mean'],
+            #     bin_migration_mat=None,#bin_migration_mat,
+            #     bin_migration_order=1,
+            #     systematic_scales_mat=None,
+            #     # systematics_additive_mat=yerr_syst_cb_gauss_diff,
+            # )
             mass_fit_systematics = compute_systematics(
                 arrs['y_mean'],
                 bin_migration_mat=None,
