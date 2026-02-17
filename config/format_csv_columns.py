@@ -30,7 +30,7 @@ def parse_args():
     parser.add_argument(
         "--new-columns",
         nargs="+",
-        required=True,
+        required=False,
         help="New column names"
     )
 
@@ -167,7 +167,7 @@ def process_csv(csv_path, columns, new_columns, precisions, overwrite, reset_ind
 
         df[col] = df[col].apply(lambda x: format_value(x, prec, verbose, lower_bound, upper_bound))
 
-    df = df.rename(columns=dict(zip(columns, new_columns)))
+    if new_columns: df = df.rename(columns=dict(zip(columns, new_columns)))
 
     output_path = csv_path if overwrite else os.path.join(
         os.getcwd(), os.path.basename(csv_path)
@@ -180,8 +180,12 @@ def process_csv(csv_path, columns, new_columns, precisions, overwrite, reset_ind
 def main():
     args = parse_args()
 
-    if not (len(args.columns) == len(args.new_columns) == len(args.precision)):
-        sys.exit("Error: --columns, --new-columns, and --precision must match in length")
+    if not args.new_columns or len(args.new_columns)==0:
+        if not (len(args.columns) == len(args.precision)):
+            sys.exit("Error: --columns and --precision must match in length")
+    else:
+        if not (len(args.columns) == len(args.new_columns) == len(args.precision)):
+            sys.exit("Error: --columns, --new-columns, and --precision must match in length")
 
     csv_files = expand_paths(args.paths)
     if not csv_files:
