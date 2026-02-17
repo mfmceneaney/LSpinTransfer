@@ -11,7 +11,7 @@
 #SBATCH --time=12:00:00
 #SBATCH --mail-user=matthew.mceneaney@duke.edu
 
-export OUTDIR=$LSPINTRANSFER_HOME/config
+export OUTDIR=$LST_HOME/config
 
 echo $OUTDIR
 

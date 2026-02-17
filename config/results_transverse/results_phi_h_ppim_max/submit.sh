@@ -11,8 +11,8 @@
 #SBATCH --time=12:00:00
 #SBATCH --mail-user=matthew.mceneaney@duke.edu
 
-export MYEXECUTABLE=$LSPINTRANSFER_HOME/build/analysistransverse
-export OUTDIR=$LSPINTRANSFER_HOME/config/results_transverse/results_phi_h_ppim_max
+export MYEXECUTABLE=$LST_HOME/build/analysistransverse
+export OUTDIR=$LST_HOME/config/results_transverse/results_phi_h_ppim_max
 export YAML=args.yaml
 
 echo $MYEXECUTABLE

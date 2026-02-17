@@ -107,12 +107,24 @@ if __name__=="__main__":
     # Create job submission structure
     methods = {"method":["HB","LF"]}
     fitvars = {"fitvar":["costheta1","costheta2"]}
-    sgasyms = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
-    sgasyms2 = {"sgasym2":[-0.1, -0.01, 0.00, 0.01, 0.1]}
-    bgasyms = {"bgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
-    seeds   = {"inject_seed":[2**i for i in range(16)]}
+    sgasyms = {"sgasym":[0.001*i for i in range(201)]}
+    sgasyms_cosphi = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
+    sgasyms_inj_correction = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
+    sgasyms2 = {"sgasym2":[-0.01, 0.00, 0.01]}
+    sgasyms_cosphi_syst = {"sgasym":[0.1]}
+    sgasyms2_cosphi_syst = {"sgasym2":[0.001*i for i in range(201)]}
+    bgasyms = {"bgasym":[-0.01, 0.00, 0.01]}
+    seeds   = {"inject_seed":[2**i for i in range(1)]}
+    seeds_inj_correction = {"inject_seed":[2**i for i in range(16)]}
     sgmins  = {"sg_min":[round(1.14+0.0004*i,4) for i in range(50)]}
     sgmaxs  = {"sg_max":[1.18]}
+
+    # Boot strapping parameters
+    bootstrap_sgasyms = {"sgasym":[0.1]}
+    bootstrap_bgasyms = {"bgasym":[0.00]}
+    bootstrap_seeds   = {"bootstrap_seed":[i for i in range(100)]}
+    bootstrap_n       = {"bootstrap_n":[100000]}
+    bootstrap_use_poisson       = {"bootstrap_use_poisson":[True,False]}
 
     # Results file paths and config
     base_dir    = "results/"
@@ -256,15 +268,15 @@ if __name__=="__main__":
     divisions = dict(
         methods,
         **fitvars,
-        **sgasyms,
+        **sgasyms_inj_correction,
         **bgasyms,
-        **seeds,
+        **seeds_inj_correction,
     )
     create_jobs(divisions,base_dir,submit_path,yaml_path)
     submit_jobs(divisions,base_dir,submit_path,out_path)
 
-    # MC asymmetry injection file paths and config
-    base_dir    = "systematics/mc_asym_injection_cos_phi_h_ppim/"
+    # MC asymmetry injection file paths and config for systematic
+    base_dir    = "systematics/mc_asym_injection/"
     submit_path = base_dir+"submit.sh"
     yaml_path   = base_dir+"args.yaml"
     out_path    = base_dir+"jobs.txt"
@@ -272,7 +284,39 @@ if __name__=="__main__":
         methods,
         **fitvars,
         **sgasyms,
-        **sgasyms2,
+        **bgasyms,
+        **seeds,
+    )
+    create_jobs(divisions,base_dir,submit_path,yaml_path)
+    submit_jobs(divisions,base_dir,submit_path,out_path)
+
+    # MC asymmetry injection bootstrapping file paths and config
+    base_dir    = "systematics/mc_asym_injection/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = dict(
+        methods,
+        **fitvars,
+        **bootstrap_sgasyms,
+        **bootstrap_bgasyms,
+        **bootstrap_seeds,
+        **bootstrap_n,
+        **bootstrap_use_poisson,
+    )
+    create_jobs(divisions,base_dir,submit_path,yaml_path)
+    submit_jobs(divisions,base_dir,submit_path,out_path)
+
+    # MC asymmetry injection file paths and config systematic
+    base_dir    = "systematics/mc_asym_injection_cos_phi_h_ppim/"
+    submit_path = base_dir+"submit.sh"
+    yaml_path   = base_dir+"args.yaml"
+    out_path    = base_dir+"jobs.txt"
+    divisions = dict(
+        methods,
+        **fitvars,
+        **sgasyms_cosphi_syst,
+        **sgasyms2_cosphi_syst,
         **seeds,
     )
     create_jobs(divisions,base_dir,submit_path,yaml_path)
@@ -286,9 +330,9 @@ if __name__=="__main__":
     divisions = dict(
         methods,
         **fitvars,
-        **sgasyms,
+        **sgasyms_cosphi,
         **sgasyms2,
-        **seeds,
+        **seeds_inj_correction,
     )
     create_jobs(divisions,base_dir,submit_path,yaml_path)
     submit_jobs(divisions,base_dir,submit_path,out_path)
@@ -301,9 +345,9 @@ if __name__=="__main__":
     divisions = dict(
         methods,
         **fitvars,
-        **sgasyms,
+        **sgasyms_cosphi,
         **sgasyms2,
-        **seeds,
+        **seeds_inj_correction,
     )
     create_jobs(divisions,base_dir,submit_path,yaml_path)
     submit_jobs(divisions,base_dir,submit_path,out_path)

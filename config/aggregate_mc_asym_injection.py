@@ -254,7 +254,7 @@ def get_arrs(out_file_list,sgasym):
     y_min      = np.min(glist[1],axis=0)
     y_max      = np.max(glist[1],axis=0)
     ydiff_mean = np.mean(glist[1]-sgasym,axis=0)
-    ydiff_std  = np.std(glist[3]-sgasym,axis=0)
+    ydiff_std  = np.std(glist[1]-sgasym,axis=0)
     ydiff_mins = np.min(glist[1]-sgasym,axis=0)
     ydiff_maxs = np.max(glist[1]-sgasym,axis=0)
 
@@ -339,7 +339,8 @@ def get_plots(
     #         label="$\\pm1\\sigma$ Band",
     #         color=bcolor,
     #     )
-    fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
+    # fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
+    fb = plt.fill_between(x_mean, y_mean-yerr_mean, y_mean+yerr_mean, alpha=0.2, label='$\pm1\sigma$ Band', color=bcolor)
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
@@ -349,6 +350,16 @@ def get_plots(
     ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth, label='Injected Signal Asymmetry')
     if bgasym!=0: ax1.axhline(bgasym, color='blue',linestyle='--',linewidth=axlinewidth, label='Injected Background Asymmetry')
     plt.legend(loc='best',frameon=False)
+
+    # Plot subplot labels for paper
+    colors = {
+        'costheta1':'blue',
+        'costheta2':'red',
+    }
+    fitvars = {colors[fitvar]:fitvar for fitvar in colors}
+    ax1.text(0.95, 0.15, '(a)' if fitvars[color]=='costheta1' else '(b)', transform=ax1.transAxes,
+            fontsize=plt.rcParams['axes.titlesize'], fontweight='bold', va='top', ha='right')
+
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
 
@@ -402,7 +413,8 @@ if __name__=="__main__":
     # Create job submission structure
     methods = {"method":["HB","LF"]}
     fitvars = {"fitvar":["costheta1","costheta2"]}
-    sgasyms = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
+    # sgasyms = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
+    sgasyms = {"sgasym":[0.00, 0.05, 0.1, 0.15, 0.2]}
     bgasyms = {"bgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     seeds   = {"inject_seed":[2**i for i in range(16)]}
     use_mc  = False #NOTE: WHETHER TO APPEND '_mc' to fitvar in get_out_file_name
@@ -456,7 +468,7 @@ if __name__=="__main__":
     # -> Plot and output to csv
 
     # Get list of directories across which to aggregate
-    aggregate_keys = ["inject_seed"]
+    aggregate_keys = ["inject_seed","sgasym"]
     var_lims = {
         'mass_ppim':[1.08,1.24],
         'Q2':[1.0,11.0],

@@ -292,7 +292,7 @@ def get_plots(
     title = 'Injection Results',
     xvar  = 'Q2',
     xtitle = '$Q^{2} (GeV^{2})$',
-    ytitle = '$D_{LL\'}^{\Lambda}$',
+    ytitle = '$D_{LL\'}^{x\Lambda}$',
     sgasym = 0.10,
     bgasym = 0.00,
     color  = 'blue', #NOTE: COLOR OF DATA POINTS
@@ -345,12 +345,12 @@ def get_plots(
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='$D_{LL\' raw}^{\Lambda}$')
+                        linewidth=linewidth, markersize=markersize,label='$D_{LL\' raw}^{x\Lambda}$')
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
-    # plt.text(0.5, 0.5, 'CLAS12 Preliminary',
-    #         size=50, rotation=25., color='gray', alpha=0.25,
-    #         horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
+    plt.text(0.5, 0.5, 'CLAS12 Preliminary',
+            size=50, rotation=25., color='gray', alpha=0.25,
+            horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
     plt.legend(loc='best',frameon=False)
 
     colors = {
@@ -358,7 +358,7 @@ def get_plots(
         'costhetaTy':'tab:green',
     }
     fitvars = {colors[fitvar]:fitvar for fitvar in colors}
-    ax1.text(0.95, 0.15, '(a)' if fitvars[color]=='costhetaT' else '(b)', transform=ax1.transAxes,
+    ax1.text(0.95, 0.15, '(c)', transform=ax1.transAxes,
             fontsize=plt.rcParams['axes.titlesize'], fontweight='bold', va='top', ha='right')
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
@@ -490,7 +490,7 @@ if __name__=="__main__":
         'y':'$y$',
         'z_ppim':'$z_{p\pi^{-}}$',
     }
-    ytitle = '$D_{LL\' raw}^{\Lambda}$'
+    ytitle = '$D_{LL\' raw}^{x\Lambda}$'
 
     def get_outpath(base_dir,aggregate_keys,**config):
 

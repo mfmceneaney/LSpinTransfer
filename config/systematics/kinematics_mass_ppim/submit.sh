@@ -11,8 +11,8 @@
 #SBATCH --time=36:00:00
 #SBATCH --mail-user=matthew.mceneaney@duke.edu
 
-export MYEXECUTABLE=$LSPINTRANSFER_HOME/build/analysis
-export OUTDIR=$LSPINTRANSFER_HOME/config/systematics/kinematics_mass_ppim
+export MYEXECUTABLE=$LST_HOME/build/analysis
+export OUTDIR=$LST_HOME/config/systematics/kinematics_mass_ppim
 export YAML=args.yaml
 
 echo $MYEXECUTABLE

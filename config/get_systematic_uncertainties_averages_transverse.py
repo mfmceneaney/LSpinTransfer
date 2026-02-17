@@ -18,14 +18,14 @@ base_dir = "results_transverse/"
 paths1 = [
     "aggregate___binvar_z_ppim__fitvar_costhetaT__method_HB__z_ppim_0.0_1.0__systematics.pdf.csv",
     # "aggregate___binvar_z_ppim__fitvar_costhetaTy__method_HB__z_ppim_0.0_1.0__systematics.pdf.csv",
-    "aggregate___binvar_xF_ppim__fitvar_costhetaT__method_HB__xF_ppim_0.0_1.0__systematics.pdf.csv",
-    # "aggregate___binvar_xF_ppim__fitvar_costhetaTy__method_HB__xF_ppim_0.0_1.0__systematics.pdf.csv",
+    "aggregate___binvar_x__fitvar_costhetaT__method_HB__x_0.0_1.0__systematics.pdf.csv",
+    # "aggregate___binvar_x__fitvar_costhetaTy__method_HB__x_0.0_1.0__systematics.pdf.csv",
 ]
 paths2 = [
     # "aggregate___binvar_z_ppim__fitvar_costhetaT__method_HB__z_ppim_0.0_1.0__systematics.pdf.csv",
     "aggregate___binvar_z_ppim__fitvar_costhetaTy__method_HB__z_ppim_0.0_1.0__systematics.pdf.csv",
-    # "aggregate___binvar_xF_ppim__fitvar_costhetaT__method_HB__xF_ppim_0.0_1.0__systematics.pdf.csv",
-    "aggregate___binvar_xF_ppim__fitvar_costhetaTy__method_HB__xF_ppim_0.0_1.0__systematics.pdf.csv",
+    # "aggregate___binvar_x__fitvar_costhetaT__method_HB__x_0.0_1.0__systematics.pdf.csv",
+    "aggregate___binvar_x__fitvar_costhetaTy__method_HB__x_0.0_1.0__systematics.pdf.csv",
 ]
 
 def save_paths(_paths,name='costhetaT'):

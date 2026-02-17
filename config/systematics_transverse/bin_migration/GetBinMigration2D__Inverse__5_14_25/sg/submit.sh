@@ -11,7 +11,7 @@
 #SBATCH --time=12:00:00
 #SBATCH --mail-user=matthew.mceneaney@duke.edu
 
-export OUTDIR=$LSPINTRANSFER_HOME/config/systematics_transverse/bin_migration/GetBinMigration2D__Inverse__5_14_25/sg/
+export OUTDIR=$LST_HOME/config/systematics_transverse/bin_migration/GetBinMigration2D__Inverse__5_14_25/sg/
 
 echo $OUTDIR
 

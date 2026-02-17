@@ -245,6 +245,37 @@ void analysis(const YAML::Node& node) {
     }
     std::cout << "logpath: " << logpath << std::endl;
 
+    // Bootstrapping parameters
+    int bootstrap_n = 0; 
+    if (node["bootstrap_n"]) {
+        bootstrap_n = node["bootstrap_n"].as<int>();
+    }
+    std::cout << "bootstrap_n: " << bootstrap_n << std::endl;
+
+    int bootstrap_seed = 1; 
+    if (node["bootstrap_seed"]) {
+        bootstrap_seed = node["bootstrap_seed"].as<int>();
+    }
+    std::cout << "bootstrap_seed: " << bootstrap_seed << std::endl;
+
+    bool bootstrap_wr = true; 
+    if (node["bootstrap_wr"]) {
+        bootstrap_wr = node["bootstrap_wr"].as<bool>();
+    }
+    std::cout << "bootstrap_wr: " << bootstrap_wr << std::endl;
+
+    bool bootstrap_use_poisson = false;
+    if (node["bootstrap_use_poisson"]) {
+        bootstrap_use_poisson = node["bootstrap_use_poisson"].as<bool>();
+    }
+    std::cout << "bootstrap_use_poisson: " << bootstrap_use_poisson << std::endl;
+
+    std::string bootstrap_weight_name = "";
+    if (node["bootstrap_weight_name"]) {
+        bootstrap_weight_name = node["bootstrap_weight_name"].as<std::string>();
+    }
+    std::cout << "bootstrap_weight_name: " << bootstrap_weight_name << std::endl;
+
     //----------------------------------------------------------------------------------------------------//
     // ANALYSIS
     //----------------------------------------------------------------------------------------------------//
@@ -337,6 +368,13 @@ void analysis(const YAML::Node& node) {
     double my_testvar2 = (double)*frame.Mean(helicity_name.c_str());
     double my_testvar3 = (double)*frame.Mean(fitvar_new.c_str());
 
+    // Apply bootstrapping to the frame if requested
+    if (bootstrap_n>0 && !bootstrap_use_poisson) {
+        frame = bootstrap_classical(frame, bootstrap_n, bootstrap_seed, bootstrap_wr, bootstrap_weight_name);
+    } else if (bootstrap_n>0 && bootstrap_use_poisson) {
+        frame = bootstrap_poisson(frame, bootstrap_seed, bootstrap_weight_name);
+    }
+
     // Create output log
     std::ofstream outf; outf.open(logpath.c_str());
     std::ostream &out = outf; //std::cout;
@@ -388,6 +426,7 @@ void analysis(const YAML::Node& node) {
                     dtheta_p_max,// double       dtheta_p_max, // maximum cut on delta theta for proton MC matching                                                                                           
                     dtheta_pim_max,// double       dtheta_pim_max, // maximum cut on delta theta for pion MC matching
                     mass_draw_opt,// std::string  mass_draw_opt, // mass variable hist draw option for fit
+                    bootstrap_weight_name,// std::string  bootstrap_weight_name = "", // Name of bootstrap weight variable
                     sgasym,// double       sgasym   = 0.00,        // Asymmetry to inject to signal in MC
                     bgasym,// double       bgasym   = 0.00,        // Asymmetry to inject to background in MC
                     depolarization_name,// std::string  depol    = "Dy",        // Branch name for depolarization factor

@@ -252,7 +252,7 @@ def get_arrs(out_file_list,sgasym):
     y_min      = np.min(glist[1],axis=0)
     y_max      = np.max(glist[1],axis=0)
     ydiff_mean = np.mean(glist[1]-sgasym,axis=0)
-    ydiff_std  = np.std(glist[3]-sgasym,axis=0)
+    ydiff_std  = np.std(glist[1]-sgasym,axis=0)
     ydiff_mins = np.min(glist[1]-sgasym,axis=0)
     ydiff_maxs = np.max(glist[1]-sgasym,axis=0)
 
@@ -284,7 +284,7 @@ def get_plots(
     ylims = [0.0,1.0],
     title = 'Injection Results',
     xtitle = '$Q^{2} (GeV^{2})$',
-    ytitle = '$D_{LL\'}^{\Lambda}$',
+    ytitle = '$D_{LL\'}^{x\Lambda}$',
     sgasym = 0.10,
     bgasym = 0.00,
     color  = 'blue', #NOTE: COLOR OF DATA POINTS
@@ -327,16 +327,27 @@ def get_plots(
     plt.title(title,usetex=True,pad=20)
     plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
-    fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
+    # fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
+    fb = plt.fill_between(x_mean, y_mean-yerr_mean, y_mean+yerr_mean, alpha=0.2, label='$\pm1\sigma$ Band', color=bcolor)
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='Mean $D_{LL\'}^{\Lambda}$')
+                        linewidth=linewidth, markersize=markersize,label='Mean $D_{LL\'}^{x\Lambda}$')
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     if sgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
     ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth, label='Injected Signal Asymmetry')
     if bgasym!=0: ax1.axhline(bgasym, color='blue',linestyle='--',linewidth=axlinewidth, label='Injected $\cos{\phi}$ Asymmetry')
     plt.legend(loc='best',frameon=False)
+
+    # Plot subplot labels for paper
+    colors = {
+        'costhetaT':'tab:orange',
+        'costhetaTy':'tab:green',
+    }
+    fitvars = {colors[fitvar]:fitvar for fitvar in colors}
+    ax1.text(0.95, 0.15, '(b)' if 'z_' in xtitle else '(a)', transform=ax1.transAxes,
+            fontsize=plt.rcParams['axes.titlesize'], fontweight='bold', va='top', ha='right')
+
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
 
@@ -392,6 +403,9 @@ if __name__=="__main__":
     fitvars = {"fitvar":["costhetaT","costhetaTy"]}
     sgasyms = {"sgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     sgasyms2 = {"sgasym2":[-0.1, -0.01, 0.00, 0.01, 0.1]}
+    #NOTE: As analysismccosphidependenctransverse.cpp is currently written
+    #NOTE: as of 1/29/26, the signal asymmetry that you are extracting is sgasym2
+    #NOTE: NOT sgasym!!!
     sgasyms3 = {"sgasym3":[0.00]} #NOTE: Just leave this at 0.00 for now
     bgasyms = {"bgasym":[-0.1, -0.01, 0.00, 0.01, 0.1]}
     seeds   = {"inject_seed":[2**i for i in range(16)]}
@@ -498,7 +512,7 @@ if __name__=="__main__":
         'y':'$y$',
         'z_ppim':'$z_{p\pi^{-}}$',
     }
-    ytitle = '$D_{LL\'}^{\Lambda}$'
+    ytitle = '$D_{LL\'}^{x\Lambda}$'
 
     def get_outpath(base_dir,aggregate_keys,**config):
 
@@ -517,7 +531,7 @@ if __name__=="__main__":
             file_list = el["file_list"]
             print("DEBUGGING: config = ",el["data_list"])#DEBUGGING
             print("DEBUGGING: file_list = ",el["file_list"])#DEBUGGING
-            arrs = get_arrs(file_list,config['sgasym'])
+            arrs = get_arrs(file_list,config['sgasym2'])
             outpath = get_outpath(base_dir,aggregate_keys,**config)
             print("DEBUGGING: outpath = ",outpath)
             binvar = config['binvar'] #NOTE: VARIABLE IN WHICH THE BINNING IS DONE
@@ -531,8 +545,8 @@ if __name__=="__main__":
                 title   = titles[fitvar],
                 xtitle  = xtitles[binvar],
                 ytitle  = ytitle,
-                sgasym  = config['sgasym'] if 'sgasym' in config.keys() else 0.00,
-                bgasym  = config['sgasym2'] if 'sgasym2' in config.keys() else 0.00,
+                sgasym  = config['sgasym2'] if 'sgasym2' in config.keys() else 0.00,
+                bgasym  = config['sgasym'] if 'sgasym' in config.keys() else 0.00,
                 color   = colors[fitvar],
                 outpath = outpath,
                 verbose = verbose,
@@ -564,13 +578,13 @@ if __name__=="__main__":
             tables = [[key,tables[key]] for key in tables]
             return tables
 
-        config_keys = ['method','fitvar','sgasym']
-        col_key, row_key  = ['binvar','sgasym2']
+        config_keys = ['method','fitvar','sgasym2']
+        col_key, row_key  = ['binvar','sgasym']
         col_map = {el:i for i, el in enumerate(xtitles.keys())}
-        row_map = {el:i for i, el in enumerate(sgasyms2['sgasym2'])}
+        row_map = {el:i for i, el in enumerate(sgasyms['sgasym'])}
         nitems = 4 # y, yerr, chi, systematic
-        table_shape = [len(sgasyms2['sgasym2']),len(xtitles.keys()),nitems] #NOTE: DIM = (NROWS,NCOLUMNS,NITEMS) #NOTE: ALSO THIS NEEDS TO BE A LIST NOT A TUPLE.
-        row_header_key = 'sgasym2'
+        table_shape = [len(sgasyms['sgasym']),len(xtitles.keys()),nitems] #NOTE: DIM = (NROWS,NCOLUMNS,NITEMS) #NOTE: ALSO THIS NEEDS TO BE A LIST NOT A TUPLE.
+        row_header_key = 'sgasym'
         tables = get_tables(keeper,config_keys,row_key,col_key,row_map,col_map,table_shape,row_header_key=row_header_key)
 
         #TODO: PREPROCESSOR: GET STRUCTURE OF DICTIONARY TO MODIFY
@@ -671,9 +685,9 @@ if __name__=="__main__":
         print("DEBUGGING: saving chi tables")#DEBUGGING
         delimiter = ","
         new_xtitles = [re.sub('[0-9]{1}','',re.sub('_','',el)) for el in xtitles.keys()]
-        header    = delimiter.join(["sgasym2",*new_xtitles])
+        header    = delimiter.join(["sgasym",*new_xtitles])
         fmt       = ["%.3f",*["%.3g" for i in range(len(xtitles))]]
-        config_keys = ['method','binvar','sgasym']
+        config_keys = ['method','binvar','sgasym2']
         save_tables(
             tables,base_dir,header,delimiter,fmt,using_row_header=True
         )
@@ -687,10 +701,10 @@ if __name__=="__main__":
         for el in header:
             new_header.extend([el,el+'err'])
         header = new_header #NOTE: HAVE TO ADD ERRORS COLUMN HEADERS HERE
-        header    = ["sgasym2",*header]
+        header    = ["sgasym",*header]
         header = delimiter.join(header)
         fmt       = ["%.3f",*["%.3g" for i in range(2*len(xtitles))]]
-        config_keys = ['method','binvar','sgasym']
+        config_keys = ['method','binvar','sgasym2']
         save_result_tables(
             tables,base_dir,header,delimiter,fmt,using_row_header=True
         )

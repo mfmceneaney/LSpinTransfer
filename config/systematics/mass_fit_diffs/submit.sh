@@ -11,8 +11,8 @@
 #SBATCH --time=24:00:00
 #SBATCH --mail-user=matthew.mceneaney@duke.edu
 
-export MYEXECUTABLE=$LSPINTRANSFER_HOME/build/analysisgenericdiff
-export OUTDIR=$LSPINTRANSFER_HOME/config/systematics/mass_fit_diffs
+export MYEXECUTABLE=$LST_HOME/build/analysisgenericdiff
+export OUTDIR=$LST_HOME/config/systematics/mass_fit_diffs
 export YAML=args.yaml
 
 echo $MYEXECUTABLE

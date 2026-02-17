@@ -11,8 +11,8 @@
 #SBATCH --time=24:00:00
 #SBATCH --mail-user=matthew.mceneaney@duke.edu
 
-export MYEXECUTABLE=$LSPINTRANSFER_HOME/build/analysismccosphidependence
-export OUTDIR=$LSPINTRANSFER_HOME/config/systematics/mc_asym_injection_cos_phi_h_ppim
+export MYEXECUTABLE=$LST_HOME/build/analysismccosphidependence
+export OUTDIR=$LST_HOME/config/systematics/mc_asym_injection_cos_phi_h_ppim
 export YAML=args.yaml
 
 echo $MYEXECUTABLE

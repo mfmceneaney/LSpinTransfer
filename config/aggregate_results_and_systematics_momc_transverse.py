@@ -441,9 +441,9 @@ def compute_systematics(results,bin_migration_mat=None,bin_migration_order=1,sys
     if systematic_scales_mat is not None:
         systematics = np.sqrt(np.square(systematics) + np.square(np.multiply(results,systematic_scales_mat))) #NOTE: IMPORTANT!  ADD IN QUADRATURE.
 
-     # Apply additive scale systematics, note that these should already be summed over all sources of systematic error
+     # Apply additive systematics, note that these should already be summed over all sources of systematic error
     if systematics_additive_mat is not None:
-        systematics += systematics_additive_mat
+        systematics = np.sqrt(np.square(systematics) + np.square(systematics_additive_mat)) #NOTE: IMPORTANT!  ADD IN QUADRATURE.
 
     return systematics
 
@@ -458,7 +458,7 @@ def plot_systematics(
                 xvar    = 'Q2',
                 title   = 'Q2',
                 xtitle  = 'Q2',
-                ytitle  = '$\Delta D_{LL\'}^{\Lambda}$',
+                ytitle  = '$\Delta D_{LL\'}^{x\Lambda}$',
                 outpath = 'test__systematics.pdf',
                 # yaml_args = {},
                 **kwargs,
@@ -495,19 +495,28 @@ def plot_systematics(
     # # yerr_syst = None #[0.1  for x in range(len(xbins)-1)] #NOTE: ADD IF STATMENT HERE #TODO #DEBUGGING !!!!!!!!!!!!!!!!!
     # #yerr_syst = np.multiply(yerr_syst,y_mean)#NOTE: THIS DOES NOT GET THE DIMENSIONS CORRECTLY, THINK CAREFULLY BEFORE UNCOMMENTING
 
+    xbins = x_means
+    nbins = len(xbins)
+
+    # Reset x bins to bin numbers
+    xbins = np.array([i+1 for i in range(nbins)],dtype=float)
+    xlims_new = (0,nbins+1)
+
     # Plot 
     figsize = (16,10)
     f1, ax1 = plt.subplots(figsize=figsize)
-    plt.xlim(*xlims)
+    plt.xlim(*xlims_new)
+    # plt.xlim(*xlims)
     plt.ylim(*ylims)
     plt.title(title,usetex=True,pad=20)
-    plt.xlabel(xtitle,usetex=True)
+    plt.xlabel(f"{xtitle} Bin Index",usetex=True)
+    # plt.xlabel(xtitle,usetex=True)
     plt.ylabel(ytitle,usetex=True)
 
     #TODO: DEBUGGING MESSAGE FOR BINS SEE IF SOMETHING GETS MESSED UP THERE AND MAKE SURE YOU ARE SETTING CORRECTLY...
 
-    xbins = x_means
-    nbins = len(xbins)
+    # xbins = x_means
+    # nbins = len(xbins)
     xbins = np.moveaxis(np.array([xbins for el in range(np.shape(yerr_syst)[1])]),(0,1),(1,0))
     s1 = plt.hist(xbins, weights=yerr_syst, label=label, stacked=stacked, log=True) #NOTE: THAT HISTOGRAM X D #NOTE: DO NOT USE bins=... argument!!! Otherwise some bins might not show.
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
@@ -515,7 +524,17 @@ def plot_systematics(
     plt.text(0.5, 0.5, 'CLAS12 Preliminary',
             size=50, rotation=25., color='gray', alpha=0.25,
             horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
-    plt.legend(loc='best',frameon=False)
+    plt.legend(loc="upper left", bbox_to_anchor=(1.05, 1),frameon=False)
+
+    # Plot subplot labels for paper
+    colors = {
+        'costhetaT':'tab:orange',
+        'costhetaTy':'tab:green',
+    }
+    fitvars = {colors[fitvar]:fitvar for fitvar in colors}
+    ax1.text(0.95, 0.15, '(b)' if 'z_' in xtitle else '(a)', transform=ax1.transAxes,
+            fontsize=plt.rcParams['axes.titlesize'], fontweight='bold', va='top', ha='right')
+
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
 
@@ -534,7 +553,7 @@ def get_plots(
     title = 'Injection Results',
     xvar  = 'Q2',
     xtitle = '$Q^{2} (GeV^{2})$',
-    ytitle = '$D_{LL\'}^{\Lambda}$',
+    ytitle = '$D_{LL\'}^{x\Lambda}$',
     sgasym = 0.10,
     bgasym = 0.00,
     color  = 'blue', #NOTE: COLOR OF DATA POINTS
@@ -591,14 +610,14 @@ def get_plots(
     g1 = plt.errorbar(x_mean,y_mean,xerr=None,yerr=yerr_syst,
                 ecolor='gray', elinewidth=elinewidth*20, capsize=0,
                 color=color, marker='o', linestyle=linestyle, alpha=1.0,
-                linewidth=0, markersize=0,label='Systematic error of $D_{LL\'}^{\Lambda}$')
+                linewidth=0, markersize=0,label='Systematic error of $D_{LL\'}^{x\Lambda}$')
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='$D_{LL\'}^{\Lambda}$')
+                        linewidth=linewidth, markersize=markersize,label='$D_{LL\'}^{x\Lambda}$')
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
-    if xvar not in ('z_ppim','xF_ppim'):
+    if xvar not in ():
         plt.text(0.5, 0.5, 'CLAS12 Preliminary',
                 size=50, rotation=25., color='gray', alpha=0.25,
                 horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes)
@@ -610,7 +629,7 @@ def get_plots(
         'costhetaTy':'tab:green',
     }
     fitvars = {colors[fitvar]:fitvar for fitvar in colors}
-    ax1.text(0.95, 0.15, '(a)' if fitvars[color]=='costhetaT' else '(b)', transform=ax1.transAxes,
+    ax1.text(0.95, 0.15, '(b)' if 'z_' in xtitle else '(a)', transform=ax1.transAxes,
             fontsize=plt.rcParams['axes.titlesize'], fontweight='bold', va='top', ha='right')
 
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
@@ -731,7 +750,7 @@ if __name__=="__main__":
         'y':[0.0,1.0],
         'z_ppim':[0.0,1.1],
     }
-    ylimss = [-0.4,0.6]
+    ylimss = [-0.5,0.5]
     titles = {
         'costhetaT':'$\Lambda$ Polarization along $\hat{x}$',
         'costhetaTy':'$\Lambda$ Polarization along $\hat{y}$',
@@ -749,7 +768,7 @@ if __name__=="__main__":
         'y':'$y$',
         'z_ppim':'$z_{p\pi^{-}}$',
     }
-    ytitle = '$D_{LL\'}^{\Lambda}$'
+    ytitle = '$D_{LL\'}^{x\Lambda}$'
 
     def get_outpath(base_dir,aggregate_keys,**config):
 
@@ -789,9 +808,37 @@ if __name__=="__main__":
             mc_asym_injection_aggregate_keys = ['inject_seed']
             outpath_mc = get_outpath(base_dir,mc_asym_injection_aggregate_keys,bgasym=0.0,sgasym=0.1,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
             mc_asym_injection_outpath = outpath_mc+'_systematics.csv'
+            mc_asym_injection_aggregate_keys_syst = ['sgasym']
+            outpath_mc_syst = get_outpath(base_dir,mc_asym_injection_aggregate_keys_syst,bgasym=0.0,inject_seed=1,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
+            mc_asym_injection_outpath_syst = outpath_mc_syst+'_systematics.csv'
             print("DEBUGGING: Loading mc_asym_injection systematics from ",mc_asym_injection_outpath)
-            yerr_syst_mc_asym_injection = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics_transverse/mc_asym_injection/',outpath=mc_asym_injection_outpath)['yerr'].to_numpy()
+            # yerr_syst_mc_asym_injection = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics_transverse/mc_asym_injection/',outpath=mc_asym_injection_outpath)['yerr'].to_numpy()
             y_corrections_mc_asym_injection = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics_transverse/mc_asym_injection/',outpath=mc_asym_injection_outpath)['y'].to_numpy()
+            y_corrections_mc_asym_injection_syst = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics_transverse/mc_asym_injection/',outpath=mc_asym_injection_outpath_syst)['yerr'].to_numpy()
+
+            # # Loop all injected values to get MC injection systematic from max diff
+            # sgasyms = [0.00, 0.05, 0.1, 0.15, 0.2]
+            # yerr_syst_mc_asym_injection = []
+            # for sgasym in sgasyms:
+            #     outpath_mc = get_outpath(base_dir,mc_asym_injection_aggregate_keys,bgasym=0.0,sgasym=sgasym,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
+            #     mc_asym_injection_outpath = outpath_mc+'_systematics.csv'
+            #     print("DEBUGGING: Loading mc_asym_injection systematics from ",mc_asym_injection_outpath)
+            #     # yerr_syst_mc_asym_injection.append(load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics_transverse/mc_asym_injection/',outpath=mc_asym_injection_outpath)['yerr'].to_numpy().tolist())
+            #     y_corrections_mc_asym_injection_syst = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics_transverse/mc_asym_injection/',outpath=mc_asym_injection_outpath)['y'].to_numpy()
+            #     # yerr_syst_mc_asym_injection.append(np.abs(np.subtract(y_corrections_mc_asym_injection_syst,y_corrections_mc_asym_injection)))
+            #     yerr_syst_mc_asym_injection.append(y_corrections_mc_asym_injection_syst)
+            #     print("DEBUGGING: type(yerr_syst_mc_asym_injection[-1]) = ",type(yerr_syst_mc_asym_injection[-1]))
+            #     print("DEBUGGING: yerr_syst_mc_asym_injection[-1]       = ",yerr_syst_mc_asym_injection[-1])
+
+            # # Now get average and then diffs
+            # averages = np.average(yerr_syst_mc_asym_injection,axis=0)
+
+            # yerr_syst_mc_asym_injection = [
+            #     np.abs(np.subtract(el,y_corrections_mc_asym_injection)) for el in yerr_syst_mc_asym_injection
+            # ]
+
+            # # Now get max diff
+            # yerr_syst_mc_asym_injection = np.std(yerr_syst_mc_asym_injection,axis=0)
 
             #TODO: GET CB/GAUS DIFF SYSTEMATICS
             yerr_syst_cb_gauss_diff = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics_transverse/mass_fit/',outpath=outpath+'.csv')['y'].to_numpy()
@@ -812,14 +859,15 @@ if __name__=="__main__":
             if 'bgasym' in config_mass_ppim2: config_mass_ppim2.pop('bgasym')
             config_mass_ppim['binvar'] = 'mass_ppim'
             config_mass_ppim[config_mass_ppim['binvar']] = [1.08, 1.24]
+            mc_asym_injection_aggregate_keys = ["inject_seed"]
 
             # Get cos_phi_h_ppim min max MC injection systematics input file names 
-            outpath_mc_cos_phi_h_ppim = get_outpath(base_dir,mc_asym_injection_aggregate_keys,sgasym2=sgasym2,sgasym3=sgasym3,sgasym=sgasym,**config_mass_ppim) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
+            outpath_mc_cos_phi_h_ppim = get_outpath(base_dir,mc_asym_injection_aggregate_keys,sgasym2=sgasym2,sgasym=sgasym,sgasym3=sgasym3,**config_mass_ppim) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
             mc_asym_injection_cos_phi_h_ppim_minmax_outpath = outpath_mc_cos_phi_h_ppim+'.csv'
             print("DEBBUGGING: mc_asym_injection_cos_phi_h_ppim_minmax_outpath = ",mc_asym_injection_cos_phi_h_ppim_minmax_outpath)
 
             # Get cos_phi_h_ppim MC injection systematics input file names
-            outpath_mc_cos_phi_h_ppim = get_outpath(base_dir,mc_asym_injection_aggregate_keys,sgasym2=sgasym2,sgasym3=sgasym3,sgasym=sgasym,**config_mass_ppim2)
+            outpath_mc_cos_phi_h_ppim = get_outpath(base_dir,mc_asym_injection_aggregate_keys,sgasym2=sgasym2,sgasym=sgasym,sgasym3=sgasym3,**config_mass_ppim2)
             mc_asym_injection_cos_phi_h_ppim_outpath = outpath_mc_cos_phi_h_ppim+'_systematics.csv'
             print("DEBUGGING: mc_asym_injection_cos_phi_h_ppim_outpath = ",mc_asym_injection_cos_phi_h_ppim_outpath)
 
@@ -830,13 +878,18 @@ if __name__=="__main__":
             print("DEBUGGING: results_outpath_cos_phi_h_ppim = ",results_outpath_cos_phi_h_ppim)
             print("DEBUGGING: base_dir = ",base_dir)
 
+            # Get systematics cos phi input file name
+            mc_asym_injection_aggregate_keys_syst_cosphi = ['sgasym']
+            outpath_mc_syst_cosphi = get_outpath(base_dir,mc_asym_injection_aggregate_keys_syst_cosphi,sgasym2=sgasym2,sgasym3=sgasym3,inject_seed=1,**config) #NOTE: JUST LOOK AT THESE INJECTED ASYMMETRIES FOR NOW, COULD MAKE ANOTHER METHOD IN FUTURE...
+            mc_asym_injection_outpath_syst_cosphi = outpath_mc_syst_cosphi+'_systematics.csv'
+
             # Load MC cos_phi_h_ppim info and compute difference
             yerr_syst_mc_asym_injection__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics_transverse/mc_asym_injection_cos_phi_h_ppim__min/',outpath=mc_asym_injection_cos_phi_h_ppim_minmax_outpath)['yerr'].to_numpy()
             y_corrections_mc_asym_injection__cos_phi_h_ppim__min = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics_transverse/mc_asym_injection_cos_phi_h_ppim__min/',outpath=mc_asym_injection_cos_phi_h_ppim_minmax_outpath)['y'].to_numpy()
             yerr_syst_mc_asym_injection__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics_transverse/mc_asym_injection_cos_phi_h_ppim__max/',outpath=mc_asym_injection_cos_phi_h_ppim_minmax_outpath)['yerr'].to_numpy()
             y_corrections_mc_asym_injection__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics_transverse/mc_asym_injection_cos_phi_h_ppim__max/',outpath=mc_asym_injection_cos_phi_h_ppim_minmax_outpath)['y'].to_numpy()
             delta_y_corrections_mc_asym_injection__cos_phi_h_ppim = np.abs(y_corrections_mc_asym_injection__cos_phi_h_ppim__max-y_corrections_mc_asym_injection__cos_phi_h_ppim__min)
-            yerr_syst_mc_asym_injection__cos_phi_h_ppim = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics_transverse/mc_asym_injection_cos_phi_h_ppim/',outpath=mc_asym_injection_cos_phi_h_ppim_outpath)['yerr'].to_numpy()
+            yerr_syst_mc_asym_injection__cos_phi_h_ppim = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics_transverse/mc_asym_injection_cos_phi_h_ppim/',outpath=mc_asym_injection_outpath_syst_cosphi)['yerr'].to_numpy()
             y_corrections_mc_asym_injection__cos_phi_h_ppim = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='systematics_transverse/mc_asym_injection_cos_phi_h_ppim/',outpath=mc_asym_injection_cos_phi_h_ppim_outpath)['y'].to_numpy()
 
             # Load DATA cos_phi_h_ppim and compute difference
@@ -846,9 +899,9 @@ if __name__=="__main__":
             y_corrections_results__cos_phi_h_ppim__max = load_systematics_from_aggregate_csv(results_dir=base_dir,base_dir='results_transverse/results_phi_h_ppim_max/',outpath=results_outpath_cos_phi_h_ppim)['y'].to_numpy()
             delta_y_corrections_results__cos_phi_h_ppim = np.abs(y_corrections_results__cos_phi_h_ppim__max-y_corrections_results__cos_phi_h_ppim__min)
 
-            # Compute cos_phi_h_ppim systematic # D_LL_syst/D_LL = (Delta D_LL MC / Injected D_LL MC) * (Delta D_LL Data / Delta D_LL MC)
+            # Compute cos_phi_h_ppim systematic # D_LL_syst/D_LL = (Delta D_LL MC / XXX 2/2/26 -> Injected D_LL MC) * (Delta D_LL Data / Delta D_LL MC)
             r_conversion_mc_to_dt = delta_y_corrections_results__cos_phi_h_ppim / delta_y_corrections_mc_asym_injection__cos_phi_h_ppim
-            cos_phi_h_ppim_systematic = yerr_syst_mc_asym_injection__cos_phi_h_ppim / sgasym * r_conversion_mc_to_dt
+            cos_phi_h_ppim_systematic = yerr_syst_mc_asym_injection__cos_phi_h_ppim * r_conversion_mc_to_dt
             print("\n\nDEBUGGINIG: yerr_syst_mc_asym_injection__cos_phi_h_ppim     = ",yerr_syst_mc_asym_injection__cos_phi_h_ppim,"\n\n")
             print("\n\nDEBUGGING: y_corrections_mc_asym_injection__cos_phi_h_ppim  = ",y_corrections_mc_asym_injection__cos_phi_h_ppim,"\n\n")
             print("\n\nDEBUGGING: r_conversion_mc_to_dt     = ",r_conversion_mc_to_dt,"\n\n")
@@ -863,8 +916,9 @@ if __name__=="__main__":
             alpha_lambda_systematic = 0.0120
             beam_polarization_systematic = 0.0360
             sgasym = 0.1
-            systematic_scales_mat = yerr_syst_mc_asym_injection / sgasym
-            systematic_scales_mat = np.sqrt(np.square(systematic_scales_mat) + np.square(alpha_lambda_systematic) + np.square(beam_polarization_systematic) + np.square(yerr_syst_cb_gauss_diff) + np.square(cos_phi_h_ppim_systematic))
+            # systematic_scales_mat = yerr_syst_mc_asym_injection / sgasym
+            systematics_additive_mat = np.sqrt(np.square(y_corrections_mc_asym_injection_syst) + np.square(cos_phi_h_ppim_systematic))
+            systematic_scales_mat = np.sqrt(np.square(alpha_lambda_systematic) + np.square(beam_polarization_systematic) + np.square(yerr_syst_cb_gauss_diff))
             print("DEBUGGING: BEFORE: systematic_scales_mat = ",systematic_scales_mat)
 
             # APPLY BIN MIGRATION CORRECTION
@@ -876,7 +930,7 @@ if __name__=="__main__":
                 bin_migration_mat=None,#bin_migration_mat,
                 bin_migration_order=1,
                 systematic_scales_mat=systematic_scales_mat,
-                systematics_additive_mat=None,
+                systematics_additive_mat=systematics_additive_mat,
             )
             print("DEBUGGING: AFTER: systematic_scales_mat = ",systematic_scales_mat)
 
@@ -887,16 +941,16 @@ if __name__=="__main__":
                 arrs['y_mean'],
                 bin_migration_mat=None,
                 bin_migration_order=1,
-                systematic_scales_mat=yerr_syst_mc_asym_injection / sgasym,
-                # systematics_additive_mat=yerr_syst_cb_gauss_diff,
+                # systematic_scales_mat=yerr_syst_mc_asym_injection / sgasym,
+                systematics_additive_mat=y_corrections_mc_asym_injection_syst,
             )
-            bin_migration_systematics = compute_systematics(
-                arrs['y_mean'],
-                bin_migration_mat=None,#bin_migration_mat,
-                bin_migration_order=1,
-                systematic_scales_mat=None,
-                # systematics_additive_mat=yerr_syst_cb_gauss_diff,
-            )
+            # bin_migration_systematics = compute_systematics(
+            #     arrs['y_mean'],
+            #     bin_migration_mat=None,#bin_migration_mat,
+            #     bin_migration_order=1,
+            #     systematic_scales_mat=None,
+            #     # systematics_additive_mat=yerr_syst_cb_gauss_diff,
+            # )
             mass_fit_systematics = compute_systematics(
                 arrs['y_mean'],
                 bin_migration_mat=None,
@@ -908,8 +962,8 @@ if __name__=="__main__":
                 arrs['y_mean'],
                 bin_migration_mat=None,
                 bin_migration_order=1,
-                systematic_scales_mat=cos_phi_h_ppim_systematic,
-                systematics_additive_mat=None,
+                systematic_scales_mat=None,
+                systematics_additive_mat=cos_phi_h_ppim_systematic,
             )
             all_systematics = np.moveaxis(
                 np.array(
@@ -919,7 +973,7 @@ if __name__=="__main__":
                 (1,0)
             )
             print("DEBUGGING: all_systematics.shape = ",all_systematics.shape)
-            labels = ['$\\alpha_{\Lambda}$','$P_{B}$','MC', 'Mass Fit','$\cos{\phi_{\Lambda}}$']
+            labels = ['$\\alpha_{\Lambda}$','Pol','MC', 'Mass Fit','$\cos{\phi_{\Lambda}}$']
 
             # Get systematics all plotted stacked without results...
             plot_systematics(
@@ -929,7 +983,7 @@ if __name__=="__main__":
                 stacked = False,
                 label   = labels,
                 xlims   = xlimss[binvar],
-                ylims   = (1e-7,0.07),
+                ylims   = (1e-5,0.07),
                 xvar    = binvar,
                 title   = titles[fitvar],
                 xtitle  = xtitles[binvar],

@@ -254,7 +254,7 @@ def get_arrs(out_file_list,sgasym):
     y_min      = np.min(glist[1],axis=0)
     y_max      = np.max(glist[1],axis=0)
     ydiff_mean = np.mean(glist[1]-sgasym,axis=0)
-    ydiff_std  = np.std(glist[3]-sgasym,axis=0)
+    ydiff_std  = np.std(glist[1]-sgasym,axis=0)
     ydiff_mins = np.min(glist[1]-sgasym,axis=0)
     ydiff_maxs = np.max(glist[1]-sgasym,axis=0)
 
@@ -288,7 +288,7 @@ def get_plots(
     ylims = [0.0,1.0],
     title = 'Injection Results',
     xtitle = '$Q^{2} (GeV^{2})$',
-    ytitle = '$D_{LL\'}^{\Lambda}$',
+    ytitle = '$D_{LL\'}^{x\Lambda}$',
     sgasym = 0.10,
     bgasym = 0.00,
     color  = 'blue', #NOTE: COLOR OF DATA POINTS
@@ -339,16 +339,27 @@ def get_plots(
     #         label="$\\pm1\\sigma$ Band",
     #         color=bcolor,
     #     )
-    fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
+    # fb = plt.fill_between(x_mean, y_min, y_max, alpha=0.2, label='Min-Max Band', color=bcolor)
+    fb = plt.fill_between(x_mean, y_mean-yerr_mean, y_mean+yerr_mean, alpha=0.2, label='$\pm1\sigma$ Band', color=bcolor)
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,
-                        linewidth=linewidth, markersize=markersize,label='Mean $D_{LL\'}^{\Lambda}$')
+                        linewidth=linewidth, markersize=markersize,label='Mean $D_{LL\'}^{x\Lambda}$')
     plt.tick_params(direction='out',bottom=True,top=True,left=True,right=True,length=10,width=1)
     if sgasym!=0: ax1.axhline(0, color='black',linestyle='-',linewidth=axlinewidth)
     ax1.axhline(sgasym, color='red',linestyle='--',linewidth=axlinewidth, label='Injected Signal Asymmetry')
     if bgasym!=0: ax1.axhline(bgasym, color='blue',linestyle='--',linewidth=axlinewidth, label='Injected Background Asymmetry')
     plt.legend(loc='best',frameon=False)
+
+    # Plot subplot labels for paper
+    colors = {
+        'costhetaT':'tab:orange',
+        'costhetaTy':'tab:green',
+    }
+    fitvars = {colors[fitvar]:fitvar for fitvar in colors}
+    ax1.text(0.95, 0.15, '(b)' if 'z_' in xtitle else '(a)', transform=ax1.transAxes,
+            fontsize=plt.rcParams['axes.titlesize'], fontweight='bold', va='top', ha='right')
+
     print("DEBUGGING: plt.savefig(outpath) -> ",outpath)
     f1.savefig(outpath)
 
@@ -507,7 +518,7 @@ if __name__=="__main__":
         'y':'$y$',
         'z_ppim':'$z_{p\pi^{-}}$',
     }
-    ytitle = '$D_{LL\'}^{\Lambda}$'
+    ytitle = '$D_{LL\'}^{x\Lambda}$'
 
     def get_outpath(base_dir,aggregate_keys,**config):
 
