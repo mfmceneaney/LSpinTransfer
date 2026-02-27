@@ -107,7 +107,7 @@ def format_value(x, precision, verbose, lower_bound, upper_bound):
     precision = Decimal(str(precision))
     p = precision_exponent(precision)  # precision = 10^p
 
-    if x<precision and x!=0.0:
+    if np.abs(x)<precision and x!=0.0:
         return format_value(0.0, precision, verbose, lower_bound, upper_bound)
 
     if x == 0:
