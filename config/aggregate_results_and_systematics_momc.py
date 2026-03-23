@@ -610,7 +610,7 @@ def get_plots(
     g1 = plt.errorbar(x_mean,y_mean,xerr=None,yerr=yerr_syst,
                 ecolor='gray', elinewidth=elinewidth*20, capsize=0,
                 color=color, marker='o', linestyle=linestyle, alpha=1.0,
-                linewidth=0, markersize=0,label='Systematic error of $D_{LL\'}^{\Lambda}$')
+                linewidth=0, markersize=0)
     g2 = plt.errorbar(x_mean,y_mean,xerr=xerr_mean,yerr=yerr_mean,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=color, marker='o', linestyle=linestyle,

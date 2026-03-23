@@ -120,7 +120,7 @@ def get_plots(
     g1 = plt.errorbar(x_mean['clas12'],y_mean['clas12'],xerr=None,yerr=yerr_syst,
                 ecolor='gray', elinewidth=elinewidth*20, capsize=0,
                 color='gray', marker='o', linestyle=linestyle, alpha=1.0,
-                linewidth=0, markersize=0,label='CLAS12 Systematics')
+                linewidth=0, markersize=0)
     g_clas12 = plt.errorbar(x_mean['clas12'],y_mean['clas12'],xerr=xerr_mean['clas12'],yerr=yerr_mean['clas12'], alpha=0.5,
                         ecolor=ecolor, elinewidth=elinewidth, capsize=capsize,
                         color=colors['clas12'], marker='o', linestyle=linestyle,
